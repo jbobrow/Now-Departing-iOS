@@ -12,6 +12,7 @@ struct Now_Departing_Watch_AppApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-        }
+        } 
+        .windowToolbarLabelStyle(fixed: .automatic)
     }
 }
