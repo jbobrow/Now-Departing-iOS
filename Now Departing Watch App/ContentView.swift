@@ -15,9 +15,15 @@ struct SubwayLine: Identifiable, Equatable {
     let fg_color: Color
 }
 
-struct Station: Identifiable, Equatable {
-    let id: String
+struct Station: Identifiable, Decodable, Equatable {
+    let id: String = UUID().uuidString // Automatically generated unique ID
+    let display: String
     let name: String
+
+    private enum CodingKeys: String, CodingKey {
+        case display
+        case name
+    }
 }
 
 struct ArrivalTime {
@@ -137,40 +143,45 @@ struct LineSelectionView: View {
     }
 }
 
-// Station Selection View
 struct StationSelectionView: View {
     let line: SubwayLine
     let onSelect: (Station) -> Void
-    
-    // Sample stations for G line
-    let stations = [
-        Station(id: "classon", name: "Classon Av."),
-        Station(id: "21st", name: "21 St"),
-        Station(id: "greenpoint", name: "Greenpoint Av"),
-        Station(id: "nassau", name: "Nassau Av"),
-        Station(id: "metropolitan", name: "Metropolitan Av")
-    ]
-    
+
+    @EnvironmentObject var dataManager: StationDataManager
+
     var body: some View {
-        List(stations) { station in
-            Button(action: { onSelect(station) }) {
-                Text(station.name)
-                    .foregroundColor(.white)
-            }
-        }
-        .listStyle(.plain)
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .automatic) {
-                HStack {
-                    Text(line.label)
-                        .font(.custom("HelveticaNeue-Bold", size: 26))
-                        .foregroundColor(line.fg_color)
-                        .frame(width: 40, height: 40)
-                        .background(Circle().fill(line.bg_color))
-                    Text("Select a station")
-                        .font(.custom("HelveticaNeue-Bold", size: 18))
+        if let stations = dataManager.stationsByLine[line.id] {
+            List(stations) { station in
+                Button(action: { onSelect(station) }) {
+                    Text(station.display)
+                        .foregroundColor(.white)
                 }
+            }
+            .listStyle(.plain)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .automatic) {
+                    HStack {
+                        Text(line.label)
+                            .font(.custom("HelveticaNeue-Bold", size: 26))
+                            .foregroundColor(line.fg_color)
+                            .frame(width: 40, height: 40)
+                            .background(Circle().fill(line.bg_color))
+                        Text("Select a station")
+                            .font(.custom("HelveticaNeue-Bold", size: 18))
+                    }
+                }
+            }
+        } else {
+            VStack {
+                Text("No stations available")
+                    .font(.custom("HelveticaNeue-Bold", size: 14))
+                    .foregroundColor(.gray)
+                Text(line.label)
+                    .font(.custom("HelveticaNeue-Bold", size: 26))
+                    .foregroundColor(line.fg_color)
+                    .frame(width: 40, height: 40)
+                    .background(Circle().fill(line.bg_color))
             }
         }
     }
@@ -183,8 +194,8 @@ struct TerminalSelectionView: View {
     
     // Sample terminals for G line
     let terminals = [
-        Station(id: "court-sq", name: "Court Sq."),
-        Station(id: "church", name: "Church Av")
+        Station(display:"Court Square", name: "Court Sq."),
+        Station(display:"Church Ave", name: "Church Av")
     ]
     
     var body: some View {

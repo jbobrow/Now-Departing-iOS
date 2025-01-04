@@ -9,10 +9,13 @@ import SwiftUI
 
 @main
 struct Now_Departing_Watch_AppApp: App {
+    @StateObject private var dataManager = StationDataManager()
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
-        } 
+                .environmentObject(dataManager) // Pass the data manager to the view hierarchy
+        }
         .windowToolbarLabelStyle(fixed: .automatic)
     }
 }
