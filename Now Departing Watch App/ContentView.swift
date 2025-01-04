@@ -32,6 +32,7 @@ struct ArrivalTime {
 
 // Main App Views
 struct ContentView: View {
+    @EnvironmentObject var stationDataManager: StationDataManager
     @State private var selectedLine: SubwayLine?
     @State private var selectedStation: Station?
     @State private var selectedTerminal: Station?
@@ -74,26 +75,34 @@ struct ContentView: View {
             .navigationDestination(for: String.self) { route in
                 switch route {
                 case "stations":
-                    if let line = selectedLine {
-                        StationSelectionView(line: line) { station in
+                    if let line = selectedLine,
+                       let stations = stationDataManager.stationsByLine[line.id] {
+                        StationSelectionView(line: line, onSelect: { station in
                             selectedStation = station
                             DispatchQueue.main.async {
                                 navigationPath.append("terminals")
                             }
-                        }
+                        })
+                    } else {
+                        Text("No stations available for this line.")
                     }
                 case "terminals":
-                    if let line = selectedLine {
-                        TerminalSelectionView(line: line) { terminal in
+                    if let line = selectedLine,
+                       let stations = stationDataManager.stationsByLine[line.id] {
+                        TerminalSelectionView(line: line, stations: stations, onSelect: { terminal in
                             selectedTerminal = terminal
                             DispatchQueue.main.async {
                                 navigationPath.append("times")
                             }
-                        }
+                        })
+                    } else {
+                        Text("No terminals available for this line.")
                     }
                 case "times":
                     if let line = selectedLine, let station = selectedStation {
                         TimesView(line: line, station: station)
+                    } else {
+                        Text("No data available.")
                     }
                 default:
                     EmptyView()
@@ -103,10 +112,10 @@ struct ContentView: View {
                 print("Selected Line changed to: \(newValue?.id ?? "nil")")
             }
             .onChange(of: selectedStation) { newValue in
-                print("Selected Station changed to: \(newValue?.id ?? "nil")")
+                print("Selected Station changed to: \(newValue?.display ?? "nil")")
             }
             .onChange(of: selectedTerminal) { newValue in
-                print("Selected Terminal changed to: \(newValue?.id ?? "nil")")
+                print("Selected Terminal changed to: \(newValue?.display ?? "nil")")
             }
         }
     }
@@ -190,18 +199,18 @@ struct StationSelectionView: View {
 // Terminal Selection View
 struct TerminalSelectionView: View {
     let line: SubwayLine
+    let stations: [Station]
     let onSelect: (Station) -> Void
     
-    // Sample terminals for G line
-    let terminals = [
-        Station(display:"Court Square", name: "Court Sq."),
-        Station(display:"Church Ave", name: "Church Av")
-    ]
+    var terminals: [Station] {
+        guard stations.count > 1 else { return stations }
+        return [stations.first!, stations.last!]
+    }
     
     var body: some View {
         List(terminals) { terminal in
             Button(action: { onSelect(terminal) }) {
-                Text(terminal.name)
+                Text(terminal.display)
                     .foregroundColor(.white)
             }
         }

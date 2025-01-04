@@ -32,4 +32,8 @@ class StationDataManager: ObservableObject {
             print("Error decoding stations JSON: \(error)")
         }
     }
+    
+    func stations(for lineID: String) -> [Station]? {
+            return stationsByLine[lineID]
+        }
 }
