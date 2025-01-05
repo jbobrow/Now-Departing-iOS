@@ -1,362 +1,3102 @@
 {
   "1": [
-  {
-    "display": "Van Cortlandt Park-242nd Street", 
-    "name": "Van Cortlandt Park-242 St"
-  }, 
-  {
-    "display": "238th Street", 
-    "name": "238 St"
-  }, 
-  {
-    "display": "231st Street", 
-    "name": "231 St"
-  }, 
-  {
-    "display": "Marble Hill-225th Street", 
-    "name": "Marble Hill-225 St"
-  }, 
-  {
-    "display": "215th Street", 
-    "name": "215 St"
-  }, 
-  {
-    "display": "207th Street", 
-    "name": "207 St"
-  }, 
-  {
-    "display": "Dyckman Street", 
-    "name": "Dyckman St"
-  }, 
-  {
-    "display": "191st Street", 
-    "name": "191 St"
-  }, 
-  {
-    "display": "181st Street", 
-    "name": "181 St"
-  }, 
-  {
-    "display": "168th Street", 
-    "name": "168 St"
-  }, 
-  {
-    "display": "157th Street", 
-    "name": "157 St"
-  }, 
-  {
-    "display": "145th Street", 
-    "name": "145 St"
-  }, 
-  {
-    "display": "137th Street-City College", 
-    "name": "137 St-City College"
-  }, 
-  {
-    "display": "125th Street", 
-    "name": "125 St"
-  }, 
-  {
-    "display": "116th Street-Columbia University", 
-    "name": "116 St-Columbia University"
-  }, 
-  {
-    "display": "Cathedral Parkway-110th Street", 
-    "name": "Cathedral Pkwy (110 St)"
-  }, 
-  {
-    "display": "103rd Street", 
-    "name": "103 St"
-  }, 
-  {
-    "display": "96th Street", 
-    "name": "96 St"
-  }, 
-  {
-    "display": "86th Street", 
-    "name": "86 St"
-  }, 
-  {
-    "display": "79th Street", 
-    "name": "79 St"
-  }, 
-  {
-    "display": "72nd Street", 
-    "name": "72 St"
-  }, 
-  {
-    "display": "66th Street-Lincoln Center", 
-    "name": "66 St-Lincoln Center"
-  }, 
-  {
-    "display": "59th Street-Columbus Circle", 
-    "name": "59 St-Columbus Circle"
-  }, 
-  {
-    "display": "50th Street", 
-    "name": "50 St"
-  }, 
-  {
-    "display": "Times Square-42nd Street", 
-    "name": "Times Sq-42 St"
-  }, 
-  {
-    "display": "34th Street-Penn Station", 
-    "name": "34 St-Penn Station"
-  }, 
-  {
-    "display": "28th Street", 
-    "name": "28 St"
-  }, 
-  {
-    "display": "23rd Street", 
-    "name": "23 St"
-  }, 
-  {
-    "display": "18th Street", 
-    "name": "18 St"
-  }, 
-  {
-    "display": "14th Street", 
-    "name": "14 St"
-  }, 
-  {
-    "display": "Christopher Street-Sheridan Square", 
-    "name": "Christopher St-Sheridan Sq"
-  }, 
-  {
-    "display": "Houston Street", 
-    "name": "Houston St"
-  }, 
-  {
-    "display": "Canal Street", 
-    "name": "Canal St"
-  }, 
-  {
-    "display": "Franklin Street", 
-    "name": "Franklin St"
-  }, 
-  {
-    "display": "Chambers Street", 
-    "name": "Chambers St"
-  }, 
-  {
-    "display": "Cortlandt Street", 
-    "name": "WTC Cortlandt"
-  }, 
-  {
-    "display": "Rector Street", 
-    "name": "Rector St"
-  }, 
-  {
-    "display": "South Ferry", 
-    "name": "South Ferry"
-  }
-],
+    {
+      "display": "Van Cortlandt Park-242nd Street",
+      "name": "Van Cortlandt Park-242 St"
+    },
+    {
+      "display": "238th Street",
+      "name": "238 St"
+    },
+    {
+      "display": "231st Street",
+      "name": "231 St"
+    },
+    {
+      "display": "Marble Hill-225th Street",
+      "name": "Marble Hill-225 St"
+    },
+    {
+      "display": "215th Street",
+      "name": "215 St"
+    },
+    {
+      "display": "207th Street",
+      "name": "207 St"
+    },
+    {
+      "display": "Dyckman Street",
+      "name": "Dyckman St"
+    },
+    {
+      "display": "191st Street",
+      "name": "191 St"
+    },
+    {
+      "display": "181st Street",
+      "name": "181 St"
+    },
+    {
+      "display": "168th Street",
+      "name": "168 St"
+    },
+    {
+      "display": "157th Street",
+      "name": "157 St"
+    },
+    {
+      "display": "145th Street",
+      "name": "145 St"
+    },
+    {
+      "display": "137th Street-City College",
+      "name": "137 St-City College"
+    },
+    {
+      "display": "125th Street",
+      "name": "125 St"
+    },
+    {
+      "display": "116th Street-Columbia University",
+      "name": "116 St-Columbia University"
+    },
+    {
+      "display": "Cathedral Parkway-110th Street",
+      "name": "Cathedral Pkwy (110 St)"
+    },
+    {
+      "display": "103rd Street",
+      "name": "103 St"
+    },
+    {
+      "display": "96th Street",
+      "name": "96 St"
+    },
+    {
+      "display": "86th Street",
+      "name": "86 St"
+    },
+    {
+      "display": "79th Street",
+      "name": "79 St"
+    },
+    {
+      "display": "72nd Street",
+      "name": "72 St"
+    },
+    {
+      "display": "66th Street-Lincoln Center",
+      "name": "66 St-Lincoln Center"
+    },
+    {
+      "display": "59th Street-Columbus Circle",
+      "name": "59 St-Columbus Circle"
+    },
+    {
+      "display": "50th Street",
+      "name": "50 St"
+    },
+    {
+      "display": "Times Square-42nd Street",
+      "name": "Times Sq-42 St"
+    },
+    {
+      "display": "34th Street-Penn Station",
+      "name": "34 St-Penn Station"
+    },
+    {
+      "display": "28th Street",
+      "name": "28 St"
+    },
+    {
+      "display": "23rd Street",
+      "name": "23 St"
+    },
+    {
+      "display": "18th Street",
+      "name": "18 St"
+    },
+    {
+      "display": "14th Street",
+      "name": "14 St"
+    },
+    {
+      "display": "Christopher Street-Sheridan Square",
+      "name": "Christopher St-Sheridan Sq"
+    },
+    {
+      "display": "Houston Street",
+      "name": "Houston St"
+    },
+    {
+      "display": "Canal Street",
+      "name": "Canal St"
+    },
+    {
+      "display": "Franklin Street",
+      "name": "Franklin St"
+    },
+    {
+      "display": "Chambers Street",
+      "name": "Chambers St"
+    },
+    {
+      "display": "Cortlandt Street",
+      "name": "WTC Cortlandt"
+    },
+    {
+      "display": "Rector Street",
+      "name": "Rector St"
+    },
+    {
+      "display": "South Ferry",
+      "name": "South Ferry"
+    }
+  ],
   "2": [
-    { 
-      "display":"Placeholder Display",
-      "name":"Placeholder Name"
+    {
+      "display": "Wakefield-241st Street",
+      "name": "Wakefield-241 St"
+    },
+    {
+      "display": "Nereid Avenue",
+      "name": "Nereid Av"
+    },
+    {
+      "display": "233rd Street",
+      "name": "233 St"
+    },
+    {
+      "display": "225th Street",
+      "name": "225 St"
+    },
+    {
+      "display": "219th Street",
+      "name": "219 St"
+    },
+    {
+      "display": "Gun Hill Road",
+      "name": "Gun Hill Rd"
+    },
+    {
+      "display": "Burke Avenue",
+      "name": "Burke Av"
+    },
+    {
+      "display": "Allerton Avenue",
+      "name": "Allerton Av"
+    },
+    {
+      "display": "Pelham Parkway",
+      "name": "Pelham Pkwy"
+    },
+    {
+      "display": "Bronx Park East",
+      "name": "Bronx Park E"
+    },
+    {
+      "display": "East 180th Street",
+      "name": "E 180 St"
+    },
+    {
+      "display": "West Farms Square-East Tremont Avenue",
+      "name": "West Farms Sq-E Tremont Av"
+    },
+    {
+      "display": "174th Street",
+      "name": "174 St"
+    },
+    {
+      "display": "Freeman Street",
+      "name": "Freeman St"
+    },
+    {
+      "display": "Simpson Street",
+      "name": "Simpson St"
+    },
+    {
+      "display": "Intervale Avenue",
+      "name": "Intervale Av"
+    },
+    {
+      "display": "Prospect Avenue",
+      "name": "Prospect Av"
+    },
+    {
+      "display": "Jackson Avenue",
+      "name": "Jackson Av"
+    },
+    {
+      "display": "3rd Avenue-149th Street",
+      "name": "3 Av-149 St"
+    },
+    {
+      "display": "149th Street-Grand Concourse",
+      "name": "149 St-Grand Concourse"
+    },
+    {
+      "display": "135th Street",
+      "name": "135 St"
+    },
+    {
+      "display": "125th Street",
+      "name": "125 St"
+    },
+    {
+      "display": "116th Street",
+      "name": "116 St"
+    },
+    {
+      "display": "Central Park North-110th Street",
+      "name": "Central Park North-110 St"
+    },
+    {
+      "display": "96th Street",
+      "name": "96 St"
+    },
+    {
+      "display": "72nd Street",
+      "name": "72 St"
+    },
+    {
+      "display": "Times Square-42nd Street",
+      "name": "Times Sq-42 St"
+    },
+    {
+      "display": "34th Street-Penn Station",
+      "name": "34 St-Penn Station"
+    },
+    {
+      "display": "14th Street",
+      "name": "14 St"
+    },
+    {
+      "display": "Chambers Street",
+      "name": "Chambers St"
+    },
+    {
+      "display": "Park Place",
+      "name": "Park Pl"
+    },
+    {
+      "display": "Fulton Street",
+      "name": "Fulton St"
+    },
+    {
+      "display": "Wall Street",
+      "name": "Wall St"
+    },
+    {
+      "display": "Clark Street",
+      "name": "Clark St"
+    },
+    {
+      "display": "Borough Hall",
+      "name": "Borough Hall"
+    },
+    {
+      "display": "Hoyt Street",
+      "name": "Hoyt St"
+    },
+    {
+      "display": "Nevins Street",
+      "name": "Nevins St"
+    },
+    {
+      "display": "Atlantic Avenue-Barclays Center",
+      "name": "Atlantic Av-Barclays Ctr"
+    },
+    {
+      "display": "Bergen Street",
+      "name": "Bergen St"
+    },
+    {
+      "display": "Grand Army Plaza",
+      "name": "Grand Army Plaza"
+    },
+    {
+      "display": "Eastern Parkway-Brooklyn Museum",
+      "name": "Eastern Pkwy-Brooklyn Museum"
+    },
+    {
+      "display": "Franklin Avenue-Medgar Evers College",
+      "name": "Franklin Av-Medgar Evers College"
+    },
+    {
+      "display": "President Street-Medgar Evers College",
+      "name": "President St-Medgar Evers College"
+    },
+    {
+      "display": "Sterling Street",
+      "name": "Sterling St"
+    },
+    {
+      "display": "Winthrop Street",
+      "name": "Winthrop St"
+    },
+    {
+      "display": "Church Avenue",
+      "name": "Church Av"
+    },
+    {
+      "display": "Beverly Road",
+      "name": "Beverly Rd"
+    },
+    {
+      "display": "Newkirk Avenue-Little Haiti",
+      "name": "Newkirk Av-Little Haiti"
+    },
+    {
+      "display": "Flatbush Avenue-Brooklyn College",
+      "name": "Flatbush Av-Brooklyn College"
     }
   ],
   "3": [
-    { 
-      "display":"Placeholder Display",
-      "name":"Placeholder Name"
+    {
+      "display": "Harlem-148th Street",
+      "name": "Harlem-148 St"
+    },
+    {
+      "display": "145th Street",
+      "name": "145 St"
+    },
+    {
+      "display": "135th Street",
+      "name": "135 St"
+    },
+    {
+      "display": "125th Street",
+      "name": "125 St"
+    },
+    {
+      "display": "116th Street",
+      "name": "116 St"
+    },
+    {
+      "display": "Central Park North-110th Street",
+      "name": "Central Park North-110 St"
+    },
+    {
+      "display": "96th Street",
+      "name": "96 St"
+    },
+    {
+      "display": "72nd Street",
+      "name": "72 St"
+    },
+    {
+      "display": "Times Square-42nd Street",
+      "name": "Times Sq-42 St"
+    },
+    {
+      "display": "34th Street-Penn Station",
+      "name": "34 St-Penn Station"
+    },
+    {
+      "display": "14th Street",
+      "name": "14 St"
+    },
+    {
+      "display": "Chambers Street",
+      "name": "Chambers St"
+    },
+    {
+      "display": "Park Place",
+      "name": "Park Pl"
+    },
+    {
+      "display": "Fulton Street",
+      "name": "Fulton St"
+    },
+    {
+      "display": "Wall Street",
+      "name": "Wall St"
+    },
+    {
+      "display": "Clark Street",
+      "name": "Clark St"
+    },
+    {
+      "display": "Borough Hall",
+      "name": "Borough Hall"
+    },
+    {
+      "display": "Hoyt Street",
+      "name": "Hoyt St"
+    },
+    {
+      "display": "Nevins Street",
+      "name": "Nevins St"
+    },
+    {
+      "display": "Atlantic Avenue-Barclays Center",
+      "name": "Atlantic Av-Barclays Ctr"
+    },
+    {
+      "display": "Bergen Street",
+      "name": "Bergen St"
+    },
+    {
+      "display": "Grand Army Plaza",
+      "name": "Grand Army Plaza"
+    },
+    {
+      "display": "Eastern Parkway-Brooklyn Museum",
+      "name": "Eastern Pkwy-Brooklyn Museum"
+    },
+    {
+      "display": "Franklin Avenue-Medgar Evers College",
+      "name": "Franklin Av-Medgar Evers College"
+    },
+    {
+      "display": "Nostrand Avenue",
+      "name": "Nostrand Av"
+    },
+    {
+      "display": "Kingston Avenue",
+      "name": "Kingston Av"
+    },
+    {
+      "display": "Crown Heights-Utica Avenue",
+      "name": "Crown Heights-Utica Av"
+    },
+    {
+      "display": "Sutter Avenue-Rutland Road",
+      "name": "Sutter Av-Rutland Rd"
+    },
+    {
+      "display": "Saratoga Avenue",
+      "name": "Saratoga Av"
+    },
+    {
+      "display": "Rockaway Avenue",
+      "name": "Rockaway Av"
+    },
+    {
+      "display": "Junius Street",
+      "name": "Junius St"
+    },
+    {
+      "display": "Pennsylvania Avenue",
+      "name": "Pennsylvania Av"
+    },
+    {
+      "display": "Van Siclen Avenue",
+      "name": "Van Siclen Av"
+    },
+    {
+      "display": "New Lots Avenue",
+      "name": "New Lots Av"
     }
   ],
   "4": [
-    { 
-      "display":"Placeholder Display",
-      "name":"Placeholder Name"
+    {
+      "display": "Woodlawn",
+      "name": "Woodlawn"
+    },
+    {
+      "display": "Mosholu Parkway",
+      "name": "Mosholu Pkwy"
+    },
+    {
+      "display": "Bedford Park Boulevard-Lehman College",
+      "name": "Bedford Park Blvd-Lehman College"
+    },
+    {
+      "display": "Kingsbridge Road",
+      "name": "Kingsbridge Rd"
+    },
+    {
+      "display": "Fordham Road",
+      "name": "Fordham Rd"
+    },
+    {
+      "display": "183rd Street",
+      "name": "183 St"
+    },
+    {
+      "display": "Burnside Avenue",
+      "name": "Burnside Av"
+    },
+    {
+      "display": "176th Street",
+      "name": "176 St"
+    },
+    {
+      "display": "Mt. Eden Avenue",
+      "name": "Mt. Eden Av"
+    },
+    {
+      "display": "170th Street",
+      "name": "170 St"
+    },
+    {
+      "display": "167th Street",
+      "name": "167 St"
+    },
+    {
+      "display": "161st Street-Yankee Stadium",
+      "name": "161 St-Yankee Stadium"
+    },
+    {
+      "display": "149th Street-Grand Concourse",
+      "name": "149 St-Grand Concourse"
+    },
+    {
+      "display": "138th Street-Grand Concourse",
+      "name": "138 St-Grand Concourse"
+    },
+    {
+      "display": "125th Street",
+      "name": "125 St"
+    },
+    {
+      "display": "86th Street",
+      "name": "86 St"
+    },
+    {
+      "display": "59th Street",
+      "name": "59 St"
+    },
+    {
+      "display": "42nd Street-Grand Central",
+      "name": "42 St-Grand Central"
+    },
+    {
+      "display": "14th Street-Union Square",
+      "name": "14 St-Union Sq"
+    },
+    {
+      "display": "Brooklyn Bridge-City Hall",
+      "name": "Brooklyn Bridge-City Hall"
+    },
+    {
+      "display": "Fulton Street",
+      "name": "Fulton St"
+    },
+    {
+      "display": "Wall Street",
+      "name": "Wall St"
+    },
+    {
+      "display": "Bowling Green",
+      "name": "Bowling Green"
+    },
+    {
+      "display": "Borough Hall",
+      "name": "Borough Hall"
+    },
+    {
+      "display": "Nevins Street",
+      "name": "Nevins St"
+    },
+    {
+      "display": "Atlantic Avenue-Barclays Center",
+      "name": "Atlantic Av-Barclays Ctr"
+    },
+    {
+      "display": "Franklin Avenue-Medgar Evers College",
+      "name": "Franklin Av-Medgar Evers College"
+    },
+    {
+      "display": "Crown Heights-Utica Avenue",
+      "name": "Crown Heights-Utica Av"
+    },
+    {
+      "display": "Sutter Avenue-Rutland Road",
+      "name": "Sutter Av-Rutland Rd"
+    },
+    {
+      "display": "Saratoga Avenue",
+      "name": "Saratoga Av"
+    },
+    {
+      "display": "Rockaway Avenue",
+      "name": "Rockaway Av"
+    },
+    {
+      "display": "Junius Street",
+      "name": "Junius St"
+    },
+    {
+      "display": "Pennsylvania Avenue",
+      "name": "Pennsylvania Av"
+    },
+    {
+      "display": "Van Siclen Avenue",
+      "name": "Van Siclen Av"
+    },
+    {
+      "display": "New Lots Avenue",
+      "name": "New Lots Av"
     }
   ],
   "5": [
-    { 
-      "display":"Placeholder Display",
-      "name":"Placeholder Name"
+    {
+      "display": "Eastchester-Dyre Avenue",
+      "name": "Eastchester-Dyre Av"
+    },
+    {
+      "display": "Baychester Avenue",
+      "name": "Baychester Av"
+    },
+    {
+      "display": "Gun Hill Road",
+      "name": "Gun Hill Rd"
+    },
+    {
+      "display": "Pelham Parkway",
+      "name": "Pelham Pkwy"
+    },
+    {
+      "display": "Morris Park",
+      "name": "Morris Park"
+    },
+    {
+      "display": "East 180th Street",
+      "name": "E 180 St"
+    },
+    {
+      "display": "West Farms Square-East Tremont Avenue",
+      "name": "West Farms Sq-E Tremont Av"
+    },
+    {
+      "display": "174th Street",
+      "name": "174 St"
+    },
+    {
+      "display": "Freeman Street",
+      "name": "Freeman St"
+    },
+    {
+      "display": "Simpson Street",
+      "name": "Simpson St"
+    },
+    {
+      "display": "Intervale Avenue",
+      "name": "Intervale Av"
+    },
+    {
+      "display": "Prospect Avenue",
+      "name": "Prospect Av"
+    },
+    {
+      "display": "Jackson Avenue",
+      "name": "Jackson Av"
+    },
+    {
+      "display": "3rd Avenue-149th Street",
+      "name": "3 Av-149 St"
+    },
+    {
+      "display": "149th Street-Grand Concourse",
+      "name": "149 St-Grand Concourse"
+    },
+    {
+      "display": "138th Street-Grand Concourse",
+      "name": "138 St-Grand Concourse"
+    },
+    {
+      "display": "125th Street",
+      "name": "125 St"
+    },
+    {
+      "display": "86th Street",
+      "name": "86 St"
+    },
+    {
+      "display": "59th Street",
+      "name": "59 St"
+    },
+    {
+      "display": "42nd Street-Grand Central",
+      "name": "42 St-Grand Central"
+    },
+    {
+      "display": "14th Street-Union Square",
+      "name": "14 St-Union Sq"
+    },
+    {
+      "display": "Brooklyn Bridge-City Hall",
+      "name": "Brooklyn Bridge-City Hall"
+    },
+    {
+      "display": "Fulton Street",
+      "name": "Fulton St"
+    },
+    {
+      "display": "Wall Street",
+      "name": "Wall St"
+    },
+    {
+      "display": "Bowling Green",
+      "name": "Bowling Green"
+    },
+    {
+      "display": "Borough Hall",
+      "name": "Borough Hall"
+    },
+    {
+      "display": "Nevins Street",
+      "name": "Nevins St"
+    },
+    {
+      "display": "Atlantic Avenue-Barclays Center",
+      "name": "Atlantic Av-Barclays Ctr"
+    },
+    {
+      "display": "Franklin Avenue-Medgar Evers College",
+      "name": "Franklin Av-Medgar Evers College"
+    },
+    {
+      "display": "Crown Heights-Utica Avenue",
+      "name": "Crown Heights-Utica Av"
+    },
+    {
+      "display": "Sutter Avenue-Rutland Road",
+      "name": "Sutter Av-Rutland Rd"
+    },
+    {
+      "display": "Saratoga Avenue",
+      "name": "Saratoga Av"
+    },
+    {
+      "display": "Rockaway Avenue",
+      "name": "Rockaway Av"
+    },
+    {
+      "display": "Junius Street",
+      "name": "Junius St"
+    },
+    {
+      "display": "Pennsylvania Avenue",
+      "name": "Pennsylvania Av"
+    },
+    {
+      "display": "Van Siclen Avenue",
+      "name": "Van Siclen Av"
+    },
+    {
+      "display": "New Lots Avenue",
+      "name": "New Lots Av"
     }
   ],
   "6": [
-    { 
-      "display":"Placeholder Display",
-      "name":"Placeholder Name"
+    {
+      "display": "Pelham Bay Park",
+      "name": "Pelham Bay Park"
+    },
+    {
+      "display": "Buhre Avenue",
+      "name": "Buhre Av"
+    },
+    {
+      "display": "Middletown Road",
+      "name": "Middletown Rd"
+    },
+    {
+      "display": "Westchester Square-East Tremont Avenue",
+      "name": "Westchester Sq-E Tremont Av"
+    },
+    {
+      "display": "Zerega Avenue",
+      "name": "Zerega Av"
+    },
+    {
+      "display": "Castle Hill Avenue",
+      "name": "Castle Hill Av"
+    },
+    {
+      "display": "Parkchester",
+      "name": "Parkchester"
+    },
+    {
+      "display": "St. Lawrence Avenue",
+      "name": "St. Lawrence Av"
+    },
+    {
+      "display": "Morrison Avenue-Soundview",
+      "name": "Morrison Av-Soundview"
+    },
+    {
+      "display": "Elder Avenue",
+      "name": "Elder Av"
+    },
+    {
+      "display": "Whitlock Avenue",
+      "name": "Whitlock Av"
+    },
+    {
+      "display": "Hunts Point Avenue",
+      "name": "Hunts Point Av"
+    },
+    {
+      "display": "Longwood Avenue",
+      "name": "Longwood Av"
+    },
+    {
+      "display": "E. 149th Street",
+      "name": "E. 149 St"
+    },
+    {
+      "display": "Brook Avenue",
+      "name": "Brook Av"
+    },
+    {
+      "display": "3rd Avenue-138th Street",
+      "name": "3 Av-138 St"
+    },
+    {
+      "display": "125th Street",
+      "name": "125 St"
+    },
+    {
+      "display": "116th Street",
+      "name": "116 St"
+    },
+    {
+      "display": "110th Street",
+      "name": "110 St"
+    },
+    {
+      "display": "103rd Street",
+      "name": "103 St"
+    },
+    {
+      "display": "96th Street",
+      "name": "96 St"
+    },
+    {
+      "display": "86th Street",
+      "name": "86 St"
+    },
+    {
+      "display": "77th Street",
+      "name": "77 St"
+    },
+    {
+      "display": "68th Street-Hunter College",
+      "name": "68 St-Hunter College"
+    },
+    {
+      "display": "59th Street",
+      "name": "59 St"
+    },
+    {
+      "display": "51st Street",
+      "name": "51 St"
+    },
+    {
+      "display": "Grand Central-42nd Street",
+      "name": "Grand Central-42 St"
+    },
+    {
+      "display": "33rd Street",
+      "name": "33 St"
+    },
+    {
+      "display": "28th Street",
+      "name": "28 St"
+    },
+    {
+      "display": "23rd Street",
+      "name": "23 St"
+    },
+    {
+      "display": "14th Street-Union Square",
+      "name": "14 St-Union Sq"
+    },
+    {
+      "display": "Astor Place",
+      "name": "Astor Pl"
+    },
+    {
+      "display": "Bleecker Street",
+      "name": "Bleecker St"
+    },
+    {
+      "display": "Spring Street",
+      "name": "Spring St"
+    },
+    {
+      "display": "Canal Street",
+      "name": "Canal St"
+    },
+    {
+      "display": "Brooklyn Bridge-City Hall",
+      "name": "Brooklyn Bridge-City Hall"
     }
   ],
   "7": [
-    { 
-      "display":"Placeholder Display",
-      "name":"Placeholder Name"
+    {
+      "display": "34th Street-Hudson Yards",
+      "name": "34 St-Hudson Yards"
+    },
+    {
+      "display": "Times Square-42nd Street",
+      "name": "Times Sq-42 St"
+    },
+    {
+      "display": "5th Avenue",
+      "name": "5 Av"
+    },
+    {
+      "display": "Grand Central-42nd Street",
+      "name": "Grand Central-42 St"
+    },
+    {
+      "display": "Vernon Boulevard-Jackson Avenue",
+      "name": "Vernon Blvd-Jackson Av"
+    },
+    {
+      "display": "Hunters Point Avenue",
+      "name": "Hunters Point Av"
+    },
+    {
+      "display": "Court Square",
+      "name": "Court Sq"
+    },
+    {
+      "display": "Queensboro Plaza",
+      "name": "Queensboro Plaza"
+    },
+    {
+      "display": "33rd Street-Rawson Street",
+      "name": "33 St-Rawson St"
+    },
+    {
+      "display": "40th Street-Lowery Street",
+      "name": "40 St-Lowery St"
+    },
+    {
+      "display": "46th Street-Bliss Street",
+      "name": "46 St-Bliss St"
+    },
+    {
+      "display": "52nd Street",
+      "name": "52 St"
+    },
+    {
+      "display": "61st Street-Woodside",
+      "name": "61 St-Woodside"
+    },
+    {
+      "display": "69th Street",
+      "name": "69 St"
+    },
+    {
+      "display": "74th Street-Broadway",
+      "name": "74 St-Broadway"
+    },
+    {
+      "display": "82nd Street-Jackson Heights",
+      "name": "82 St-Jackson Heights"
+    },
+    {
+      "display": "90th Street-Elmhurst Avenue",
+      "name": "90 St-Elmhurst Av"
+    },
+    {
+      "display": "Junction Boulevard",
+      "name": "Junction Blvd"
+    },
+    {
+      "display": "103rd Street-Corona Plaza",
+      "name": "103 St-Corona Plaza"
+    },
+    {
+      "display": "111th Street",
+      "name": "111 St"
+    },
+    {
+      "display": "Mets-Willets Point",
+      "name": "Mets-Willets Point"
+    },
+    {
+      "display": "Flushing-Main Street",
+      "name": "Flushing-Main St"
     }
   ],
   "A": [
-    { 
-      "display":"Placeholder Display",
-      "name":"Placeholder Name"
+    {
+      "display": "Inwood-207th Street",
+      "name": "Inwood-207 St"
+    },
+    {
+      "display": "Dyckman Street",
+      "name": "Dyckman St"
+    },
+    {
+      "display": "190th Street",
+      "name": "190 St"
+    },
+    {
+      "display": "181st Street",
+      "name": "181 St"
+    },
+    {
+      "display": "175th Street",
+      "name": "175 St"
+    },
+    {
+      "display": "168th Street",
+      "name": "168 St"
+    },
+    {
+      "display": "145th Street",
+      "name": "145 St"
+    },
+    {
+      "display": "125th Street",
+      "name": "125 St"
+    },
+    {
+      "display": "59th Street-Columbus Circle",
+      "name": "59 St-Columbus Circle"
+    },
+    {
+      "display": "42nd Street-Port Authority Bus Terminal",
+      "name": "42 St-Bryant Pk"
+    },
+    {
+      "display": "34th Street-Penn Station",
+      "name": "34 St-Penn Station"
+    },
+    {
+      "display": "23rd Street",
+      "name": "23 St"
+    },
+    {
+      "display": "14th Street",
+      "name": "14 St"
+    },
+    {
+      "display": "West 4th Street-Washington Square",
+      "name": "W 4 St-Wash Sq"
+    },
+    {
+      "display": "Spring Street",
+      "name": "Spring St"
+    },
+    {
+      "display": "Canal Street",
+      "name": "Canal St"
+    },
+    {
+      "display": "Chambers Street",
+      "name": "Chambers St"
+    },
+    {
+      "display": "Fulton Street",
+      "name": "Fulton St"
+    },
+    {
+      "display": "High Street",
+      "name": "High St"
+    },
+    {
+      "display": "Jay Street-MetroTech",
+      "name": "Jay St-MetroTech"
+    },
+    {
+      "display": "Hoyt-Schermerhorn Streets",
+      "name": "Hoyt-Schermerhorn Sts"
+    },
+    {
+      "display": "Lafayette Avenue",
+      "name": "Lafayette Av"
+    },
+    {
+      "display": "Clinton-Washington Avenues",
+      "name": "Clinton-Washington Avs"
+    },
+    {
+      "display": "Franklin Avenue",
+      "name": "Franklin Av"
+    },
+    {
+      "display": "Nostrand Avenue",
+      "name": "Nostrand Av"
+    },
+    {
+      "display": "Utica Avenue",
+      "name": "Utica Av"
+    },
+    {
+      "display": "Broadway Junction",
+      "name": "Broadway Junction"
+    },
+    {
+      "display": "Liberty Avenue",
+      "name": "Liberty Av"
+    },
+    {
+      "display": "Van Siclen Avenue",
+      "name": "Van Siclen Av"
+    },
+    {
+      "display": "Shepherd Avenue",
+      "name": "Shepherd Av"
+    },
+    {
+      "display": "Euclid Avenue",
+      "name": "Euclid Av"
+    },
+    {
+      "display": "Grant Avenue",
+      "name": "Grant Av"
+    },
+    {
+      "display": "80th Street",
+      "name": "80 St"
+    },
+    {
+      "display": "88th Street",
+      "name": "88 St"
+    },
+    {
+      "display": "Rockaway Boulevard",
+      "name": "Rockaway Blvd"
+    },
+    {
+      "display": "104th Street",
+      "name": "104 St"
+    },
+    {
+      "display": "111th Street",
+      "name": "111 St"
+    },
+    {
+      "display": "Ozone Park-Lefferts Boulevard",
+      "name": "Ozone Park-Lefferts Blvd"
+    },
+    {
+      "display": "Aqueduct Racetrack",
+      "name": "Aqueduct Racetrack"
+    },
+    {
+      "display": "Howard Beach-JFK Airport",
+      "name": "Howard Beach-JFK Airport"
+    },
+    {
+      "display": "Broad Channel",
+      "name": "Broad Channel"
+    },
+    {
+      "display": "Beach 67th Street",
+      "name": "Beach 67 St"
+    },
+    {
+      "display": "Beach 60th Street",
+      "name": "Beach 60 St"
+    },
+    {
+      "display": "Beach 44th Street",
+      "name": "Beach 44 St"
+    },
+    {
+      "display": "Beach 36th Street",
+      "name": "Beach 36 St"
+    },
+    {
+      "display": "Beach 25th Street",
+      "name": "Beach 25 St"
+    },
+    {
+      "display": "Far Rockaway-Mott Avenue",
+      "name": "Far Rockaway-Mott Av"
     }
   ],
   "B": [
-    { 
-      "display":"Placeholder Display",
-      "name":"Placeholder Name"
+    {
+      "display": "Bedford Park Boulevard",
+      "name": "Bedford Park Blvd"
+    },
+    {
+      "display": "Kingsbridge Road",
+      "name": "Kingsbridge Rd"
+    },
+    {
+      "display": "Fordham Road",
+      "name": "Fordham Rd"
+    },
+    {
+      "display": "183rd Street",
+      "name": "183 St"
+    },
+    {
+      "display": "Tremont Avenue",
+      "name": "Tremont Av"
+    },
+    {
+      "display": "174th-175th Streets",
+      "name": "174-175 Sts"
+    },
+    {
+      "display": "170th Street",
+      "name": "170 St"
+    },
+    {
+      "display": "167th Street",
+      "name": "167 St"
+    },
+    {
+      "display": "161st Street-Yankee Stadium",
+      "name": "161 St-Yankee Stadium"
+    },
+    {
+      "display": "145th Street",
+      "name": "145 St"
+    },
+    {
+      "display": "135th Street",
+      "name": "135 St"
+    },
+    {
+      "display": "125th Street",
+      "name": "125 St"
+    },
+    {
+      "display": "116th Street",
+      "name": "116 St"
+    },
+    {
+      "display": "Cathedral Parkway-110th Street",
+      "name": "Cathedral Pkwy (110 St)"
+    },
+    {
+      "display": "103rd Street",
+      "name": "103 St"
+    },
+    {
+      "display": "96th Street",
+      "name": "96 St"
+    },
+    {
+      "display": "81st Street-Museum of Natural History",
+      "name": "81 St-Museum of Natural History"
+    },
+    {
+      "display": "72nd Street",
+      "name": "72 St"
+    },
+    {
+      "display": "59th Street-Columbus Circle",
+      "name": "59 St-Columbus Circle"
+    },
+    {
+      "display": "7th Avenue",
+      "name": "7 Av"
+    },
+    {
+      "display": "47th-50th Streets-Rockefeller Center",
+      "name": "47-50 Sts-Rockefeller Ctr"
+    },
+    {
+      "display": "42nd Street-Bryant Park",
+      "name": "42 St-Bryant Park"
+    },
+    {
+      "display": "34th Street-Herald Square",
+      "name": "34 St-Herald Sq"
+    },
+    {
+      "display": "West 4th Street-Washington Square",
+      "name": "W 4 St-Wash Sq"
+    },
+    {
+      "display": "Broadway-Lafayette Street",
+      "name": "Broadway-Lafayette St"
+    },
+    {
+      "display": "Grand Street",
+      "name": "Grand St"
+    },
+    {
+      "display": "DeKalb Avenue",
+      "name": "DeKalb Av"
+    },
+    {
+      "display": "Atlantic Avenue-Barclays Center",
+      "name": "Atlantic Av-Barclays Ctr"
+    },
+    {
+      "display": "7th Avenue",
+      "name": "7 Av"
+    },
+    {
+      "display": "Prospect Park",
+      "name": "Prospect Park"
+    },
+    {
+      "display": "Church Avenue",
+      "name": "Church Av"
+    },
+    {
+      "display": "Newkirk Plaza",
+      "name": "Newkirk Plaza"
+    },
+    {
+      "display": "Kings Highway",
+      "name": "Kings Highway"
+    },
+    {
+      "display": "Sheepshead Bay",
+      "name": "Sheepshead Bay"
+    },
+    {
+      "display": "Brighton Beach",
+      "name": "Brighton Beach"
     }
   ],
   "C": [
-    { 
-      "display":"Placeholder Display",
-      "name":"Placeholder Name"
+    {
+      "display": "168th Street",
+      "name": "168 St"
+    },
+    {
+      "display": "163rd Street-Amsterdam Avenue",
+      "name": "163 St-Amsterdam Av"
+    },
+    {
+      "display": "155th Street",
+      "name": "155 St"
+    },
+    {
+      "display": "145th Street",
+      "name": "145 St"
+    },
+    {
+      "display": "135th Street",
+      "name": "135 St"
+    },
+    {
+      "display": "125th Street",
+      "name": "125 St"
+    },
+    {
+      "display": "116th Street",
+      "name": "116 St"
+    },
+    {
+      "display": "Cathedral Parkway-110th Street",
+      "name": "Cathedral Pkwy (110 St)"
+    },
+    {
+      "display": "103rd Street",
+      "name": "103 St"
+    },
+    {
+      "display": "96th Street",
+      "name": "96 St"
+    },
+    {
+      "display": "86th Street",
+      "name": "86 St"
+    },
+    {
+      "display": "81st Street-Museum of Natural History",
+      "name": "81 St-Museum of Natural History"
+    },
+    {
+      "display": "72nd Street",
+      "name": "72 St"
+    },
+    {
+      "display": "59th Street-Columbus Circle",
+      "name": "59 St-Columbus Circle"
+    },
+    {
+      "display": "50th Street",
+      "name": "50 St"
+    },
+    {
+      "display": "42nd Street-Port Authority Bus Terminal",
+      "name": "42 St-Port Authority Bus Terminal"
+    },
+    {
+      "display": "34th Street-Penn Station",
+      "name": "34 St-Penn Station"
+    },
+    {
+      "display": "23rd Street",
+      "name": "23 St"
+    },
+    {
+      "display": "14th Street",
+      "name": "14 St"
+    },
+    {
+      "display": "West 4th Street-Washington Square",
+      "name": "W 4 St-Wash Sq"
+    },
+    {
+      "display": "Spring Street",
+      "name": "Spring St"
+    },
+    {
+      "display": "Canal Street",
+      "name": "Canal St"
+    },
+    {
+      "display": "Chambers Street",
+      "name": "Chambers St"
+    },
+    {
+      "display": "Fulton Street",
+      "name": "Fulton St"
+    },
+    {
+      "display": "High Street",
+      "name": "High St"
+    },
+    {
+      "display": "Jay Street-MetroTech",
+      "name": "Jay St-MetroTech"
+    },
+    {
+      "display": "Hoyt-Schermerhorn Streets",
+      "name": "Hoyt-Schermerhorn Sts"
+    },
+    {
+      "display": "Lafayette Avenue",
+      "name": "Lafayette Av"
+    },
+    {
+      "display": "Clinton-Washington Avenues",
+      "name": "Clinton-Washington Avs"
+    },
+    {
+      "display": "Franklin Avenue",
+      "name": "Franklin Av"
+    },
+    {
+      "display": "Nostrand Avenue",
+      "name": "Nostrand Av"
+    },
+    {
+      "display": "Kingston-Throop Avenues",
+      "name": "Kingston-Throop Avs"
+    },
+    {
+      "display": "Utica Avenue",
+      "name": "Utica Av"
+    },
+    {
+      "display": "Ralph Avenue",
+      "name": "Ralph Av"
+    },
+    {
+      "display": "Rockaway Avenue",
+      "name": "Rockaway Av"
+    },
+    {
+      "display": "Broadway Junction",
+      "name": "Broadway Junction"
+    },
+    {
+      "display": "Liberty Avenue",
+      "name": "Liberty Av"
+    },
+    {
+      "display": "Van Siclen Avenue",
+      "name": "Van Siclen Av"
+    },
+    {
+      "display": "Shepherd Avenue",
+      "name": "Shepherd Av"
+    },
+    {
+      "display": "Euclid Avenue",
+      "name": "Euclid Av"
     }
   ],
   "D": [
-    { 
-      "display":"Placeholder Display",
-      "name":"Placeholder Name"
+    {
+      "display": "Norwood-205th Street",
+      "name": "Norwood-205 St"
+    },
+    {
+      "display": "Bedford Park Boulevard",
+      "name": "Bedford Park Blvd"
+    },
+    {
+      "display": "Kingsbridge Road",
+      "name": "Kingsbridge Rd"
+    },
+    {
+      "display": "Fordham Road",
+      "name": "Fordham Rd"
+    },
+    {
+      "display": "182nd-183rd Streets",
+      "name": "182-183 Sts"
+    },
+    {
+      "display": "Tremont Avenue",
+      "name": "Tremont Av"
+    },
+    {
+      "display": "174th-175th Streets",
+      "name": "174-175 Sts"
+    },
+    {
+      "display": "170th Street",
+      "name": "170 St"
+    },
+    {
+      "display": "167th Street",
+      "name": "167 St"
+    },
+    {
+      "display": "161st Street-Yankee Stadium",
+      "name": "161 St-Yankee Stadium"
+    },
+    {
+      "display": "155th Street",
+      "name": "155 St"
+    },
+    {
+      "display": "145th Street",
+      "name": "145 St"
+    },
+    {
+      "display": "125th Street",
+      "name": "125 St"
+    },
+    {
+      "display": "116th Street",
+      "name": "116 St"
+    },
+    {
+      "display": "Cathedral Parkway-110th Street",
+      "name": "Cathedral Pkwy (110 St)"
+    },
+    {
+      "display": "103rd Street",
+      "name": "103 St"
+    },
+    {
+      "display": "96th Street",
+      "name": "96 St"
+    },
+    {
+      "display": "81st Street-Museum of Natural History",
+      "name": "81 St-Museum of Natural History"
+    },
+    {
+      "display": "72nd Street",
+      "name": "72 St"
+    },
+    {
+      "display": "59th Street-Columbus Circle",
+      "name": "59 St-Columbus Circle"
+    },
+    {
+      "display": "7th Avenue",
+      "name": "7 Av"
+    },
+    {
+      "display": "47th-50th Streets-Rockefeller Center",
+      "name": "47-50 Sts-Rockefeller Ctr"
+    },
+    {
+      "display": "42nd Street-Bryant Park",
+      "name": "42 St-Bryant Park"
+    },
+    {
+      "display": "34th Street-Herald Square",
+      "name": "34 St-Herald Sq"
+    },
+    {
+      "display": "West 4th Street-Washington Square",
+      "name": "W 4 St-Wash Sq"
+    },
+    {
+      "display": "Broadway-Lafayette Street",
+      "name": "Broadway-Lafayette St"
+    },
+    {
+      "display": "Grand Street",
+      "name": "Grand St"
+    },
+    {
+      "display": "DeKalb Avenue",
+      "name": "DeKalb Av"
+    },
+    {
+      "display": "Atlantic Avenue-Barclays Center",
+      "name": "Atlantic Av-Barclays Ctr"
+    },
+    {
+      "display": "7th Avenue",
+      "name": "7 Av"
+    },
+    {
+      "display": "Prospect Park",
+      "name": "Prospect Park"
+    },
+    {
+      "display": "Church Avenue",
+      "name": "Church Av"
+    },
+    {
+      "display": "Ditmas Avenue",
+      "name": "Ditmas Av"
+    },
+    {
+      "display": "18th Avenue",
+      "name": "18 Av"
+    },
+    {
+      "display": "20th Avenue",
+      "name": "20 Av"
+    },
+    {
+      "display": "Bay Parkway",
+      "name": "Bay Pkwy"
+    },
+    {
+      "display": "25th Avenue",
+      "name": "25 Av"
+    },
+    {
+      "display": "Bay 50th Street",
+      "name": "Bay 50 St"
+    },
+    {
+      "display": "Coney Island-Stillwell Avenue",
+      "name": "Coney Island-Stillwell Av"
     }
   ],
   "E": [
-    { 
-      "display":"Placeholder Display",
-      "name":"Placeholder Name"
+    {
+      "display": "World Trade Center",
+      "name": "World Trade Ctr"
+    },
+    {
+      "display": "Spring Street",
+      "name": "Spring St"
+    },
+    {
+      "display": "14th Street",
+      "name": "14 St"
+    },
+    {
+      "display": "23rd Street",
+      "name": "23 St"
+    },
+    {
+      "display": "34th Street-Penn Station",
+      "name": "34 St-Penn Station"
+    },
+    {
+      "display": "42nd Street-Port Authority Bus Terminal",
+      "name": "42 St-Port Authority Bus Terminal"
+    },
+    {
+      "display": "50th Street",
+      "name": "50 St"
+    },
+    {
+      "display": "7th Avenue",
+      "name": "7 Av"
+    },
+    {
+      "display": "5th Avenue-53rd Street",
+      "name": "5 Av-53 St"
+    },
+    {
+      "display": "Lexington Avenue-53rd Street",
+      "name": "Lexington Av-53 St"
+    },
+    {
+      "display": "Queens Plaza",
+      "name": "Queens Plaza"
+    },
+    {
+      "display": "Court Square-23rd Street",
+      "name": "Court Sq-23 St"
+    },
+    {
+      "display": "23rd Street-Ely Avenue",
+      "name": "23 St-Ely Av"
+    },
+    {
+      "display": "Roosevelt Avenue",
+      "name": "Roosevelt Av"
+    },
+    {
+      "display": "65th Street",
+      "name": "65 St"
+    },
+    {
+      "display": "Northern Boulevard",
+      "name": "Northern Blvd"
+    },
+    {
+      "display": "46th Street",
+      "name": "46 St"
+    },
+    {
+      "display": "Steinway Street",
+      "name": "Steinway St"
+    },
+    {
+      "display": "Jackson Heights-Roosevelt Avenue",
+      "name": "Jackson Heights-Roosevelt Av"
+    },
+    {
+      "display": "Elmhurst Avenue",
+      "name": "Elmhurst Av"
+    },
+    {
+      "display": "Grand Avenue-Newtown",
+      "name": "Grand Av-Newtown"
+    },
+    {
+      "display": "Woodhaven Boulevard",
+      "name": "Woodhaven Blvd"
+    },
+    {
+      "display": "63rd Drive-Rego Park",
+      "name": "63 Dr-Rego Park"
+    },
+    {
+      "display": "67th Avenue",
+      "name": "67 Av"
+    },
+    {
+      "display": "Forest Hills-71st Avenue",
+      "name": "Forest Hills-71 Av"
+    },
+    {
+      "display": "75th Avenue",
+      "name": "75 Av"
+    },
+    {
+      "display": "Kew Gardens-Union Turnpike",
+      "name": "Kew Gardens-Union Turnpike"
+    },
+    {
+      "display": "Briarwood",
+      "name": "Briarwood"
+    },
+    {
+      "display": "Jamaica-Van Wyck",
+      "name": "Jamaica-Van Wyck"
+    },
+    {
+      "display": "Sutphin Boulevard-Archer Avenue-JFK Airport",
+      "name": "Sutphin Blvd-Archer Av-JFK Airport"
+    },
+    {
+      "display": "Jamaica Center-Parsons/Archer",
+      "name": "Jamaica Ctr-Parsons-Archer"
     }
   ],
   "F": [
-    { 
-      "display":"Placeholder Display",
-      "name":"Placeholder Name"
+    {
+      "display": "Jamaica-179th Street",
+      "name": "Jamaica-179 St"
+    },
+    {
+      "display": "169th Street",
+      "name": "169 St"
+    },
+    {
+      "display": "Parsons Boulevard",
+      "name": "Parsons Blvd"
+    },
+    {
+      "display": "Sutphin Boulevard",
+      "name": "Sutphin Blvd"
+    },
+    {
+      "display": "Briarwood",
+      "name": "Briarwood"
+    },
+    {
+      "display": "Kew Gardens-Union Turnpike",
+      "name": "Kew Gardens-Union Turnpike"
+    },
+    {
+      "display": "75th Avenue",
+      "name": "75 Av"
+    },
+    {
+      "display": "Forest Hills-71st Avenue",
+      "name": "Forest Hills-71 Av"
+    },
+    {
+      "display": "67th Avenue",
+      "name": "67 Av"
+    },
+    {
+      "display": "63rd Drive-Rego Park",
+      "name": "63 Dr-Rego Park"
+    },
+    {
+      "display": "Woodhaven Boulevard",
+      "name": "Woodhaven Blvd"
+    },
+    {
+      "display": "Grand Avenue-Newtown",
+      "name": "Grand Av-Newtown"
+    },
+    {
+      "display": "Elmhurst Avenue",
+      "name": "Elmhurst Av"
+    },
+    {
+      "display": "Jackson Heights-Roosevelt Avenue",
+      "name": "Jackson Heights-Roosevelt Av"
+    },
+    {
+      "display": "21st Street-Queensbridge",
+      "name": "21 St-Queensbridge"
+    },
+    {
+      "display": "Roosevelt Island",
+      "name": "Roosevelt Island"
+    },
+    {
+      "display": "Lexington Avenue-63rd Street",
+      "name": "Lexington Av-63 St"
+    },
+    {
+      "display": "57th Street",
+      "name": "57 St"
+    },
+    {
+      "display": "47th-50th Streets-Rockefeller Center",
+      "name": "47-50 Sts-Rockefeller Ctr"
+    },
+    {
+      "display": "42nd Street-Bryant Park",
+      "name": "42 St-Bryant Park"
+    },
+    {
+      "display": "34th Street-Herald Square",
+      "name": "34 St-Herald Sq"
+    },
+    {
+      "display": "West 4th Street-Washington Square",
+      "name": "W 4 St-Wash Sq"
+    },
+    {
+      "display": "Broadway-Lafayette Street",
+      "name": "Broadway-Lafayette St"
+    },
+    {
+      "display": "2nd Avenue",
+      "name": "2 Av"
+    },
+    {
+      "display": "Delancey Street-Essex Street",
+      "name": "Delancey St-Essex St"
+    },
+    {
+      "display": "East Broadway",
+      "name": "E Broadway"
+    },
+    {
+      "display": "York Street",
+      "name": "York St"
+    },
+    {
+      "display": "Jay Street-MetroTech",
+      "name": "Jay St-MetroTech"
+    },
+    {
+      "display": "Bergen Street",
+      "name": "Bergen St"
+    },
+    {
+      "display": "Carroll Street",
+      "name": "Carroll St"
+    },
+    {
+      "display": "Smith-9th Streets",
+      "name": "Smith-9 Sts"
+    },
+    {
+      "display": "4th Avenue-9th Street",
+      "name": "4 Av-9 St"
+    },
+    {
+      "display": "7th Avenue",
+      "name": "7 Av"
+    },
+    {
+      "display": "15th Street-Prospect Park",
+      "name": "15 St-Prospect Park"
+    },
+    {
+      "display": "Fort Hamilton Parkway",
+      "name": "Fort Hamilton Pkwy"
+    },
+    {
+      "display": "Church Avenue",
+      "name": "Church Av"
+    },
+    {
+      "display": "Ditmas Avenue",
+      "name": "Ditmas Av"
+    },
+    {
+      "display": "18th Avenue",
+      "name": "18 Av"
+    },
+    {
+      "display": "Avenue I",
+      "name": "Av I"
+    },
+    {
+      "display": "Bay Parkway",
+      "name": "Bay Pkwy"
+    },
+    {
+      "display": "Avenue N",
+      "name": "Av N"
+    },
+    {
+      "display": "Avenue P",
+      "name": "Av P"
+    },
+    {
+      "display": "Kings Highway",
+      "name": "Kings Highway"
+    },
+    {
+      "display": "Avenue U",
+      "name": "Av U"
+    },
+    {
+      "display": "Avenue X",
+      "name": "Av X"
+    },
+    {
+      "display": "Neptune Avenue",
+      "name": "Neptune Av"
+    },
+    {
+      "display": "Coney Island-Stillwell Avenue",
+      "name": "Coney Island-Stillwell Av"
     }
   ],
   "G": [
-    { 
-      "display":"Court Square",
-      "name":"Court Sq-23 St"
+    {
+      "display": "Court Square",
+      "name": "Court Sq-23 St"
     },
-    { 
-      "display":"21st Street",
-      "name":"21 St"
+    {
+      "display": "21st Street",
+      "name": "21 St"
     },
-    { 
-      "display":"Greenpoint Avenue",
-      "name":"Greenpoint Av"
+    {
+      "display": "Greenpoint Avenue",
+      "name": "Greenpoint Av"
     },
-    { 
-      "display":"Nassau Avenue",
-      "name":"Nassau Av"
+    {
+      "display": "Nassau Avenue",
+      "name": "Nassau Av"
     },
-    { 
-      "display":"Metropolitan Avenue–Lorimer Street",
-      "name":"Metropolitan Av / Lorimer St"
+    {
+      "display": "Metropolitan Avenue-Lorimer Street",
+      "name": "Metropolitan Av / Lorimer St"
     },
-    { 
-      "display":"Broadway",
-      "name":"Broadway"
+    {
+      "display": "Broadway",
+      "name": "Broadway"
     },
-    { 
-      "display":"Flushing Avenue",
-      "name":"Flushing Av"
+    {
+      "display": "Flushing Avenue",
+      "name": "Flushing Av"
     },
-    { 
-      "display":"Myrtle–Willoughby Avenues",
-      "name":"Myrtle-Willoughby Avs"
+    {
+      "display": "Myrtle-Willoughby Avenues",
+      "name": "Myrtle-Willoughby Avs"
     },
-    { 
-      "display":"Bedford–Nostrand Avenues",
-      "name":"Bedford-Nostrand Avs"
+    {
+      "display": "Bedford-Nostrand Avenues",
+      "name": "Bedford-Nostrand Avs"
     },
-    { 
-      "display":"Classon Avenue",
-      "name":"Classon Av"
+    {
+      "display": "Classon Avenue",
+      "name": "Classon Av"
     },
-    { 
-      "display":"Clinton–Washington Avenues",
-      "name":"Clinton-Washington Avs"
+    {
+      "display": "Clinton-Washington Avenues",
+      "name": "Clinton-Washington Avs"
     },
-    { 
-      "display":"Fulton Street",
-      "name":"Fulton St"
+    {
+      "display": "Fulton Street",
+      "name": "Fulton St"
     },
-    { 
-      "display":"Hoyt–Schermerhorn Streets",
-      "name":"Hoyt-Schermerhorn Sts"
+    {
+      "display": "Hoyt-Schermerhorn Streets",
+      "name": "Hoyt-Schermerhorn Sts"
     },
-    { 
-      "display":"Bergen Street",
-      "name":"Bergen St"
+    {
+      "display": "Bergen Street",
+      "name": "Bergen St"
     },
-    { 
-      "display":"Carroll Street",
-      "name":"Carroll St"
+    {
+      "display": "Carroll Street",
+      "name": "Carroll St"
     },
-    { 
-      "display":"Smith–9th Streets",
-      "name":"Smith-9 Sts"
+    {
+      "display": "Smith-9th Streets",
+      "name": "Smith-9 Sts"
     },
-    { 
-      "display":"4th Avenue–9th Street",
-      "name":"4 Av-9 St"
+    {
+      "display": "4th Avenue-9th Street",
+      "name": "4 Av-9 St"
     },
-    { 
-      "display":"7th Avenue",
-      "name":"7 Av"
+    {
+      "display": "7th Avenue",
+      "name": "7 Av"
     },
-    { 
-      "display":"15th Street–Prospect Park",
-      "name":"15 St-Prospect Park"
+    {
+      "display": "15th Street-Prospect Park",
+      "name": "15 St-Prospect Park"
     },
-    { 
-      "display":"Fort Hamilton Parkway",
-      "name":"Fort Hamilton Pkwy"
+    {
+      "display": "Fort Hamilton Parkway",
+      "name": "Fort Hamilton Pkwy"
     },
-    { 
-      "display":"Church Avenue",
-      "name":"Church Av"
+    {
+      "display": "Church Avenue",
+      "name": "Church Av"
     }
   ],
   "J": [
-    { 
-      "display":"Placeholder Display",
-      "name":"Placeholder Name"
+    {
+      "display": "Jamaica Center-Parsons/Archer",
+      "name": "Jamaica Ctr-Parsons-Archer"
+    },
+    {
+      "display": "Sutphin Boulevard-Archer Avenue-JFK Airport",
+      "name": "Sutphin Blvd-Archer Av-JFK Airport"
+    },
+    {
+      "display": "121st Street",
+      "name": "121 St"
+    },
+    {
+      "display": "111th Street",
+      "name": "111 St"
+    },
+    {
+      "display": "104th Street",
+      "name": "104 St"
+    },
+    {
+      "display": "Woodhaven Boulevard",
+      "name": "Woodhaven Blvd"
+    },
+    {
+      "display": "85th Street-Forest Parkway",
+      "name": "85 St-Forest Pkwy"
+    },
+    {
+      "display": "75th Street-Elderts Lane",
+      "name": "75 St-Elderts Lane"
+    },
+    {
+      "display": "Cypress Hills",
+      "name": "Cypress Hills"
+    },
+    {
+      "display": "Crescent Street",
+      "name": "Crescent St"
+    },
+    {
+      "display": "Norwood Avenue",
+      "name": "Norwood Av"
+    },
+    {
+      "display": "Cleveland Street",
+      "name": "Cleveland St"
+    },
+    {
+      "display": "Van Siclen Avenue",
+      "name": "Van Siclen Av"
+    },
+    {
+      "display": "Alabama Avenue",
+      "name": "Alabama Av"
+    },
+    {
+      "display": "Broadway Junction",
+      "name": "Broadway Junction"
+    },
+    {
+      "display": "Chauncey Street",
+      "name": "Chauncey St"
+    },
+    {
+      "display": "Halsey Street",
+      "name": "Halsey St"
+    },
+    {
+      "display": "Gates Avenue",
+      "name": "Gates Av"
+    },
+    {
+      "display": "Kosciuszko Street",
+      "name": "Kosciuszko St"
+    },
+    {
+      "display": "Myrtle Avenue",
+      "name": "Myrtle Av"
+    },
+    {
+      "display": "Flushing Avenue",
+      "name": "Flushing Av"
+    },
+    {
+      "display": "Lorimer Street",
+      "name": "Lorimer St"
+    },
+    {
+      "display": "Hewes Street",
+      "name": "Hewes St"
+    },
+    {
+      "display": "Marcy Avenue",
+      "name": "Marcy Av"
+    },
+    {
+      "display": "Delancey Street-Essex Street",
+      "name": "Delancey St-Essex St"
+    },
+    {
+      "display": "Bowery",
+      "name": "Bowery"
+    },
+    {
+      "display": "Canal Street",
+      "name": "Canal St"
+    },
+    {
+      "display": "Chambers Street",
+      "name": "Chambers St"
+    },
+    {
+      "display": "Fulton Street",
+      "name": "Fulton St"
+    },
+    {
+      "display": "Broad Street",
+      "name": "Broad St"
     }
   ],
   "L": [
-    { 
-      "display":"Placeholder Display",
-      "name":"Placeholder Name"
+    {
+      "display": "8th Avenue",
+      "name": "8 Av"
+    },
+    {
+      "display": "6th Avenue",
+      "name": "6 Av"
+    },
+    {
+      "display": "Union Square",
+      "name": "Union Sq"
+    },
+    {
+      "display": "3rd Avenue",
+      "name": "3 Av"
+    },
+    {
+      "display": "1st Avenue",
+      "name": "1 Av"
+    },
+    {
+      "display": "Bedford Avenue",
+      "name": "Bedford Av"
+    },
+    {
+      "display": "Lorimer Street",
+      "name": "Lorimer St"
+    },
+    {
+      "display": "Graham Avenue",
+      "name": "Graham Av"
+    },
+    {
+      "display": "Grand Street",
+      "name": "Grand St"
+    },
+    {
+      "display": "Montrose Avenue",
+      "name": "Montrose Av"
+    },
+    {
+      "display": "Morgan Avenue",
+      "name": "Morgan Av"
+    },
+    {
+      "display": "Jefferson Street",
+      "name": "Jefferson St"
+    },
+    {
+      "display": "DeKalb Avenue",
+      "name": "DeKalb Av"
+    },
+    {
+      "display": "Myrtle-Wyckoff Avenues",
+      "name": "Myrtle-Wyckoff Avs"
+    },
+    {
+      "display": "Halsey Street",
+      "name": "Halsey St"
+    },
+    {
+      "display": "Wilson Avenue",
+      "name": "Wilson Av"
+    },
+    {
+      "display": "Bushwick Avenue-Aberdeen Street",
+      "name": "Bushwick Av-Aberdeen St"
+    },
+    {
+      "display": "Broadway Junction",
+      "name": "Broadway Junction"
+    },
+    {
+      "display": "Atlantic Avenue",
+      "name": "Atlantic Av"
+    },
+    {
+      "display": "Sutter Avenue",
+      "name": "Sutter Av"
+    },
+    {
+      "display": "Livonia Avenue",
+      "name": "Livonia Av"
+    },
+    {
+      "display": "New Lots Avenue",
+      "name": "New Lots Av"
+    },
+    {
+      "display": "East 105th Street",
+      "name": "E 105 St"
+    },
+    {
+      "display": "Canarsie-Rockaway Parkway",
+      "name": "Canarsie-Rockaway Pkwy"
     }
   ],
   "M": [
-    { 
-      "display":"Placeholder Display",
-      "name":"Placeholder Name"
+    {
+      "display": "Forest Hills-71st Avenue",
+      "name": "Forest Hills-71 Av"
+    },
+    {
+      "display": "67th Avenue",
+      "name": "67 Av"
+    },
+    {
+      "display": "63rd Drive-Rego Park",
+      "name": "63 Dr-Rego Park"
+    },
+    {
+      "display": "Woodhaven Boulevard",
+      "name": "Woodhaven Blvd"
+    },
+    {
+      "display": "Grand Avenue-Newtown",
+      "name": "Grand Av-Newtown"
+    },
+    {
+      "display": "Elmhurst Avenue",
+      "name": "Elmhurst Av"
+    },
+    {
+      "display": "Jackson Heights-Roosevelt Avenue",
+      "name": "Jackson Heights-Roosevelt Av"
+    },
+    {
+      "display": "65th Street",
+      "name": "65 St"
+    },
+    {
+      "display": "Northern Boulevard",
+      "name": "Northern Blvd"
+    },
+    {
+      "display": "46th Street",
+      "name": "46 St"
+    },
+    {
+      "display": "Steinway Street",
+      "name": "Steinway St"
+    },
+    {
+      "display": "Queens Plaza",
+      "name": "Queens Plaza"
+    },
+    {
+      "display": "Court Square-23rd Street",
+      "name": "Court Sq-23 St"
+    },
+    {
+      "display": "Lexington Avenue-53rd Street",
+      "name": "Lexington Av-53 St"
+    },
+    {
+      "display": "5th Avenue-53rd Street",
+      "name": "5 Av-53 St"
+    },
+    {
+      "display": "47th-50th Streets-Rockefeller Center",
+      "name": "47-50 Sts-Rockefeller Ctr"
+    },
+    {
+      "display": "42nd Street-Bryant Park",
+      "name": "42 St-Bryant Park"
+    },
+    {
+      "display": "34th Street-Herald Square",
+      "name": "34 St-Herald Sq"
+    },
+    {
+      "display": "West 4th Street-Washington Square",
+      "name": "W 4 St-Wash Sq"
+    },
+    {
+      "display": "Broadway-Lafayette Street",
+      "name": "Broadway-Lafayette St"
+    },
+    {
+      "display": "Essex Street",
+      "name": "Essex St"
+    },
+    {
+      "display": "Marcy Avenue",
+      "name": "Marcy Av"
+    },
+    {
+      "display": "Hewes Street",
+      "name": "Hewes St"
+    },
+    {
+      "display": "Lorimer Street",
+      "name": "Lorimer St"
+    },
+    {
+      "display": "Flushing Avenue",
+      "name": "Flushing Av"
+    },
+    {
+      "display": "Myrtle Avenue",
+      "name": "Myrtle Av"
+    },
+    {
+      "display": "Central Avenue",
+      "name": "Central Av"
+    },
+    {
+      "display": "Knickerbocker Avenue",
+      "name": "Knickerbocker Av"
+    },
+    {
+      "display": "Myrtle-Wyckoff Avenues",
+      "name": "Myrtle-Wyckoff Avs"
+    },
+    {
+      "display": "Seneca Avenue",
+      "name": "Seneca Av"
+    },
+    {
+      "display": "Forest Avenue",
+      "name": "Forest Av"
+    },
+    {
+      "display": "Fresh Pond Road",
+      "name": "Fresh Pond Rd"
+    },
+    {
+      "display": "Middle Village-Metropolitan Avenue",
+      "name": "Middle Village-Metropolitan Av"
     }
   ],
   "N": [
-    { 
-      "display":"Placeholder Display",
-      "name":"Placeholder Name"
+    {
+      "display": "Astoria-Ditmars Boulevard",
+      "name": "Astoria-Ditmars Blvd"
+    },
+    {
+      "display": "Astoria Boulevard",
+      "name": "Astoria Blvd"
+    },
+    {
+      "display": "30th Avenue",
+      "name": "30 Av"
+    },
+    {
+      "display": "Broadway",
+      "name": "Broadway"
+    },
+    {
+      "display": "36th Avenue",
+      "name": "36 Av"
+    },
+    {
+      "display": "39th Avenue",
+      "name": "39 Av"
+    },
+    {
+      "display": "Queensboro Plaza",
+      "name": "Queensboro Plaza"
+    },
+    {
+      "display": "Lexington Avenue-59th Street",
+      "name": "Lexington Av-59 St"
+    },
+    {
+      "display": "5th Avenue-59th Street",
+      "name": "5 Av-59 St"
+    },
+    {
+      "display": "57th Street-7th Avenue",
+      "name": "57 St-7 Av"
+    },
+    {
+      "display": "49th Street",
+      "name": "49 St"
+    },
+    {
+      "display": "Times Square-42nd Street",
+      "name": "Times Sq-42 St"
+    },
+    {
+      "display": "34th Street-Herald Square",
+      "name": "34 St-Herald Sq"
+    },
+    {
+      "display": "28th Street",
+      "name": "28 St"
+    },
+    {
+      "display": "23rd Street",
+      "name": "23 St"
+    },
+    {
+      "display": "14th Street-Union Square",
+      "name": "14 St-Union Sq"
+    },
+    {
+      "display": "8th Street-NYU",
+      "name": "8 St-NYU"
+    },
+    {
+      "display": "Prince Street",
+      "name": "Prince St"
+    },
+    {
+      "display": "Canal Street",
+      "name": "Canal St"
+    },
+    {
+      "display": "City Hall",
+      "name": "City Hall"
+    },
+    {
+      "display": "Cortlandt Street",
+      "name": "Cortlandt St"
+    },
+    {
+      "display": "Rector Street",
+      "name": "Rector St"
+    },
+    {
+      "display": "Whitehall Street-South Ferry",
+      "name": "Whitehall St-South Ferry"
+    },
+    {
+      "display": "Court Street",
+      "name": "Court St"
+    },
+    {
+      "display": "Jay Street-MetroTech",
+      "name": "Jay St-MetroTech"
+    },
+    {
+      "display": "DeKalb Avenue",
+      "name": "DeKalb Av"
+    },
+    {
+      "display": "Atlantic Avenue-Barclays Center",
+      "name": "Atlantic Av-Barclays Ctr"
+    },
+    {
+      "display": "Union Street",
+      "name": "Union St"
+    },
+    {
+      "display": "9th Street",
+      "name": "9 St"
+    },
+    {
+      "display": "4th Avenue",
+      "name": "4 Av"
+    },
+    {
+      "display": "Prospect Avenue",
+      "name": "Prospect Av"
+    },
+    {
+      "display": "25th Street",
+      "name": "25 St"
+    },
+    {
+      "display": "36th Street",
+      "name": "36 St"
+    },
+    {
+      "display": "45th Street",
+      "name": "45 St"
+    },
+    {
+      "display": "53rd Street",
+      "name": "53 St"
+    },
+    {
+      "display": "59th Street",
+      "name": "59 St"
+    },
+    {
+      "display": "Bay Ridge Avenue",
+      "name": "Bay Ridge Av"
+    },
+    {
+      "display": "77th Street",
+      "name": "77 St"
+    },
+    {
+      "display": "86th Street",
+      "name": "86 St"
+    },
+    {
+      "display": "Bay Ridge-95th Street",
+      "name": "Bay Ridge-95 St"
     }
   ],
   "Q": [
-    { 
-      "display":"Placeholder Display",
-      "name":"Placeholder Name"
+    {
+      "display": "96th Street",
+      "name": "96 St"
+    },
+    {
+      "display": "86th Street",
+      "name": "86 St"
+    },
+    {
+      "display": "72nd Street",
+      "name": "72 St"
+    },
+    {
+      "display": "Lexington Avenue-63rd Street",
+      "name": "Lexington Av-63 St"
+    },
+    {
+      "display": "57th Street-7th Avenue",
+      "name": "57 St-7 Av"
+    },
+    {
+      "display": "Times Square-42nd Street",
+      "name": "Times Sq-42 St"
+    },
+    {
+      "display": "34th Street-Herald Square",
+      "name": "34 St-Herald Sq"
+    },
+    {
+      "display": "14th Street-Union Square",
+      "name": "14 St-Union Sq"
+    },
+    {
+      "display": "Canal Street",
+      "name": "Canal St"
+    },
+    {
+      "display": "DeKalb Avenue",
+      "name": "DeKalb Av"
+    },
+    {
+      "display": "Atlantic Avenue-Barclays Center",
+      "name": "Atlantic Av-Barclays Ctr"
+    },
+    {
+      "display": "7th Avenue",
+      "name": "7 Av"
+    },
+    {
+      "display": "Prospect Park",
+      "name": "Prospect Park"
+    },
+    {
+      "display": "Parkside Avenue",
+      "name": "Parkside Av"
+    },
+    {
+      "display": "Church Avenue",
+      "name": "Church Av"
+    },
+    {
+      "display": "Beverley Road",
+      "name": "Beverley Rd"
+    },
+    {
+      "display": "Cortelyou Road",
+      "name": "Cortelyou Rd"
+    },
+    {
+      "display": "Newkirk Plaza",
+      "name": "Newkirk Plaza"
+    },
+    {
+      "display": "Avenue H",
+      "name": "Av H"
+    },
+    {
+      "display": "Avenue J",
+      "name": "Av J"
+    },
+    {
+      "display": "Avenue M",
+      "name": "Av M"
+    },
+    {
+      "display": "Kings Highway",
+      "name": "Kings Highway"
+    },
+    {
+      "display": "Avenue U",
+      "name": "Av U"
+    },
+    {
+      "display": "Neck Road",
+      "name": "Neck Rd"
+    },
+    {
+      "display": "Sheepshead Bay",
+      "name": "Sheepshead Bay"
+    },
+    {
+      "display": "Brighton Beach",
+      "name": "Brighton Beach"
+    },
+    {
+      "display": "Ocean Parkway",
+      "name": "Ocean Pkwy"
+    },
+    {
+      "display": "Coney Island-Stillwell Avenue",
+      "name": "Coney Island-Stillwell Av"
     }
   ],
   "R": [
-    { 
-      "display":"Placeholder Display",
-      "name":"Placeholder Name"
+    {
+      "display": "Forest Hills-71st Avenue",
+      "name": "Forest Hills-71 Av"
+    },
+    {
+      "display": "67th Avenue",
+      "name": "67 Av"
+    },
+    {
+      "display": "63rd Drive-Rego Park",
+      "name": "63 Dr-Rego Park"
+    },
+    {
+      "display": "Woodhaven Boulevard",
+      "name": "Woodhaven Blvd"
+    },
+    {
+      "display": "Grand Avenue-Newtown",
+      "name": "Grand Av-Newtown"
+    },
+    {
+      "display": "Elmhurst Avenue",
+      "name": "Elmhurst Av"
+    },
+    {
+      "display": "Jackson Heights-Roosevelt Avenue",
+      "name": "Jackson Heights-Roosevelt Av"
+    },
+    {
+      "display": "65th Street",
+      "name": "65 St"
+    },
+    {
+      "display": "Northern Boulevard",
+      "name": "Northern Blvd"
+    },
+    {
+      "display": "46th Street",
+      "name": "46 St"
+    },
+    {
+      "display": "Steinway Street",
+      "name": "Steinway St"
+    },
+    {
+      "display": "Queens Plaza",
+      "name": "Queens Plaza"
+    },
+    {
+      "display": "Lexington Avenue-59th Street",
+      "name": "Lexington Av-59 St"
+    },
+    {
+      "display": "5th Avenue-59th Street",
+      "name": "5 Av-59 St"
+    },
+    {
+      "display": "57th Street-7th Avenue",
+      "name": "57 St-7 Av"
+    },
+    {
+      "display": "49th Street",
+      "name": "49 St"
+    },
+    {
+      "display": "Times Square-42nd Street",
+      "name": "Times Sq-42 St"
+    },
+    {
+      "display": "34th Street-Herald Square",
+      "name": "34 St-Herald Sq"
+    },
+    {
+      "display": "28th Street",
+      "name": "28 St"
+    },
+    {
+      "display": "23rd Street",
+      "name": "23 St"
+    },
+    {
+      "display": "14th Street-Union Square",
+      "name": "14 St-Union Sq"
+    },
+    {
+      "display": "8th Street-NYU",
+      "name": "8 St-NYU"
+    },
+    {
+      "display": "Prince Street",
+      "name": "Prince St"
+    },
+    {
+      "display": "Canal Street",
+      "name": "Canal St"
+    },
+    {
+      "display": "City Hall",
+      "name": "City Hall"
+    },
+    {
+      "display": "Cortlandt Street",
+      "name": "Cortlandt St"
+    },
+    {
+      "display": "Rector Street",
+      "name": "Rector St"
+    },
+    {
+      "display": "Whitehall Street-South Ferry",
+      "name": "Whitehall St-South Ferry"
+    },
+    {
+      "display": "Court Street",
+      "name": "Court St"
+    },
+    {
+      "display": "Jay Street-MetroTech",
+      "name": "Jay St-MetroTech"
+    },
+    {
+      "display": "DeKalb Avenue",
+      "name": "DeKalb Av"
+    },
+    {
+      "display": "Atlantic Avenue-Barclays Center",
+      "name": "Atlantic Av-Barclays Ctr"
+    },
+    {
+      "display": "Union Street",
+      "name": "Union St"
+    },
+    {
+      "display": "9th Street",
+      "name": "9 St"
+    },
+    {
+      "display": "4th Avenue",
+      "name": "4 Av"
+    },
+    {
+      "display": "Prospect Avenue",
+      "name": "Prospect Av"
+    },
+    {
+      "display": "25th Street",
+      "name": "25 St"
+    },
+    {
+      "display": "36th Street",
+      "name": "36 St"
+    },
+    {
+      "display": "45th Street",
+      "name": "45 St"
+    },
+    {
+      "display": "53rd Street",
+      "name": "53 St"
+    },
+    {
+      "display": "59th Street",
+      "name": "59 St"
+    },
+    {
+      "display": "Bay Ridge Avenue",
+      "name": "Bay Ridge Av"
+    },
+    {
+      "display": "77th Street",
+      "name": "77 St"
+    },
+    {
+      "display": "86th Street",
+      "name": "86 St"
+    },
+    {
+      "display": "Bay Ridge-95th Street",
+      "name": "Bay Ridge-95 St"
     }
   ],
   "W": [
-    { 
-      "display":"Placeholder Display",
-      "name":"Placeholder Name"
+    {
+      "display": "Astoria-Ditmars Boulevard",
+      "name": "Astoria-Ditmars Blvd"
+    },
+    {
+      "display": "Astoria Boulevard",
+      "name": "Astoria Blvd"
+    },
+    {
+      "display": "30th Avenue",
+      "name": "30 Av"
+    },
+    {
+      "display": "Broadway",
+      "name": "Broadway"
+    },
+    {
+      "display": "36th Avenue",
+      "name": "36 Av"
+    },
+    {
+      "display": "39th Avenue",
+      "name": "39 Av"
+    },
+    {
+      "display": "Queensboro Plaza",
+      "name": "Queensboro Plaza"
+    },
+    {
+      "display": "Lexington Avenue-59th Street",
+      "name": "Lexington Av-59 St"
+    },
+    {
+      "display": "5th Avenue-59th Street",
+      "name": "5 Av-59 St"
+    },
+    {
+      "display": "57th Street-7th Avenue",
+      "name": "57 St-7 Av"
+    },
+    {
+      "display": "49th Street",
+      "name": "49 St"
+    },
+    {
+      "display": "Times Square-42nd Street",
+      "name": "Times Sq-42 St"
+    },
+    {
+      "display": "34th Street-Herald Square",
+      "name": "34 St-Herald Sq"
+    },
+    {
+      "display": "28th Street",
+      "name": "28 St"
+    },
+    {
+      "display": "23rd Street",
+      "name": "23 St"
+    },
+    {
+      "display": "14th Street-Union Square",
+      "name": "14 St-Union Sq"
+    },
+    {
+      "display": "8th Street-NYU",
+      "name": "8 St-NYU"
+    },
+    {
+      "display": "Prince Street",
+      "name": "Prince St"
+    },
+    {
+      "display": "Canal Street",
+      "name": "Canal St"
+    },
+    {
+      "display": "City Hall",
+      "name": "City Hall"
+    },
+    {
+      "display": "Cortlandt Street",
+      "name": "Cortlandt St"
+    },
+    {
+      "display": "Rector Street",
+      "name": "Rector St"
+    },
+    {
+      "display": "Whitehall Street-South Ferry",
+      "name": "Whitehall St-South Ferry"
     }
   ],
   "Z": [
-    { 
-      "display":"Placeholder Display",
-      "name":"Placeholder Name"
+    {
+      "display": "Jamaica Center-Parsons/Archer",
+      "name": "Jamaica Ctr-Parsons-Archer"
+    },
+    {
+      "display": "Sutphin Boulevard-Archer Avenue-JFK Airport",
+      "name": "Sutphin Blvd-Archer Av-JFK Airport"
+    },
+    {
+      "display": "121st Street",
+      "name": "121 St"
+    },
+    {
+      "display": "111th Street",
+      "name": "111 St"
+    },
+    {
+      "display": "104th Street",
+      "name": "104 St"
+    },
+    {
+      "display": "Woodhaven Boulevard",
+      "name": "Woodhaven Blvd"
+    },
+    {
+      "display": "85th Street-Forest Parkway",
+      "name": "85 St-Forest Pkwy"
+    },
+    {
+      "display": "75th Street-Elderts Lane",
+      "name": "75 St-Elderts Lane"
+    },
+    {
+      "display": "Cypress Hills",
+      "name": "Cypress Hills"
+    },
+    {
+      "display": "Crescent Street",
+      "name": "Crescent St"
+    },
+    {
+      "display": "Norwood Avenue",
+      "name": "Norwood Av"
+    },
+    {
+      "display": "Cleveland Street",
+      "name": "Cleveland St"
+    },
+    {
+      "display": "Van Siclen Avenue",
+      "name": "Van Siclen Av"
+    },
+    {
+      "display": "Alabama Avenue",
+      "name": "Alabama Av"
+    },
+    {
+      "display": "Broadway Junction",
+      "name": "Broadway Junction"
+    },
+    {
+      "display": "Chauncey Street",
+      "name": "Chauncey St"
+    },
+    {
+      "display": "Halsey Street",
+      "name": "Halsey St"
+    },
+    {
+      "display": "Gates Avenue",
+      "name": "Gates Av"
+    },
+    {
+      "display": "Kosciuszko Street",
+      "name": "Kosciuszko St"
+    },
+    {
+      "display": "Myrtle Avenue",
+      "name": "Myrtle Av"
+    },
+    {
+      "display": "Flushing Avenue",
+      "name": "Flushing Av"
+    },
+    {
+      "display": "Lorimer Street",
+      "name": "Lorimer St"
+    },
+    {
+      "display": "Hewes Street",
+      "name": "Hewes St"
+    },
+    {
+      "display": "Marcy Avenue",
+      "name": "Marcy Av"
+    },
+    {
+      "display": "Delancey Street-Essex Street",
+      "name": "Delancey St-Essex St"
+    },
+    {
+      "display": "Bowery",
+      "name": "Bowery"
+    },
+    {
+      "display": "Canal Street",
+      "name": "Canal St"
+    },
+    {
+      "display": "Chambers Street",
+      "name": "Chambers St"
+    },
+    {
+      "display": "Fulton Street",
+      "name": "Fulton St"
+    },
+    {
+      "display": "Broad Street",
+      "name": "Broad St"
     }
   ]
 }
