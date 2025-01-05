@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 // Models
 struct SubwayLine: Identifiable, Equatable {
@@ -26,8 +27,29 @@ struct Station: Identifiable, Decodable, Equatable {
     }
 }
 
-struct ArrivalTime {
-    let minutes: Int
+struct APIResponse: Decodable {
+    let data: [StationData]
+}
+
+struct StationData: Decodable {
+    let name: String
+    let N: [Train]
+    let S: [Train]
+}
+
+struct Train: Decodable {
+    let route: String
+    let time: String
+}
+
+struct TrainData: Decodable {
+    let station: String
+    let arrivalTimes: [Int]
+    
+    private enum CodingKeys: String, CodingKey {
+        case station
+        case arrivalTimes = "times" // Adjust if the API uses a different key
+    }
 }
 
 // Main App Views
@@ -237,9 +259,10 @@ struct TimesView: View {
     let line: SubwayLine
     let station: Station
     
-    // Sample arrival times
-    let nextTrains = [8, 12, 19, 28]
-    
+    @State private var nextTrains: [Int] = [] // Dynamic arrival times
+    @State private var loading = true
+    @State private var errorMessage: String?
+
     var body: some View {
         VStack(spacing: 0) {
             Text(line.label)
@@ -248,21 +271,95 @@ struct TimesView: View {
                 .frame(width: 100, height: 100)
                 .background(Circle().fill(line.bg_color))
             
-            Text("\(nextTrains[0]) min")
-                .font(.custom("HelveticaNeue-Bold", size: 36))
-                .foregroundColor(.white)
-            
-            Text(nextTrains.dropFirst()
-                .map { "\($0) min" }
-                .joined(separator: ", "))
-                .font(.custom("HelveticaNeue-Bold", size: 14))
-                .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
-            
+            if loading {
+                Text("Loading...")
+                    .font(.custom("HelveticaNeue-Bold", size: 20))
+                    .foregroundColor(.gray)
+            } else if let errorMessage = errorMessage {
+                Text(errorMessage)
+                    .font(.custom("HelveticaNeue-Bold", size: 14))
+                    .foregroundColor(.red)
+            } else if !nextTrains.isEmpty {
+                Text("\(nextTrains[0]) min")
+                    .font(.custom("HelveticaNeue-Bold", size: 36))
+                    .foregroundColor(.white)
+                
+                Text(nextTrains.dropFirst()
+                    .map { "\($0) min" }
+                    .joined(separator: ", "))
+                    .font(.custom("HelveticaNeue-Bold", size: 14))
+                    .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
+            } else {
+                Text("No arrival times available")
+                    .font(.custom("HelveticaNeue-Bold", size: 14))
+                    .foregroundColor(.gray)
+            }
+
             Text(station.name)
                 .font(.custom("HelveticaNeue-Medium", size: 20))
                 .foregroundColor(.white)
                 .padding(.top)
         }
         .padding()
+        .onAppear {
+            fetchArrivalTimes(direction: "N")
+        }
+    }
+
+    private func fetchArrivalTimes(direction: String) {
+        let apiURL = "https://api.wheresthefuckingtrain.com/by-route/\(line.id)"
+        
+        guard let url = URL(string: apiURL) else {
+            errorMessage = "Invalid URL"
+            loading = false
+            return
+        }
+        
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    errorMessage = "Error: \(error.localizedDescription)"
+                    loading = false
+                    return
+                }
+                
+                guard let data = data else {
+                    errorMessage = "No data received"
+                    loading = false
+                    return
+                }
+                
+                do {
+                    let response = try JSONDecoder().decode(APIResponse.self, from: data)
+                    if let stationData = response.data.first(where: { $0.name == station.name }) {
+                        nextTrains = extractArrivalTimes(for: line, from: stationData, direction: direction)
+                    } else {
+                        errorMessage = "Station data not found"
+                    }
+                    loading = false
+                } catch {
+                    errorMessage = "Failed to decode data: \(error.localizedDescription)"
+                    loading = false
+                }
+            }
+        }.resume()
+    }
+
+    private func extractArrivalTimes(for line: SubwayLine, from stationData: StationData, direction: String) -> [Int] {
+        let currentTime = Date()
+        let formatter = ISO8601DateFormatter()
+        
+        // Filter trains by direction (`N` or `S`) and route
+        let trains = (direction == "N" ? stationData.N : stationData.S).filter { $0.route == line.id }
+        
+        // Convert `time` values to minutes from now
+        return trains.compactMap { train in
+            if let trainTime = formatter.date(from: train.time) {
+                let minutes = Calendar.current.dateComponents([.minute], from: currentTime, to: trainTime).minute
+                return minutes ?? 0
+            }
+            return nil
+        }.sorted() // Sort the times in ascending order
     }
 }
+
