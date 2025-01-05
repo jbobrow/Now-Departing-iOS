@@ -16,12 +16,12 @@ class TimesViewModel: ObservableObject {
     
     private var timer: Timer?
     
-    func startFetchingTimes(for line: SubwayLine, station: Station, terminal: String) {
-        fetchArrivalTimes(for: line, station: station, terminal: terminal)
+    func startFetchingTimes(for line: SubwayLine, station: Station, direction: String) {
+        fetchArrivalTimes(for: line, station: station, direction: direction)
         
         // Set up a timer to refresh the data every 10 seconds
         timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { [weak self] _ in
-            self?.fetchArrivalTimes(for: line, station: station, terminal: terminal)
+            self?.fetchArrivalTimes(for: line, station: station, direction: direction)
         }
     }
     
@@ -30,8 +30,7 @@ class TimesViewModel: ObservableObject {
         timer = nil
     }
     
-    private func fetchArrivalTimes(for line: SubwayLine, station: Station, terminal: String) {
-        let direction = getDirection(for: terminal, line: line)
+    private func fetchArrivalTimes(for line: SubwayLine, station: Station, direction: String) {
         guard !direction.isEmpty else {
             self.errorMessage = "Invalid terminal station"
             self.loading = false
@@ -96,9 +95,5 @@ class TimesViewModel: ObservableObject {
             }
             return nil
         }.sorted() // Sort the times in ascending order
-    }
-    
-    private func getDirection(for terminal: String, line: SubwayLine) -> String {
-        return "N"// terminal == line.terminals.first ? "N" : "S"
     }
 }

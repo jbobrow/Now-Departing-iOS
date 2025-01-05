@@ -121,9 +121,14 @@ struct ContentView: View {
                         Text("No terminals available for this line.")
                     }
                 case "times":
-                    if let line = selectedLine, let station = selectedStation {
+                    if let line = selectedLine,
+                        let station = selectedStation,
+                        let terminal = selectedTerminal,
+                        let stations = stationDataManager.stationsByLine[line.id] {
                         let viewModel = TimesViewModel()  // Create the view model
-                        TimesView(viewModel: viewModel, line: line, station: station, terminal: "N")  // Pass it to the view
+                        // Pass the terminal's direction (either "N" or "S") based on selectedTerminal
+                        let terminalDirection = terminal == stations.first ? "N" : "S"
+                        TimesView(viewModel: viewModel, line: line, station: station, direction: terminalDirection)  // Pass it to the view
                     } else {
                         Text("No data available.")
                     }
@@ -260,7 +265,7 @@ struct TimesView: View {
     @ObservedObject var viewModel: TimesViewModel
     let line: SubwayLine
     let station: Station
-    let terminal: String
+    let direction: String
     
     var body: some View {
         VStack(spacing: 0) {
@@ -308,7 +313,8 @@ struct TimesView: View {
         }
         .padding()
         .onAppear {
-            viewModel.startFetchingTimes(for: line, station: station, terminal: terminal)
+            viewModel.startFetchingTimes(for: line, station: station, direction: direction)
+            print("Selected Direction: \(direction)")
         }
         .onDisappear {
             viewModel.stopFetchingTimes()
