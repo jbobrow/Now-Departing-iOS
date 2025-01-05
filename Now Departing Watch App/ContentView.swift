@@ -281,10 +281,14 @@ struct TimesView: View {
             } else {
                 let nextTrains = viewModel.nextTrains;
                 if !nextTrains.isEmpty {
-                    Text("\(nextTrains[0]) min")
-                        .font(.custom("HelveticaNeue-Bold", size: 36))
+                    // Check if the first train is departing (0 minutes)
+                    let firstTrainText = nextTrains[0] == 0 ? "Departing" : "\(nextTrains[0]) min"
+                    let firstTrainTextSize: CGFloat = nextTrains[0] == 0 ? 28 : 36
+
+                    Text(firstTrainText)
+                        .font(.custom("HelveticaNeue-Bold", size: firstTrainTextSize))
                         .foregroundColor(.white)
-                    
+                
                     Text(nextTrains.dropFirst()
                         .map { "\($0) min" }
                         .joined(separator: ", "))
