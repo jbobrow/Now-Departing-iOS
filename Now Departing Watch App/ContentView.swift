@@ -262,6 +262,7 @@ struct TerminalSelectionView: View {
 
 // Times View
 struct TimesView: View {
+    @Environment(\.scenePhase) private var scenePhase
     @ObservedObject var viewModel: TimesViewModel
     let line: SubwayLine
     let station: Station
@@ -283,10 +284,11 @@ struct TimesView: View {
                 Text(viewModel.errorMessage)
                     .font(.custom("HelveticaNeue-Bold", size: 14))
                     .foregroundColor(.red)
+                    .padding(.top)
+                    .padding(.bottom)
             } else {
                 let nextTrains = viewModel.nextTrains;
                 if !nextTrains.isEmpty {
-                    // Check if the first train is departing (0 minutes)
                     let firstTrainText = nextTrains[0] == 0 ? "Departing" : "\(nextTrains[0]) min"
                     let firstTrainTextSize: CGFloat = nextTrains[0] == 0 ? 28 : 36
 
@@ -311,15 +313,23 @@ struct TimesView: View {
             Text(station.display)
                 .font(.custom("HelveticaNeue-Medium", size: 20))
                 .foregroundColor(.white)
-                .padding(.top)
         }
         .padding()
         .onAppear {
             viewModel.startFetchingTimes(for: line, station: station, direction: direction)
-//            print("Selected Direction: \(direction)")
         }
         .onDisappear {
             viewModel.stopFetchingTimes()
+        }
+        .onChange(of: scenePhase) { newScenePhase in
+            switch newScenePhase {
+            case .active:
+                viewModel.startFetchingTimes(for: line, station: station, direction: direction)
+            case .background, .inactive:
+                viewModel.stopFetchingTimes()
+            @unknown default:
+                break
+            }
         }
     }
 }
