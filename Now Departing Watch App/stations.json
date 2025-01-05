@@ -1,10 +1,158 @@
 {
   "1": [
-    { 
-      "display":"Placeholder Display",
-      "name":"Placeholder Name"
-    }
-  ],
+  {
+    "display": "Van Cortlandt Park-242nd Street", 
+    "name": "Van Cortlandt Park-242 St"
+  }, 
+  {
+    "display": "238th Street", 
+    "name": "238 St"
+  }, 
+  {
+    "display": "231st Street", 
+    "name": "231 St"
+  }, 
+  {
+    "display": "Marble Hill-225th Street", 
+    "name": "Marble Hill-225 St"
+  }, 
+  {
+    "display": "215th Street", 
+    "name": "215 St"
+  }, 
+  {
+    "display": "207th Street", 
+    "name": "207 St"
+  }, 
+  {
+    "display": "Dyckman Street", 
+    "name": "Dyckman St"
+  }, 
+  {
+    "display": "191st Street", 
+    "name": "191 St"
+  }, 
+  {
+    "display": "181st Street", 
+    "name": "181 St"
+  }, 
+  {
+    "display": "168th Street", 
+    "name": "168 St"
+  }, 
+  {
+    "display": "157th Street", 
+    "name": "157 St"
+  }, 
+  {
+    "display": "145th Street", 
+    "name": "145 St"
+  }, 
+  {
+    "display": "137th Street-City College", 
+    "name": "137 St-City College"
+  }, 
+  {
+    "display": "125th Street", 
+    "name": "125 St"
+  }, 
+  {
+    "display": "116th Street-Columbia University", 
+    "name": "116 St-Columbia University"
+  }, 
+  {
+    "display": "Cathedral Parkway-110th Street", 
+    "name": "Cathedral Pkwy (110 St)"
+  }, 
+  {
+    "display": "103rd Street", 
+    "name": "103 St"
+  }, 
+  {
+    "display": "96th Street", 
+    "name": "96 St"
+  }, 
+  {
+    "display": "86th Street", 
+    "name": "86 St"
+  }, 
+  {
+    "display": "79th Street", 
+    "name": "79 St"
+  }, 
+  {
+    "display": "72nd Street", 
+    "name": "72 St"
+  }, 
+  {
+    "display": "66th Street-Lincoln Center", 
+    "name": "66 St-Lincoln Center"
+  }, 
+  {
+    "display": "59th Street-Columbus Circle", 
+    "name": "59 St-Columbus Circle"
+  }, 
+  {
+    "display": "50th Street", 
+    "name": "50 St"
+  }, 
+  {
+    "display": "Times Square-42nd Street", 
+    "name": "Times Sq-42 St"
+  }, 
+  {
+    "display": "34th Street-Penn Station", 
+    "name": "34 St-Penn Station"
+  }, 
+  {
+    "display": "28th Street", 
+    "name": "28 St"
+  }, 
+  {
+    "display": "23rd Street", 
+    "name": "23 St"
+  }, 
+  {
+    "display": "18th Street", 
+    "name": "18 St"
+  }, 
+  {
+    "display": "14th Street", 
+    "name": "14 St"
+  }, 
+  {
+    "display": "Christopher Street-Sheridan Square", 
+    "name": "Christopher St-Sheridan Sq"
+  }, 
+  {
+    "display": "Houston Street", 
+    "name": "Houston St"
+  }, 
+  {
+    "display": "Canal Street", 
+    "name": "Canal St"
+  }, 
+  {
+    "display": "Franklin Street", 
+    "name": "Franklin St"
+  }, 
+  {
+    "display": "Chambers Street", 
+    "name": "Chambers St"
+  }, 
+  {
+    "display": "Cortlandt Street", 
+    "name": "WTC Cortlandt"
+  }, 
+  {
+    "display": "Rector Street", 
+    "name": "Rector St"
+  }, 
+  {
+    "display": "South Ferry", 
+    "name": "South Ferry"
+  }
+],
   "2": [
     { 
       "display":"Placeholder Display",
