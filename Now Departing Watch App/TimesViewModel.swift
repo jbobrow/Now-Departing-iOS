@@ -1,3 +1,11 @@
+//
+//  TimesViewModel.swift
+//  Now Departing
+//
+//  Created by Jonathan Bobrow on 1/4/25.
+//
+
+
 import Foundation
 import Combine
 
@@ -11,9 +19,9 @@ class TimesViewModel: ObservableObject {
     func startFetchingTimes(for line: SubwayLine, station: Station, terminal: String) {
         fetchArrivalTimes(for: line, station: station, terminal: terminal)
         
-        // Set up a timer to refresh the data every 30 seconds
-        timer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { _ in
-            self.fetchArrivalTimes(for: line, station: station, terminal: terminal)
+        // Set up a timer to refresh the data every 10 seconds
+        timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { [weak self] _ in
+            self?.fetchArrivalTimes(for: line, station: station, terminal: terminal)
         }
     }
     
@@ -25,44 +33,44 @@ class TimesViewModel: ObservableObject {
     private func fetchArrivalTimes(for line: SubwayLine, station: Station, terminal: String) {
         let direction = getDirection(for: terminal, line: line)
         guard !direction.isEmpty else {
-            errorMessage = "Invalid terminal station"
-            loading = false
+            self.errorMessage = "Invalid terminal station"
+            self.loading = false
             return
         }
         
         let apiURL = "https://api.wheresthefuckingtrain.com/by-route/\(line.id)"
         
         guard let url = URL(string: apiURL) else {
-            errorMessage = "Invalid URL"
-            loading = false
+            self.errorMessage = "Invalid URL"
+            self.loading = false
             return
         }
         
-        URLSession.shared.dataTask(with: url) { data, response, error in
+        URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
             DispatchQueue.main.async {
                 if let error = error {
-                    errorMessage = "Error: \(error.localizedDescription)"
-                    loading = false
+                    self?.errorMessage = "Error: \(error.localizedDescription)"
+                    self?.loading = false
                     return
                 }
                 
                 guard let data = data else {
-                    errorMessage = "No data received"
-                    loading = false
+                    self?.errorMessage = "No data received"
+                    self?.loading = false
                     return
                 }
                 
                 do {
                     let response = try JSONDecoder().decode(APIResponse.self, from: data)
                     if let stationData = response.data.first(where: { $0.name == station.name }) {
-                        nextTrains = extractArrivalTimes(for: line, from: stationData, direction: direction)
+                        self?.nextTrains = self?.extractArrivalTimes(for: line, from: stationData, direction: direction) ?? []
                     } else {
-                        errorMessage = "Station data not found"
+                        self?.errorMessage = "Station data not found"
                     }
-                    loading = false
+                    self?.loading = false
                 } catch {
-                    errorMessage = "Failed to decode data: \(error.localizedDescription)"
-                    loading = false
+                    self?.errorMessage = "Failed to decode data: \(error.localizedDescription)"
+                    self?.loading = false
                 }
             }
         }.resume()
@@ -72,8 +80,13 @@ class TimesViewModel: ObservableObject {
         let currentTime = Date()
         let formatter = ISO8601DateFormatter()
         
-        // Combine and filter the train arrays (`N` and `S`) for the selected route
-        let trains = (stationData.N + stationData.S).filter { $0.route == line.id }
+        // Filter the train array based on the direction and line
+        let trains: [Train]
+        if direction == "N" {
+            trains = stationData.N.filter { $0.route == line.id }
+        } else {
+            trains = stationData.S.filter { $0.route == line.id }
+        }
         
         // Convert `time` values to minutes from now
         return trains.compactMap { train in
@@ -86,6 +99,6 @@ class TimesViewModel: ObservableObject {
     }
     
     private func getDirection(for terminal: String, line: SubwayLine) -> String {
-        return terminal == line.terminals.first ? "N" : "S"
+        return "N"// terminal == line.terminals.first ? "N" : "S"
     }
 }

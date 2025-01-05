@@ -122,7 +122,8 @@ struct ContentView: View {
                     }
                 case "times":
                     if let line = selectedLine, let station = selectedStation {
-                        TimesView(line: line, station: station)
+                        let viewModel = TimesViewModel()  // Create the view model
+                        TimesView(viewModel: viewModel, line: line, station: station, terminal: "N")  // Pass it to the view
                     } else {
                         Text("No data available.")
                     }
@@ -256,13 +257,11 @@ struct TerminalSelectionView: View {
 
 // Times View
 struct TimesView: View {
+    @ObservedObject var viewModel: TimesViewModel
     let line: SubwayLine
     let station: Station
+    let terminal: String
     
-    @State private var nextTrains: [Int] = [] // Dynamic arrival times
-    @State private var loading = true
-    @State private var errorMessage: String?
-
     var body: some View {
         VStack(spacing: 0) {
             Text(line.label)
@@ -271,30 +270,33 @@ struct TimesView: View {
                 .frame(width: 100, height: 100)
                 .background(Circle().fill(line.bg_color))
             
-            if loading {
+            if viewModel.loading {
                 Text("Loading...")
                     .font(.custom("HelveticaNeue-Bold", size: 20))
                     .foregroundColor(.gray)
-            } else if let errorMessage = errorMessage {
-                Text(errorMessage)
+            } else if !viewModel.errorMessage.isEmpty {
+                Text(viewModel.errorMessage)
                     .font(.custom("HelveticaNeue-Bold", size: 14))
                     .foregroundColor(.red)
-            } else if !nextTrains.isEmpty {
-                Text("\(nextTrains[0]) min")
-                    .font(.custom("HelveticaNeue-Bold", size: 36))
-                    .foregroundColor(.white)
-                
-                Text(nextTrains.dropFirst()
-                    .map { "\($0) min" }
-                    .joined(separator: ", "))
-                    .font(.custom("HelveticaNeue-Bold", size: 14))
-                    .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
             } else {
-                Text("No arrival times available")
-                    .font(.custom("HelveticaNeue-Bold", size: 14))
-                    .foregroundColor(.gray)
+                let nextTrains = viewModel.nextTrains;
+                if !nextTrains.isEmpty {
+                    Text("\(nextTrains[0]) min")
+                        .font(.custom("HelveticaNeue-Bold", size: 36))
+                        .foregroundColor(.white)
+                    
+                    Text(nextTrains.dropFirst()
+                        .map { "\($0) min" }
+                        .joined(separator: ", "))
+                        .font(.custom("HelveticaNeue-Bold", size: 14))
+                        .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
+                } else {
+                    Text("No arrival times available")
+                        .font(.custom("HelveticaNeue-Bold", size: 14))
+                        .foregroundColor(.gray)
+                }
             }
-
+            
             Text(station.name)
                 .font(.custom("HelveticaNeue-Medium", size: 20))
                 .foregroundColor(.white)
@@ -302,64 +304,10 @@ struct TimesView: View {
         }
         .padding()
         .onAppear {
-            fetchArrivalTimes(direction: "N")
+            viewModel.startFetchingTimes(for: line, station: station, terminal: terminal)
         }
-    }
-
-    private func fetchArrivalTimes(direction: String) {
-        let apiURL = "https://api.wheresthefuckingtrain.com/by-route/\(line.id)"
-        
-        guard let url = URL(string: apiURL) else {
-            errorMessage = "Invalid URL"
-            loading = false
-            return
+        .onDisappear {
+            viewModel.stopFetchingTimes()
         }
-        
-        URLSession.shared.dataTask(with: url) { data, response, error in
-            DispatchQueue.main.async {
-                if let error = error {
-                    errorMessage = "Error: \(error.localizedDescription)"
-                    loading = false
-                    return
-                }
-                
-                guard let data = data else {
-                    errorMessage = "No data received"
-                    loading = false
-                    return
-                }
-                
-                do {
-                    let response = try JSONDecoder().decode(APIResponse.self, from: data)
-                    if let stationData = response.data.first(where: { $0.name == station.name }) {
-                        nextTrains = extractArrivalTimes(for: line, from: stationData, direction: direction)
-                    } else {
-                        errorMessage = "Station data not found"
-                    }
-                    loading = false
-                } catch {
-                    errorMessage = "Failed to decode data: \(error.localizedDescription)"
-                    loading = false
-                }
-            }
-        }.resume()
-    }
-
-    private func extractArrivalTimes(for line: SubwayLine, from stationData: StationData, direction: String) -> [Int] {
-        let currentTime = Date()
-        let formatter = ISO8601DateFormatter()
-        
-        // Filter trains by direction (`N` or `S`) and route
-        let trains = (direction == "N" ? stationData.N : stationData.S).filter { $0.route == line.id }
-        
-        // Convert `time` values to minutes from now
-        return trains.compactMap { train in
-            if let trainTime = formatter.date(from: train.time) {
-                let minutes = Calendar.current.dateComponents([.minute], from: currentTime, to: trainTime).minute
-                return minutes ?? 0
-            }
-            return nil
-        }.sorted() // Sort the times in ascending order
     }
 }
-
