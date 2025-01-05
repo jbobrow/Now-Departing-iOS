@@ -137,13 +137,13 @@ struct ContentView: View {
                 }
             }
             .onChange(of: selectedLine) { newValue in
-                print("Selected Line changed to: \(newValue?.id ?? "nil")")
+//                print("Selected Line changed to: \(newValue?.id ?? "nil")")
             }
             .onChange(of: selectedStation) { newValue in
-                print("Selected Station changed to: \(newValue?.display ?? "nil")")
+//                print("Selected Station changed to: \(newValue?.display ?? "nil")")
             }
             .onChange(of: selectedTerminal) { newValue in
-                print("Selected Terminal changed to: \(newValue?.display ?? "nil")")
+//                print("Selected Terminal changed to: \(newValue?.display ?? "nil")")
             }
         }
     }
@@ -213,7 +213,7 @@ struct StationSelectionView: View {
             VStack {
                 Text("No stations available")
                     .font(.custom("HelveticaNeue-Bold", size: 14))
-                    .foregroundColor(.gray)
+                    .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
                 Text(line.label)
                     .font(.custom("HelveticaNeue-Bold", size: 26))
                     .foregroundColor(line.fg_color)
@@ -278,7 +278,7 @@ struct TimesView: View {
             if viewModel.loading {
                 Text("Loading...")
                     .font(.custom("HelveticaNeue-Bold", size: 20))
-                    .foregroundColor(.gray)
+                    .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
             } else if !viewModel.errorMessage.isEmpty {
                 Text(viewModel.errorMessage)
                     .font(.custom("HelveticaNeue-Bold", size: 14))
@@ -300,13 +300,15 @@ struct TimesView: View {
                         .font(.custom("HelveticaNeue-Bold", size: 14))
                         .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
                 } else {
-                    Text("No arrival times available")
+                    Text("Loading...")
                         .font(.custom("HelveticaNeue-Bold", size: 14))
-                        .foregroundColor(.gray)
+                        .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
+                        .padding(.top)
+                        .padding(.bottom)
                 }
             }
             
-            Text(station.name)
+            Text(station.display)
                 .font(.custom("HelveticaNeue-Medium", size: 20))
                 .foregroundColor(.white)
                 .padding(.top)
@@ -314,7 +316,7 @@ struct TimesView: View {
         .padding()
         .onAppear {
             viewModel.startFetchingTimes(for: line, station: station, direction: direction)
-            print("Selected Direction: \(direction)")
+//            print("Selected Direction: \(direction)")
         }
         .onDisappear {
             viewModel.stopFetchingTimes()
