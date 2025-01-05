@@ -1,6 +1,6 @@
 //
 //  Now_DepartingApp.swift
-//  Now Departing Watch App
+//  Now Departing WatchOS App
 //
 //  Created by Jonathan Bobrow on 12/29/24.
 //

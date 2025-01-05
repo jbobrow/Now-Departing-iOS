@@ -1,6 +1,6 @@
 //
 //  StationDataManager.swift
-//  Now Departing
+//  Now Departing WatchOS App
 //
 //  Created by Jonathan Bobrow on 1/4/25.
 //
