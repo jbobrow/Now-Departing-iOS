@@ -153,29 +153,44 @@ struct ContentView: View {
 struct LineSelectionView: View {
     let lines: [SubwayLine]
     let onSelect: (SubwayLine) -> Void
-    
-    let columns = [
-        GridItem(.flexible()),
-        GridItem(.flexible()),
-        GridItem(.flexible()),
-        GridItem(.flexible())
-    ]
-    
+        
     var body: some View {
-        ScrollView {
-            LazyVGrid(columns: columns, spacing: 4) {
-                ForEach(lines) { line in
-                    Button(action: { onSelect(line) }) {
-                        Text(line.label)
-                            .font(.custom("HelveticaNeue-Bold", size: 26))
-                            .foregroundColor(line.fg_color)
-                            .frame(width: 40, height: 40)
-                            .background(Circle().fill(line.bg_color))
+        GeometryReader { geometry in
+            let isSmallScreen = geometry.size.width < 165  // Approximate size for smaller watches
+            
+            // Helper Tool: display if the screen is small on screen
+//            VStack {
+//                Text("Screen Width: \(geometry.size.width, specifier: "%.2f")")
+//                if isSmallScreen {
+//                    Text("Small Screen Detected")
+//                } else {
+//                    Text("Large Screen Detected")
+//                }
+//            }
+//            .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            let columns = [
+                GridItem(.flexible(minimum: 32, maximum: 38), spacing: isSmallScreen ? 2 : 4),
+                GridItem(.flexible(minimum: 32, maximum: 38), spacing: isSmallScreen ? 2 : 4),
+                GridItem(.flexible(minimum: 32, maximum: 38), spacing: isSmallScreen ? 2 : 4),
+                GridItem(.flexible(minimum: 32, maximum: 38), spacing: isSmallScreen ? 2 : 4)
+            ]
+            
+            ScrollView {
+                LazyVGrid(columns: columns, spacing: isSmallScreen ? 2 : 4) {
+                    ForEach(lines) { line in
+                        Button(action: { onSelect(line) }) {
+                            Text(line.label)
+                                .font(.custom("HelveticaNeue-Bold", size: isSmallScreen ? 22 : 26))
+                                .foregroundColor(line.fg_color)
+                                .frame(width: isSmallScreen ? 34 : 38, height: isSmallScreen ? 34 : 38)
+                                .background(Circle().fill(line.bg_color))
+                        }
+                        .buttonStyle(PlainButtonStyle())
                     }
-                    .buttonStyle(PlainButtonStyle())
                 }
             }
-            .padding()
+            .padding(.horizontal)
         }
     }
 }
@@ -269,52 +284,67 @@ struct TimesView: View {
     let direction: String
     
     var body: some View {
-        VStack(spacing: 0) {
-            Text(line.label)
-                .font(.custom("HelveticaNeue-Bold", size: 60))
-                .foregroundColor(line.fg_color)
-                .frame(width: 100, height: 100)
-                .background(Circle().fill(line.bg_color))
+        GeometryReader { geometry in
+            let isSmallScreen = geometry.size.width < 165
             
-            if viewModel.loading {
-                Text("Loading...")
-                    .font(.custom("HelveticaNeue-Bold", size: 20))
-                    .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
-            } else if !viewModel.errorMessage.isEmpty {
-                Text(viewModel.errorMessage)
-                    .font(.custom("HelveticaNeue-Bold", size: 14))
-                    .foregroundColor(.red)
-                    .padding(.top)
-                    .padding(.bottom)
-            } else {
-                let nextTrains = viewModel.nextTrains;
-                if !nextTrains.isEmpty {
-                    let firstTrainText = nextTrains[0] == 0 ? "Departing" : "\(nextTrains[0]) min"
-                    let firstTrainTextSize: CGFloat = nextTrains[0] == 0 ? 28 : 36
-
-                    Text(firstTrainText)
-                        .font(.custom("HelveticaNeue-Bold", size: firstTrainTextSize))
-                        .foregroundColor(.white)
+            VStack(alignment: .center, spacing: 0) {
+                Text(line.label)
+                    .font(.custom("HelveticaNeue-Bold", size: isSmallScreen ? 48 : 60))
+                    .foregroundColor(line.fg_color)
+                    .frame(width: isSmallScreen ? 80 : 100, height: isSmallScreen ? 80 : 100)
+                    .background(Circle().fill(line.bg_color))
+                    .padding(.bottom, isSmallScreen ? 2 : 4)
                 
-                    Text(nextTrains.dropFirst()
-                        .map { "\($0) min" }
-                        .joined(separator: ", "))
-                        .font(.custom("HelveticaNeue-Bold", size: 14))
-                        .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
-                } else {
+                if viewModel.loading {
                     Text("Loading...")
-                        .font(.custom("HelveticaNeue-Bold", size: 14))
+                        .font(.custom("HelveticaNeue-Bold", size: isSmallScreen ? 18 : 20))
                         .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
-                        .padding(.top)
-                        .padding(.bottom)
+                } else if !viewModel.errorMessage.isEmpty {
+                    Text(viewModel.errorMessage)
+                        .font(.custom("HelveticaNeue-Bold", size: 14))
+                        .foregroundColor(.red)
+                        .padding(.vertical, isSmallScreen ? 4 : 8)
+                        .multilineTextAlignment(.center)
+                } else {
+                    let nextTrains = viewModel.nextTrains;
+                    if !nextTrains.isEmpty {
+                        let firstTrainText = nextTrains[0] == 0 ? "Departing" : "\(nextTrains[0]) min"
+                        let firstTrainTextSize: CGFloat = nextTrains[0] == 0
+                            ? (isSmallScreen ? 24 : 28)
+                            : (isSmallScreen ? 32 : 36)
+
+                        Text(firstTrainText)
+                            .font(.custom("HelveticaNeue-Bold", size: firstTrainTextSize))
+                            .foregroundColor(.white)
+                    
+                        // Next trains on single line with truncation
+                        Text(nextTrains.dropFirst()
+                            .prefix(3)  // Limit to next 3 trains
+                            .map { "\($0) min" }
+                            .joined(separator: ", "))
+                            .font(.custom("HelveticaNeue-Bold", size: 14))
+                            .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
+                            .lineLimit(1)
+                            .truncationMode(.tail)
+                    } else {
+                        Text("Loading...")
+                            .font(.custom("HelveticaNeue-Bold", size: 14))
+                            .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
+                            .padding(.vertical, isSmallScreen ? 4 : 8)
+                    }
                 }
+                    
+                Text(station.display)
+                    .font(.custom("HelveticaNeue-Medium", size: isSmallScreen ? 18 : 20))
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
             }
-            
-            Text(station.display)
-                .font(.custom("HelveticaNeue-Medium", size: 20))
-                .foregroundColor(.white)
+            .frame(
+                minWidth: geometry.size.width,
+                minHeight: geometry.size.height,
+                alignment: .center
+            )
         }
-        .padding()
         .onAppear {
             viewModel.startFetchingTimes(for: line, station: station, direction: direction)
         }
