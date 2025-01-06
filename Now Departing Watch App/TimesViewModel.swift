@@ -64,7 +64,7 @@ class TimesViewModel: ObservableObject {
                     if let stationData = response.data.first(where: { $0.name == station.name }) {
                         self?.nextTrains = self?.extractArrivalTimes(for: line, from: stationData, direction: direction) ?? []
                     } else {
-                        self?.errorMessage = "Station data not found"
+                        self?.errorMessage = "No times found"//"Station data not found"
                     }
                     self?.loading = false
                 } catch {
