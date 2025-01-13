@@ -315,7 +315,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Now Departing Watch App/Preview Content\"";
-				DEVELOPMENT_TEAM = 8BQ5WQHBXY;
+				DEVELOPMENT_TEAM = SQFU5W3NZU;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Now Departing";
@@ -345,7 +345,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Now Departing Watch App/Preview Content\"";
-				DEVELOPMENT_TEAM = 8BQ5WQHBXY;
+				DEVELOPMENT_TEAM = SQFU5W3NZU;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Now Departing";
@@ -373,7 +373,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8BQ5WQHBXY;
+				DEVELOPMENT_TEAM = SQFU5W3NZU;
 				INFOPLIST_KEY_CFBundleDisplayName = "Now Departing";
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.move38.Now-Departing";
@@ -388,7 +388,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8BQ5WQHBXY;
+				DEVELOPMENT_TEAM = SQFU5W3NZU;
 				INFOPLIST_KEY_CFBundleDisplayName = "Now Departing";
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.move38.Now-Departing";
