@@ -98,7 +98,7 @@ struct ContentView: View {
                 switch route {
                 case "stations":
                     if let line = selectedLine,
-                       let stations = stationDataManager.stationsByLine[line.id] {
+                       let _stations = stationDataManager.stationsByLine[line.id] {
                         StationSelectionView(line: line, onSelect: { station in
                             selectedStation = station
                             DispatchQueue.main.async {
@@ -135,15 +135,6 @@ struct ContentView: View {
                 default:
                     EmptyView()
                 }
-            }
-            .onChange(of: selectedLine) { newValue in
-//                print("Selected Line changed to: \(newValue?.id ?? "nil")")
-            }
-            .onChange(of: selectedStation) { newValue in
-//                print("Selected Station changed to: \(newValue?.display ?? "nil")")
-            }
-            .onChange(of: selectedTerminal) { newValue in
-//                print("Selected Terminal changed to: \(newValue?.display ?? "nil")")
             }
         }
     }
@@ -352,8 +343,8 @@ struct TimesView: View {
         .onDisappear {
             viewModel.stopFetchingTimes()
         }
-        .onChange(of: scenePhase) { newScenePhase in
-            switch newScenePhase {
+        .onChange(of: scenePhase) { oldPhase, newPhase in
+            switch newPhase {
             case .active:
                 viewModel.startFetchingTimes(for: line, station: station, direction: direction)
             case .background, .inactive:
