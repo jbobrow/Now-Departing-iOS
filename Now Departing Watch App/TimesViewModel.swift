@@ -14,20 +14,44 @@ class TimesViewModel: ObservableObject {
     @Published var loading: Bool = false
     @Published var errorMessage: String = ""
     
-    private var timer: Timer?
+    private var apiTimer: Timer?
+    private var displayTimer: Timer?
+    private var arrivalTimes: [Date] = []  // Store actual arrival times
     
     func startFetchingTimes(for line: SubwayLine, station: Station, direction: String) {
+        // Initial fetch
         fetchArrivalTimes(for: line, station: station, direction: direction)
         
-        // Set up a timer to refresh the data every 10 seconds
-        timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { [weak self] _ in
+        // Set up API timer to refresh data every 60 seconds
+        apiTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
             self?.fetchArrivalTimes(for: line, station: station, direction: direction)
+        }
+        
+        // Set up display timer to update times every second
+        displayTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
+            self?.updateDisplayTimes()
         }
     }
     
     func stopFetchingTimes() {
-        timer?.invalidate()
-        timer = nil
+        apiTimer?.invalidate()
+        apiTimer = nil
+        displayTimer?.invalidate()
+        displayTimer = nil
+        arrivalTimes = []
+    }
+    
+    private func updateDisplayTimes() {
+        let currentTime = Date()
+        nextTrains = arrivalTimes.compactMap { arrivalTime in
+            let minutes = Calendar.current.dateComponents([.minute], from: currentTime, to: arrivalTime).minute ?? 0
+            return minutes >= 0 ? minutes : nil  // Only show future times
+        }.sorted()
+        
+        // Clean up past arrival times
+        arrivalTimes = arrivalTimes.filter { arrivalTime in
+            arrivalTime > currentTime
+        }
     }
     
     private func fetchArrivalTimes(for line: SubwayLine, station: Station, direction: String) {
@@ -62,9 +86,10 @@ class TimesViewModel: ObservableObject {
                 do {
                     let response = try JSONDecoder().decode(APIResponse.self, from: data)
                     if let stationData = response.data.first(where: { $0.name == station.name }) {
-                        self?.nextTrains = self?.extractArrivalTimes(for: line, from: stationData, direction: direction) ?? []
+                        self?.arrivalTimes = self?.extractArrivalDates(for: line, from: stationData, direction: direction) ?? []
+                        self?.updateDisplayTimes()  // Update display immediately after getting new data
                     } else {
-                        self?.errorMessage = "No times found"//"Station data not found"
+                        self?.errorMessage = "No times found"
                     }
                     self?.loading = false
                 } catch {
@@ -75,8 +100,7 @@ class TimesViewModel: ObservableObject {
         }.resume()
     }
     
-    private func extractArrivalTimes(for line: SubwayLine, from stationData: StationData, direction: String) -> [Int] {
-        let currentTime = Date()
+    private func extractArrivalDates(for line: SubwayLine, from stationData: StationData, direction: String) -> [Date] {
         let formatter = ISO8601DateFormatter()
         
         // Filter the train array based on the direction and line
@@ -87,13 +111,9 @@ class TimesViewModel: ObservableObject {
             trains = stationData.S.filter { $0.route == line.id }
         }
         
-        // Convert `time` values to minutes from now
+        // Convert time strings to Date objects
         return trains.compactMap { train in
-            if let trainTime = formatter.date(from: train.time) {
-                let minutes = Calendar.current.dateComponents([.minute], from: currentTime, to: trainTime).minute
-                return minutes ?? 0
-            }
-            return nil
-        }.sorted() // Sort the times in ascending order
+            formatter.date(from: train.time)
+        }.filter { $0 > Date() }  // Only keep future times
     }
 }
