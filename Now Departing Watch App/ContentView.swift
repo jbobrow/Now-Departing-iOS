@@ -338,6 +338,7 @@ struct TimesView: View {
                     .font(.custom("HelveticaNeue-Medium", size: isSmallScreen ? 18 : 20))
                     .foregroundColor(.white)
                     .multilineTextAlignment(.center)
+                    .padding(.horizontal, isSmallScreen ? 8 : 12)
             }
             .frame(
                 minWidth: geometry.size.width,
