@@ -59,6 +59,7 @@ struct ContentView: View {
     @State private var selectedStation: Station?
     @State private var selectedTerminal: Station?
     @State private var navigationPath = NavigationPath()
+    @Environment(\.scenePhase) private var scenePhase
     
     let lines = [
         SubwayLine(id: "1", label: "1", bg_color: Color(red: 0.92, green: 0.22, blue: 0.21), fg_color: .white),
@@ -85,7 +86,7 @@ struct ContentView: View {
         SubwayLine(id: "Z", label: "Z", bg_color: Color(red: 0.60, green: 0.40, blue: 0.22), fg_color: .white),
         SubwayLine(id: "L", label: "L", bg_color: Color(red: 0.65, green: 0.66, blue: 0.67), fg_color: .white)
     ]
-    
+
     var body: some View {
         NavigationStack(path: $navigationPath) {
             LineSelectionView(lines: lines) { line in
@@ -97,8 +98,10 @@ struct ContentView: View {
             .navigationDestination(for: String.self) { route in
                 switch route {
                 case "stations":
-                    if let line = selectedLine,
-                       let _stations = stationDataManager.stationsByLine[line.id] {
+                    if stationDataManager.isLoading {
+                        ProgressView()
+                    } else if let line = selectedLine,
+                              let stations = stationDataManager.stationsByLine[line.id] {
                         StationSelectionView(line: line, onSelect: { station in
                             selectedStation = station
                             DispatchQueue.main.async {
@@ -106,11 +109,19 @@ struct ContentView: View {
                             }
                         })
                     } else {
-                        Text("No stations available for this line.")
+                        ProgressView()
+                            .task {
+                                // Give a short delay and try loading again
+                                try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
+                                stationDataManager.refreshStations()
+                            }
                     }
+                    
                 case "terminals":
-                    if let line = selectedLine,
-                       let stations = stationDataManager.stationsByLine[line.id] {
+                    if stationDataManager.isLoading {
+                        ProgressView()
+                    } else if let line = selectedLine,
+                              let stations = stationDataManager.stationsByLine[line.id] {
                         TerminalSelectionView(line: line, stations: stations, onSelect: { terminal in
                             selectedTerminal = terminal
                             DispatchQueue.main.async {
@@ -118,23 +129,38 @@ struct ContentView: View {
                             }
                         })
                     } else {
-                        Text("No terminals available for this line.")
+                        ProgressView()
+                            .task {
+                                stationDataManager.refreshStations()
+                            }
                     }
+                    
                 case "times":
-                    if let line = selectedLine,
-                        let station = selectedStation,
-                        let terminal = selectedTerminal,
-                        let stations = stationDataManager.stationsByLine[line.id] {
-                        let viewModel = TimesViewModel()  // Create the view model
-                        // Pass the terminal's direction (either "N" or "S") based on selectedTerminal
+                    if stationDataManager.isLoading {
+                        ProgressView()
+                    } else if let line = selectedLine,
+                              let station = selectedStation,
+                              let terminal = selectedTerminal,
+                              let stations = stationDataManager.stationsByLine[line.id] {
+                        let viewModel = TimesViewModel()
                         let terminalDirection = terminal == stations.first ? "N" : "S"
-                        TimesView(viewModel: viewModel, line: line, station: station, direction: terminalDirection)  // Pass it to the view
+                        TimesView(viewModel: viewModel, line: line, station: station, direction: terminalDirection)
                     } else {
-                        Text("No data available.")
+                        ProgressView()
+                            .task {
+                                stationDataManager.refreshStations()
+                            }
                     }
+                    
                 default:
                     EmptyView()
                 }
+            }
+        }
+        .onChange(of: scenePhase) { oldPhase, newPhase in
+            if newPhase == .active {
+                // App has come to foreground
+                stationDataManager.refreshStations()
             }
         }
     }
@@ -189,42 +215,39 @@ struct LineSelectionView: View {
 struct StationSelectionView: View {
     let line: SubwayLine
     let onSelect: (Station) -> Void
-
     @EnvironmentObject var dataManager: StationDataManager
 
     var body: some View {
-        if let stations = dataManager.stationsByLine[line.id] {
-            List(stations) { station in
-                Button(action: { onSelect(station) }) {
-                    Text(station.display)
-                        .foregroundColor(.white)
-                }
-            }
-            .listStyle(.plain)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .automatic) {
-                    HStack {
-                        Text(line.label)
-                            .font(.custom("HelveticaNeue-Bold", size: 26))
-                            .foregroundColor(line.fg_color)
-                            .frame(width: 40, height: 40)
-                            .background(Circle().fill(line.bg_color))
-                        Text("Select a station")
-                            .font(.custom("HelveticaNeue-Bold", size: 18))
+        Group {
+            if dataManager.isLoading {
+                ProgressView()
+            } else if let stations = dataManager.stationsByLine[line.id] {
+                List(stations) { station in
+                    Button(action: { onSelect(station) }) {
+                        Text(station.display)
+                            .foregroundColor(.white)
                     }
                 }
+                .listStyle(.plain)
+            } else {
+                ProgressView()
+                    .task {
+                        dataManager.refreshStations()
+                    }
             }
-        } else {
-            VStack {
-                Text("No stations available")
-                    .font(.custom("HelveticaNeue-Bold", size: 14))
-                    .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
-                Text(line.label)
-                    .font(.custom("HelveticaNeue-Bold", size: 26))
-                    .foregroundColor(line.fg_color)
-                    .frame(width: 40, height: 40)
-                    .background(Circle().fill(line.bg_color))
+        }
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .automatic) {
+                HStack {
+                    Text(line.label)
+                        .font(.custom("HelveticaNeue-Bold", size: 26))
+                        .foregroundColor(line.fg_color)
+                        .frame(width: 40, height: 40)
+                        .background(Circle().fill(line.bg_color))
+                    Text("Select a station")
+                        .font(.custom("HelveticaNeue-Bold", size: 18))
+                }
             }
         }
     }
