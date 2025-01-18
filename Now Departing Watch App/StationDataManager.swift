@@ -24,19 +24,19 @@ class StationDataManager: ObservableObject {
     }
     
     init() {
-        // Ensure initial load happens synchronously
-        loadStations()
-        // Then fetch remote data asynchronously
+        loadLocalStations()
+        // Only fetch remote data on initial launch
         fetchRemoteStations()
     }
     
-    private func loadStations() {
+    private func loadLocalStations() {
         var loadedData: [String: [Station]]?
         
         // Try loading from documents directory first
         if let data = try? Data(contentsOf: documentsFileURL),
            let decodedData = try? JSONDecoder().decode([String: [Station]].self, from: data) {
             loadedData = decodedData
+            print("Debug - Stations found in documents directory")
         }
         
         // If documents directory load failed, try bundle
@@ -45,6 +45,7 @@ class StationDataManager: ObservableObject {
            let data = try? Data(contentsOf: bundleURL),
            let decodedData = try? JSONDecoder().decode([String: [Station]].self, from: data) {
             loadedData = decodedData
+            print("Debug - Stations found in bundle")
         }
         
         // Update state
@@ -53,6 +54,7 @@ class StationDataManager: ObservableObject {
                 self.stationsByLine = loadedData
             }
             self.isLoading = false
+            print("Debug - Loaded stations")
         }
     }
     
@@ -80,10 +82,12 @@ class StationDataManager: ObservableObject {
                 let decodedData = try JSONDecoder().decode([String: [Station]].self, from: data)
                 
                 if !decodedData.isEmpty {
+                    // Save to documents directory for future local loads
                     try? data.write(to: documentsFileURL)
                     
                     DispatchQueue.main.async {
                         self.stationsByLine = decodedData
+                        print("Debug - Stations fetched")
                     }
                 }
             } catch {
@@ -95,12 +99,17 @@ class StationDataManager: ObservableObject {
     }
     
     func stations(for lineID: String) -> [Station]? {
-        // Only return stations if we're done loading
-        guard !isLoading else { return nil }
         return stationsByLine[lineID]
     }
     
     func refreshStations() {
+        // This is now only called when the app comes to foreground
         fetchRemoteStations()
+        print("Debug - Refreshing stations")
+    }
+    
+    func loadStations() {
+        loadLocalStations()
+        print("Debug - Loading stations")
     }
 }

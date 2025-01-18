@@ -100,8 +100,7 @@ struct ContentView: View {
                 case "stations":
                     if stationDataManager.isLoading {
                         ProgressView()
-                    } else if let line = selectedLine,
-                              let stations = stationDataManager.stationsByLine[line.id] {
+                    } else if let line = selectedLine {
                         StationSelectionView(line: line, onSelect: { station in
                             selectedStation = station
                             DispatchQueue.main.async {
@@ -111,9 +110,7 @@ struct ContentView: View {
                     } else {
                         ProgressView()
                             .task {
-                                // Give a short delay and try loading again
-                                try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
-                                stationDataManager.refreshStations()
+                                stationDataManager.loadStations()
                             }
                     }
                     
@@ -121,7 +118,7 @@ struct ContentView: View {
                     if stationDataManager.isLoading {
                         ProgressView()
                     } else if let line = selectedLine,
-                              let stations = stationDataManager.stationsByLine[line.id] {
+                              let stations = stationDataManager.stations(for: line.id) {
                         TerminalSelectionView(line: line, stations: stations, onSelect: { terminal in
                             selectedTerminal = terminal
                             DispatchQueue.main.async {
@@ -131,7 +128,7 @@ struct ContentView: View {
                     } else {
                         ProgressView()
                             .task {
-                                stationDataManager.refreshStations()
+                                stationDataManager.loadStations()
                             }
                     }
                     
@@ -141,14 +138,14 @@ struct ContentView: View {
                     } else if let line = selectedLine,
                               let station = selectedStation,
                               let terminal = selectedTerminal,
-                              let stations = stationDataManager.stationsByLine[line.id] {
+                              let stations = stationDataManager.stations(for: line.id) {
                         let viewModel = TimesViewModel()
                         let terminalDirection = terminal == stations.first ? "N" : "S"
                         TimesView(viewModel: viewModel, line: line, station: station, direction: terminalDirection)
                     } else {
                         ProgressView()
                             .task {
-                                stationDataManager.refreshStations()
+                                stationDataManager.loadStations()
                             }
                     }
                     
@@ -221,7 +218,7 @@ struct StationSelectionView: View {
         Group {
             if dataManager.isLoading {
                 ProgressView()
-            } else if let stations = dataManager.stationsByLine[line.id] {
+            } else if let stations = dataManager.stations(for: line.id) {
                 List(stations) { station in
                     Button(action: { onSelect(station) }) {
                         Text(station.display)
