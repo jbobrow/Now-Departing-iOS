@@ -86,8 +86,13 @@ class TimesViewModel: ObservableObject {
                 do {
                     let response = try JSONDecoder().decode(APIResponse.self, from: data)
                     if let stationData = response.data.first(where: { $0.name == station.name }) {
-                        self?.arrivalTimes = self?.extractArrivalDates(for: line, from: stationData, direction: direction) ?? []
-                        self?.updateDisplayTimes()  // Update display immediately after getting new data
+                        let arrivals = self?.extractArrivalDates(for: line, from: stationData, direction: direction) ?? []
+                        if arrivals.isEmpty {
+                            self?.errorMessage = "No times found"
+                        } else {
+                            self?.arrivalTimes = arrivals
+                            self?.updateDisplayTimes()  // Update display immediately after getting new data
+                        }
                     } else {
                         self?.errorMessage = "No times found"
                     }
