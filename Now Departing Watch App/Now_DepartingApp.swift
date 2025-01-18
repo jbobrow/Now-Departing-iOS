@@ -8,7 +8,7 @@
 import SwiftUI
 
 @main
-struct Now_Departing_Watch_AppApp: App {
+struct NowDepartingWatchApp: App {
     @StateObject private var stationDataManager = StationDataManager()
     
     var body: some Scene {
