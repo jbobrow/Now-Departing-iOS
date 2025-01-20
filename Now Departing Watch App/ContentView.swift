@@ -20,7 +20,7 @@ struct Station: Identifiable, Decodable, Equatable {
     let id: String = UUID().uuidString // Automatically generated unique ID
     let display: String
     let name: String
-
+    
     private enum CodingKeys: String, CodingKey {
         case display
         case name
@@ -59,6 +59,7 @@ struct ContentView: View {
     @State private var selectedStation: Station?
     @State private var selectedTerminal: Station?
     @State private var navigationPath = NavigationPath()
+    @State private var showSettings = false
     @Environment(\.scenePhase) private var scenePhase
     
     let lines = [
@@ -86,15 +87,22 @@ struct ContentView: View {
         SubwayLine(id: "Z", label: "Z", bg_color: Color(red: 0.60, green: 0.40, blue: 0.22), fg_color: .white),
         SubwayLine(id: "L", label: "L", bg_color: Color(red: 0.65, green: 0.66, blue: 0.67), fg_color: .white)
     ]
+    
 
     var body: some View {
         NavigationStack(path: $navigationPath) {
-            LineSelectionView(lines: lines) { line in
-                selectedLine = line
-                DispatchQueue.main.async {
-                    navigationPath.append("stations")
+            LineSelectionView(
+                lines: lines,
+                onSelect: { line in
+                    selectedLine = line
+                    DispatchQueue.main.async {
+                        navigationPath.append("stations")
+                    }
+                },
+                onSettings: {
+                    showSettings = true
                 }
-            }
+            )
             .navigationDestination(for: String.self) { route in
                 switch route {
                 case "stations":
@@ -153,6 +161,11 @@ struct ContentView: View {
                     EmptyView()
                 }
             }
+            .sheet(isPresented: $showSettings) {
+                NavigationStack {
+                    SettingsView()
+                }
+            }
         }
     }
 }
@@ -161,22 +174,23 @@ struct ContentView: View {
 struct LineSelectionView: View {
     let lines: [SubwayLine]
     let onSelect: (SubwayLine) -> Void
-        
+    let onSettings: () -> Void  // callback for settings
+    
     var body: some View {
         GeometryReader { geometry in
             let isSmallScreen = geometry.size.width < 165  // Approximate size for smaller watches
             
             // Helper Tool: display if the screen is small on screen
-//            VStack {
-//                Text("Screen Width: \(geometry.size.width, specifier: "%.2f")")
-//                if isSmallScreen {
-//                    Text("Small Screen Detected")
-//                } else {
-//                    Text("Large Screen Detected")
-//                }
-//            }
-//            .frame(maxWidth: .infinity, maxHeight: .infinity)
-
+            //            VStack {
+            //                Text("Screen Width: \(geometry.size.width, specifier: "%.2f")")
+            //                if isSmallScreen {
+            //                    Text("Small Screen Detected")
+            //                } else {
+            //                    Text("Large Screen Detected")
+            //                }
+            //            }
+            //            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            
             let columns = [
                 GridItem(.flexible(minimum: 32, maximum: 38), spacing: isSmallScreen ? 2 : 4),
                 GridItem(.flexible(minimum: 32, maximum: 38), spacing: isSmallScreen ? 2 : 4),
@@ -187,14 +201,25 @@ struct LineSelectionView: View {
             ScrollView {
                 LazyVGrid(columns: columns, spacing: isSmallScreen ? 2 : 4) {
                     ForEach(lines) { line in
-                        Button(action: { onSelect(line) }) {
-                            Text(line.label)
-                                .font(.custom("HelveticaNeue-Bold", size: isSmallScreen ? 22 : 26))
-                                .foregroundColor(line.fg_color)
-                                .frame(width: isSmallScreen ? 34 : 38, height: isSmallScreen ? 34 : 38)
-                                .background(Circle().fill(line.bg_color))
+                        // handle the settings button
+                        if( line.id == "X") {
+                            Button(action: onSettings) {
+                                Image(systemName: "gear")
+                                    .foregroundColor(.black)
+                                    .frame(width: isSmallScreen ? 34 : 38, height: isSmallScreen ? 34 : 38)
+                            }
+                            .buttonStyle(PlainButtonStyle())
                         }
-                        .buttonStyle(PlainButtonStyle())
+                        else {
+                            Button(action: { onSelect(line) }) {
+                                Text(line.label)
+                                    .font(.custom("HelveticaNeue-Bold", size: isSmallScreen ? 22 : 26))
+                                    .foregroundColor(line.fg_color)
+                                    .frame(width: isSmallScreen ? 34 : 38, height: isSmallScreen ? 34 : 38)
+                                    .background(Circle().fill(line.bg_color))
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                        }
                     }
                 }
             }
@@ -207,7 +232,7 @@ struct StationSelectionView: View {
     let line: SubwayLine
     let onSelect: (Station) -> Void
     @EnvironmentObject var dataManager: StationDataManager
-
+    
     var body: some View {
         Group {
             if dataManager.isLoading {
@@ -315,22 +340,22 @@ struct TimesView: View {
                     if !nextTrains.isEmpty {
                         let firstTrainText = nextTrains[0] == 0 ? "Departing" : "\(nextTrains[0]) min"
                         let firstTrainTextSize: CGFloat = nextTrains[0] == 0
-                            ? (isSmallScreen ? 24 : 28)
-                            : (isSmallScreen ? 32 : 36)
-
+                        ? (isSmallScreen ? 24 : 28)
+                        : (isSmallScreen ? 32 : 36)
+                        
                         Text(firstTrainText)
                             .font(.custom("HelveticaNeue-Bold", size: firstTrainTextSize))
                             .foregroundColor(.white)
-                    
+                        
                         // Next trains on single line with truncation
                         Text(nextTrains.dropFirst()
                             .prefix(3)  // Limit to next 3 trains
                             .map { "\($0) min" }
                             .joined(separator: ", "))
-                            .font(.custom("HelveticaNeue-Bold", size: 14))
-                            .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
-                            .lineLimit(1)
-                            .truncationMode(.tail)
+                        .font(.custom("HelveticaNeue-Bold", size: 14))
+                        .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
+                        .lineLimit(1)
+                        .truncationMode(.tail)
                     } else {
                         Text("Loading...")
                             .font(.custom("HelveticaNeue-Bold", size: 14))
@@ -338,7 +363,7 @@ struct TimesView: View {
                             .padding(.vertical, isSmallScreen ? 4 : 8)
                     }
                 }
-                    
+                
                 Text(station.display)
                     .font(.custom("HelveticaNeue-Medium", size: isSmallScreen ? 18 : 20))
                     .foregroundColor(.white)
