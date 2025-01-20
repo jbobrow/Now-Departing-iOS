@@ -154,12 +154,6 @@ struct ContentView: View {
                 }
             }
         }
-        .onChange(of: scenePhase) { oldPhase, newPhase in
-            if newPhase == .active {
-                // App has come to foreground
-                stationDataManager.refreshStations()
-            }
-        }
     }
 }
 

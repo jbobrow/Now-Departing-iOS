@@ -19,6 +19,11 @@ class TimesViewModel: ObservableObject {
     private var arrivalTimes: [Date] = []  // Store actual arrival times
     
     func startFetchingTimes(for line: SubwayLine, station: Station, direction: String) {
+        // Set loading only if we don't have any arrival times
+        if arrivalTimes.isEmpty {
+            loading = true
+        }
+        
         // Initial fetch
         fetchArrivalTimes(for: line, station: station, direction: direction)
         
@@ -38,7 +43,7 @@ class TimesViewModel: ObservableObject {
         apiTimer = nil
         displayTimer?.invalidate()
         displayTimer = nil
-        arrivalTimes = []
+        // Don't clear arrival times here, keep them for when we return
     }
     
     private func updateDisplayTimes() {
@@ -91,6 +96,7 @@ class TimesViewModel: ObservableObject {
                             self?.errorMessage = "No times found"
                         } else {
                             self?.arrivalTimes = arrivals
+                            self?.errorMessage = ""
                             self?.updateDisplayTimes()  // Update display immediately after getting new data
                         }
                     } else {
