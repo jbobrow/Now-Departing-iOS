@@ -358,9 +358,8 @@ struct TimesView: View {
                         .truncationMode(.tail)
                     } else {
                         Text("Loading...")
-                            .font(.custom("HelveticaNeue-Bold", size: 14))
+                            .font(.custom("HelveticaNeue-Bold", size: isSmallScreen ? 18 : 20))
                             .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
-                            .padding(.vertical, isSmallScreen ? 4 : 8)
                     }
                 }
                 
@@ -386,8 +385,12 @@ struct TimesView: View {
             switch newPhase {
             case .active:
                 viewModel.startFetchingTimes(for: line, station: station, direction: direction)
-            case .background, .inactive:
+                break
+            case .inactive:
+                break
+            case .background:
                 viewModel.stopFetchingTimes()
+                break
             @unknown default:
                 break
             }
