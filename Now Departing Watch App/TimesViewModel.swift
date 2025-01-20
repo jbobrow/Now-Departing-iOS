@@ -41,9 +41,6 @@ class TimesViewModel: ObservableObject {
     func stopFetchingTimes() {
         apiTimer?.invalidate()
         apiTimer = nil
-        displayTimer?.invalidate()
-        displayTimer = nil
-        // Don't clear arrival times here, keep them for when we return
     }
     
     private func updateDisplayTimes() {
