@@ -317,6 +317,13 @@ struct TimesView: View {
         GeometryReader { geometry in
             let isSmallScreen = geometry.size.width < 165
             
+            if viewModel.loading {
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                    .frame(width: 20, height: 20)
+                    .offset(x: geometry.size.width - 32, y: -geometry.size.height/2 + 44)
+            }
+            
             VStack(alignment: .center, spacing: 0) {
                 Text(line.label)
                     .font(.custom("HelveticaNeue-Bold", size: isSmallScreen ? 48 : 60))
@@ -324,12 +331,8 @@ struct TimesView: View {
                     .frame(width: isSmallScreen ? 80 : 100, height: isSmallScreen ? 80 : 100)
                     .background(Circle().fill(line.bg_color))
                     .padding(.bottom, isSmallScreen ? 2 : 4)
-                
-                if viewModel.loading {
-                    Text("Loading...")
-                        .font(.custom("HelveticaNeue-Bold", size: isSmallScreen ? 18 : 20))
-                        .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
-                } else if !viewModel.errorMessage.isEmpty {
+                                
+                if !viewModel.errorMessage.isEmpty {
                     Text(viewModel.errorMessage)
                         .font(.custom("HelveticaNeue-Bold", size: 14))
                         .foregroundColor(.red)
