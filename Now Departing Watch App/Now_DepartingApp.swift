@@ -14,7 +14,7 @@ struct NowDepartingWatchApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environmentObject(stationDataManager) // Pass the data manager to the view hierarchy
+                .environmentObject(stationDataManager)
         }
         .windowToolbarLabelStyle(fixed: .automatic)
     }
