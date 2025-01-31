@@ -21,11 +21,13 @@ struct Station: Identifiable, Codable, Equatable {
     let id: String = UUID().uuidString // Automatically generated unique ID
     let display: String
     let name: String
+    var hasAvailableTimes: Bool?  // New property
     
     private enum CodingKeys: String, CodingKey {
         case display
         case name
         case id
+        case hasAvailableTimes
     }
     
     // Custom encoding to ensure id is included
@@ -34,6 +36,7 @@ struct Station: Identifiable, Codable, Equatable {
         try container.encode(display, forKey: .display)
         try container.encode(name, forKey: .name)
         try container.encode(id, forKey: .id)
+        try container.encodeIfPresent(hasAvailableTimes, forKey: .hasAvailableTimes)
     }
 }
 
@@ -146,6 +149,10 @@ struct ContentView: View {
                                 navigationState.path.append("terminals")
                             }
                         })
+                        .onAppear {
+                            // Load stations specifically for this line
+                            stationDataManager.loadStationsForLine(line.id)
+                        }
                     } else {
                         ProgressView()
                             .task {
@@ -277,8 +284,19 @@ struct StationSelectionView: View {
                 if let stations = dataManager.stations(for: line.id) {
                     List(stations) { station in
                         Button(action: { onSelect(station) }) {
-                            Text(station.display)
-                                .foregroundColor(.white)
+                            HStack {
+                                if station.hasAvailableTimes == false {
+                                    Image(systemName: "exclamationmark.triangle.fill")
+                                        .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
+                                    Text(station.display)
+                                        .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
+                                }
+                                else {
+                                    Text(station.display)
+                                        .foregroundColor(.white)
+                                }
+                                Spacer()
+                            }
                         }
                     }
                     .listStyle(.plain)

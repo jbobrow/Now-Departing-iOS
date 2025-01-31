@@ -7,6 +7,8 @@
 
 import Foundation
 
+// Updated Station model with availability status
+
 class StationDataManager: ObservableObject {
     @Published private(set) var loadingState: LoadingState = .idle
     @Published var stationsByLine: [String: [Station]] = [:]
@@ -34,7 +36,6 @@ class StationDataManager: ObservableObject {
     }
     
     init() {
-        // Only load local stations on init
         loadLocalStations()
     }
     
@@ -96,24 +97,56 @@ class StationDataManager: ObservableObject {
         }
         return stations
     }
-
+    
     private func cacheData(_ stations: [String: [Station]]) {
         guard let data = try? JSONEncoder().encode(stations) else { return }
         UserDefaults.standard.set(data, forKey: "cachedStations")
     }
     
-    func loadStationsForLine(_ lineId: String) {
-        guard !loadedLines.contains(lineId) else { return }
-        
-        // Load only specific line data
-        if let url = Bundle.main.url(forResource: "stations_\(lineId)", withExtension: "json") {
-            if let data = try? Data(contentsOf: url),
-               let stations = try? JSONDecoder().decode([Station].self, from: data) {
-                DispatchQueue.main.async {
-                    self.stationsByLine[lineId] = stations
-                    self.loadedLines.insert(lineId)
-                }
+    private func checkStationAvailability(for lineId: String, stations: [Station]) {
+        let apiURL = URL(string: "https://api.wheresthefuckingtrain.com/by-route/\(lineId)")!
+        print("Debug - Checking Stations")
+
+        let task = URLSession.shared.dataTask(with: apiURL) { [weak self] data, response, error in
+            guard let data = data,
+                  let response = try? JSONDecoder().decode(APIResponse.self, from: data) else {
+                return
             }
+            
+            DispatchQueue.main.async {
+                var updatedStations = stations
+                for (index, station) in stations.enumerated() {
+                    if let stationData = response.data.first(where: { $0.name == station.name }) {
+                        let hasNorthTrains = !stationData.N.isEmpty
+                        let hasSouthTrains = !stationData.S.isEmpty
+                        print("Debug - trains available at " + station.display)
+                        updatedStations[index].hasAvailableTimes = hasNorthTrains || hasSouthTrains
+                    } else {
+                        updatedStations[index].hasAvailableTimes = false
+                        print("Debug - no trains at " + station.display)
+                    }
+                }
+                self?.stationsByLine[lineId] = updatedStations
+            }
+        }
+        task.resume()
+    }
+    
+    func loadStationsForLine(_ lineId: String) {
+        // If we already have stations for this line, use them
+        if let existingStations = stationsByLine[lineId] {
+            print("Debug - Checking availability for line \(lineId)")
+            checkStationAvailability(for: lineId, stations: existingStations)
+            return
+        }
+        
+        // If we don't have stations yet, load them first
+        loadLocalStations()
+        
+        // After loading, check availability if we now have stations
+        if let stations = stationsByLine[lineId] {
+            print("Debug - Checking availability for newly loaded line \(lineId)")
+            checkStationAvailability(for: lineId, stations: stations)
         }
     }
     
