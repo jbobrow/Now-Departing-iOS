@@ -167,8 +167,8 @@ class TimesViewModel: ObservableObject {
     private func updateDisplayTimes() {
         let now = Date()
         
-        print("Update Display Times")
-        print(Calendar.current.dateComponents([.second], from: now))
+//        print("Update Display Times")
+//        print(Calendar.current.dateComponents([.second], from: now))
         nextTrains = arrivalTimes.compactMap { arrivalTime in
             let minutes = Calendar.current.dateComponents([.minute], from: now, to: arrivalTime).minute ?? 0
             return minutes >= 0 ? minutes : nil  // Only show future times
