@@ -119,11 +119,11 @@ class StationDataManager: ObservableObject {
                     if let stationData = response.data.first(where: { $0.name == station.name }) {
                         let hasNorthTrains = !stationData.N.isEmpty
                         let hasSouthTrains = !stationData.S.isEmpty
-                        print("Debug - trains available at " + station.display)
+//                        print("Debug - trains available at " + station.display)
                         updatedStations[index].hasAvailableTimes = hasNorthTrains || hasSouthTrains
                     } else {
                         updatedStations[index].hasAvailableTimes = false
-                        print("Debug - no trains at " + station.display)
+//                        print("Debug - no trains at " + station.display)
                     }
                 }
                 self?.stationsByLine[lineId] = updatedStations
@@ -135,7 +135,7 @@ class StationDataManager: ObservableObject {
     func loadStationsForLine(_ lineId: String) {
         // If we already have stations for this line, use them
         if let existingStations = stationsByLine[lineId] {
-            print("Debug - Checking availability for line \(lineId)")
+//            print("Debug - Checking availability for line \(lineId)")
             checkStationAvailability(for: lineId, stations: existingStations)
             return
         }
@@ -145,7 +145,7 @@ class StationDataManager: ObservableObject {
         
         // After loading, check availability if we now have stations
         if let stations = stationsByLine[lineId] {
-            print("Debug - Checking availability for newly loaded line \(lineId)")
+//            print("Debug - Checking availability for newly loaded line \(lineId)")
             checkStationAvailability(for: lineId, stations: stations)
         }
     }
