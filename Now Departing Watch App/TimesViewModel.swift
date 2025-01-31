@@ -19,6 +19,8 @@ class TimesViewModel: ObservableObject {
     private var arrivalTimes: [Date] = []  // Store actual arrival times
     
     func startFetchingTimes(for line: SubwayLine, station: Station, direction: String) {
+        print("Start Fetching Times")
+
         // Set loading only if we don't have any arrival times
         if arrivalTimes.isEmpty {
             loading = true
@@ -41,10 +43,14 @@ class TimesViewModel: ObservableObject {
     func stopFetchingTimes() {
         apiTimer?.invalidate()
         apiTimer = nil
+        displayTimer?.invalidate()
+        displayTimer = nil
     }
     
     private func updateDisplayTimes() {
+        print("Update Display Times")
         let currentTime = Date()
+        print(Calendar.current.dateComponents([.second], from: currentTime))
         nextTrains = arrivalTimes.compactMap { arrivalTime in
             let minutes = Calendar.current.dateComponents([.minute], from: currentTime, to: arrivalTime).minute ?? 0
             return minutes >= 0 ? minutes : nil  // Only show future times
@@ -57,6 +63,7 @@ class TimesViewModel: ObservableObject {
     }
     
     private func fetchArrivalTimes(for line: SubwayLine, station: Station, direction: String) {
+        print("Fetch Arrival Times")
         guard !direction.isEmpty else {
             self.errorMessage = "Invalid terminal station"
             self.loading = false
