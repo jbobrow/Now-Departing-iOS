@@ -83,10 +83,11 @@ class NavigationState: ObservableObject {
 // Main App Views
 struct ContentView: View {
     @EnvironmentObject var stationDataManager: StationDataManager
-    @StateObject private var navigationState = NavigationState()
-    @State private var showSettings = false
     @Environment(\.scenePhase) private var scenePhase
-    // Removed WKExtensionDelegateAdaptor as it belongs in the App file
+    @StateObject private var navigationState = NavigationState()
+    @StateObject private var favoritesManager = FavoritesManager()
+    @State private var showSettings = false
+    @State private var selectedTab = 0
     
     let lines = [
         SubwayLine(id: "1", label: "1", bg_color: SubwayConfiguration.lineColors["1"]!.background, fg_color: SubwayConfiguration.lineColors["1"]!.foreground),
@@ -125,18 +126,39 @@ struct ContentView: View {
 
     var body: some View {
         NavigationStack(path: $navigationState.path) {
-            LineSelectionView(
-                lines: lines,
-                onSelect: { line in
-                    navigationState.line = line
-                    DispatchQueue.main.async {
-                        navigationState.path.append("stations")
+            TabView(selection: $selectedTab) {
+                // Lines Grid View
+                LineSelectionView(
+                    lines: lines,
+                    onSelect: { line in
+                        navigationState.line = line
+                        DispatchQueue.main.async {
+                            navigationState.path.append("stations")
+                        }
+                    },
+                    onSettings: {
+                        showSettings = true
                     }
-                },
-                onSettings: {
-                    showSettings = true
-                }
-            )
+                )
+                .tag(0)
+                
+                // Favorites View
+                FavoritesView(
+                    onSelect: { line, station, direction in
+                        navigationState.line = line
+                        navigationState.station = station
+                        // For favorites, we'll use the station as both station and terminal
+                        // since we already know the direction
+                        navigationState.terminal = station
+                        DispatchQueue.main.async {
+                            navigationState.path.append("times")
+                        }
+                    },
+                    lines: lines
+                )
+                .tag(1)
+            }
+            .tabViewStyle(.page)
             .navigationDestination(for: String.self) { route in
                 switch route {
                 case "stations":
@@ -205,10 +227,12 @@ struct ContentView: View {
                 }
             }
         }
+        .environmentObject(favoritesManager)
         .onChange(of: scenePhase) { oldPhase, newPhase in
             switch newPhase {
             case .active:
                 stationDataManager.refreshStations()
+                scheduleNextBackgroundRefresh()
             case .background:
                 // Handle background state
                 break
@@ -220,6 +244,7 @@ struct ContentView: View {
         }
     }
 }
+
 
 // Line Selection View
 struct LineSelectionView: View {
@@ -359,7 +384,9 @@ struct TerminalSelectionView: View {
 
 struct TimesView: View {
     @Environment(\.scenePhase) private var scenePhase
+    @EnvironmentObject var favoritesManager: FavoritesManager
     @StateObject private var viewModel: TimesViewModel = TimesViewModel()
+    @State private var showingFavoriteAlert = false
     let line: SubwayLine
     let station: Station
     let direction: String
@@ -466,5 +493,38 @@ struct TimesView: View {
                 break
             }
         }
+        .onLongPressGesture {
+            showingFavoriteAlert = true
+        }
+        .confirmationDialog("Add to Favorites?", isPresented: $showingFavoriteAlert, titleVisibility: .visible) {
+            if !favoritesManager.isFavorite(lineId: line.id, stationName: station.name, direction: direction) {
+                Button("Add to Favorites") {
+                    favoritesManager.addFavorite(
+                        lineId: line.id,
+                        stationName: station.name,
+                        stationDisplay: station.display,
+                        direction: direction
+                    )
+                }
+            } else {
+                Button("Remove from Favorites", role: .destructive) {
+                    if let favorite = favoritesManager.favorites.first(where: {
+                        $0.lineId == line.id &&
+                        $0.stationName == station.name &&
+                        $0.direction == direction
+                    }) {
+                        favoritesManager.removeFavorite(favorite: favorite)
+                    }
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        }
     }
+}
+
+// Preview provider for SwiftUI previews
+#Preview {
+    ContentView()
+        .environmentObject(StationDataManager())
+        .environmentObject(FavoritesManager())
 }
