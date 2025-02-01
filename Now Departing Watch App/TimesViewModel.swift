@@ -131,8 +131,8 @@ class TimesViewModel: ObservableObject {
         // Initial fetch
         fetchArrivalTimes(for: line, station: station, direction: direction)
         
-        // Set up API timer to refresh data every 60 seconds
-        apiTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
+        // Set up API timer to refresh data every 5 minutes (300 seconds)
+        apiTimer = Timer.scheduledTimer(withTimeInterval: 300, repeats: true) { [weak self] _ in
             self?.fetchArrivalTimes(for: line, station: station, direction: direction)
         }
         
