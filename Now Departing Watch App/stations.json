@@ -2447,8 +2447,8 @@
       "name": "36 Av"
     },
     {
-      "display": "39th Avenue",
-      "name": "39 Av"
+      "display": "39th Avenue-Dutch Kills",
+      "name": "39 Av-Dutch Kills"
     },
     {
       "display": "Queensboro Plaza",
@@ -2503,30 +2503,6 @@
       "name": "Canal St"
     },
     {
-      "display": "City Hall",
-      "name": "City Hall"
-    },
-    {
-      "display": "Cortlandt Street",
-      "name": "Cortlandt St"
-    },
-    {
-      "display": "Rector Street",
-      "name": "Rector St"
-    },
-    {
-      "display": "Whitehall Street-South Ferry",
-      "name": "Whitehall St-South Ferry"
-    },
-    {
-      "display": "Court Street",
-      "name": "Court St"
-    },
-    {
-      "display": "Jay Street-MetroTech",
-      "name": "Jay St-MetroTech"
-    },
-    {
       "display": "DeKalb Avenue",
       "name": "DeKalb Av"
     },
@@ -2535,56 +2511,52 @@
       "name": "Atlantic Av-Barclays Ctr"
     },
     {
-      "display": "Union Street",
-      "name": "Union St"
-    },
-    {
-      "display": "9th Street",
-      "name": "9 St"
-    },
-    {
-      "display": "4th Avenue",
-      "name": "4 Av"
-    },
-    {
-      "display": "Prospect Avenue",
-      "name": "Prospect Av"
-    },
-    {
-      "display": "25th Street",
-      "name": "25 St"
-    },
-    {
       "display": "36th Street",
       "name": "36 St"
-    },
-    {
-      "display": "45th Street",
-      "name": "45 St"
-    },
-    {
-      "display": "53rd Street",
-      "name": "53 St"
     },
     {
       "display": "59th Street",
       "name": "59 St"
     },
     {
-      "display": "Bay Ridge Avenue",
-      "name": "Bay Ridge Av"
+      "display": "8th Avenue",
+      "name": "8 Av"
     },
     {
-      "display": "77th Street",
-      "name": "77 St"
+      "display": "Fort Hamilton Parkway",
+      "name": "Fort Hamilton Parkway"
+    },
+    {
+      "display": "New Utrecht Avenue",
+      "name": "New Utrecht Av"
+    },
+    {
+      "display": "18th Avenue",
+      "name": "18 Av"
+    },
+    {
+      "display": "20th Avenue",
+      "name": "20 Av"
+    },
+    {
+      "display": "Bay Parkway",
+      "name": "Bay Parkway"
+    },
+    {
+      "display": "Kings Highway",
+      "name": "Kings Highway"
+    },
+    {
+      "display": "Avenue U",
+      "name": "Avenue U"
     },
     {
       "display": "86th Street",
       "name": "86 St"
     },
     {
-      "display": "Bay Ridge-95th Street",
-      "name": "Bay Ridge-95 St"
+      "display": "Coney Island-Stillwell Avenue",
+      "name": "Coney Island-Stillwell Av"
     }
   ],
   "Q": [
