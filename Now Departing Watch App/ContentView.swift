@@ -469,7 +469,7 @@ struct TimesView: View {
     if !viewModel.errorMessage.isEmpty {
         return isSmallScreen ? 28 : 32  // Height for error message
     } else if !viewModel.nextTrains.isEmpty {
-        return isSmallScreen ? 48 : 60  // Height for times
+        return isSmallScreen ? 60 : 60  // Height for times
     } else if viewModel.loading && scenePhase == .active {
         return isSmallScreen ? 28 : 32  // Height for loading
     }
