@@ -34,7 +34,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
         
         switch complication.family {
         case .modularSmall:
-            guard let image = UIImage(systemName: "tram.fill") else { return nil }
+            guard let image = UIImage(systemName: "tram.fill")?.withTintColor(.white, renderingMode: .alwaysTemplate) else { return nil }
             let imageProvider = CLKImageProvider(onePieceImage: image)
             let textProvider = CLKSimpleTextProvider(text: nextTrain)
             return CLKComplicationTemplateModularSmallStackImage(line1ImageProvider: imageProvider,
@@ -42,7 +42,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
             
         case .graphicCircular:
             if #available(watchOSApplicationExtension 7.0, *) {
-                guard let image = UIImage(systemName: "tram.fill") else { return nil }
+                guard let image = UIImage(systemName: "tram.fill")?.withTintColor(.white, renderingMode: .alwaysTemplate) else { return nil }
                 let imageProvider = CLKFullColorImageProvider(fullColorImage: image)
                 let textProvider = CLKSimpleTextProvider(text: nextTrain)
                 return CLKComplicationTemplateGraphicCircularStackImage(line1ImageProvider: imageProvider,
@@ -61,7 +61,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
             
         case .graphicBezel:
             if #available(watchOSApplicationExtension 7.0, *) {
-                guard let image = UIImage(systemName: "tram.fill") else { return nil }
+                guard let image = UIImage(systemName: "tram.fill")?.withTintColor(.white, renderingMode: .alwaysTemplate) else { return nil }
                 let imageProvider = CLKFullColorImageProvider(fullColorImage: image)
                 let circularTextProvider = CLKSimpleTextProvider(text: nextTrain)
                 

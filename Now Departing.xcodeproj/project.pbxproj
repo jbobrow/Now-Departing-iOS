@@ -399,7 +399,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_TEAM = SQFU5W3NZU;
 				INFOPLIST_KEY_CFBundleDisplayName = "Now Departing";
 				MARKETING_VERSION = 1.1;
@@ -414,7 +414,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_TEAM = SQFU5W3NZU;
 				INFOPLIST_KEY_CFBundleDisplayName = "Now Departing";
 				MARKETING_VERSION = 1.1;
