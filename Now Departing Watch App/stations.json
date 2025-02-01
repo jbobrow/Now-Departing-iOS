@@ -1670,131 +1670,131 @@
     }
   ],
   "E": [
-    {
-      "display": "World Trade Center",
-      "name": "World Trade Center"
-    },
-    {
-      "display": "Spring Street",
-      "name": "Spring St"
-    },
-    {
-      "display": "14th Street",
-      "name": "14 St"
-    },
-    {
-      "display": "23rd Street",
-      "name": "23 St"
-    },
-    {
-      "display": "34th Street-Penn Station",
-      "name": "34 St-Penn Station"
-    },
-    {
-      "display": "42nd Street-Port Authority Bus Terminal",
-      "name": "42 St-Port Authority Bus Terminal"
-    },
-    {
-      "display": "50th Street",
-      "name": "50 St"
-    },
-    {
-      "display": "7th Avenue",
-      "name": "7 Av"
-    },
-    {
-      "display": "5th Avenue-53rd Street",
-      "name": "5 Av-53 St"
-    },
-    {
-      "display": "Lexington Avenue-53rd Street",
-      "name": "Lexington Av-53 St"
-    },
-    {
-      "display": "Queens Plaza",
-      "name": "Queens Plaza"
-    },
-    {
-      "display": "Court Square-23rd Street",
-      "name": "Court Sq-23 St"
-    },
-    {
-      "display": "23rd Street-Ely Avenue",
-      "name": "23 St-Ely Av"
-    },
-    {
-      "display": "Roosevelt Avenue",
-      "name": "Roosevelt Av"
-    },
-    {
-      "display": "65th Street",
-      "name": "65 St"
-    },
-    {
-      "display": "Northern Boulevard",
-      "name": "Northern Blvd"
-    },
-    {
-      "display": "46th Street",
-      "name": "46 St"
-    },
-    {
-      "display": "Steinway Street",
-      "name": "Steinway St"
-    },
-    {
-      "display": "Jackson Heights-Roosevelt Avenue",
-      "name": "Jackson Heights-Roosevelt Av"
-    },
-    {
-      "display": "Elmhurst Avenue",
-      "name": "Elmhurst Av"
-    },
-    {
-      "display": "Grand Avenue-Newtown",
-      "name": "Grand Av-Newtown"
-    },
-    {
-      "display": "Woodhaven Boulevard",
-      "name": "Woodhaven Blvd"
-    },
-    {
-      "display": "63rd Drive-Rego Park",
-      "name": "63 Dr-Rego Park"
-    },
-    {
-      "display": "67th Avenue",
-      "name": "67 Av"
-    },
-    {
-      "display": "Forest Hills-71st Avenue",
-      "name": "Forest Hills-71 Av"
-    },
-    {
-      "display": "75th Avenue",
-      "name": "75 Av"
-    },
-    {
-      "display": "Kew Gardens-Union Turnpike",
-      "name": "Kew Gardens-Union Turnpike"
-    },
-    {
-      "display": "Briarwood",
-      "name": "Briarwood"
-    },
-    {
-      "display": "Jamaica-Van Wyck",
-      "name": "Jamaica-Van Wyck"
-    },
-    {
-      "display": "Sutphin Boulevard-Archer Avenue-JFK Airport",
-      "name": "Sutphin Blvd-Archer Av-JFK Airport"
-    },
-    {
-      "display": "Jamaica Center-Parsons/Archer",
-      "name": "Jamaica Ctr-Parsons-Archer"
-    }
-  ],
+  {
+    "display": "Jamaica Center-Parsons/Archer",
+    "name": "Jamaica Ctr-Parsons-Archer"
+  },
+  {
+    "display": "Sutphin Boulevard-Archer Avenue-JFK Airport",
+    "name": "Sutphin Blvd-Archer Av-JFK Airport"
+  },
+  {
+    "display": "Jamaica-Van Wyck",
+    "name": "Jamaica-Van Wyck"
+  },
+  {
+    "display": "Briarwood",
+    "name": "Briarwood"
+  },
+  {
+    "display": "Kew Gardens-Union Turnpike",
+    "name": "Kew Gardens-Union Turnpike"
+  },
+  {
+    "display": "75th Avenue",
+    "name": "75 Av"
+  },
+  {
+    "display": "Forest Hills-71st Avenue",
+    "name": "Forest Hills-71 Av"
+  },
+  {
+    "display": "67th Avenue",
+    "name": "67 Av"
+  },
+  {
+    "display": "63rd Drive-Rego Park",
+    "name": "63 Dr-Rego Park"
+  },
+  {
+    "display": "Woodhaven Boulevard",
+    "name": "Woodhaven Blvd"
+  },
+  {
+    "display": "Grand Avenue-Newtown",
+    "name": "Grand Av-Newtown"
+  },
+  {
+    "display": "Elmhurst Avenue",
+    "name": "Elmhurst Av"
+  },
+  {
+    "display": "Jackson Heights-Roosevelt Avenue",
+    "name": "Jackson Heights-Roosevelt Av"
+  },
+  {
+    "display": "Steinway Street",
+    "name": "Steinway St"
+  },
+  {
+    "display": "46th Street",
+    "name": "46 St"
+  },
+  {
+    "display": "Northern Boulevard",
+    "name": "Northern Blvd"
+  },
+  {
+    "display": "65th Street",
+    "name": "65 St"
+  },
+  {
+    "display": "Roosevelt Avenue",
+    "name": "Roosevelt Av"
+  },
+  {
+    "display": "23rd Street-Ely Avenue",
+    "name": "23 St-Ely Av"
+  },
+  {
+    "display": "Court Square-23rd Street",
+    "name": "Court Sq-23 St"
+  },
+  {
+    "display": "Queens Plaza",
+    "name": "Queens Plaza"
+  },
+  {
+    "display": "Lexington Avenue-53rd Street",
+    "name": "Lexington Av-53 St"
+  },
+  {
+    "display": "5th Avenue-53rd Street",
+    "name": "5 Av-53 St"
+  },
+  {
+    "display": "7th Avenue",
+    "name": "7 Av"
+  },
+  {
+    "display": "50th Street",
+    "name": "50 St"
+  },
+  {
+    "display": "42nd Street-Port Authority Bus Terminal",
+    "name": "42 St-Port Authority Bus Terminal"
+  },
+  {
+    "display": "34th Street-Penn Station",
+    "name": "34 St-Penn Station"
+  },
+  {
+    "display": "23rd Street",
+    "name": "23 St"
+  },
+  {
+    "display": "14th Street",
+    "name": "14 St"
+  },
+  {
+    "display": "Spring Street",
+    "name": "Spring St"
+  },
+  {
+    "display": "World Trade Center",
+    "name": "World Trade Center"
+  }
+],
   "F": [
     {
       "display": "Jamaica-179th Street",
