@@ -123,7 +123,7 @@ struct ContentView: View {
             }
         }
     }
-
+    
     var body: some View {
         NavigationStack(path: $navigationState.path) {
             TabView(selection: $selectedTab) {
@@ -227,6 +227,7 @@ struct ContentView: View {
                 }
             }
         }
+        .environmentObject(navigationState)
         .environmentObject(favoritesManager)
         .onChange(of: scenePhase) { oldPhase, newPhase in
             switch newPhase {
@@ -385,6 +386,7 @@ struct TerminalSelectionView: View {
 struct TimesView: View {
     @Environment(\.scenePhase) private var scenePhase
     @EnvironmentObject var favoritesManager: FavoritesManager
+    @EnvironmentObject var navigationState: NavigationState
     @StateObject private var viewModel: TimesViewModel = TimesViewModel()
     @State private var showingFavoriteAlert = false
     let line: SubwayLine
@@ -432,8 +434,8 @@ struct TimesView: View {
                             // Primary Time Display
                             let firstTrainText = nextTrains[0] == 0 ? "Departing" : "\(nextTrains[0]) min"
                             let firstTrainTextSize: CGFloat = nextTrains[0] == 0
-                                ? (isSmallScreen ? 24 : 28)
-                                : (isSmallScreen ? 32 : 36)
+                            ? (isSmallScreen ? 24 : 28)
+                            : (isSmallScreen ? 32 : 36)
                             
                             Text(firstTrainText)
                                 .font(.custom("HelveticaNeue-Bold", size: firstTrainTextSize))
@@ -447,12 +449,12 @@ struct TimesView: View {
                                     .prefix(3)
                                     .map { "\($0) min" }
                                     .joined(separator: ", "))
-                                    .font(.custom("HelveticaNeue-Bold", size: 14))
-                                    .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
-                                    .lineLimit(1)
-                                    .truncationMode(.tail)
-                                    .transition(.opacity.combined(with: .scale))
-                                    .id("secondaryTimes-\(nextTrains.dropFirst().prefix(3).map{String($0)}.joined())")
+                                .font(.custom("HelveticaNeue-Bold", size: 14))
+                                .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
+                                .lineLimit(1)
+                                .truncationMode(.tail)
+                                .transition(.opacity.combined(with: .scale))
+                                .id("secondaryTimes-\(nextTrains.dropFirst().prefix(3).map{String($0)}.joined())")
                             }
                         } else if viewModel.loading && scenePhase == .active {
                             Text("Loading...")
@@ -466,15 +468,15 @@ struct TimesView: View {
                 .animation(.easeInOut(duration: 0.3), value: viewModel.errorMessage)
                 // Add frame with fixed height to prevent layout jumps
                 .frame(height: {
-    if !viewModel.errorMessage.isEmpty {
-        return isSmallScreen ? 28 : 32  // Height for error message
-    } else if !viewModel.nextTrains.isEmpty {
-        return isSmallScreen ? 60 : 60  // Height for times
-    } else if viewModel.loading && scenePhase == .active {
-        return isSmallScreen ? 28 : 32  // Height for loading
-    }
-    return 0  // Collapsed height when no content
-}())
+                    if !viewModel.errorMessage.isEmpty {
+                        return isSmallScreen ? 28 : 32  // Height for error message
+                    } else if !viewModel.nextTrains.isEmpty {
+                        return isSmallScreen ? 60 : 60  // Height for times
+                    } else if viewModel.loading && scenePhase == .active {
+                        return isSmallScreen ? 28 : 32  // Height for loading
+                    }
+                    return 0  // Collapsed height when no content
+                }())
                 .clipped()
                 
                 // Station Name
@@ -490,6 +492,16 @@ struct TimesView: View {
                 alignment: .center
             )
             .animation(.easeInOut(duration: 0.3), value: !viewModel.nextTrains.isEmpty || (viewModel.loading && scenePhase == .active))
+        }
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button(action: {
+                        navigationState.reset()
+                }) {
+                    Image(systemName: "chevron.left")
+                }
+            }
         }
         .onAppear {
             viewModel.startFetchingTimes(for: line, station: station, direction: direction)
