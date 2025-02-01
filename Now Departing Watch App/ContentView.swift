@@ -499,7 +499,7 @@ struct TimesView: View {
                 Button(action: {
                         navigationState.reset()
                 }) {
-                    Image(systemName: "chevron.left")
+                    Image(systemName: "xmark")
                 }
             }
         }
