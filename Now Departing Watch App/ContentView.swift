@@ -418,7 +418,7 @@ struct TimesView: View {
                     .padding(.bottom, isSmallScreen ? 2 : 4)
                 
                 // Times Container - Always present but height animates
-                VStack(spacing: 4) {
+                VStack(spacing: 0) {
                     if !viewModel.errorMessage.isEmpty {
                         Text(viewModel.errorMessage)
                             .font(.custom("HelveticaNeue-Bold", size: 14))
@@ -467,11 +467,11 @@ struct TimesView: View {
                 // Add frame with fixed height to prevent layout jumps
                 .frame(height: {
     if !viewModel.errorMessage.isEmpty {
-        return isSmallScreen ? 40 : 50  // Height for error message
+        return isSmallScreen ? 28 : 32  // Height for error message
     } else if !viewModel.nextTrains.isEmpty {
-        return isSmallScreen ? 60 : 70  // Height for times
+        return isSmallScreen ? 48 : 60  // Height for times
     } else if viewModel.loading && scenePhase == .active {
-        return isSmallScreen ? 30 : 35  // Height for loading
+        return isSmallScreen ? 28 : 32  // Height for loading
     }
     return 0  // Collapsed height when no content
 }())
