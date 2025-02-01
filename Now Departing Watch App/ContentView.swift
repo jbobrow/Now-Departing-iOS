@@ -395,7 +395,6 @@ struct TimesView: View {
         self.line = line
         self.station = station
         self.direction = direction
-        // Don't set viewModel here as we're using @StateObject
     }
     
     var body: some View {
@@ -410,52 +409,75 @@ struct TimesView: View {
             }
             
             VStack(alignment: .center, spacing: 0) {
+                // Line Label
                 Text(line.label)
                     .font(.custom("HelveticaNeue-Bold", size: isSmallScreen ? 48 : 60))
                     .foregroundColor(line.fg_color)
                     .frame(width: isSmallScreen ? 80 : 100, height: isSmallScreen ? 80 : 100)
                     .background(Circle().fill(line.bg_color))
                     .padding(.bottom, isSmallScreen ? 2 : 4)
-                                
-                if !viewModel.errorMessage.isEmpty {
-                    Text(viewModel.errorMessage)
-                        .font(.custom("HelveticaNeue-Bold", size: 14))
-                        .foregroundColor(.red)
-                        .padding(.vertical, isSmallScreen ? 4 : 8)
-                        .multilineTextAlignment(.center)
-                } else {
-                    let nextTrains = viewModel.nextTrains
-                    if !nextTrains.isEmpty {
-                        let firstTrainText = nextTrains[0] == 0 ? "Departing" : "\(nextTrains[0]) min"
-                        let firstTrainTextSize: CGFloat = nextTrains[0] == 0
-                        ? (isSmallScreen ? 24 : 28)
-                        : (isSmallScreen ? 32 : 36)
-                        
-                        Text(firstTrainText)
-                            .font(.custom("HelveticaNeue-Bold", size: firstTrainTextSize))
-                            .foregroundColor(.white)
-                        
-                        Text(nextTrains.dropFirst()
-                            .prefix(3)
-                            .map { "\($0) min" }
-                            .joined(separator: ", "))
-                        .font(.custom("HelveticaNeue-Bold", size: 14))
-                        .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
-                        .lineLimit(1)
-                        .truncationMode(.tail)
-                    } else if viewModel.loading && scenePhase == .active {
-                        // Only show loading when the scene is active and we're actually loading
-                        Text("Loading...")
-                            .font(.custom("HelveticaNeue-Bold", size: isSmallScreen ? 18 : 20))
-                            .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
+                
+                // Times Container - Always present but height animates
+                VStack(spacing: 4) {
+                    if !viewModel.errorMessage.isEmpty {
+                        Text(viewModel.errorMessage)
+                            .font(.custom("HelveticaNeue-Bold", size: 14))
+                            .foregroundColor(.red)
+                            .padding(.vertical, isSmallScreen ? 4 : 8)
+                            .multilineTextAlignment(.center)
+                            .transition(.opacity.combined(with: .scale))
                     } else {
-                        // Show a placeholder dash when in always-on mode with no data
-                        Text("--")
-                            .font(.custom("HelveticaNeue-Bold", size: isSmallScreen ? 32 : 36))
-                            .foregroundColor(.white)
+                        let nextTrains = viewModel.nextTrains
+                        if !nextTrains.isEmpty {
+                            // Primary Time Display
+                            let firstTrainText = nextTrains[0] == 0 ? "Departing" : "\(nextTrains[0]) min"
+                            let firstTrainTextSize: CGFloat = nextTrains[0] == 0
+                                ? (isSmallScreen ? 24 : 28)
+                                : (isSmallScreen ? 32 : 36)
+                            
+                            Text(firstTrainText)
+                                .font(.custom("HelveticaNeue-Bold", size: firstTrainTextSize))
+                                .foregroundColor(.white)
+                                .transition(.opacity.combined(with: .scale))
+                                .id("primaryTime-\(firstTrainText)")
+                            
+                            // Additional Times
+                            if nextTrains.count > 1 {
+                                Text(nextTrains.dropFirst()
+                                    .prefix(3)
+                                    .map { "\($0) min" }
+                                    .joined(separator: ", "))
+                                    .font(.custom("HelveticaNeue-Bold", size: 14))
+                                    .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
+                                    .lineLimit(1)
+                                    .truncationMode(.tail)
+                                    .transition(.opacity.combined(with: .scale))
+                                    .id("secondaryTimes-\(nextTrains.dropFirst().prefix(3).map{String($0)}.joined())")
+                            }
+                        } else if viewModel.loading && scenePhase == .active {
+                            Text("Loading...")
+                                .font(.custom("HelveticaNeue-Bold", size: isSmallScreen ? 18 : 20))
+                                .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
+                                .transition(.opacity)
+                        }
                     }
                 }
+                .animation(.easeInOut(duration: 0.3), value: viewModel.nextTrains)
+                .animation(.easeInOut(duration: 0.3), value: viewModel.errorMessage)
+                // Add frame with fixed height to prevent layout jumps
+                .frame(height: {
+    if !viewModel.errorMessage.isEmpty {
+        return isSmallScreen ? 40 : 50  // Height for error message
+    } else if !viewModel.nextTrains.isEmpty {
+        return isSmallScreen ? 60 : 70  // Height for times
+    } else if viewModel.loading && scenePhase == .active {
+        return isSmallScreen ? 30 : 35  // Height for loading
+    }
+    return 0  // Collapsed height when no content
+}())
+                .clipped()
                 
+                // Station Name
                 Text(station.display)
                     .font(.custom("HelveticaNeue-Medium", size: isSmallScreen ? 18 : 20))
                     .foregroundColor(.white)
@@ -467,6 +489,7 @@ struct TimesView: View {
                 minHeight: geometry.size.height,
                 alignment: .center
             )
+            .animation(.easeInOut(duration: 0.3), value: !viewModel.nextTrains.isEmpty || (viewModel.loading && scenePhase == .active))
         }
         .onAppear {
             viewModel.startFetchingTimes(for: line, station: station, direction: direction)
@@ -480,10 +503,8 @@ struct TimesView: View {
                 viewModel.startFetchingTimes(for: line, station: station, direction: direction)
                 viewModel.adjustUpdateFrequency(isActive: true)
             case .inactive:
-                // Keep updating but at a lower frequency
                 viewModel.adjustUpdateFrequency(isActive: false)
             case .background:
-                // Only stop fetching if we're truly in background, not always-on
                 if WKExtension.shared().isAutorotating {
                     viewModel.stopFetchingTimes()
                 } else {
