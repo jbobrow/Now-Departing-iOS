@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import ClockKit
 
 class TimesViewModel: ObservableObject {
     @Published var nextTrains: [Int] = [] {
@@ -167,16 +168,32 @@ class TimesViewModel: ObservableObject {
     private func updateDisplayTimes() {
         let now = Date()
         
-//        print("Update Display Times")
-//        print(Calendar.current.dateComponents([.second], from: now))
         nextTrains = arrivalTimes.compactMap { arrivalTime in
             let minutes = Calendar.current.dateComponents([.minute], from: now, to: arrivalTime).minute ?? 0
-            return minutes >= 0 ? minutes : nil  // Only show future times
+            return minutes >= 0 ? minutes : nil
         }.sorted()
         
         // Clean up past arrival times
         arrivalTimes = arrivalTimes.filter { arrivalTime in
             arrivalTime > now
+        }
+        
+        // Add this new section to update the complication
+        if let station = currentStation,
+           let line = currentLine,
+           let direction = currentDirection {
+            
+            let defaults = UserDefaults.standard
+            defaults.set(station, forKey: "lastViewedStation")
+            defaults.set(line, forKey: "lastViewedLine")
+            defaults.set(direction, forKey: "lastViewedDirection")
+            defaults.set(nextTrains, forKey: "nextTrains_\(station)_\(line)_\(direction)")
+            
+            // Update the complication
+            let server = CLKComplicationServer.sharedInstance()
+            server.activeComplications?.forEach { complication in
+                server.reloadTimeline(for: complication)
+            }
         }
     }
     
@@ -272,7 +289,6 @@ class TimesViewModel: ObservableObject {
     }
     
     private func extractArrivalDates(for line: SubwayLine, from stationData: StationData, direction: String) -> [Date] {
-        let formatter = ISO8601DateFormatter()
         
         // Filter the train array based on the direction and line
         let trains: [Train]
