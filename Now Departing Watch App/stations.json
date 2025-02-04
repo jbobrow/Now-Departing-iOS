@@ -1012,7 +1012,7 @@
     },
     {
       "display": "168th Street",
-      "name": "168 St"
+      "name": "168 St-Washington Hts"
     },
     {
       "display": "145th Street",
@@ -1028,7 +1028,7 @@
     },
     {
       "display": "42nd Street-Port Authority Bus Terminal",
-      "name": "42 St-Bryant Pk"
+      "name": "42 St-Port Authority Bus Terminal"
     },
     {
       "display": "34th Street-Penn Station",
@@ -1040,7 +1040,7 @@
     },
     {
       "display": "14th Street",
-      "name": "14 St"
+      "name": "14 St / 8 Av"
     },
     {
       "display": "West 4th Street-Washington Square",
@@ -1574,7 +1574,7 @@
     },
     {
       "display": "42nd Street-Bryant Park",
-      "name": "42 St-Bryant Park"
+      "name": "42 St-Port Authority Bus Terminal"
     },
     {
       "display": "34th Street-Herald Square",
@@ -1606,7 +1606,7 @@
     },
     {
       "display": "Prospect Park",
-      "name": "Prospect Park"
+      "name": "15 St-Prospect Park"
     },
     {
       "display": "Church Avenue",
@@ -1630,11 +1630,11 @@
     },
     {
       "display": "25th Avenue",
-      "name": "25 Av"
+      "name": "86 St"
     },
     {
       "display": "Bay 50th Street",
-      "name": "Bay 50 St"
+      "name": "50 St"
     },
     {
       "display": "Coney Island-Stillwell Avenue",
@@ -1644,7 +1644,7 @@
   "E": [
   {
     "display": "Jamaica Center-Parsons/Archer",
-    "name": "Jamaica Ctr-Parsons-Archer"
+    "name": "Jamaica Center-Parsons/Archer"
   },
   {
     "display": "Sutphin Boulevard-Archer Avenue-JFK Airport",
@@ -1660,7 +1660,7 @@
   },
   {
     "display": "Kew Gardens-Union Turnpike",
-    "name": "Kew Gardens-Union Turnpike"
+    "name": "Kew Gardens-Union Tpke"
   },
   {
     "display": "75th Avenue",
@@ -1692,31 +1692,27 @@
   },
   {
     "display": "Jackson Heights-Roosevelt Avenue",
-    "name": "Jackson Heights-Roosevelt Av"
-  },
-  {
-    "display": "Steinway Street",
-    "name": "Steinway St"
-  },
-  {
-    "display": "46th Street",
-    "name": "46 St"
-  },
-  {
-    "display": "Northern Boulevard",
-    "name": "Northern Blvd"
+    "name": "Roosevelt Av / 74 St-Broadway"
   },
   {
     "display": "65th Street",
     "name": "65 St"
   },
   {
-    "display": "Roosevelt Avenue",
-    "name": "Roosevelt Av"
+    "display": "Northern Boulevard",
+    "name": "Northern Blvd"
   },
   {
-    "display": "23rd Street-Ely Avenue",
-    "name": "23 St-Ely Av"
+    "display": "46th Street",
+    "name": "46 St"
+  },
+  {
+    "display": "Steinway Street",
+    "name": "Steinway St"
+  },
+  {
+    "display": "36th Street",
+    "name": "36 St"
   },
   {
     "display": "Court Square-23rd Street",
@@ -1728,11 +1724,11 @@
   },
   {
     "display": "Lexington Avenue-53rd Street",
-    "name": "Lexington Av-53 St"
+    "name": "51 St / Lexington Av/53 St"
   },
   {
     "display": "5th Avenue-53rd Street",
-    "name": "5 Av-53 St"
+    "name": "5 Av/53 St"
   },
   {
     "display": "7th Avenue",
@@ -1756,7 +1752,7 @@
   },
   {
     "display": "14th Street",
-    "name": "14 St"
+    "name": "14 St / 8 Av"
   },
   {
     "display": "Spring Street",
