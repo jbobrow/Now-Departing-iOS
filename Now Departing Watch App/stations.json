@@ -1830,11 +1830,11 @@
     },
     {
       "display": "Lexington Avenue-63rd Street",
-      "name": "Lexington Av-63 St"
+      "name": "Lexington Av/63 St"
     },
     {
       "display": "57th Street",
-      "name": "57 St"
+      "name": "57 St-7 Av"
     },
     {
       "display": "47th-50th Streets-Rockefeller Center",
@@ -1842,11 +1842,19 @@
     },
     {
       "display": "42nd Street-Bryant Park",
-      "name": "42 St-Bryant Park"
+      "name": "Times Sq-42 St"
     },
     {
       "display": "34th Street-Herald Square",
       "name": "34 St-Herald Sq"
+    },
+    {
+      "display": "23rd Street",
+      "name": "23 St"
+    },
+    {
+      "display": "14th Street",
+      "name": "14 St-Union Sq"
     },
     {
       "display": "West 4th Street-Washington Square",
@@ -1918,7 +1926,7 @@
     },
     {
       "display": "Avenue I",
-      "name": "Av I"
+      "name": "Avenue I"
     },
     {
       "display": "Bay Parkway",
@@ -1926,11 +1934,11 @@
     },
     {
       "display": "Avenue N",
-      "name": "Av N"
+      "name": "Avenue N"
     },
     {
       "display": "Avenue P",
-      "name": "Av P"
+      "name": "Avenue P"
     },
     {
       "display": "Kings Highway",
@@ -1938,11 +1946,11 @@
     },
     {
       "display": "Avenue U",
-      "name": "Av U"
+      "name": "Avenue U"
     },
     {
       "display": "Avenue X",
-      "name": "Av X"
+      "name": "Avenue X"
     },
     {
       "display": "Neptune Avenue",
