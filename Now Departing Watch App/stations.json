@@ -38,7 +38,7 @@
     },
     {
       "display": "168th Street",
-      "name": "168 St"
+      "name": "168 St-Washington Hts"
     },
     {
       "display": "157th Street",
@@ -192,7 +192,7 @@
     },
     {
       "display": "Bronx Park East",
-      "name": "Bronx Park E"
+      "name": "Bronx Park East"
     },
     {
       "display": "East 180th Street",
@@ -248,7 +248,7 @@
     },
     {
       "display": "Central Park North-110th Street",
-      "name": "Central Park North-110 St"
+      "name": "Central Park North (110 St)"
     },
     {
       "display": "96th Street",
@@ -276,7 +276,7 @@
     },
     {
       "display": "Park Place",
-      "name": "Park Pl"
+      "name": "Park Place"
     },
     {
       "display": "Fulton Street",
@@ -292,7 +292,7 @@
     },
     {
       "display": "Borough Hall",
-      "name": "Borough Hall"
+      "name": "Court St / Borough Hall"
     },
     {
       "display": "Hoyt Street",
@@ -320,7 +320,7 @@
     },
     {
       "display": "Franklin Avenue-Medgar Evers College",
-      "name": "Franklin Av-Medgar Evers College"
+      "name": "Franklin Av / Botanic Garden"
     },
     {
       "display": "President Street-Medgar Evers College",
@@ -374,7 +374,7 @@
     },
     {
       "display": "Central Park North-110th Street",
-      "name": "Central Park North-110 St"
+      "name": "Central Park North (110 St)"
     },
     {
       "display": "96th Street",
@@ -418,7 +418,7 @@
     },
     {
       "display": "Borough Hall",
-      "name": "Borough Hall"
+      "name": "Court St / Borough Hall"
     },
     {
       "display": "Hoyt Street",
@@ -446,7 +446,7 @@
     },
     {
       "display": "Franklin Avenue-Medgar Evers College",
-      "name": "Franklin Av-Medgar Evers College"
+      "name": "Franklin Av / Botanic Garden"
     },
     {
       "display": "Nostrand Avenue",
@@ -458,7 +458,7 @@
     },
     {
       "display": "Crown Heights-Utica Avenue",
-      "name": "Crown Heights-Utica Av"
+      "name": "Crown Hts-Utica Av"
     },
     {
       "display": "Sutter Avenue-Rutland Road",
@@ -474,7 +474,7 @@
     },
     {
       "display": "Junius Street",
-      "name": "Junius St"
+      "name": "Junius St / Livonia Av"
     },
     {
       "display": "Pennsylvania Avenue",
@@ -524,7 +524,7 @@
     },
     {
       "display": "Mt. Eden Avenue",
-      "name": "Mt. Eden Av"
+      "name": "Mt Eden Av"
     },
     {
       "display": "170th Street",
@@ -556,11 +556,11 @@
     },
     {
       "display": "59th Street",
-      "name": "59 St"
+      "name": "Lexington Av/59 St"
     },
     {
       "display": "42nd Street-Grand Central",
-      "name": "42 St-Grand Central"
+      "name": "Grand Central-42 St"
     },
     {
       "display": "14th Street-Union Square",
@@ -568,7 +568,7 @@
     },
     {
       "display": "Brooklyn Bridge-City Hall",
-      "name": "Brooklyn Bridge-City Hall"
+      "name": "Brooklyn Bridge-City Hall / Chambers St"
     },
     {
       "display": "Fulton Street",
@@ -584,7 +584,7 @@
     },
     {
       "display": "Borough Hall",
-      "name": "Borough Hall"
+      "name": "Court St / Borough Hall"
     },
     {
       "display": "Nevins Street",
@@ -596,11 +596,11 @@
     },
     {
       "display": "Franklin Avenue-Medgar Evers College",
-      "name": "Franklin Av-Medgar Evers College"
+      "name": "Franklin Av / Botanic Garden"
     },
     {
       "display": "Crown Heights-Utica Avenue",
-      "name": "Crown Heights-Utica Av"
+      "name": "Crown Hts-Utica Av"
     },
     {
       "display": "Sutter Avenue-Rutland Road",
@@ -616,7 +616,7 @@
     },
     {
       "display": "Junius Street",
-      "name": "Junius St"
+      "name": "Junius St / Livonia Av"
     },
     {
       "display": "Pennsylvania Avenue",
@@ -706,7 +706,7 @@
     },
     {
       "display": "59th Street",
-      "name": "59 St"
+      "name": "Lexington Av/59 St"
     },
     {
       "display": "42nd Street-Grand Central",
@@ -718,7 +718,7 @@
     },
     {
       "display": "Brooklyn Bridge-City Hall",
-      "name": "Brooklyn Bridge-City Hall"
+      "name": "Brooklyn Bridge-City Hall / Chambers St"
     },
     {
       "display": "Fulton Street",
@@ -734,7 +734,7 @@
     },
     {
       "display": "Borough Hall",
-      "name": "Borough Hall"
+      "name": "Court St / Borough Hall"
     },
     {
       "display": "Nevins Street",
@@ -746,11 +746,11 @@
     },
     {
       "display": "Franklin Avenue-Medgar Evers College",
-      "name": "Franklin Av-Medgar Evers College"
+      "name": "Franklin Av / Botanic Garden"
     },
     {
       "display": "Crown Heights-Utica Avenue",
-      "name": "Crown Heights-Utica Av"
+      "name": "Crown Hts-Utica Av"
     }
   ],
   "6": [
@@ -784,7 +784,7 @@
     },
     {
       "display": "St. Lawrence Avenue",
-      "name": "St. Lawrence Av"
+      "name": "St Lawrence Av"
     },
     {
       "display": "Morrison Avenue-Soundview",
@@ -852,11 +852,11 @@
     },
     {
       "display": "59th Street",
-      "name": "59 St"
+      "name": "Lexington Av/59 St"
     },
     {
       "display": "51st Street",
-      "name": "51 St"
+      "name": "51 St / Lexington Av/53 St"
     },
     {
       "display": "Grand Central-42nd Street",
@@ -884,7 +884,7 @@
     },
     {
       "display": "Bleecker Street",
-      "name": "Bleecker St"
+      "name": "Bleecker St / Broadway-Lafayette St"
     },
     {
       "display": "Spring Street",
@@ -896,7 +896,7 @@
     },
     {
       "display": "Brooklyn Bridge-City Hall",
-      "name": "Brooklyn Bridge-City Hall"
+      "name": "Brooklyn Bridge-City Hall / Chambers St"
     }
   ],
   "7": [
@@ -926,7 +926,7 @@
     },
     {
       "display": "Court Square",
-      "name": "Court Sq"
+      "name": "Court Sq-23 St"
     },
     {
       "display": "Queensboro Plaza",
@@ -958,11 +958,11 @@
     },
     {
       "display": "74th Street-Broadway",
-      "name": "74 St-Broadway"
+      "name": "Roosevelt Av / 74 St-Broadway"
     },
     {
       "display": "82nd Street-Jackson Heights",
-      "name": "82 St-Jackson Heights"
+      "name": "82 St-Jackson Hts"
     },
     {
       "display": "90th Street-Elmhurst Avenue",
@@ -2428,7 +2428,7 @@
     },
     {
       "display": "Lexington Avenue-59th Street",
-      "name": "Lexington Av-59 St"
+      "name": "Lexington Av/59 St"
     },
     {
       "display": "5th Avenue-59th Street",
