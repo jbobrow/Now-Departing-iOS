@@ -2176,11 +2176,11 @@
     },
     {
       "display": "6th Avenue",
-      "name": "6 Av"
+      "name": "14 St / 6 Av"
     },
     {
       "display": "Union Square",
-      "name": "Union Sq"
+      "name": "14 St-Union Sq"
     },
     {
       "display": "3rd Avenue",
@@ -2252,7 +2252,7 @@
     },
     {
       "display": "Livonia Avenue",
-      "name": "Livonia Av"
+      "name": "Junius St / Livonia Av"
     },
     {
       "display": "New Lots Avenue",
@@ -2260,7 +2260,7 @@
     },
     {
       "display": "East 105th Street",
-      "name": "E 105 St"
+      "name": "East 105 St"
     },
     {
       "display": "Canarsie-Rockaway Parkway",
@@ -2326,7 +2326,7 @@
     },
     {
       "display": "5th Avenue-53rd Street",
-      "name": "5 Av-53 St"
+      "name": "5 Av/53 St"
     },
     {
       "display": "47th-50th Streets-Rockefeller Center",
@@ -2436,7 +2436,7 @@
     },
     {
       "display": "5th Avenue-59th Street",
-      "name": "5 Av-59 St"
+      "name": "5 Av/59 St"
     },
     {
       "display": "57th Street-7th Avenue",
@@ -2700,11 +2700,11 @@
     },
     {
       "display": "Lexington Avenue-59th Street",
-      "name": "Lexington Av-59 St"
+      "name": "Lexington Av/59 St"
     },
     {
       "display": "5th Avenue-59th Street",
-      "name": "5 Av-59 St"
+      "name": "5 Av/59 St"
     },
     {
       "display": "57th Street-7th Avenue",
@@ -2760,11 +2760,11 @@
     },
     {
       "display": "Whitehall Street-South Ferry",
-      "name": "Whitehall St-South Ferry"
+      "name": "South Ferry / Whitehall St"
     },
     {
       "display": "Court Street",
-      "name": "Court St"
+      "name": "Court St / Borough Hall"
     },
     {
       "display": "Jay Street-MetroTech",
@@ -2783,12 +2783,8 @@
       "name": "Union St"
     },
     {
-      "display": "9th Street",
-      "name": "9 St"
-    },
-    {
-      "display": "4th Avenue",
-      "name": "4 Av"
+      "display": "4th Avenue-9th Street",
+      "name": "4 Av-9 St"
     },
     {
       "display": "Prospect Avenue",
@@ -2862,11 +2858,11 @@
     },
     {
       "display": "Lexington Avenue-59th Street",
-      "name": "Lexington Av-59 St"
+      "name": "Lexington Av/59 St"
     },
     {
       "display": "5th Avenue-59th Street",
-      "name": "5 Av-59 St"
+      "name": "5 Av/59 St"
     },
     {
       "display": "57th Street-7th Avenue",
@@ -2922,7 +2918,7 @@
     },
     {
       "display": "Whitehall Street-South Ferry",
-      "name": "Whitehall St-South Ferry"
+      "name": "South Ferry / Whitehall St"
     }
   ],
   "Z": [
