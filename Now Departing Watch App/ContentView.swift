@@ -246,12 +246,23 @@ struct ContentView: View {
     }
 }
 
+struct ScalingButtonStyle: ButtonStyle {
+    let isPressed: Bool
+    
+    func makeBody(configuration: ButtonStyle.Configuration) -> some View {
+        configuration.label
+            .scaleEffect(isPressed ? 1.5 : 1.0)
+            .animation(.easeInOut(duration: 0.2), value: isPressed)
+            .offset(y: isPressed ? -40 : 0) // Move it up when pressed
+            .zIndex(isPressed ? 1 : 0)
+    }
+}
 
-// Line Selection View
 struct LineSelectionView: View {
     let lines: [SubwayLine]
     let onSelect: (SubwayLine) -> Void
     let onSettings: () -> Void
+    @State private var pressedLineId: String? = nil
     
     var body: some View {
         GeometryReader { geometry in
@@ -275,19 +286,37 @@ struct LineSelectionView: View {
                             }
                             .buttonStyle(PlainButtonStyle())
                         } else {
-                            Button(action: { onSelect(line) }) {
-                                Text(line.label)
-                                    .font(.custom("HelveticaNeue-Bold", size: isSmallScreen ? 22 : 26))
-                                    .foregroundColor(line.fg_color)
-                                    .frame(width: isSmallScreen ? 34 : 38, height: isSmallScreen ? 34 : 38)
-                                    .background(Circle().fill(line.bg_color))
-                            }
-                            .buttonStyle(PlainButtonStyle())
+                            Button(
+                                action: {
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        pressedLineId = nil
+                                    }
+                                    onSelect(line)
+                                },
+                                label: {
+                                    Text(line.label)
+                                        .font(.custom("HelveticaNeue-Bold", size: isSmallScreen ? 22 : 26))
+                                        .foregroundColor(line.fg_color)
+                                        .frame(width: isSmallScreen ? 34 : 38, height: isSmallScreen ? 34 : 38)
+                                        .background(Circle().fill(line.bg_color))
+                                }
+                            )
+                            .buttonStyle(ScalingButtonStyle(isPressed: pressedLineId == line.id))
+                            .onLongPressGesture(minimumDuration: .infinity, maximumDistance: .infinity,
+                                pressing: { isPressing in
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        pressedLineId = isPressing ? line.id : nil
+                                    }
+                                }, perform: { }
+                            )
                         }
                     }
                 }
             }
             .padding(.horizontal)
+        }
+        .onDisappear {
+            pressedLineId = nil
         }
     }
 }
