@@ -70,12 +70,14 @@ class NavigationState: ObservableObject {
     @Published var line: SubwayLine?
     @Published var station: Station?
     @Published var terminal: Station?
+    @Published var direction: String?
     @Published var path = NavigationPath()
     
     func reset() {
         line = nil
         station = nil
         terminal = nil
+        direction = nil
         path = NavigationPath()
     }
 }
@@ -147,9 +149,8 @@ struct ContentView: View {
                     onSelect: { line, station, direction in
                         navigationState.line = line
                         navigationState.station = station
-                        // For favorites, we'll use the station as both station and terminal
-                        // since we already know the direction
-                        navigationState.terminal = station
+                        navigationState.terminal = station  // note this is setting the current station as the terminal... could lead to probs in the future
+                        navigationState.direction = direction   // really we just need direction, so that is why the previous line should be innocuous
                         DispatchQueue.main.async {
                             navigationState.path.append("times")
                         }
@@ -208,8 +209,9 @@ struct ContentView: View {
                               let terminal = navigationState.terminal,
                               let stations = stationDataManager.stations(for: line.id) {
                         let viewModel = TimesViewModel()
-                        let terminalDirection = terminal == stations.first ? "N" : "S"
-                        TimesView(viewModel: viewModel, line: line, station: station, direction: terminalDirection)
+                        // Add a direction property to NavigationState
+                        let direction = navigationState.direction ?? (terminal == stations.first ? "N" : "S")
+                        TimesView(viewModel: viewModel, line: line, station: station, direction: direction)
                     } else {
                         ProgressView()
                             .task {
