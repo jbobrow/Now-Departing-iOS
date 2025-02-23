@@ -251,12 +251,14 @@ struct ContentView: View {
 struct ScalingButtonStyle: ButtonStyle {
     let isPressed: Bool
     
-    func makeBody(configuration: ButtonStyle.Configuration) -> some View {
-        configuration.label
-            .scaleEffect(isPressed ? 1.5 : 1.0)
-            .animation(.easeInOut(duration: 0.2), value: isPressed)
-            .offset(y: isPressed ? -40 : 0) // Move it up when pressed
-            .zIndex(isPressed ? 1 : 0)
+    func makeBody(configuration: ButtonStyleConfiguration) -> some View {
+        let isHighlighted = configuration.isPressed || isPressed
+        return configuration.label
+            .scaleEffect(isHighlighted ? 1.5 : 1.0)
+            .shadow(color: isHighlighted ? .black.opacity(0.6) : .clear, radius: 10)
+            .animation(.spring(), value: isHighlighted)
+            .offset(y: isHighlighted ? -40 : 0)
+            .zIndex(isHighlighted ? 1 : 0)
     }
 }
 
@@ -265,6 +267,7 @@ struct LineSelectionView: View {
     let onSelect: (SubwayLine) -> Void
     let onSettings: () -> Void
     @State private var pressedLineId: String? = nil
+    @State private var selectedLineId: String? = nil
     
     var body: some View {
         GeometryReader { geometry in
@@ -290,10 +293,16 @@ struct LineSelectionView: View {
                         } else {
                             Button(
                                 action: {
-                                    withAnimation(.easeInOut(duration: 0.2)) {
-                                        pressedLineId = nil
+                                    withAnimation(.spring()) {
+                                        selectedLineId = line.id
                                     }
-                                    onSelect(line)
+                                    
+                                    // Delay the actual selection to allow for visual feedback
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                        selectedLineId = nil
+                                        pressedLineId = nil
+                                        onSelect(line)
+                                    }
                                 },
                                 label: {
                                     Text(line.label)
@@ -303,10 +312,10 @@ struct LineSelectionView: View {
                                         .background(Circle().fill(line.bg_color))
                                 }
                             )
-                            .buttonStyle(ScalingButtonStyle(isPressed: pressedLineId == line.id))
+                            .buttonStyle(ScalingButtonStyle(isPressed: pressedLineId == line.id || selectedLineId == line.id))
                             .onLongPressGesture(minimumDuration: .infinity, maximumDistance: .infinity,
                                 pressing: { isPressing in
-                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                    withAnimation(.spring(response: 0.2, dampingFraction: 0.6)) {
                                         pressedLineId = isPressing ? line.id : nil
                                     }
                                 }, perform: { }
@@ -319,6 +328,7 @@ struct LineSelectionView: View {
         }
         .onDisappear {
             pressedLineId = nil
+            selectedLineId = nil
         }
     }
 }
