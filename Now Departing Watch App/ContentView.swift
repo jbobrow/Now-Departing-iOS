@@ -253,17 +253,24 @@ struct ScalingButtonStyle: ButtonStyle {
     
     func makeBody(configuration: ButtonStyleConfiguration) -> some View {
         let isHighlighted = configuration.isPressed || isPressed
-        return configuration.label
-            .scaleEffect(isHighlighted ? 1.5 : 1.0)
-            .shadow(color: isHighlighted ? .black.opacity(0.6) : .clear, radius: 10)
-            .animation(
-                isHighlighted ?
-                    .spring(response: 0.15, dampingFraction: 0.6, blendDuration: 0.1) : // fast pop up
-                    .spring(response: 0.3, dampingFraction: 0.6, blendDuration: 0.1), // slower spring back
-                value: isHighlighted
-            )
-            .offset(y: isHighlighted ? -40 : 0)
-            .zIndex(isHighlighted ? 1 : 0)
+        return ZStack {
+            // Background with shadow
+            Circle()
+                .fill(.black) // This will be filled by the actual button background
+                .shadow(color: isHighlighted ? .black.opacity(0.6) : .clear, radius: 10)
+            
+            // Original label (text and background)
+            configuration.label
+        }
+        .scaleEffect(isHighlighted ? 1.5 : 1.0)
+        .animation(
+            isHighlighted ?
+                .spring(response: 0.15, dampingFraction: 0.6, blendDuration: 0.1) : // fast pop up
+                .spring(response: 0.3, dampingFraction: 0.6, blendDuration: 0.1), // slower spring back
+            value: isHighlighted
+        )
+        .offset(y: isHighlighted ? -40 : 0)
+        .zIndex(isHighlighted ? 1 : 0)
     }
 }
 
