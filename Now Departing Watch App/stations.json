@@ -1266,7 +1266,7 @@
     },
     {
       "display": "42nd Street-Bryant Park",
-      "name": "42 St-Bryant Park"
+      "name": "42 St-Bryant Pk"
     },
     {
       "display": "34th Street-Herald Square",
@@ -1574,7 +1574,7 @@
     },
     {
       "display": "42nd Street-Bryant Park",
-      "name": "42 St-Port Authority Bus Terminal"
+      "name": "42 St-Bryant Pk"
     },
     {
       "display": "34th Street-Herald Square",
@@ -1834,7 +1834,7 @@
     },
     {
       "display": "57th Street",
-      "name": "57 St-7 Av"
+      "name": "57 St"
     },
     {
       "display": "47th-50th Streets-Rockefeller Center",
@@ -1842,7 +1842,7 @@
     },
     {
       "display": "42nd Street-Bryant Park",
-      "name": "Times Sq-42 St"
+      "name": "42 St-Bryant Pk"
     },
     {
       "display": "34th Street-Herald Square",
@@ -1854,7 +1854,7 @@
     },
     {
       "display": "14th Street",
-      "name": "14 St-Union Sq"
+      "name": "14 St / 6 Av"
     },
     {
       "display": "West 4th Street-Washington Square",
@@ -2334,7 +2334,7 @@
     },
     {
       "display": "42nd Street-Bryant Park",
-      "name": "42 St-Bryant Park"
+      "name": "42 St-Bryant Pk"
     },
     {
       "display": "34th Street-Herald Square",
