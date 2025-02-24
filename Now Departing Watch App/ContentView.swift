@@ -256,7 +256,12 @@ struct ScalingButtonStyle: ButtonStyle {
         return configuration.label
             .scaleEffect(isHighlighted ? 1.5 : 1.0)
             .shadow(color: isHighlighted ? .black.opacity(0.6) : .clear, radius: 10)
-            .animation(.spring(), value: isHighlighted)
+            .animation(
+                isHighlighted ?
+                    .spring(response: 0.15, dampingFraction: 0.6, blendDuration: 0.1) : // fast pop up
+                    .spring(response: 0.3, dampingFraction: 0.6, blendDuration: 0.1), // slower spring back
+                value: isHighlighted
+            )
             .offset(y: isHighlighted ? -40 : 0)
             .zIndex(isHighlighted ? 1 : 0)
     }
@@ -293,12 +298,10 @@ struct LineSelectionView: View {
                         } else {
                             Button(
                                 action: {
-                                    withAnimation(.spring()) {
-                                        selectedLineId = line.id
-                                    }
+                                    selectedLineId = line.id
                                     
                                     // Delay the actual selection to allow for visual feedback
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                                         selectedLineId = nil
                                         pressedLineId = nil
                                         onSelect(line)
@@ -315,7 +318,7 @@ struct LineSelectionView: View {
                             .buttonStyle(ScalingButtonStyle(isPressed: pressedLineId == line.id || selectedLineId == line.id))
                             .onLongPressGesture(minimumDuration: .infinity, maximumDistance: .infinity,
                                 pressing: { isPressing in
-                                    withAnimation(.spring(response: 0.2, dampingFraction: 0.6)) {
+                                withAnimation(.spring(response: 0, dampingFraction: 0.4, blendDuration: 0)) {
                                         pressedLineId = isPressing ? line.id : nil
                                     }
                                 }, perform: { }
