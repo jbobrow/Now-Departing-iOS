@@ -1537,30 +1537,6 @@
       "name": "125 St"
     },
     {
-      "display": "116th Street",
-      "name": "116 St"
-    },
-    {
-      "display": "Cathedral Parkway-110th Street",
-      "name": "Cathedral Pkwy (110 St)"
-    },
-    {
-      "display": "103rd Street",
-      "name": "103 St"
-    },
-    {
-      "display": "96th Street",
-      "name": "96 St"
-    },
-    {
-      "display": "81st Street-Museum of Natural History",
-      "name": "81 St-Museum of Natural History"
-    },
-    {
-      "display": "72nd Street",
-      "name": "72 St"
-    },
-    {
       "display": "59th Street-Columbus Circle",
       "name": "59 St-Columbus Circle"
     },
@@ -1795,26 +1771,6 @@
     {
       "display": "Forest Hills-71st Avenue",
       "name": "Forest Hills-71 Av"
-    },
-    {
-      "display": "67th Avenue",
-      "name": "67 Av"
-    },
-    {
-      "display": "63rd Drive-Rego Park",
-      "name": "63 Dr-Rego Park"
-    },
-    {
-      "display": "Woodhaven Boulevard",
-      "name": "Woodhaven Blvd"
-    },
-    {
-      "display": "Grand Avenue-Newtown",
-      "name": "Grand Av-Newtown"
-    },
-    {
-      "display": "Elmhurst Avenue",
-      "name": "Elmhurst Av"
     },
     {
       "display": "Jackson Heights-Roosevelt Avenue",
@@ -2676,7 +2632,7 @@
     },
     {
       "display": "Jackson Heights-Roosevelt Avenue",
-      "name": "Jackson Heights-Roosevelt Av"
+      "name": "Roosevelt Av / 74 St-Broadway"
     },
     {
       "display": "65th Street",
