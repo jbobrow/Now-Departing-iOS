@@ -11,12 +11,14 @@ import SwiftUI
 struct NowDepartingWatchApp: App {
     @StateObject private var stationDataManager = StationDataManager()
     @StateObject private var favoritesManager = FavoritesManager()
+    @StateObject private var settingsManager = SettingsManager()
     
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environmentObject(stationDataManager)
                 .environmentObject(favoritesManager)
+                .environmentObject(settingsManager)
         }
         .windowToolbarLabelStyle(fixed: .automatic)
     }

@@ -86,6 +86,7 @@ class NavigationState: ObservableObject {
 struct ContentView: View {
     @EnvironmentObject var stationDataManager: StationDataManager
     @Environment(\.scenePhase) private var scenePhase
+    @EnvironmentObject var settingsManager: SettingsManager
     @StateObject private var navigationState = NavigationState()
     @StateObject private var favoritesManager = FavoritesManager()
     @State private var showSettings = false
@@ -226,6 +227,7 @@ struct ContentView: View {
             .sheet(isPresented: $showSettings) {
                 NavigationStack {
                     SettingsView()
+                        .environmentObject(settingsManager)
                 }
             }
         }
@@ -488,20 +490,37 @@ struct LoadingView: View {
 struct PrimaryTrainView: View {
     let train: TrainTime
     let isSmallScreen: Bool
+    let showPreciseMode: Bool
     
     private var text: String {
-        if train.minutes == 0 && train.seconds == 0 {
+        let totalSeconds = train.minutes * 60 + train.seconds
+        
+        if totalSeconds == 0 {
             return "Departing"
-        } else if train.minutes == 0 {
-            return "\(train.seconds)s"
-        } else {
+        } else if totalSeconds <= 20 {
+            // Final 20 seconds - "Departing"
+            return "Departing"
+        } else if totalSeconds < 60 {
+            // Under 60 seconds but more than 20 - "Arriving"
+            return "Arriving"
+        } else if showPreciseMode {
+            // Precise mode with minutes and seconds
             return "\(train.minutes)m\(train.seconds)s"
+        } else {
+            // Standard mode - just minutes
+            return "\(train.minutes) min"
         }
     }
     
     private var fontSize: CGFloat {
-        let isDeparting = train.minutes == 0 && train.seconds == 0
-        return isDeparting ? (isSmallScreen ? 24 : 28) : (isSmallScreen ? 28 : 32)
+        let totalSeconds = train.minutes * 60 + train.seconds
+        let isSpecialState = totalSeconds < 60 // "Arriving" or "Departing"
+        
+        if isSpecialState {
+            return isSmallScreen ? 24 : 28
+        } else {
+            return isSmallScreen ? 28 : 32
+        }
     }
     
     var body: some View {
@@ -516,13 +535,22 @@ struct PrimaryTrainView: View {
 // View for displaying additional train times
 struct AdditionalTrainsView: View {
     let trains: [TrainTime]
+    let showPreciseMode: Bool
     
     private var text: String {
         return trains.prefix(3).map { train -> String in
-            if train.minutes == 0 {
-                return "\(train.seconds)s"
-            } else {
+            let totalSeconds = train.minutes * 60 + train.seconds
+            
+            if totalSeconds < 60 {
+                if totalSeconds <= 20 {
+                    return "Departing"
+                } else {
+                    return "Arriving"
+                }
+            } else if showPreciseMode {
                 return "\(train.minutes)m\(train.seconds)s"
+            } else {
+                return "\(train.minutes) min"
             }
         }.joined(separator: ", ")
     }
@@ -575,6 +603,7 @@ struct TrainTimesContainerView: View {
     let isLoading: Bool
     let isActive: Bool
     let isSmallScreen: Bool
+    let showPreciseMode: Bool
     
     private var height: CGFloat {
         if !errorMessage.isEmpty {
@@ -592,10 +621,17 @@ struct TrainTimesContainerView: View {
             if !errorMessage.isEmpty {
                 ErrorView(message: errorMessage, isSmallScreen: isSmallScreen)
             } else if !trains.isEmpty {
-                PrimaryTrainView(train: trains[0], isSmallScreen: isSmallScreen)
+                PrimaryTrainView(
+                    train: trains[0],
+                    isSmallScreen: isSmallScreen,
+                    showPreciseMode: showPreciseMode
+                )
                 
                 if trains.count > 1 {
-                    AdditionalTrainsView(trains: Array(trains.dropFirst()))
+                    AdditionalTrainsView(
+                        trains: Array(trains.dropFirst()),
+                        showPreciseMode: showPreciseMode
+                    )
                 }
             } else if isLoading && isActive {
                 LoadingView(isSmallScreen: isSmallScreen)
@@ -611,6 +647,7 @@ struct TimesView: View {
     @Environment(\.scenePhase) private var scenePhase
     @EnvironmentObject var favoritesManager: FavoritesManager
     @EnvironmentObject var navigationState: NavigationState
+    @EnvironmentObject var settingsManager: SettingsManager
     @StateObject private var viewModel: TimesViewModel = TimesViewModel()
     @State private var showingFavoriteAlert = false
     let line: SubwayLine
@@ -644,9 +681,10 @@ struct TimesView: View {
                         errorMessage: viewModel.errorMessage,
                         isLoading: viewModel.loading,
                         isActive: scenePhase == .active,
-                        isSmallScreen: isSmallScreen
+                        isSmallScreen: isSmallScreen,
+                        showPreciseMode: settingsManager.showPreciseMode
                     )
-                    .animation(.easeInOut(duration: 0.3), value: viewModel.loading || !viewModel.nextTrains.isEmpty)
+                    .animation(.easeInOut(duration: 0.3), value: viewModel.nextTrains.isEmpty)
                     .animation(.easeInOut(duration: 0.3), value: viewModel.errorMessage)
                     
                     // Station name
@@ -657,7 +695,7 @@ struct TimesView: View {
                     minHeight: geometry.size.height,
                     alignment: .center
                 )
-                .animation(.easeInOut(duration: 0.3), value: !trainTimes.isEmpty || (viewModel.loading && scenePhase == .active))
+                .animation(.easeInOut(duration: 0.3), value: viewModel.loading || !viewModel.nextTrains.isEmpty)
                 
                 // Loading indicator overlay
                 if viewModel.loading {
