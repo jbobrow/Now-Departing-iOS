@@ -434,6 +434,179 @@ struct TerminalSelectionView: View {
     }
 }
 
+// MARK: - Separate View Components
+
+// Simple container for train time data
+struct TrainTime: Equatable, Hashable {
+    let minutes: Int
+    let seconds: Int
+}
+
+// View for displaying a subway line circle
+struct LineCircleView: View {
+    let line: SubwayLine
+    let isSmallScreen: Bool
+    
+    var body: some View {
+        Text(line.label)
+            .font(.custom("HelveticaNeue-Bold", size: isSmallScreen ? 48 : 60))
+            .foregroundColor(line.fg_color)
+            .frame(width: isSmallScreen ? 80 : 100, height: isSmallScreen ? 80 : 100)
+            .background(Circle().fill(line.bg_color))
+            .padding(.bottom, isSmallScreen ? 2 : 4)
+    }
+}
+
+// View for displaying an error message
+struct ErrorView: View {
+    let message: String
+    let isSmallScreen: Bool
+    
+    var body: some View {
+        Text(message)
+            .font(.custom("HelveticaNeue-Bold", size: 14))
+            .foregroundColor(.red)
+            .padding(.vertical, isSmallScreen ? 4 : 8)
+            .multilineTextAlignment(.center)
+            .transition(.opacity.combined(with: .scale))
+    }
+}
+
+// View for displaying a loading message
+struct LoadingView: View {
+    let isSmallScreen: Bool
+    
+    var body: some View {
+        Text("Loading...")
+            .font(.custom("HelveticaNeue-Bold", size: isSmallScreen ? 18 : 20))
+            .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
+            .transition(.opacity)
+    }
+}
+
+// View for displaying the primary train time
+struct PrimaryTrainView: View {
+    let train: TrainTime
+    let isSmallScreen: Bool
+    
+    private var text: String {
+        if train.minutes == 0 && train.seconds == 0 {
+            return "Departing"
+        } else if train.minutes == 0 {
+            return "\(train.seconds)s"
+        } else {
+            return "\(train.minutes)m\(train.seconds)s"
+        }
+    }
+    
+    private var fontSize: CGFloat {
+        let isDeparting = train.minutes == 0 && train.seconds == 0
+        return isDeparting ? (isSmallScreen ? 24 : 28) : (isSmallScreen ? 28 : 32)
+    }
+    
+    var body: some View {
+        Text(text)
+            .font(.custom("HelveticaNeue-Bold", size: fontSize))
+            .foregroundColor(.white)
+            .transition(.opacity.combined(with: .scale))
+            .id("primaryTime-\(text)")
+    }
+}
+
+// View for displaying additional train times
+struct AdditionalTrainsView: View {
+    let trains: [TrainTime]
+    
+    private var text: String {
+        return trains.prefix(3).map { train -> String in
+            if train.minutes == 0 {
+                return "\(train.seconds)s"
+            } else {
+                return "\(train.minutes)m\(train.seconds)s"
+            }
+        }.joined(separator: ", ")
+    }
+    
+    private var idString: String {
+        return trains.prefix(3).map { "\($0.minutes)-\($0.seconds)" }.joined()
+    }
+    
+    var body: some View {
+        Text(text)
+            .font(.custom("HelveticaNeue-Bold", size: 14))
+            .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
+            .lineLimit(1)
+            .truncationMode(.tail)
+            .transition(.opacity.combined(with: .scale))
+            .id("secondaryTimes-\(idString)")
+    }
+}
+
+// View for displaying the station name
+struct StationNameView: View {
+    let stationName: String
+    let isSmallScreen: Bool
+    
+    var body: some View {
+        Text(stationName)
+            .font(.custom("HelveticaNeue-Medium", size: isSmallScreen ? 18 : 20))
+            .foregroundColor(.white)
+            .multilineTextAlignment(.center)
+            .padding(.horizontal, isSmallScreen ? 8 : 12)
+    }
+}
+
+// View for displaying the loading indicator
+struct LoadingIndicatorView: View {
+    let geometry: GeometryProxy
+    
+    var body: some View {
+        ProgressView()
+            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+            .frame(width: 20, height: 20)
+            .offset(x: geometry.size.width - 32, y: -geometry.size.height/2 + 44)
+    }
+}
+
+// Container view for train times display
+struct TrainTimesContainerView: View {
+    let trains: [TrainTime]
+    let errorMessage: String
+    let isLoading: Bool
+    let isActive: Bool
+    let isSmallScreen: Bool
+    
+    private var height: CGFloat {
+        if !errorMessage.isEmpty {
+            return isSmallScreen ? 28 : 32  // Height for error message
+        } else if !trains.isEmpty {
+            return isSmallScreen ? 60 : 60  // Height for times
+        } else if isLoading && isActive {
+            return isSmallScreen ? 28 : 32  // Height for loading
+        }
+        return 0  // Collapsed height when no content
+    }
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            if !errorMessage.isEmpty {
+                ErrorView(message: errorMessage, isSmallScreen: isSmallScreen)
+            } else if !trains.isEmpty {
+                PrimaryTrainView(train: trains[0], isSmallScreen: isSmallScreen)
+                
+                if trains.count > 1 {
+                    AdditionalTrainsView(trains: Array(trains.dropFirst()))
+                }
+            } else if isLoading && isActive {
+                LoadingView(isSmallScreen: isSmallScreen)
+            }
+        }
+        .frame(height: height)
+        .clipped()
+    }
+}
+
+// Main TimesView
 struct TimesView: View {
     @Environment(\.scenePhase) private var scenePhase
     @EnvironmentObject var favoritesManager: FavoritesManager
@@ -443,6 +616,11 @@ struct TimesView: View {
     let line: SubwayLine
     let station: Station
     let direction: String
+    
+    // Convert the ViewModel's data format to our simplified TrainTime struct
+    private var trainTimes: [TrainTime] {
+        return viewModel.nextTrains.map { TrainTime(minutes: $0.minutes, seconds: $0.seconds) }
+    }
     
     init(viewModel: TimesViewModel, line: SubwayLine, station: Station, direction: String) {
         self.line = line
@@ -454,101 +632,44 @@ struct TimesView: View {
         GeometryReader { geometry in
             let isSmallScreen = geometry.size.width < 165
             
-            if viewModel.loading {
-                ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                    .frame(width: 20, height: 20)
-                    .offset(x: geometry.size.width - 32, y: -geometry.size.height/2 + 44)
-            }
-            
-            VStack(alignment: .center, spacing: 0) {
-                // Line Label
-                Text(line.label)
-                    .font(.custom("HelveticaNeue-Bold", size: isSmallScreen ? 48 : 60))
-                    .foregroundColor(line.fg_color)
-                    .frame(width: isSmallScreen ? 80 : 100, height: isSmallScreen ? 80 : 100)
-                    .background(Circle().fill(line.bg_color))
-                    .padding(.bottom, isSmallScreen ? 2 : 4)
-                
-                // Times Container - Always present but height animates
-                VStack(spacing: 0) {
-                    if !viewModel.errorMessage.isEmpty {
-                        Text(viewModel.errorMessage)
-                            .font(.custom("HelveticaNeue-Bold", size: 14))
-                            .foregroundColor(.red)
-                            .padding(.vertical, isSmallScreen ? 4 : 8)
-                            .multilineTextAlignment(.center)
-                            .transition(.opacity.combined(with: .scale))
-                    } else {
-                        let nextTrains = viewModel.nextTrains
-                        if !nextTrains.isEmpty {
-                            // Primary Time Display
-                            let firstTrainText = nextTrains[0] == 0 ? "Departing" : "\(nextTrains[0]) min"
-                            let firstTrainTextSize: CGFloat = nextTrains[0] == 0
-                            ? (isSmallScreen ? 24 : 28)
-                            : (isSmallScreen ? 32 : 36)
-                            
-                            Text(firstTrainText)
-                                .font(.custom("HelveticaNeue-Bold", size: firstTrainTextSize))
-                                .foregroundColor(.white)
-                                .transition(.opacity.combined(with: .scale))
-                                .id("primaryTime-\(firstTrainText)")
-                            
-                            // Additional Times
-                            if nextTrains.count > 1 {
-                                Text(nextTrains.dropFirst()
-                                    .prefix(3)
-                                    .map { "\($0) min" }
-                                    .joined(separator: ", "))
-                                .font(.custom("HelveticaNeue-Bold", size: 14))
-                                .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
-                                .lineLimit(1)
-                                .truncationMode(.tail)
-                                .transition(.opacity.combined(with: .scale))
-                                .id("secondaryTimes-\(nextTrains.dropFirst().prefix(3).map{String($0)}.joined())")
-                            }
-                        } else if viewModel.loading && scenePhase == .active {
-                            Text("Loading...")
-                                .font(.custom("HelveticaNeue-Bold", size: isSmallScreen ? 18 : 20))
-                                .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
-                                .transition(.opacity)
-                        }
-                    }
+            ZStack {
+                // Main content
+                VStack(alignment: .center, spacing: 0) {
+                    // Line circle
+                    LineCircleView(line: line, isSmallScreen: isSmallScreen)
+                    
+                    // Train times container
+                    TrainTimesContainerView(
+                        trains: trainTimes,
+                        errorMessage: viewModel.errorMessage,
+                        isLoading: viewModel.loading,
+                        isActive: scenePhase == .active,
+                        isSmallScreen: isSmallScreen
+                    )
+                    .animation(.easeInOut(duration: 0.3), value: viewModel.loading || !viewModel.nextTrains.isEmpty)
+                    .animation(.easeInOut(duration: 0.3), value: viewModel.errorMessage)
+                    
+                    // Station name
+                    StationNameView(stationName: station.display, isSmallScreen: isSmallScreen)
                 }
-                .animation(.easeInOut(duration: 0.3), value: viewModel.nextTrains)
-                .animation(.easeInOut(duration: 0.3), value: viewModel.errorMessage)
-                // Add frame with fixed height to prevent layout jumps
-                .frame(height: {
-                    if !viewModel.errorMessage.isEmpty {
-                        return isSmallScreen ? 28 : 32  // Height for error message
-                    } else if !viewModel.nextTrains.isEmpty {
-                        return isSmallScreen ? 60 : 60  // Height for times
-                    } else if viewModel.loading && scenePhase == .active {
-                        return isSmallScreen ? 28 : 32  // Height for loading
-                    }
-                    return 0  // Collapsed height when no content
-                }())
-                .clipped()
+                .frame(
+                    minWidth: geometry.size.width,
+                    minHeight: geometry.size.height,
+                    alignment: .center
+                )
+                .animation(.easeInOut(duration: 0.3), value: !trainTimes.isEmpty || (viewModel.loading && scenePhase == .active))
                 
-                // Station Name
-                Text(station.display)
-                    .font(.custom("HelveticaNeue-Medium", size: isSmallScreen ? 18 : 20))
-                    .foregroundColor(.white)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, isSmallScreen ? 8 : 12)
+                // Loading indicator overlay
+                if viewModel.loading {
+                    LoadingIndicatorView(geometry: geometry)
+                }
             }
-            .frame(
-                minWidth: geometry.size.width,
-                minHeight: geometry.size.height,
-                alignment: .center
-            )
-            .animation(.easeInOut(duration: 0.3), value: !viewModel.nextTrains.isEmpty || (viewModel.loading && scenePhase == .active))
         }
         .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button(action: {
-                        navigationState.reset()
+                    navigationState.reset()
                 }) {
                     Image(systemName: "xmark")
                 }
@@ -581,6 +702,26 @@ struct TimesView: View {
             showingFavoriteAlert = true
         }
         .confirmationDialog("Add to Favorites?", isPresented: $showingFavoriteAlert, titleVisibility: .visible) {
+            // Create favorites buttons outside the main view hierarchy
+            FavoritesButtons(
+                line: line,
+                station: station,
+                direction: direction,
+                favoritesManager: favoritesManager
+            )
+        }
+    }
+}
+
+// Extracted favorites dialog buttons to separate view
+struct FavoritesButtons: View {
+    let line: SubwayLine
+    let station: Station
+    let direction: String
+    let favoritesManager: FavoritesManager
+    
+    var body: some View {
+        Group {
             if !favoritesManager.isFavorite(lineId: line.id, stationName: station.name, direction: direction) {
                 Button("Add to Favorites") {
                     favoritesManager.addFavorite(
@@ -607,8 +748,8 @@ struct TimesView: View {
 }
 
 // Preview provider for SwiftUI previews
-#Preview {
-    ContentView()
-        .environmentObject(StationDataManager())
-        .environmentObject(FavoritesManager())
-}
+//#Preview {
+//    ContentView()
+//        .environmentObject(StationDataManager())
+//        .environmentObject(FavoritesManager())
+//}
