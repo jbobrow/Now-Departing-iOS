@@ -495,15 +495,7 @@ struct PrimaryTrainView: View {
     private var text: String {
         let totalSeconds = train.minutes * 60 + train.seconds
         
-        if totalSeconds == 0 {
-            return "Departing"
-        } else if totalSeconds <= 15 {
-            // Final 20 seconds - "Departing"
-            return "Departing"
-        } else if totalSeconds < 30 {
-            // Under 60 seconds but more than 20 - "Arriving"
-            return "Arriving"
-        } else if showPreciseMode {
+        if showPreciseMode {
             // Precise mode with minutes and seconds
             if train.minutes > 0 {
                 return "\(train.minutes)m\(train.seconds)s"
@@ -512,8 +504,18 @@ struct PrimaryTrainView: View {
                 return "\(train.seconds)s"
             }
         } else {
-            // Standard mode - just minutes
-            return "\(train.minutes) min"
+            if totalSeconds == 0 {
+                return "Departing"
+            } else if totalSeconds <= 30 {
+                // Final 20 seconds - "Departing"
+                return "Departing"
+            } else if totalSeconds < 60 {
+                // Under 60 seconds but more than 20 - "Arriving"
+                return "Arriving"
+            } else {
+                // Standard mode - just minutes
+                return "\(train.minutes) min"
+            }
         }
     }
     
