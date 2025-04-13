@@ -250,32 +250,6 @@ struct ContentView: View {
     }
 }
 
-struct ScalingButtonStyle: ButtonStyle {
-    let isPressed: Bool
-    
-    func makeBody(configuration: ButtonStyleConfiguration) -> some View {
-        let isHighlighted = configuration.isPressed || isPressed
-        return ZStack {
-            // Background with shadow
-            Circle()
-                .fill(.black) // This will be filled by the actual button background
-                .shadow(color: isHighlighted ? .black.opacity(0.6) : .clear, radius: 10)
-            
-            // Original label (text and background)
-            configuration.label
-        }
-        .scaleEffect(isHighlighted ? 1.5 : 1.0)
-        .animation(
-            isHighlighted ?
-                .spring(response: 0.15, dampingFraction: 0.6, blendDuration: 0.1) : // fast pop up
-                .spring(response: 0.3, dampingFraction: 0.6, blendDuration: 0.1), // slower spring back
-            value: isHighlighted
-        )
-        .offset(y: isHighlighted ? -40 : 0)
-        .zIndex(isHighlighted ? 1 : 0)
-    }
-}
-
 struct LineSelectionView: View {
     let lines: [SubwayLine]
     let onSelect: (SubwayLine) -> Void
@@ -286,57 +260,115 @@ struct LineSelectionView: View {
     var body: some View {
         GeometryReader { geometry in
             let isSmallScreen = geometry.size.width < 165
+            let spacing: CGFloat = 4  // Fixed spacing for all screen sizes
+            let columnCount = 4
             
-            let columns = [
-                GridItem(.flexible(minimum: 32, maximum: 38), spacing: isSmallScreen ? 2 : 4),
-                GridItem(.flexible(minimum: 32, maximum: 38), spacing: isSmallScreen ? 2 : 4),
-                GridItem(.flexible(minimum: 32, maximum: 38), spacing: isSmallScreen ? 2 : 4),
-                GridItem(.flexible(minimum: 32, maximum: 38), spacing: isSmallScreen ? 2 : 4)
-            ]
+            // Fixed button sizes based on screen size
+            let buttonSize: CGFloat = isSmallScreen ? 34 : 38
+            
+            // Calculate the fixed grid width
+            let gridWidth = buttonSize * CGFloat(columnCount) + spacing * CGFloat(columnCount - 1)
+            
+            // Center the grid in the available space
+            let horizontalPadding = (geometry.size.width - gridWidth) / 2
             
             ScrollView {
-                LazyVGrid(columns: columns, spacing: isSmallScreen ? 2 : 4) {
-                    ForEach(lines) { line in
-                        if line.id == "X" {
-                            Button(action: onSettings) {
-                                Image(systemName: "gear")
-                                    .foregroundColor(.black)
-                                    .frame(width: isSmallScreen ? 34 : 38, height: isSmallScreen ? 34 : 38)
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                        } else {
-                            Button(
-                                action: {
-                                    selectedLineId = line.id
-                                    
-                                    // Delay the actual selection to allow for visual feedback
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                        selectedLineId = nil
-                                        pressedLineId = nil
-                                        onSelect(line)
+                VStack(spacing: 0) {
+                    // Create rows based on our column count
+                    ForEach(0..<(lines.count + columnCount - 1) / columnCount, id: \.self) { rowIndex in
+                        ZStack(alignment: .topLeading) {
+                            HStack(spacing: spacing) {
+                                ForEach(0..<columnCount, id: \.self) { columnIndex in
+                                    let index = rowIndex * columnCount + columnIndex
+                                    if index < lines.count {
+                                        Color.clear
+                                            .frame(width: buttonSize, height: buttonSize)
+                                    } else {
+                                        Color.clear
+                                            .frame(width: 0, height: 0)
                                     }
-                                },
-                                label: {
-                                    Text(line.label)
-                                        .font(.custom("HelveticaNeue-Bold", size: isSmallScreen ? 22 : 26))
-                                        .foregroundColor(line.fg_color)
-                                        .frame(width: isSmallScreen ? 34 : 38, height: isSmallScreen ? 34 : 38)
-                                        .background(Circle().fill(line.bg_color))
                                 }
-                            )
-                            .buttonStyle(ScalingButtonStyle(isPressed: pressedLineId == line.id || selectedLineId == line.id))
-                            .onLongPressGesture(minimumDuration: .infinity, maximumDistance: .infinity,
-                                pressing: { isPressing in
-                                withAnimation(.spring(response: 0, dampingFraction: 0.4, blendDuration: 0)) {
-                                        pressedLineId = isPressing ? line.id : nil
+                            }
+                            
+                            // Position buttons
+                            ForEach(0..<columnCount, id: \.self) { columnIndex in
+                                let index = rowIndex * columnCount + columnIndex
+                                if index < lines.count {
+                                    let line = lines[index]
+                                    let xPos = CGFloat(columnIndex) * (buttonSize + spacing)
+                                    
+                                    if line.id == "X" {
+                                        Button(action: onSettings) {
+                                            Image(systemName: "gear")
+                                                .foregroundColor(.black)
+                                                .frame(width: buttonSize, height: buttonSize)
+                                        }
+                                        .buttonStyle(PlainButtonStyle())
+                                        .position(x: xPos + buttonSize/2, y: buttonSize/2)
+                                    } else {
+                                        ZStack {
+                                            // Normal state button (always visible)
+                                            Button(action: {
+                                                // Trigger haptic feedback
+                                                WKInterfaceDevice.current().play(.click)
+                                                
+                                                selectedLineId = line.id
+                                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                                    selectedLineId = nil
+                                                    pressedLineId = nil
+                                                    onSelect(line)
+                                                }
+                                            }) {
+                                                Text(line.label)
+                                                    .font(.custom("HelveticaNeue-Bold", size: isSmallScreen ? 22 : 26))
+                                                    .foregroundColor(line.fg_color)
+                                                    .frame(width: buttonSize, height: buttonSize)
+                                                    .background(Circle().fill(line.bg_color))
+                                                    .scaleEffect(2.0) // Draw at 2x size
+                                                    .scaleEffect(0.5) // Scale down to 50% normally
+                                            }
+                                            .buttonStyle(PlainButtonStyle())
+                                            .opacity((pressedLineId == line.id || selectedLineId == line.id) ? 0 : 1)
+                                            
+                                            // Pressed state button (only visible when pressed)
+                                            if pressedLineId == line.id || selectedLineId == line.id {
+                                                Text(line.label)
+                                                    .font(.custom("HelveticaNeue-Bold", size: isSmallScreen ? 44 : 52)) // Double the font size
+                                                    .foregroundColor(line.fg_color)
+                                                    .frame(width: buttonSize * 2, height: buttonSize * 2) // Double the frame size
+                                                    .background(
+                                                        Circle()
+                                                            .fill(line.bg_color)
+                                                            .shadow(color: .black.opacity(0.6), radius: 10)
+                                                    )
+                                            }
+                                        }
+                                        .position(x: xPos + buttonSize/2, y: buttonSize/2)
+                                        .offset(y: (pressedLineId == line.id || selectedLineId == line.id) ? -40 : 0)
+                                        .zIndex(pressedLineId == line.id || selectedLineId == line.id ? 10 : 0)
+                                        .animation(
+                                            (pressedLineId == line.id || selectedLineId == line.id) ?
+                                                .spring(response: 0.15, dampingFraction: 0.6, blendDuration: 0.1) :
+                                                .spring(response: 0.3, dampingFraction: 0.6, blendDuration: 0.1),
+                                            value: pressedLineId == line.id || selectedLineId == line.id
+                                        )
+                                        .onLongPressGesture(minimumDuration: .infinity, maximumDistance: .infinity,
+                                            pressing: { isPressing in
+                                                withAnimation(.spring(response: 0, dampingFraction: 0.4, blendDuration: 0)) {
+                                                    pressedLineId = isPressing ? line.id : nil
+                                                }
+                                            }, perform: { }
+                                        )
                                     }
-                                }, perform: { }
-                            )
+                                }
+                            }
                         }
+                        .frame(height: buttonSize)
+                        .padding(.bottom, spacing) // Use the fixed spacing here too
                     }
                 }
+                .padding(.horizontal, horizontalPadding) // Use calculated padding to center the grid
             }
-            .padding(.horizontal)
         }
         .onDisappear {
             pressedLineId = nil
