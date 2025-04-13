@@ -148,6 +148,10 @@ struct ContentView: View {
                 // Favorites View
                 FavoritesView(
                     onSelect: { line, station, direction in
+                        
+                        // Trigger haptic feedback
+                        WKInterfaceDevice.current().play(.start)
+
                         navigationState.line = line
                         navigationState.station = station
                         navigationState.terminal = station  // note this is setting the current station as the terminal... could lead to probs in the future
@@ -310,7 +314,7 @@ struct LineSelectionView: View {
                                             // Normal state button (always visible)
                                             Button(action: {
                                                 // Trigger haptic feedback
-                                                WKInterfaceDevice.current().play(.click)
+                                                WKInterfaceDevice.current().play(.start)
                                                 
                                                 selectedLineId = line.id
                                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
@@ -354,6 +358,10 @@ struct LineSelectionView: View {
                                         )
                                         .onLongPressGesture(minimumDuration: .infinity, maximumDistance: .infinity,
                                             pressing: { isPressing in
+                                                if isPressing && pressedLineId != line.id {
+                                                    // Trigger haptic feedback when long press starts
+                                                    WKInterfaceDevice.current().play(.start)
+                                                }
                                                 withAnimation(.spring(response: 0, dampingFraction: 0.4, blendDuration: 0)) {
                                                     pressedLineId = isPressing ? line.id : nil
                                                 }
@@ -394,7 +402,11 @@ struct StationSelectionView: View {
             case .loaded:
                 if let stations = dataManager.stations(for: line.id) {
                     List(stations) { station in
-                        Button(action: { onSelect(station) }) {
+                        Button(action: {
+                            // Trigger haptic feedback
+                            WKInterfaceDevice.current().play(.start)
+
+                            onSelect(station) }) {
                             HStack {
                                 if station.hasAvailableTimes == false {
                                     Image(systemName: "exclamationmark.triangle.fill")
@@ -445,7 +457,11 @@ struct TerminalSelectionView: View {
     
     var body: some View {
         List(terminals) { terminal in
-            Button(action: { onSelect(terminal) }) {
+            Button(action: {
+                // Trigger haptic feedback
+                WKInterfaceDevice.current().play(.start)
+
+                onSelect(terminal) }) {
                 Text(terminal.display)
                     .foregroundColor(.white)
             }
@@ -746,6 +762,9 @@ struct TimesView: View {
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button(action: {
+                    // Trigger haptic feedback
+                    WKInterfaceDevice.current().play(.start)
+
                     navigationState.reset()
                 }) {
                     Image(systemName: "xmark")
@@ -776,6 +795,9 @@ struct TimesView: View {
             }
         }
         .onLongPressGesture {
+            // Trigger haptic feedback
+            WKInterfaceDevice.current().play(.start)
+
             showingFavoriteAlert = true
         }
         .confirmationDialog("Add to Favorites?", isPresented: $showingFavoriteAlert, titleVisibility: .visible) {
