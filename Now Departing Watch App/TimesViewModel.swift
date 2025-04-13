@@ -10,7 +10,8 @@ import Combine
 import ClockKit
 
 class TimesViewModel: ObservableObject {
-    @Published var nextTrains: [Int] = [] {
+    // Updated to store time in seconds for more precision
+    @Published var nextTrains: [(minutes: Int, seconds: Int)] = [] {
         didSet {
             if nextTrains.isEmpty && !oldValue.isEmpty {
                 print("Debug: nextTrains was cleared. Previous value: \(oldValue)")
@@ -169,9 +170,15 @@ class TimesViewModel: ObservableObject {
         let now = Date()
         
         nextTrains = arrivalTimes.compactMap { arrivalTime in
-            let minutes = Calendar.current.dateComponents([.minute], from: now, to: arrivalTime).minute ?? 0
-            return minutes >= 0 ? minutes : nil
-        }.sorted()
+            let interval = arrivalTime.timeIntervalSince(now)
+            if interval < 0 { return nil }
+            
+            let totalSeconds = Int(interval)
+            let minutes = totalSeconds / 60
+            let seconds = totalSeconds % 60
+            
+            return (minutes: minutes, seconds: seconds)
+        }.sorted { $0.minutes * 60 + $0.seconds < $1.minutes * 60 + $1.seconds }
         
         // Clean up past arrival times
         arrivalTimes = arrivalTimes.filter { arrivalTime in
@@ -187,7 +194,10 @@ class TimesViewModel: ObservableObject {
             defaults.set(station, forKey: "lastViewedStation")
             defaults.set(line, forKey: "lastViewedLine")
             defaults.set(direction, forKey: "lastViewedDirection")
-            defaults.set(nextTrains, forKey: "nextTrains_\(station)_\(line)_\(direction)")
+            
+            // Convert tuple to minutes-only array for backward compatibility with complications
+            let minutesOnly = nextTrains.map { $0.minutes }
+            defaults.set(minutesOnly, forKey: "nextTrains_\(station)_\(line)_\(direction)")
             
             // Update the complication
             let server = CLKComplicationServer.sharedInstance()

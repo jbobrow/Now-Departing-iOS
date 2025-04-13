@@ -21,6 +21,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
             return "--"
         }
         
+        // For complications, we'll stick with minutes-only format to keep it simple
         if let nextTrainTime = defaults.array(forKey: "nextTrains_\(stationName)_\(lineId)_\(direction)") as? [Int],
            let nextTrain = nextTrainTime.first {
             return nextTrain == 0 ? "Now" : "\(nextTrain)m"
