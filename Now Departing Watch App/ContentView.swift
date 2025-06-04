@@ -130,7 +130,25 @@ struct ContentView: View {
     var body: some View {
         NavigationStack(path: $navigationState.path) {
             TabView(selection: $selectedTab) {
-                // Lines Grid View
+                // Nearby Trains View (new - leftmost)
+                NearbyView(
+                    onSelect: { line, station, direction in
+                        // Trigger haptic feedback
+                        WKInterfaceDevice.current().play(.start)
+
+                        navigationState.line = line
+                        navigationState.station = station
+                        navigationState.terminal = station
+                        navigationState.direction = direction
+                        DispatchQueue.main.async {
+                            navigationState.path.append("times")
+                        }
+                    },
+                    lines: lines
+                )
+                .tag(0)
+                
+                // Lines Grid View (moved to middle)
                 LineSelectionView(
                     lines: lines,
                     onSelect: { line in
@@ -143,9 +161,9 @@ struct ContentView: View {
                         showSettings = true
                     }
                 )
-                .tag(0)
+                .tag(1)
                 
-                // Favorites View
+                // Favorites View (rightmost)
                 FavoritesView(
                     onSelect: { line, station, direction in
                         
@@ -154,15 +172,15 @@ struct ContentView: View {
 
                         navigationState.line = line
                         navigationState.station = station
-                        navigationState.terminal = station  // note this is setting the current station as the terminal... could lead to probs in the future
-                        navigationState.direction = direction   // really we just need direction, so that is why the previous line should be innocuous
+                        navigationState.terminal = station
+                        navigationState.direction = direction
                         DispatchQueue.main.async {
                             navigationState.path.append("times")
                         }
                     },
                     lines: lines
                 )
-                .tag(1)
+                .tag(2)
             }
             .tabViewStyle(.page)
             .navigationDestination(for: String.self) { route in
