@@ -211,7 +211,7 @@ struct ContentView: View {
                         ProgressView()
                     } else if let line = navigationState.line,
                               let stations = stationDataManager.stations(for: line.id) {
-                        TerminalSelectionView(line: line, stations: stations, onSelect: { terminal in
+                        TerminalSelectionView(line: line, stations: stations, onSelect: { terminal, direction in
                             navigationState.terminal = terminal
                             DispatchQueue.main.async {
                                 navigationState.path.append("times")
@@ -430,10 +430,12 @@ struct StationSelectionView: View {
                                     Image(systemName: "exclamationmark.triangle.fill")
                                         .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
                                     Text(station.display)
+                                        .font(.custom("HelveticaNeue-Bold", size: 16))
                                         .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
                                 }
                                 else {
                                     Text(station.display)
+                                        .font(.custom("HelveticaNeue-Bold", size: 16))
                                         .foregroundColor(.white)
                                 }
                                 Spacer()
@@ -451,12 +453,12 @@ struct StationSelectionView: View {
             ToolbarItem(placement: .automatic) {
                 HStack {
                     Text(line.label)
-                        .font(.custom("HelveticaNeue-Bold", size: 26))
+                        .font(.custom("HelveticaNeue-Bold", size: 20))
                         .foregroundColor(line.fg_color)
-                        .frame(width: 40, height: 40)
+                        .frame(width: 30, height: 30)
                         .background(Circle().fill(line.bg_color))
                     Text("Select a station")
-                        .font(.custom("HelveticaNeue-Bold", size: 18))
+                        .font(.custom("HelveticaNeue-Bold", size: 16))
                 }
             }
         }
@@ -466,23 +468,79 @@ struct StationSelectionView: View {
 struct TerminalSelectionView: View {
     let line: SubwayLine
     let stations: [Station]
-    let onSelect: (Station) -> Void
+    let onSelect: (Station, String) -> Void  // Updated to include direction
     
-    var terminals: [Station] {
-        guard stations.count > 1 else { return stations }
-        return [stations.first!, stations.last!]
+    var terminals: [(station: Station, direction: String, description: String)] {
+        guard stations.count > 1 else {
+            // If only one station, still provide both directions if available
+            if let station = stations.first {
+                return [
+                    (station: station, direction: "N", description: DirectionHelper.getToDestination(for: line.id, direction: "N")),
+                    (station: station, direction: "S", description: DirectionHelper.getToDestination(for: line.id, direction: "S"))
+                ]
+            }
+            return []
+        }
+        
+        // TODO: Add some helper functions to get the actual terminal stations for this line
+//        let northTerminal = DirectionHelper.getTerminalStation(for: line.id, direction: "N")
+//        let southTerminal = DirectionHelper.getTerminalStation(for: line.id, direction: "S")
+        let northTerminal = stations.first?.name ?? "whoops"
+        let southTerminal = stations.last?.name ?? "whoops"
+        
+        var terminals: [(station: Station, direction: String, description: String)] = []
+        
+        // Find the station that matches the north terminal
+        if let northStation = stations.first(where: { $0.name == northTerminal || $0.display == northTerminal }) {
+            terminals.append((
+                station: northStation,
+                direction: "N",
+                description: DirectionHelper.getToDestination(for: line.id, direction: "N")
+            ))
+        }
+        
+        // Find the station that matches the south terminal
+        if let southStation = stations.first(where: { $0.name == southTerminal || $0.display == southTerminal }) {
+            terminals.append((
+                station: southStation,
+                direction: "S",
+                description: DirectionHelper.getToDestination(for: line.id, direction: "S")
+            ))
+        }
+        
+        // Fallback to first/last if we couldn't find the terminal stations
+        if terminals.isEmpty {
+            terminals = [
+                (station: stations.first!, direction: "N", description: DirectionHelper.getToDestination(for: line.id, direction: "N")),
+                (station: stations.last!, direction: "S", description: DirectionHelper.getToDestination(for: line.id, direction: "S"))
+            ]
+        }
+        
+        return terminals
     }
     
     var body: some View {
-        List(terminals) { terminal in
+        List(terminals, id: \.station.id) { terminal in
             Button(action: {
                 // Trigger haptic feedback
                 WKInterfaceDevice.current().play(.start)
-
-                onSelect(terminal) }) {
-                Text(terminal.display)
-                    .foregroundColor(.white)
+                
+                onSelect(terminal.station, terminal.direction)
+            }) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(terminal.station.display)
+                        .font(.custom("HelveticaNeue-Bold", size: 16))
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.leading)
+                    
+                    Text(terminal.description)
+                        .font(.custom("HelveticaNeue", size: 14))
+                        .foregroundColor(.gray)
+                        .multilineTextAlignment(.leading)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
+            .buttonStyle(PlainButtonStyle())
         }
         .listStyle(.plain)
         .navigationBarTitleDisplayMode(.inline)
@@ -490,12 +548,12 @@ struct TerminalSelectionView: View {
             ToolbarItem(placement: .automatic) {
                 HStack {
                     Text(line.label)
-                        .font(.custom("HelveticaNeue-Bold", size: 26))
+                        .font(.custom("HelveticaNeue-Bold", size: 20))
                         .foregroundColor(line.fg_color)
-                        .frame(width: 40, height: 40)
+                        .frame(width: 30, height: 30)
                         .background(Circle().fill(line.bg_color))
-                    Text("Select terminal station")
-                        .font(.custom("HelveticaNeue-Bold", size: 18))
+                    Text("Select direction")
+                        .font(.custom("HelveticaNeue-Bold", size: 16))
                 }
             }
         }
