@@ -207,7 +207,7 @@ class NearbyTrainsManager: ObservableObject {
                             stationName: station.name,
                             stationDisplay: getStationDisplayName(station.name),
                             direction: "N",
-                            destination: getDestination(for: train.route, direction: "N"),
+                            destination: DirectionHelper.getDestination(for: train.route, direction: "N"),
                             minutes: minutes,
                             distanceInMeters: distance
                         )
@@ -238,7 +238,7 @@ class NearbyTrainsManager: ObservableObject {
                             stationName: station.name,
                             stationDisplay: getStationDisplayName(station.name),
                             direction: "S",
-                            destination: getDestination(for: train.route, direction: "S"),
+                            destination: DirectionHelper.getDestination(for: train.route, direction: "S"),
                             minutes: minutes,
                             distanceInMeters: distance
                         )
@@ -312,38 +312,5 @@ class NearbyTrainsManager: ObservableObject {
         ]
         
         return commonMappings[stationName] ?? cleanedName
-    }
-    
-    private func getDestination(for lineId: String, direction: String) -> String {
-        // Simplified destination mapping based on common NYC subway patterns
-        let destinations: [String: (north: String, south: String)] = [
-            "1": ("Uptown", "Downtown"),
-            "2": ("Uptown", "Brooklyn"),
-            "3": ("Uptown", "Brooklyn"),
-            "4": ("Uptown", "Brooklyn"),
-            "5": ("Uptown", "Brooklyn"),
-            "6": ("Uptown", "Downtown"),
-            "6X": ("Uptown Express", "Downtown Express"),
-            "7": ("Queens", "Manhattan"),
-            "7X": ("Queens Express", "Manhattan Express"),
-            "A": ("Uptown", "Brooklyn/Queens"),
-            "B": ("Uptown", "Brooklyn"),
-            "C": ("Uptown", "Brooklyn"),
-            "D": ("Uptown", "Brooklyn"),
-            "E": ("Queens", "Downtown"),
-            "F": ("Queens", "Brooklyn"),
-            "G": ("Queens", "Brooklyn"),
-            "J": ("Queens", "Manhattan"),
-            "L": ("Brooklyn", "Manhattan"),
-            "M": ("Queens", "Brooklyn"),
-            "N": ("Queens", "Brooklyn"),
-            "Q": ("Uptown", "Brooklyn"),
-            "R": ("Queens", "Brooklyn"),
-            "W": ("Queens", "Manhattan"),
-            "Z": ("Queens", "Manhattan")
-        ]
-        
-        let dest = destinations[lineId] ?? (north: "Uptown", south: "Downtown")
-        return direction == "N" ? dest.north : dest.south
     }
 }
