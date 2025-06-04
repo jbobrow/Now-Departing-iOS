@@ -141,20 +141,20 @@ struct NearbyView: View {
                                 HStack(spacing: 8) {
                                     // Train line circle
                                     Text(line.label)
-                                        .font(.custom("HelveticaNeue-Bold", size: 16))
+                                        .font(.custom("HelveticaNeue-Bold", size: 20))
                                         .foregroundColor(line.fg_color)
-                                        .frame(width: 26, height: 26)
+                                        .frame(width: 30, height: 30)
                                         .background(Circle().fill(line.bg_color))
                                     
                                     // Station and destination info
                                     VStack(alignment: .leading, spacing: 2) {
                                         Text(train.stationDisplay)
-                                            .font(.system(size: 14, weight: .medium))
+                                            .font(.custom("HelveticaNeue-Bold", size: 14))
                                             .foregroundColor(.white)
                                             .lineLimit(1)
                                         
                                         Text("to \(train.destination)")
-                                            .font(.system(size: 11))
+                                            .font(.custom("HelveticaNeue", size: 11))
                                             .foregroundColor(.gray)
                                             .lineLimit(1)
                                     }
@@ -164,11 +164,11 @@ struct NearbyView: View {
                                     // Time and distance display
                                     VStack(alignment: .trailing, spacing: 2) {
                                         Text(train.timeText)
-                                            .font(.system(size: 16, weight: .bold))
-                                            .foregroundColor(train.minutes <= 1 ? .orange : .white)
+                                            .font(.custom("HelveticaNeue-Bold", size: 16))
+                                            .foregroundColor(.white)
                                         
                                         Text(train.distanceText)
-                                            .font(.system(size: 10))
+                                            .font(.custom("HelveticaNeue", size: 11))
                                             .foregroundColor(.gray)
                                     }
                                 }

@@ -197,9 +197,11 @@ class NearbyTrainsManager: ObservableObject {
                 }
                 
                 if let arrivalTime = parseArrivalTime(train.time) {
-                    let minutes = max(0, Int(arrivalTime.timeIntervalSinceNow / 60))
-                    // Only include trains arriving within the next 30 minutes
-                    if minutes <= 30 {
+                    let timeInterval = arrivalTime.timeIntervalSinceNow
+                    let minutes = max(0, Int(timeInterval / 60))
+                    
+                    // Only include trains that haven't departed yet (timeInterval > 0) and arrive within 30 minutes
+                    if timeInterval > 0 && minutes <= 30 {
                         let nearbyTrain = NearbyTrain(
                             lineId: train.route,
                             stationName: station.name,
@@ -211,6 +213,8 @@ class NearbyTrainsManager: ObservableObject {
                         )
                         allTrains.append(nearbyTrain)
                         print("DEBUG: Added N train: \(train.route) at \(station.name) in \(minutes)m")
+                    } else if timeInterval <= 0 {
+                        print("DEBUG: Skipping departed N train: \(train.route) at \(station.name) (departed \(Int(-timeInterval/60))m ago)")
                     }
                 }
             }
@@ -224,9 +228,11 @@ class NearbyTrainsManager: ObservableObject {
                 }
                 
                 if let arrivalTime = parseArrivalTime(train.time) {
-                    let minutes = max(0, Int(arrivalTime.timeIntervalSinceNow / 60))
-                    // Only include trains arriving within the next 30 minutes
-                    if minutes <= 30 {
+                    let timeInterval = arrivalTime.timeIntervalSinceNow
+                    let minutes = max(0, Int(timeInterval / 60))
+                    
+                    // Only include trains that haven't departed yet (timeInterval > 0) and arrive within 30 minutes
+                    if timeInterval > 0 && minutes <= 30 {
                         let nearbyTrain = NearbyTrain(
                             lineId: train.route,
                             stationName: station.name,
@@ -238,6 +244,8 @@ class NearbyTrainsManager: ObservableObject {
                         )
                         allTrains.append(nearbyTrain)
                         print("DEBUG: Added S train: \(train.route) at \(station.name) in \(minutes)m")
+                    } else if timeInterval <= 0 {
+                        print("DEBUG: Skipping departed S train: \(train.route) at \(station.name) (departed \(Int(-timeInterval/60))m ago)")
                     }
                 }
             }

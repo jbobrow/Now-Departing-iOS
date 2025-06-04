@@ -28,11 +28,19 @@ struct NearbyTrain: Identifiable, Equatable {
     }
     
     var distanceText: String {
-        if distanceInMeters < 1000 {
-            return "\(Int(distanceInMeters))m"
+        // Convert meters to feet
+        let feet = distanceInMeters * 3.28084
+        
+        if feet < 1000 {
+            return "\(Int(feet))ft"
         } else {
-            let kilometers = distanceInMeters / 1000
-            return String(format: "%.1fkm", kilometers)
+            // Convert to miles (5280 feet = 1 mile)
+            let miles = feet / 5280
+            if miles < 10 {
+                return String(format: "%.1fmi", miles)
+            } else {
+                return "\(Int(miles))mi"
+            }
         }
     }
     
