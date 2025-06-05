@@ -89,6 +89,7 @@ struct ContentView: View {
     @EnvironmentObject var settingsManager: SettingsManager
     @StateObject private var navigationState = NavigationState()
     @StateObject private var favoritesManager = FavoritesManager()
+    @StateObject private var locationManager = LocationManager()
     @State private var showSettings = false
     @State private var selectedTab = 0
     
@@ -146,6 +147,7 @@ struct ContentView: View {
                     },
                     lines: lines
                 )
+                .environmentObject(locationManager)
                 .tag(0)
                 
                 // Lines Grid View (moved to middle)
@@ -213,6 +215,7 @@ struct ContentView: View {
                               let stations = stationDataManager.stations(for: line.id) {
                         TerminalSelectionView(line: line, stations: stations, onSelect: { terminal, direction in
                             navigationState.terminal = terminal
+                            navigationState.direction = direction
                             DispatchQueue.main.async {
                                 navigationState.path.append("times")
                             }
@@ -229,11 +232,8 @@ struct ContentView: View {
                         ProgressView()
                     } else if let line = navigationState.line,
                               let station = navigationState.station,
-                              let terminal = navigationState.terminal,
-                              let stations = stationDataManager.stations(for: line.id) {
+                              let direction = navigationState.direction {
                         let viewModel = TimesViewModel()
-                        // Add a direction property to NavigationState
-                        let direction = navigationState.direction ?? (terminal == stations.first ? "N" : "S")
                         TimesView(viewModel: viewModel, line: line, station: station, direction: direction)
                     } else {
                         ProgressView()
@@ -255,18 +255,42 @@ struct ContentView: View {
         }
         .environmentObject(navigationState)
         .environmentObject(favoritesManager)
+        .onChange(of: selectedTab) { oldTab, newTab in
+            if newTab == 0 { // Nearby tab
+                // User swiped to location tab - request fresh location and start updates
+                locationManager.startLocationUpdates()
+            } else if oldTab == 0 {
+                // User swiped away from location tab - stop continuous updates
+                locationManager.stopLocationUpdates()
+            }
+        }
         .onChange(of: scenePhase) { oldPhase, newPhase in
+            print("DEBUG: Scene phase changed from \(oldPhase) to \(newPhase)")
             switch newPhase {
             case .active:
                 stationDataManager.refreshStations()
                 scheduleNextBackgroundRefresh()
+                // If on nearby tab, restart location updates with a small delay to ensure proper state
+                if selectedTab == 0 {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        locationManager.startLocationUpdates()
+                    }
+                }
             case .background:
-                // Handle background state
+                // Stop location updates to save battery
+                locationManager.stopLocationUpdates()
                 break
             case .inactive:
+                // Don't stop location on inactive - this happens during transitions
                 break
             @unknown default:
                 break
+            }
+        }
+        .onAppear {
+            // If starting on nearby tab, begin location updates
+            if selectedTab == 0 {
+                locationManager.startLocationUpdates()
             }
         }
     }
@@ -482,39 +506,11 @@ struct TerminalSelectionView: View {
             return []
         }
         
-        // TODO: Add some helper functions to get the actual terminal stations for this line
-//        let northTerminal = DirectionHelper.getTerminalStation(for: line.id, direction: "N")
-//        let southTerminal = DirectionHelper.getTerminalStation(for: line.id, direction: "S")
-        let northTerminal = stations.first?.name ?? "whoops"
-        let southTerminal = stations.last?.name ?? "whoops"
-        
-        var terminals: [(station: Station, direction: String, description: String)] = []
-        
-        // Find the station that matches the north terminal
-        if let northStation = stations.first(where: { $0.name == northTerminal || $0.display == northTerminal }) {
-            terminals.append((
-                station: northStation,
-                direction: "N",
-                description: DirectionHelper.getToDestination(for: line.id, direction: "N")
-            ))
-        }
-        
-        // Find the station that matches the south terminal
-        if let southStation = stations.first(where: { $0.name == southTerminal || $0.display == southTerminal }) {
-            terminals.append((
-                station: southStation,
-                direction: "S",
-                description: DirectionHelper.getToDestination(for: line.id, direction: "S")
-            ))
-        }
-        
-        // Fallback to first/last if we couldn't find the terminal stations
-        if terminals.isEmpty {
-            terminals = [
-                (station: stations.first!, direction: "N", description: DirectionHelper.getToDestination(for: line.id, direction: "N")),
-                (station: stations.last!, direction: "S", description: DirectionHelper.getToDestination(for: line.id, direction: "S"))
-            ]
-        }
+        // Use first and last stations as terminals
+        let terminals: [(station: Station, direction: String, description: String)] = [
+            (station: stations.first!, direction: "N", description: DirectionHelper.getToDestination(for: line.id, direction: "N")),
+            (station: stations.last!, direction: "S", description: DirectionHelper.getToDestination(for: line.id, direction: "S"))
+        ]
         
         return terminals
     }

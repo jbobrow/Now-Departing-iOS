@@ -18,6 +18,8 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     
     private let locationManager = CLLocationManager()
     private var locationTimeout: Timer?
+    private var updateTimer: Timer?
+    private var isActivelyTracking = false
     
     override init() {
         super.init()
@@ -33,40 +35,127 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     
     func startLocationUpdates() {
         guard authorizationStatus == .authorizedWhenInUse || authorizationStatus == .authorizedAlways else {
+            requestLocationPermission()
             return
         }
         
-        isSearchingForLocation = true
+        print("DEBUG: Starting location updates")
+        
+        // Clear any existing error state
         locationError = nil
         
-        // Try requesting a one-time location first (more reliable on Watch)
-        locationManager.requestLocation()
+        // Only show searching if we don't have a recent location
+        if location == nil || abs(location!.timestamp.timeIntervalSinceNow) > 300 { // 5 minutes old
+            isSearchingForLocation = true
+        }
         
-        // Set a timeout for location acquisition
+        isActivelyTracking = true
+        
+        // Stop any existing updates first
+        locationManager.stopUpdatingLocation()
+        
+        // Start continuous location updates
+        locationManager.startUpdatingLocation()
+        
+        // Set up timer to request updates every 30 seconds when actively viewing
+        updateTimer?.invalidate()
+        updateTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { [weak self] _ in
+            self?.requestPeriodicUpdate()
+        }
+        
+        // Set a timeout for location acquisition - more generous timeout
         locationTimeout?.invalidate()
-        locationTimeout = Timer.scheduledTimer(withTimeInterval: 10.0, repeats: false) { [weak self] _ in
+        locationTimeout = Timer.scheduledTimer(withTimeInterval: 20.0, repeats: false) { [weak self] _ in
             self?.handleLocationTimeout()
         }
     }
     
     func stopLocationUpdates() {
+        print("DEBUG: Stopping location updates")
+        isActivelyTracking = false
+        isSearchingForLocation = false
         locationManager.stopUpdatingLocation()
         locationTimeout?.invalidate()
-        isSearchingForLocation = false
+        updateTimer?.invalidate()
+        locationTimeout = nil
+        updateTimer = nil
+    }
+    
+    private func requestPeriodicUpdate() {
+        guard authorizationStatus == .authorizedWhenInUse || authorizationStatus == .authorizedAlways else {
+            return
+        }
+        
+        guard isActivelyTracking else {
+            return
+        }
+        
+        print("DEBUG: Requesting periodic location update")
+        
+        // Reset timeout for each update attempt
+        locationTimeout?.invalidate()
+        locationTimeout = Timer.scheduledTimer(withTimeInterval: 15.0, repeats: false) { [weak self] _ in
+            self?.handlePeriodicTimeout()
+        }
+        
+        // Use requestLocation for periodic updates to be more reliable
+        locationManager.requestLocation()
     }
     
     private func handleLocationTimeout() {
-        if location == nil {
+        print("DEBUG: Location timeout - initial")
+        if location == nil && isSearchingForLocation {
             locationError = "Unable to find your location. Please ensure location services are enabled and try again."
             isSearchingForLocation = false
         }
     }
     
+    private func handlePeriodicTimeout() {
+        print("DEBUG: Location timeout - periodic")
+        // For periodic timeouts, don't show error if we have an existing location
+        if location == nil {
+            locationError = "Unable to update your location. Please try again."
+            isSearchingForLocation = false
+        }
+        // If we have an existing location, just silently continue
+    }
+    
     func retryLocation() {
-        guard isLocationEnabled else { return }
+        print("DEBUG: Retrying location")
+        guard isLocationEnabled else {
+            requestLocationPermission()
+            return
+        }
         
         locationError = nil
-        startLocationUpdates()
+        isSearchingForLocation = true
+        
+        if isActivelyTracking {
+            startLocationUpdates()
+        } else {
+            requestOneTimeUpdate()
+        }
+    }
+    
+    func requestOneTimeUpdate() {
+        guard authorizationStatus == .authorizedWhenInUse || authorizationStatus == .authorizedAlways else {
+            return
+        }
+        
+        print("DEBUG: Requesting one-time location update")
+        
+        // If we don't have a location yet, show searching indicator
+        if location == nil {
+            isSearchingForLocation = true
+        }
+        
+        // Set timeout for one-time update
+        locationTimeout?.invalidate()
+        locationTimeout = Timer.scheduledTimer(withTimeInterval: 15.0, repeats: false) { [weak self] _ in
+            self?.handleLocationTimeout()
+        }
+        
+        locationManager.requestLocation()
     }
     
     // MARK: - CLLocationManagerDelegate
@@ -77,21 +166,27 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         // Filter out old or inaccurate locations
         let age = abs(newLocation.timestamp.timeIntervalSinceNow)
         if age > 30 || newLocation.horizontalAccuracy > 1000 || newLocation.horizontalAccuracy < 0 {
+            print("DEBUG: Filtering out location - age: \(age), accuracy: \(newLocation.horizontalAccuracy)")
             return
         }
+        
+        print("DEBUG: Location updated: \(newLocation.coordinate.latitude), \(newLocation.coordinate.longitude), accuracy: \(newLocation.horizontalAccuracy)")
         
         location = newLocation
         isSearchingForLocation = false
         locationError = nil
         locationTimeout?.invalidate()
         
-        // Stop continuous updates after getting a good location
-        locationManager.stopUpdatingLocation()
+        // Don't stop continuous updates if we're actively tracking
+        if !isActivelyTracking {
+            locationManager.stopUpdatingLocation()
+        }
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        print("Location error: \(error.localizedDescription)")
+        print("DEBUG: Location error: \(error.localizedDescription)")
         
+        // Always clear the searching state on error
         isSearchingForLocation = false
         locationTimeout?.invalidate()
         
@@ -115,14 +210,27 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         } else {
             locationError = "Unable to determine your location. Please try again."
         }
+        
+        // If we're actively tracking and get an error, try again after a delay
+        if isActivelyTracking && location == nil {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) { [weak self] in
+                guard let self = self, self.isActivelyTracking else { return }
+                print("DEBUG: Retrying after error")
+                self.requestPeriodicUpdate()
+            }
+        }
     }
     
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         authorizationStatus = manager.authorizationStatus
         isLocationEnabled = (authorizationStatus == .authorizedWhenInUse || authorizationStatus == .authorizedAlways)
         
+        print("DEBUG: Location authorization changed to: \(authorizationStatus.rawValue)")
+        
         if isLocationEnabled {
-            startLocationUpdates()
+            if isActivelyTracking {
+                startLocationUpdates()
+            }
         } else {
             stopLocationUpdates()
             if authorizationStatus == .denied {
