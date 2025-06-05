@@ -11,6 +11,7 @@ import SwiftUI
 struct NearbyTrain: Identifiable, Equatable {
     let id = UUID()
     let lineId: String
+    let stationId: String
     let stationName: String
     let stationDisplay: String
     let direction: String

@@ -11,6 +11,7 @@ import WatchKit
 // New data structures for organized display
 struct StationGroup: Identifiable {
     let id = UUID()
+    let stationId: String
     let stationName: String
     let stationDisplay: String
     let distanceInMeters: Double
@@ -53,15 +54,15 @@ struct NearbyView: View {
         return lines.first(where: { $0.id == id })
     }
     
-    // Organize trains into station groups with line groupings
+    // Organize trains into station groups with line groupings - now grouped by station ID
     private var stationGroups: [StationGroup] {
-        // Group trains by station
-        let trainsByStation = Dictionary(grouping: nearbyTrainsManager.nearbyTrains) { train in
-            train.stationName
+        // Group trains by station ID instead of station name
+        let trainsByStationId = Dictionary(grouping: nearbyTrainsManager.nearbyTrains) { train in
+            train.stationId
         }
         
         // Convert to StationGroup objects
-        let groups = trainsByStation.map { (stationName, trains) -> StationGroup in
+        let groups = trainsByStationId.map { (stationId, trains) -> StationGroup in
             // Get station info from first train
             let firstTrain = trains.first!
             
@@ -94,7 +95,8 @@ struct NearbyView: View {
             }
             
             return StationGroup(
-                stationName: stationName,
+                stationId: stationId,
+                stationName: firstTrain.stationName,
                 stationDisplay: firstTrain.stationDisplay,
                 distanceInMeters: firstTrain.distanceInMeters,
                 lineGroups: lineGroups
@@ -334,7 +336,7 @@ struct NearbyView: View {
             onSelect: onSelect
         )
         .listRowInsets(EdgeInsets(top: 6, leading: 8, bottom: 6, trailing: 8))
-        .id("train-\(train.lineId)-\(train.stationName)-\(train.direction)")
+        .id("train-\(train.lineId)-\(train.stationId)-\(train.direction)")  // Updated to use stationId
     }
     
     private func stationHeaderView(for stationGroup: StationGroup) -> some View {

@@ -179,7 +179,7 @@ class NearbyTrainsManager: ObservableObject {
         
         for station in stations {
             let hasData = !station.N.isEmpty || !station.S.isEmpty
-            // print("DEBUG: Station \(station.name) - hasData: \(hasData), N: \(station.N.count), S: \(station.S.count)")
+            // print("DEBUG: Station \(station.name) (ID: \(station.id)) - hasData: \(hasData), N: \(station.N.count), S: \(station.S.count)")
             
             guard hasData else {
                 // print("DEBUG: Skipping \(station.name) - no data")
@@ -204,6 +204,7 @@ class NearbyTrainsManager: ObservableObject {
                     if timeInterval > 0 && minutes <= 30 {
                         let nearbyTrain = NearbyTrain(
                             lineId: train.route,
+                            stationId: station.id,  // Added station ID
                             stationName: station.name,
                             stationDisplay: getStationDisplayName(station.name),
                             direction: "N",
@@ -212,7 +213,7 @@ class NearbyTrainsManager: ObservableObject {
                             distanceInMeters: distance
                         )
                         allTrains.append(nearbyTrain)
-                        // print("DEBUG: Added N train: \(train.route) at \(station.name) arriving at \(arrivalTime)")
+                        // print("DEBUG: Added N train: \(train.route) at \(station.name) (ID: \(station.id)) arriving at \(arrivalTime)")
                     } else if timeInterval <= 0 {
                         // print("DEBUG: Skipping departed N train: \(train.route) at \(station.name) (departed \(Int(-timeInterval/60))m ago)")
                     }
@@ -235,6 +236,7 @@ class NearbyTrainsManager: ObservableObject {
                     if timeInterval > 0 && minutes <= 30 {
                         let nearbyTrain = NearbyTrain(
                             lineId: train.route,
+                            stationId: station.id,  // Added station ID
                             stationName: station.name,
                             stationDisplay: getStationDisplayName(station.name),
                             direction: "S",
@@ -243,7 +245,7 @@ class NearbyTrainsManager: ObservableObject {
                             distanceInMeters: distance
                         )
                         allTrains.append(nearbyTrain)
-                        // print("DEBUG: Added S train: \(train.route) at \(station.name) arriving at \(arrivalTime)")
+                        // print("DEBUG: Added S train: \(train.route) at \(station.name) (ID: \(station.id)) arriving at \(arrivalTime)")
                     } else if timeInterval <= 0 {
                         // print("DEBUG: Skipping departed S train: \(train.route) at \(station.name) (departed \(Int(-timeInterval/60))m ago)")
                     }
