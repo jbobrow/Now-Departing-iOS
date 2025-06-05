@@ -39,7 +39,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             return
         }
         
-        print("DEBUG: Starting location updates")
+        // print("DEBUG: Starting location updates")
         
         // Clear any existing error state
         locationError = nil
@@ -71,7 +71,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
     
     func stopLocationUpdates() {
-        print("DEBUG: Stopping location updates")
+        // print("DEBUG: Stopping location updates")
         isActivelyTracking = false
         isSearchingForLocation = false
         locationManager.stopUpdatingLocation()
@@ -90,7 +90,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             return
         }
         
-        print("DEBUG: Requesting periodic location update")
+        // print("DEBUG: Requesting periodic location update")
         
         // Reset timeout for each update attempt
         locationTimeout?.invalidate()
@@ -103,7 +103,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
     
     private func handleLocationTimeout() {
-        print("DEBUG: Location timeout - initial")
+        // print("DEBUG: Location timeout - initial")
         if location == nil && isSearchingForLocation {
             locationError = "Unable to find your location. Please ensure location services are enabled and try again."
             isSearchingForLocation = false
@@ -111,7 +111,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
     
     private func handlePeriodicTimeout() {
-        print("DEBUG: Location timeout - periodic")
+        // print("DEBUG: Location timeout - periodic")
         // For periodic timeouts, don't show error if we have an existing location
         if location == nil {
             locationError = "Unable to update your location. Please try again."
@@ -121,7 +121,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
     
     func retryLocation() {
-        print("DEBUG: Retrying location")
+        // print("DEBUG: Retrying location")
         guard isLocationEnabled else {
             requestLocationPermission()
             return
@@ -142,7 +142,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             return
         }
         
-        print("DEBUG: Requesting one-time location update")
+        // print("DEBUG: Requesting one-time location update")
         
         // If we don't have a location yet, show searching indicator
         if location == nil {
@@ -166,11 +166,11 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         // Filter out old or inaccurate locations
         let age = abs(newLocation.timestamp.timeIntervalSinceNow)
         if age > 30 || newLocation.horizontalAccuracy > 1000 || newLocation.horizontalAccuracy < 0 {
-            print("DEBUG: Filtering out location - age: \(age), accuracy: \(newLocation.horizontalAccuracy)")
+            // print("DEBUG: Filtering out location - age: \(age), accuracy: \(newLocation.horizontalAccuracy)")
             return
         }
         
-        print("DEBUG: Location updated: \(newLocation.coordinate.latitude), \(newLocation.coordinate.longitude), accuracy: \(newLocation.horizontalAccuracy)")
+        // print("DEBUG: Location updated: \(newLocation.coordinate.latitude), \(newLocation.coordinate.longitude), accuracy: \(newLocation.horizontalAccuracy)")
         
         location = newLocation
         isSearchingForLocation = false
@@ -184,7 +184,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        print("DEBUG: Location error: \(error.localizedDescription)")
+        // print("DEBUG: Location error: \(error.localizedDescription)")
         
         // Always clear the searching state on error
         isSearchingForLocation = false
@@ -215,7 +215,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         if isActivelyTracking && location == nil {
             DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) { [weak self] in
                 guard let self = self, self.isActivelyTracking else { return }
-                print("DEBUG: Retrying after error")
+                // print("DEBUG: Retrying after error")
                 self.requestPeriodicUpdate()
             }
         }
@@ -225,7 +225,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         authorizationStatus = manager.authorizationStatus
         isLocationEnabled = (authorizationStatus == .authorizedWhenInUse || authorizationStatus == .authorizedAlways)
         
-        print("DEBUG: Location authorization changed to: \(authorizationStatus.rawValue)")
+        // print("DEBUG: Location authorization changed to: \(authorizationStatus.rawValue)")
         
         if isLocationEnabled {
             if isActivelyTracking {

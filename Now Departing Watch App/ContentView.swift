@@ -265,7 +265,7 @@ struct ContentView: View {
             }
         }
         .onChange(of: scenePhase) { oldPhase, newPhase in
-            print("DEBUG: Scene phase changed from \(oldPhase) to \(newPhase)")
+            // print("DEBUG: Scene phase changed from \(oldPhase) to \(newPhase)")
             switch newPhase {
             case .active:
                 stationDataManager.refreshStations()

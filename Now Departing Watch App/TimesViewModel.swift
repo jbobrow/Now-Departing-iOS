@@ -115,7 +115,7 @@ class TimesViewModel: ObservableObject {
     }
     
     func startFetchingTimes(for line: SubwayLine, station: Station, direction: String) {
-        print("Start Fetching Times")
+        print("DEBUG: Start Fetching Times")
         
         currentStation = station.name
         currentLine = line.id
@@ -218,7 +218,7 @@ class TimesViewModel: ObservableObject {
     }
     
     private func fetchArrivalTimes(for line: SubwayLine, station: Station, direction: String) {
-        print("Fetch Arrival Times")
+//        print("DEBUG: Fetch Arrival Times")
         guard !direction.isEmpty else {
             self.errorMessage = "Invalid terminal station"
             self.loading = false

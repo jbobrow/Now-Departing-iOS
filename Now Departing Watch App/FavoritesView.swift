@@ -14,6 +14,7 @@ class FavoriteWithTimes: ObservableObject, Identifiable {
     let favorite: FavoriteItem
     let timesViewModel = TimesViewModel()
     @Published var isWaitingToStart = true
+    @Published var isActive = false
     private var cancellables = Set<AnyCancellable>()
     
     var timeText: String {
@@ -28,13 +29,13 @@ class FavoriteWithTimes: ObservableObject, Identifiable {
 
     var shouldShowLoader: Bool {
         let result = (timesViewModel.loading || isWaitingToStart) && timesViewModel.nextTrains.isEmpty
-        print("DEBUG shouldShowLoader for \(favorite.stationDisplay): loading=\(timesViewModel.loading), waiting=\(isWaitingToStart), nextTrains.count=\(timesViewModel.nextTrains.count), result=\(result)")
+        // print("DEBUG: shouldShowLoader for \(favorite.stationDisplay): loading=\(timesViewModel.loading), waiting=\(isWaitingToStart), nextTrains.count=\(timesViewModel.nextTrains.count), result=\(result)")
         return result
     }
     
     init(favorite: FavoriteItem) {
         self.favorite = favorite
-        print("DEBUG: Created FavoriteWithTimes for \(favorite.stationDisplay)")
+        // print("DEBUG: Created FavoriteWithTimes for \(favorite.stationDisplay)")
         
         // Forward changes from timesViewModel to this object
         timesViewModel.objectWillChange
@@ -42,6 +43,35 @@ class FavoriteWithTimes: ObservableObject, Identifiable {
                 self?.objectWillChange.send()
             }
             .store(in: &cancellables)
+    }
+    
+    func startFetching(with line: SubwayLine, station: Station, delay: Double = 0) {
+        // print("DEBUG: Starting fetch for \(favorite.stationDisplay) with delay \(delay)")
+        
+        // Set to background mode since favorites are not the primary active view
+        timesViewModel.adjustUpdateFrequency(isActive: isActive)
+        
+        if delay > 0 {
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
+                guard let self = self else { return }
+                // print("DEBUG: About to set isWaitingToStart = false for \(self.favorite.stationDisplay)")
+                self.isWaitingToStart = false
+                self.timesViewModel.startFetchingTimes(for: line, station: station, direction: self.favorite.direction)
+            }
+        } else {
+            isWaitingToStart = false
+            timesViewModel.startFetchingTimes(for: line, station: station, direction: favorite.direction)
+        }
+    }
+    
+    func stopFetching() {
+        // print("DEBUG: Stopping fetch for \(favorite.stationDisplay)")
+        timesViewModel.stopFetchingTimes()
+    }
+    
+    func setActive(_ active: Bool) {
+        isActive = active
+        timesViewModel.adjustUpdateFrequency(isActive: active)
     }
 }
 
@@ -118,7 +148,9 @@ struct FavoriteRowView: View {
 
 struct FavoritesView: View {
     @EnvironmentObject var favoritesManager: FavoritesManager
+    @Environment(\.scenePhase) private var scenePhase
     @State private var favoritesWithTimes: [FavoriteWithTimes] = []
+    @State private var isViewActive = false
     
     let onSelect: (SubwayLine, Station, String) -> Void
     let lines: [SubwayLine]
@@ -128,11 +160,11 @@ struct FavoritesView: View {
     }
     
     private func setupFavoritesWithTimes() {
-        print("DEBUG: Setting up favorites with times, count: \(favoritesManager.favorites.count)")
+        // print("DEBUG: Setting up favorites with times, count: \(favoritesManager.favorites.count)")
         
         // Stop existing timers
         favoritesWithTimes.forEach { favoriteWithTimes in
-            favoriteWithTimes.timesViewModel.stopFetchingTimes()
+            favoriteWithTimes.stopFetching()
         }
         
         // Create new FavoriteWithTimes for current favorites
@@ -142,30 +174,43 @@ struct FavoritesView: View {
             // Start fetching times if we can find the line
             if let line = getLine(for: favorite.lineId) {
                 let station = Station(display: favorite.stationDisplay, name: favorite.stationName)
-                // Set to background mode since this is not the active view
-                favoriteWithTimes.timesViewModel.adjustUpdateFrequency(isActive: false)
                 
                 // Add a small delay to stagger the API requests
                 let delay = Double(index) * 0.5 // space the requests half a second apart
-                DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                    print("DEBUG: About to set isWaitingToStart = false for \(favorite.stationDisplay)")
-                    favoriteWithTimes.isWaitingToStart = false
-                    print("DEBUG: isWaitingToStart is now \(favoriteWithTimes.isWaitingToStart) for \(favorite.stationDisplay)")
-                    favoriteWithTimes.timesViewModel.startFetchingTimes(for: line, station: station, direction: favorite.direction)
-                }
+                favoriteWithTimes.startFetching(with: line, station: station, delay: delay)
                 
-                print("DEBUG: Setting up favorite for \(favorite.stationDisplay) \(favorite.lineId) \(favorite.direction) with delay \(delay)")
+                // print("DEBUG: Setting up favorite for \(favorite.stationDisplay) \(favorite.lineId) \(favorite.direction) with delay \(delay)")
             }
             
             return favoriteWithTimes
         }
         
-        print("DEBUG: Created \(favoritesWithTimes.count) favorites with times")
+        // Set the active state for all favorites
+        updateActiveState()
+        
+        // print("DEBUG: Created \(favoritesWithTimes.count) favorites with times")
+    }
+    
+    private func updateActiveState() {
+        favoritesWithTimes.forEach { favoriteWithTimes in
+            favoriteWithTimes.setActive(isViewActive)
+        }
     }
     
     private func stopAllTimers() {
+        // print("DEBUG: Stopping all timers for favorites")
         favoritesWithTimes.forEach { favoriteWithTimes in
-            favoriteWithTimes.timesViewModel.stopFetchingTimes()
+            favoriteWithTimes.stopFetching()
+        }
+    }
+    
+    private func resumeAllTimers() {
+        // print("DEBUG: Resuming all timers for favorites")
+        favoritesWithTimes.enumerated().forEach { index, favoriteWithTimes in
+            if let line = getLine(for: favoriteWithTimes.favorite.lineId) {
+                let station = Station(display: favoriteWithTimes.favorite.stationDisplay, name: favoriteWithTimes.favorite.stationName)
+                favoriteWithTimes.startFetching(with: line, station: station)
+            }
         }
     }
     
@@ -204,15 +249,43 @@ struct FavoritesView: View {
             }
         }
         .onAppear {
+            // print("DEBUG: FavoritesView appeared")
+            isViewActive = true
             if favoritesWithTimes.isEmpty {
                 setupFavoritesWithTimes()
+            } else {
+                updateActiveState()
+                // If we already have favorites, make sure they're still running
+                resumeAllTimers()
             }
         }
         .onDisappear {
-            stopAllTimers()
+            // print("DEBUG: FavoritesView disappeared")
+            isViewActive = false
+            updateActiveState()
+            // Don't stop timers on disappear - let them continue running in background mode
         }
         .onChange(of: favoritesManager.favorites) { _, _ in
+            // print("DEBUG: Favorites changed, rebuilding")
             setupFavoritesWithTimes()
+        }
+        .onChange(of: scenePhase) { oldPhase, newPhase in
+            // print("DEBUG: FavoritesView scene phase changed from \(oldPhase) to \(newPhase)")
+            switch newPhase {
+            case .active:
+                if isViewActive {
+                    updateActiveState()
+                    resumeAllTimers()
+                }
+            case .background:
+                // Keep timers running but in background mode
+                updateActiveState()
+            case .inactive:
+                // Don't change anything during transitions
+                break
+            @unknown default:
+                break
+            }
         }
     }
 }

@@ -68,7 +68,7 @@ class StationDataManager: ObservableObject {
         if let data = try? Data(contentsOf: documentsFileURL),
            let decodedData = try? JSONDecoder().decode([String: [Station]].self, from: data) {
             loadedData = decodedData
-            print("Debug - Stations found in documents directory")
+            print("DEBUG: Stations found in documents directory")
         }
         
         // If documents directory load failed, try bundle
@@ -77,7 +77,7 @@ class StationDataManager: ObservableObject {
            let data = try? Data(contentsOf: bundleURL),
            let decodedData = try? JSONDecoder().decode([String: [Station]].self, from: data) {
             loadedData = decodedData
-            print("Debug - Stations found in bundle")
+            print("DEBUG: Stations found in bundle")
         }
         
         // Update state
@@ -86,7 +86,7 @@ class StationDataManager: ObservableObject {
                 self.stationsByLine = loadedData
             }
             self.isLoading = false
-            print("Debug - Loaded stations")
+            print("DEBUG: Loaded stations")
         }
     }
     
@@ -105,7 +105,7 @@ class StationDataManager: ObservableObject {
     
     private func checkStationAvailability(for lineId: String, stations: [Station]) {
         let apiURL = URL(string: "https://api.wheresthefuckingtrain.com/by-route/\(lineId)")!
-        print("Debug - Checking Stations")
+        print("DEBUG: Checking Stations")
 
         let task = URLSession.shared.dataTask(with: apiURL) { [weak self] data, response, error in
             guard let data = data,
@@ -119,11 +119,11 @@ class StationDataManager: ObservableObject {
                     if let stationData = response.data.first(where: { $0.name == station.name }) {
                         let hasNorthTrains = !stationData.N.isEmpty
                         let hasSouthTrains = !stationData.S.isEmpty
-//                        print("Debug - trains available at " + station.display)
+//                        print("DEBUG: trains available at " + station.display)
                         updatedStations[index].hasAvailableTimes = hasNorthTrains || hasSouthTrains
                     } else {
                         updatedStations[index].hasAvailableTimes = false
-//                        print("Debug - no trains at " + station.display)
+//                        print("DEBUG: no trains at " + station.display)
                     }
                 }
                 self?.stationsByLine[lineId] = updatedStations
@@ -135,7 +135,7 @@ class StationDataManager: ObservableObject {
     func loadStationsForLine(_ lineId: String) {
         // If we already have stations for this line, use them
         if let existingStations = stationsByLine[lineId] {
-//            print("Debug - Checking availability for line \(lineId)")
+//            print("DEBUG: Checking availability for line \(lineId)")
             checkStationAvailability(for: lineId, stations: existingStations)
             return
         }
@@ -145,7 +145,7 @@ class StationDataManager: ObservableObject {
         
         // After loading, check availability if we now have stations
         if let stations = stationsByLine[lineId] {
-//            print("Debug - Checking availability for newly loaded line \(lineId)")
+//            print("DEBUG: Checking availability for newly loaded line \(lineId)")
             checkStationAvailability(for: lineId, stations: stations)
         }
     }
@@ -159,20 +159,20 @@ class StationDataManager: ObservableObject {
             guard let self = self else { return }
             
             if let error = error {
-                print("Debug - Network error: \(error)")
+                print("DEBUG: Network error: \(error)")
                 self.setLoadingState(.error(error.localizedDescription))
                 return
             }
             
             guard let httpResponse = response as? HTTPURLResponse,
                   (200...299).contains(httpResponse.statusCode) else {
-                print("Debug - Invalid response")
+                print("DEBUG: Invalid response")
                 self.setLoadingState(.error("Invalid server response"))
                 return
             }
             
             guard let data = data else {
-                print("Debug - No data received")
+                print("DEBUG: No data received")
                 self.setLoadingState(.error("No data received"))
                 return
             }
@@ -193,11 +193,11 @@ class StationDataManager: ObservableObject {
                         self.lastFetchTime = Date()
                         self.stationsByLine = decodedData
                         self.setLoadingState(.loaded)
-                        print("Debug - Stations fetched")
+                        print("DEBUG: Stations fetched")
                     }
                 }
             } catch {
-                print("Debug - JSON processing error: \(error)")
+                print("DEBUG: JSON processing error: \(error)")
                 self.setLoadingState(.error("Failed to process data"))
             }
         }
@@ -212,16 +212,16 @@ class StationDataManager: ObservableObject {
     func refreshStations() {
         // Only fetch if we haven't loaded stations or if cache is stale
         if stationsByLine.isEmpty || shouldRefreshCache() {
-            print("Debug - Refreshing stations")
+            print("DEBUG: Refreshing stations")
             fetchRemoteStations()
         } else {
-            print("Debug - Skipping refresh, using cached data")
+            print("DEBUG: Skipping refresh, using cached data")
         }
     }
     
     func loadStations() {
         loadLocalStations()
-        print("Debug - Loading stations")
+        print("DEBUG: Loading stations")
     }
 }
 

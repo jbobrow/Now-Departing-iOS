@@ -76,7 +76,7 @@ class NearbyTrainsManager: ObservableObject {
         let lon = location.coordinate.longitude
         let apiURL = "https://api.wheresthefuckingtrain.com/by-location?lat=\(lat)&lon=\(lon)"
         
-        print("DEBUG: Fetching from URL: \(apiURL)")
+        // print("DEBUG: Fetching from URL: \(apiURL)")
         
         guard let url = URL(string: apiURL) else {
             DispatchQueue.main.async {
@@ -112,7 +112,7 @@ class NearbyTrainsManager: ObservableObject {
                 guard self.isLoading else { return }
                 
                 if let error = error {
-                    print("DEBUG: Network error: \(error)")
+                    // print("DEBUG: Network error: \(error)")
                     if let urlError = error as? URLError {
                         switch urlError.code {
                         case .notConnectedToInternet:
@@ -137,7 +137,7 @@ class NearbyTrainsManager: ObservableObject {
                     return
                 }
                 
-                print("DEBUG: HTTP Status Code: \(httpResponse.statusCode)")
+                // print("DEBUG: HTTP Status Code: \(httpResponse.statusCode)")
                 
                 guard (200...299).contains(httpResponse.statusCode) else {
                     self.errorMessage = "Server error (\(httpResponse.statusCode))"
@@ -151,18 +151,18 @@ class NearbyTrainsManager: ObservableObject {
                     return
                 }
                 
-                print("DEBUG: Received data: \(data.count) bytes")
+                // print("DEBUG: Received data: \(data.count) bytes")
                 
                 do {
                     let apiResponse = try JSONDecoder().decode(LocationAPIResponse.self, from: data)
-                    print("DEBUG: Decoded \(apiResponse.data.count) stations")
+                    // print("DEBUG: Decoded \(apiResponse.data.count) stations")
                     self.processLocationData(apiResponse.data, userLocation: location)
                 } catch {
-                    print("DEBUG: Decode error: \(error)")
+                    // print("DEBUG: Decode error: \(error)")
                     
                     // Let's try to see what the raw JSON looks like
                     if let jsonString = String(data: data, encoding: .utf8) {
-                        print("DEBUG: Raw JSON (first 500 chars): \(String(jsonString.prefix(500)))")
+                        // print("DEBUG: Raw JSON (first 500 chars): \(String(jsonString.prefix(500)))")
                     }
                     
                     self.errorMessage = "Failed to process data"
@@ -173,16 +173,16 @@ class NearbyTrainsManager: ObservableObject {
     }
     
     private func processLocationData(_ stations: [LocationStationData], userLocation: CLLocation) {
-        print("DEBUG: Processing \(stations.count) stations")
+        // print("DEBUG: Processing \(stations.count) stations")
         
         var allTrains: [NearbyTrain] = []
         
         for station in stations {
             let hasData = !station.N.isEmpty || !station.S.isEmpty
-            print("DEBUG: Station \(station.name) - hasData: \(hasData), N: \(station.N.count), S: \(station.S.count)")
+            // print("DEBUG: Station \(station.name) - hasData: \(hasData), N: \(station.N.count), S: \(station.S.count)")
             
             guard hasData else {
-                print("DEBUG: Skipping \(station.name) - no data")
+                // print("DEBUG: Skipping \(station.name) - no data")
                 continue
             }
             
@@ -192,7 +192,7 @@ class NearbyTrainsManager: ObservableObject {
             for train in station.N {
                 // Only process routes that we have in our subway configuration
                 guard isValidRoute(train.route) else {
-                    print("DEBUG: Skipping unknown route: \(train.route)")
+                    // print("DEBUG: Skipping unknown route: \(train.route)")
                     continue
                 }
                 
@@ -212,9 +212,9 @@ class NearbyTrainsManager: ObservableObject {
                             distanceInMeters: distance
                         )
                         allTrains.append(nearbyTrain)
-                        print("DEBUG: Added N train: \(train.route) at \(station.name) arriving at \(arrivalTime)")
+                        // print("DEBUG: Added N train: \(train.route) at \(station.name) arriving at \(arrivalTime)")
                     } else if timeInterval <= 0 {
-                        print("DEBUG: Skipping departed N train: \(train.route) at \(station.name) (departed \(Int(-timeInterval/60))m ago)")
+                        // print("DEBUG: Skipping departed N train: \(train.route) at \(station.name) (departed \(Int(-timeInterval/60))m ago)")
                     }
                 }
             }
@@ -223,7 +223,7 @@ class NearbyTrainsManager: ObservableObject {
             for train in station.S {
                 // Only process routes that we have in our subway configuration
                 guard isValidRoute(train.route) else {
-                    print("DEBUG: Skipping unknown route: \(train.route)")
+                    // print("DEBUG: Skipping unknown route: \(train.route)")
                     continue
                 }
                 
@@ -243,15 +243,15 @@ class NearbyTrainsManager: ObservableObject {
                             distanceInMeters: distance
                         )
                         allTrains.append(nearbyTrain)
-                        print("DEBUG: Added S train: \(train.route) at \(station.name) arriving at \(arrivalTime)")
+                        // print("DEBUG: Added S train: \(train.route) at \(station.name) arriving at \(arrivalTime)")
                     } else if timeInterval <= 0 {
-                        print("DEBUG: Skipping departed S train: \(train.route) at \(station.name) (departed \(Int(-timeInterval/60))m ago)")
+                        // print("DEBUG: Skipping departed S train: \(train.route) at \(station.name) (departed \(Int(-timeInterval/60))m ago)")
                     }
                 }
             }
         }
         
-        print("DEBUG: Total trains found: \(allTrains.count)")
+        // print("DEBUG: Total trains found: \(allTrains.count)")
         
         // Sort by arrival time first, then by distance, and take the first 12
         let sortedTrains = allTrains.sorted { train1, train2 in
@@ -273,7 +273,7 @@ class NearbyTrainsManager: ObservableObject {
             self.errorMessage = ""
         }
         
-        print("DEBUG: Final trains to display: \(self.nearbyTrains.count)")
+        // print("DEBUG: Final trains to display: \(self.nearbyTrains.count)")
     }
     
     private func isValidRoute(_ routeId: String) -> Bool {
