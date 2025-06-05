@@ -294,7 +294,6 @@ struct NearbyView: View {
             }
         }
         .listStyle(.plain)
-        .animation(.easeInOut(duration: 0.3), value: stationGroups.map { $0.id })
         .refreshable {
             if let location = locationManager.location {
                 nearbyTrainsManager.startFetching(location: location)
@@ -335,7 +334,6 @@ struct NearbyView: View {
             onSelect: onSelect
         )
         .listRowInsets(EdgeInsets(top: 6, leading: 8, bottom: 6, trailing: 8))
-        .transition(.opacity.combined(with: .scale))
         .id("train-\(train.id)")
     }
     
