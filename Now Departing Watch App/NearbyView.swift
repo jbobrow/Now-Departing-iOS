@@ -334,7 +334,7 @@ struct NearbyView: View {
             onSelect: onSelect
         )
         .listRowInsets(EdgeInsets(top: 6, leading: 8, bottom: 6, trailing: 8))
-        .id("train-\(train.id)")
+        .id("train-\(train.lineId)-\(train.stationName)-\(train.direction)")
     }
     
     private func stationHeaderView(for stationGroup: StationGroup) -> some View {
@@ -407,6 +407,7 @@ struct LiveTimeDisplay: View {
     
     @State private var displayedTimeText: String = ""
     @State private var currentTime = Date()
+    @State private var hasInitialized = false
     
     // Timer for this specific component only
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -419,16 +420,19 @@ struct LiveTimeDisplay: View {
         Text(displayedTimeText)
             .font(.custom("HelveticaNeue-Bold", size: 14))
             .foregroundColor(.white)
-            .transition(.opacity.combined(with: .scale))
-            .animation(.easeInOut(duration: 0.3), value: displayedTimeText)
+            .animation(hasInitialized ? .easeInOut(duration: 0.3) : .none, value: displayedTimeText)
             .onAppear {
                 currentTime = Date()
                 displayedTimeText = currentTimeText
+                // Small delay to prevent animation on initial appearance
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    hasInitialized = true
+                }
             }
             .onReceive(timer) { time in
                 currentTime = time
                 let newTimeText = currentTimeText
-                // Only update and animate when the displayed text actually changes
+                // Only update when the displayed text actually changes
                 if newTimeText != displayedTimeText {
                     displayedTimeText = newTimeText
                 }
