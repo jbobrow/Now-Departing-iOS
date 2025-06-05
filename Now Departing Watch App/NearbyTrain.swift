@@ -47,7 +47,7 @@ struct NearbyTrain: Identifiable, Equatable {
         if totalSeconds <= 0 {
             return "Now"
         } else if totalSeconds < 60 {
-            return "Arriving"
+            return "Soon"
         } else {
             return "\(minutes)m"
         }

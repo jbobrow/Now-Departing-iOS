@@ -428,7 +428,7 @@ struct LiveTimeDisplay: View {
     
     var body: some View {
         Text(displayedTimeText)
-            .font(.custom("HelveticaNeue-Bold", size: displayedTimeText.count < 4 ? 20 : 16))
+            .font(.custom("HelveticaNeue-Bold", size: displayedTimeText.count < 5 ? 20 : 16))
             .foregroundColor(.white)
             .animation(hasInitialized ? .easeInOut(duration: 0.3) : .none, value: displayedTimeText)
             .onAppear {
