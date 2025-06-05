@@ -43,9 +43,11 @@ struct LineGroup: Identifiable {
 }
 
 struct NearbyView: View {
-    @StateObject private var nearbyTrainsManager = NearbyTrainsManager()
     @EnvironmentObject var locationManager: LocationManager
+    @EnvironmentObject var stationDataManager: StationDataManager
+    @StateObject private var nearbyTrainsManager = NearbyTrainsManager(stationDataManager: StationDataManager())
     @State private var hasAppeared = false
+    @State private var isInitialized = false
     
     let onSelect: (SubwayLine, Station, String) -> Void
     let lines: [SubwayLine]
@@ -127,6 +129,12 @@ struct NearbyView: View {
             guard !hasAppeared else { return }
             hasAppeared = true
             print("DEBUG: NearbyView appeared for first time")
+            
+            // Reinitialize the manager with the real stationDataManager
+            if !isInitialized {
+                nearbyTrainsManager.updateStationDataManager(stationDataManager)
+                isInitialized = true
+            }
             
             if locationManager.isLocationEnabled, let location = locationManager.location {
                 print("DEBUG: Starting fetch with location: \(location)")
@@ -381,14 +389,14 @@ struct TrainRowView: View {
             HStack(spacing: 8) {
                 // Train line circle
                 Text(line.label)
-                    .font(.custom("HelveticaNeue-Bold", size: 16))
+                    .font(.custom("HelveticaNeue-Bold", size: 20))
                     .foregroundColor(line.fg_color)
-                    .frame(width: 24, height: 24)
+                    .frame(width: 30, height: 30)
                     .background(Circle().fill(line.bg_color))
                 
                 // Direction info
                 Text("to \(train.destination)")
-                    .font(.custom("HelveticaNeue", size: 12))
+                    .font(.custom("HelveticaNeue", size: 14))
                     .foregroundColor(.white)
                     .lineLimit(1)
                 
@@ -420,7 +428,7 @@ struct LiveTimeDisplay: View {
     
     var body: some View {
         Text(displayedTimeText)
-            .font(.custom("HelveticaNeue-Bold", size: 14))
+            .font(.custom("HelveticaNeue-Bold", size: displayedTimeText.count < 4 ? 20 : 16))
             .foregroundColor(.white)
             .animation(hasInitialized ? .easeInOut(duration: 0.3) : .none, value: displayedTimeText)
             .onAppear {

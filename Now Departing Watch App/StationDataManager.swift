@@ -39,6 +39,28 @@ class StationDataManager: ObservableObject {
         loadLocalStations()
     }
     
+    // MARK: - Station Lookup Methods
+    
+    /// Find a station's display name by its API name across all lines
+    func getStationDisplayName(for stationName: String) -> String? {
+        for (_, stations) in stationsByLine {
+            if let station = stations.first(where: { $0.name == stationName }) {
+                return station.display
+            }
+        }
+        return nil
+    }
+    
+    /// Find a station by its API name across all lines
+    func findStation(byName stationName: String) -> Station? {
+        for (_, stations) in stationsByLine {
+            if let station = stations.first(where: { $0.name == stationName }) {
+                return station
+            }
+        }
+        return nil
+    }
+    
     func shouldRefreshCache() -> Bool {
         guard let lastFetch = lastFetchTime else { return true }
         return Date().timeIntervalSince(lastFetch) > cacheDuration

@@ -46,6 +46,15 @@ class NearbyTrainsManager: ObservableObject {
     private var refreshTimer: Timer?
     private var currentLocation: CLLocation?
     private var apiTimeout: Timer?
+    private var stationDataManager: StationDataManager
+    
+    init(stationDataManager: StationDataManager) {
+        self.stationDataManager = stationDataManager
+    }
+    
+    func updateStationDataManager(_ newStationDataManager: StationDataManager) {
+        self.stationDataManager = newStationDataManager
+    }
     
     func startFetching(location: CLLocation) {
         currentLocation = location
@@ -76,7 +85,7 @@ class NearbyTrainsManager: ObservableObject {
         let lon = location.coordinate.longitude
         let apiURL = "https://api.wheresthefuckingtrain.com/by-location?lat=\(lat)&lon=\(lon)"
         
-        // print("DEBUG: Fetching from URL: \(apiURL)")
+        print("DEBUG: Fetching from URL: \(apiURL)")
         
         guard let url = URL(string: apiURL) else {
             DispatchQueue.main.async {
@@ -112,7 +121,7 @@ class NearbyTrainsManager: ObservableObject {
                 guard self.isLoading else { return }
                 
                 if let error = error {
-                    // print("DEBUG: Network error: \(error)")
+                    print("DEBUG: Network error: \(error)")
                     if let urlError = error as? URLError {
                         switch urlError.code {
                         case .notConnectedToInternet:
@@ -151,18 +160,18 @@ class NearbyTrainsManager: ObservableObject {
                     return
                 }
                 
-                // print("DEBUG: Received data: \(data.count) bytes")
+                print("DEBUG: Received data: \(data.count) bytes")
                 
                 do {
                     let apiResponse = try JSONDecoder().decode(LocationAPIResponse.self, from: data)
-                    // print("DEBUG: Decoded \(apiResponse.data.count) stations")
+                    print("DEBUG: Decoded \(apiResponse.data.count) stations")
                     self.processLocationData(apiResponse.data, userLocation: location)
                 } catch {
-                    // print("DEBUG: Decode error: \(error)")
+                    print("DEBUG: Decode error: \(error)")
                     
                     // Let's try to see what the raw JSON looks like
                     if let jsonString = String(data: data, encoding: .utf8) {
-                        // print("DEBUG: Raw JSON (first 500 chars): \(String(jsonString.prefix(500)))")
+                        print("DEBUG: Raw JSON (first 500 chars): \(String(jsonString.prefix(500)))")
                     }
                     
                     self.errorMessage = "Failed to process data"
@@ -173,7 +182,7 @@ class NearbyTrainsManager: ObservableObject {
     }
     
     private func processLocationData(_ stations: [LocationStationData], userLocation: CLLocation) {
-        // print("DEBUG: Processing \(stations.count) stations")
+        print("DEBUG: Processing \(stations.count) stations")
         
         var allTrains: [NearbyTrain] = []
         
@@ -290,32 +299,17 @@ class NearbyTrainsManager: ObservableObject {
     }
     
     private func getStationDisplayName(_ stationName: String) -> String {
-        // Clean up station names for better display
+        // Use the StationDataManager to find the display name
+        if let displayName = stationDataManager.getStationDisplayName(for: stationName) {
+            return displayName
+        }
+        
+        // If not found in station data, clean up the name as a fallback
         let cleanedName = stationName
             .replacingOccurrences(of: " / ", with: "/")
             .replacingOccurrences(of: "-", with: "–")
         
-        // Common name simplifications for Apple Watch display
-        let commonMappings: [String: String] = [
-            "Broadway-Lafayette St/Bleecker St": "Broadway-Lafayette",
-            "Times Sq-42 St": "Times Square",
-            "14 St-Union Sq": "Union Square",
-            "Grand Central-42 St": "Grand Central",
-            "34 St-Penn Station": "Penn Station",
-            "Brooklyn Bridge-City Hall/Chambers St": "Brooklyn Bridge",
-            "Atlantic Av-Barclays Ctr": "Barclays Center",
-            "59 St-Columbus Circle": "Columbus Circle",
-            "34 St-Herald Sq": "Herald Square",
-            "Court St/Borough Hall": "Borough Hall",
-            "Roosevelt Av/74 St-Broadway": "Roosevelt Ave",
-            "Spring St/Prince St": "Spring St",
-            "Canal St": "Canal Street",
-            "14 St/8 Av": "14th & 8th",
-            "14 St/6 Av": "14th & 6th",
-            "Lexington Av/59 St": "Lex & 59th",
-            "Lexington Av/63 St": "Lex & 63rd"
-        ]
-        
-        return commonMappings[stationName] ?? cleanedName
+        print("DEBUG: Station '\(stationName)' not found in station data, using cleaned name: '\(cleanedName)'")
+        return cleanedName
     }
 }
