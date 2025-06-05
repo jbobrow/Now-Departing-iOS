@@ -15,13 +15,38 @@ struct NearbyTrain: Identifiable, Equatable {
     let stationDisplay: String
     let direction: String
     let destination: String
-    let minutes: Int
+    let arrivalTime: Date  // Store actual arrival time instead of minutes
     let distanceInMeters: Double
     
     // Helper computed properties
+    var minutes: Int {
+        let timeInterval = arrivalTime.timeIntervalSinceNow
+        return max(0, Int(timeInterval / 60))
+    }
+    
     var timeText: String {
-        if minutes <= 0 {
+        let timeInterval = arrivalTime.timeIntervalSinceNow
+        let totalSeconds = max(0, Int(timeInterval))
+        let minutes = totalSeconds / 60
+        
+        if totalSeconds <= 0 {
             return "Now"
+        } else {
+            return "\(minutes)m"
+        }
+    }
+    
+    // Get live time text with current time for precise countdown
+    func getLiveTimeText(currentTime: Date) -> String {
+        let timeInterval = arrivalTime.timeIntervalSince(currentTime)
+        let totalSeconds = max(0, Int(timeInterval))
+        let minutes = totalSeconds / 60
+        let seconds = totalSeconds % 60
+        
+        if totalSeconds <= 0 {
+            return "Now"
+        } else if totalSeconds < 60 {
+            return "Arriving"
         } else {
             return "\(minutes)m"
         }

@@ -208,11 +208,11 @@ class NearbyTrainsManager: ObservableObject {
                             stationDisplay: getStationDisplayName(station.name),
                             direction: "N",
                             destination: DirectionHelper.getDestination(for: train.route, direction: "N"),
-                            minutes: minutes,
+                            arrivalTime: arrivalTime,  // Store the actual arrival time
                             distanceInMeters: distance
                         )
                         allTrains.append(nearbyTrain)
-                        print("DEBUG: Added N train: \(train.route) at \(station.name) in \(minutes)m")
+                        print("DEBUG: Added N train: \(train.route) at \(station.name) arriving at \(arrivalTime)")
                     } else if timeInterval <= 0 {
                         print("DEBUG: Skipping departed N train: \(train.route) at \(station.name) (departed \(Int(-timeInterval/60))m ago)")
                     }
@@ -239,11 +239,11 @@ class NearbyTrainsManager: ObservableObject {
                             stationDisplay: getStationDisplayName(station.name),
                             direction: "S",
                             destination: DirectionHelper.getDestination(for: train.route, direction: "S"),
-                            minutes: minutes,
+                            arrivalTime: arrivalTime,  // Store the actual arrival time
                             distanceInMeters: distance
                         )
                         allTrains.append(nearbyTrain)
-                        print("DEBUG: Added S train: \(train.route) at \(station.name) in \(minutes)m")
+                        print("DEBUG: Added S train: \(train.route) at \(station.name) arriving at \(arrivalTime)")
                     } else if timeInterval <= 0 {
                         print("DEBUG: Skipping departed S train: \(train.route) at \(station.name) (departed \(Int(-timeInterval/60))m ago)")
                     }
@@ -253,15 +253,18 @@ class NearbyTrainsManager: ObservableObject {
         
         print("DEBUG: Total trains found: \(allTrains.count)")
         
-        // Sort by time first, then by distance, and take the first 12
+        // Sort by arrival time first, then by distance, and take the first 12
         let sortedTrains = allTrains.sorted { train1, train2 in
-            if train1.minutes == train2.minutes {
+            let time1 = train1.arrivalTime.timeIntervalSinceNow
+            let time2 = train2.arrivalTime.timeIntervalSinceNow
+            
+            if abs(time1 - time2) < 60 { // If within 1 minute, sort by distance
                 return train1.distanceInMeters < train2.distanceInMeters
             }
-            return train1.minutes < train2.minutes
+            return time1 < time2
         }
         
-        self.nearbyTrains = Array(sortedTrains.prefix(12))
+        self.nearbyTrains = Array(sortedTrains)
         self.isLoading = false
         
         if self.nearbyTrains.isEmpty {

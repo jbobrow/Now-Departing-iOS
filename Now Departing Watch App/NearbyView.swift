@@ -75,11 +75,11 @@ struct NearbyView: View {
                 // Find the closest northbound and southbound trains for this line
                 let northbound = lineTrains
                     .filter { $0.direction == "N" }
-                    .min { $0.minutes < $1.minutes }
+                    .min { $0.arrivalTime < $1.arrivalTime }
                 
                 let southbound = lineTrains
                     .filter { $0.direction == "S" }
-                    .min { $0.minutes < $1.minutes }
+                    .min { $0.arrivalTime < $1.arrivalTime }
                 
                 return LineGroup(
                     lineId: lineId,
@@ -109,171 +109,13 @@ struct NearbyView: View {
         Group {
             switch locationManager.authorizationStatus {
             case .notDetermined:
-                VStack(spacing: 8) {
-                    Image(systemName: "location")
-                        .foregroundColor(.white)
-                        .font(.title2)
-                    Text("Enable Location")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                    Text("See nearby train times")
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                        .multilineTextAlignment(.center)
-                    Button("Allow Location") {
-                        locationManager.requestLocationPermission()
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .font(.caption)
-                }
-                .padding()
+                locationNotDeterminedView
                 
             case .denied, .restricted:
-                VStack(spacing: 8) {
-                    Image(systemName: "location.slash")
-                        .foregroundColor(.red)
-                        .font(.title2)
-                    Text("Location Disabled")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                    Text("Enable location in Settings to see nearby trains")
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                        .multilineTextAlignment(.center)
-                }
-                .padding()
+                locationDeniedView
                 
             case .authorizedWhenInUse, .authorizedAlways:
-                if locationManager.isSearchingForLocation {
-                    VStack(spacing: 8) {
-                        ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                        Text("Finding your location...")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                    }
-                } else if let locationError = locationManager.locationError {
-                    VStack(spacing: 8) {
-                        Image(systemName: "location.slash")
-                            .foregroundColor(.orange)
-                            .font(.title2)
-                        Text("Location Error")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                        Text(locationError)
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                            .multilineTextAlignment(.center)
-                        
-                        Button("Try Again") {
-                            locationManager.retryLocation()
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .font(.caption)
-                    }
-                    .padding()
-                } else if nearbyTrainsManager.isLoading && nearbyTrainsManager.nearbyTrains.isEmpty {
-                    VStack(spacing: 8) {
-                        ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                        Text("Finding nearby trains...")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                    }
-                } else if !nearbyTrainsManager.errorMessage.isEmpty && nearbyTrainsManager.nearbyTrains.isEmpty {
-                    VStack(spacing: 8) {
-                        Image(systemName: "exclamationmark.triangle")
-                            .foregroundColor(.orange)
-                            .font(.title2)
-                        Text(nearbyTrainsManager.errorMessage)
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                            .multilineTextAlignment(.center)
-                        
-                        Button("Retry") {
-                            if let location = locationManager.location {
-                                nearbyTrainsManager.startFetching(location: location)
-                            }
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .font(.caption)
-                    }
-                    .padding()
-                } else if stationGroups.isEmpty {
-                    VStack(spacing: 8) {
-                        Image(systemName: "tram")
-                            .foregroundColor(.gray)
-                            .font(.title2)
-                        Text("No Nearby Trains")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                        Text("No trains found in your area")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                            .multilineTextAlignment(.center)
-                    }
-                    .padding()
-                } else {
-                    List {
-                        ForEach(stationGroups) { stationGroup in
-                            Section {
-                                ForEach(stationGroup.lineGroups) { lineGroup in
-                                    if let line = getLine(for: lineGroup.lineId) {
-                                        VStack(spacing: 8) {
-                                            // Northbound train if available
-                                            if let northTrain = lineGroup.northbound {
-                                                TrainRowView(
-                                                    line: line,
-                                                    train: northTrain,
-                                                    onSelect: onSelect
-                                                )
-                                            }
-                                            
-                                            // Southbound train if available
-                                            if let southTrain = lineGroup.southbound {
-                                                TrainRowView(
-                                                    line: line,
-                                                    train: southTrain,
-                                                    onSelect: onSelect
-                                                )
-                                            }
-                                        }
-                                        .listRowInsets(EdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 8))
-                                    }
-                                }
-                            }
-                            header: {
-                                HStack(alignment: .top) {
-                                    Text(stationGroup.stationDisplay)
-                                        .font(.custom("HelveticaNeue-Bold", size: 16))
-                                        .foregroundColor(.white)
-                                        .textCase(.none)
-                                    
-                                    Spacer()
-                                    
-                                    Text(stationGroup.distanceText)
-                                        .font(.custom("HelveticaNeue", size: 12))
-                                        .foregroundColor(.gray)
-                                        .textCase(.none)
-                                }
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .overlay(
-                                    Rectangle()
-                                        .frame(height: 1)
-                                        .foregroundColor(.white),
-                                    alignment: .top
-                                )
-                            }
-                        }
-                    }
-                    .listStyle(.plain)
-                    .refreshable {
-                        if let location = locationManager.location {
-                            nearbyTrainsManager.startFetching(location: location)
-                        }
-                    }
-                }
+                authorizedLocationView
                 
             @unknown default:
                 EmptyView()
@@ -308,6 +150,218 @@ struct NearbyView: View {
             }
         }
     }
+    
+    // MARK: - View Components
+    
+    private var locationNotDeterminedView: some View {
+        VStack(spacing: 8) {
+            Image(systemName: "location")
+                .foregroundColor(.white)
+                .font(.title2)
+            Text("Enable Location")
+                .font(.headline)
+                .foregroundColor(.white)
+            Text("See nearby train times")
+                .font(.caption)
+                .foregroundColor(.gray)
+                .multilineTextAlignment(.center)
+            Button("Allow Location") {
+                locationManager.requestLocationPermission()
+            }
+            .buttonStyle(.borderedProminent)
+            .font(.caption)
+        }
+        .padding()
+    }
+    
+    private var locationDeniedView: some View {
+        VStack(spacing: 8) {
+            Image(systemName: "location.slash")
+                .foregroundColor(.red)
+                .font(.title2)
+            Text("Location Disabled")
+                .font(.headline)
+                .foregroundColor(.white)
+            Text("Enable location in Settings to see nearby trains")
+                .font(.caption)
+                .foregroundColor(.gray)
+                .multilineTextAlignment(.center)
+        }
+        .padding()
+    }
+    
+    private var authorizedLocationView: some View {
+        Group {
+            if locationManager.isSearchingForLocation {
+                searchingLocationView
+            } else if let locationError = locationManager.locationError {
+                locationErrorView(error: locationError)
+            } else if nearbyTrainsManager.isLoading && nearbyTrainsManager.nearbyTrains.isEmpty {
+                loadingTrainsView
+            } else if !nearbyTrainsManager.errorMessage.isEmpty && nearbyTrainsManager.nearbyTrains.isEmpty {
+                trainsErrorView
+            } else if stationGroups.isEmpty {
+                noTrainsView
+            } else {
+                trainsListView
+            }
+        }
+    }
+    
+    private var searchingLocationView: some View {
+        VStack(spacing: 8) {
+            ProgressView()
+                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+            Text("Finding your location...")
+                .font(.caption)
+                .foregroundColor(.gray)
+        }
+    }
+    
+    private func locationErrorView(error: String) -> some View {
+        VStack(spacing: 8) {
+            Image(systemName: "location.slash")
+                .foregroundColor(.orange)
+                .font(.title2)
+            Text("Location Error")
+                .font(.headline)
+                .foregroundColor(.white)
+            Text(error)
+                .font(.caption)
+                .foregroundColor(.gray)
+                .multilineTextAlignment(.center)
+            
+            Button("Try Again") {
+                locationManager.retryLocation()
+            }
+            .buttonStyle(.borderedProminent)
+            .font(.caption)
+        }
+        .padding()
+    }
+    
+    private var loadingTrainsView: some View {
+        VStack(spacing: 8) {
+            ProgressView()
+                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+            Text("Finding nearby trains...")
+                .font(.caption)
+                .foregroundColor(.gray)
+        }
+    }
+    
+    private var trainsErrorView: some View {
+        VStack(spacing: 8) {
+            Image(systemName: "exclamationmark.triangle")
+                .foregroundColor(.orange)
+                .font(.title2)
+            Text(nearbyTrainsManager.errorMessage)
+                .font(.caption)
+                .foregroundColor(.gray)
+                .multilineTextAlignment(.center)
+            
+            Button("Retry") {
+                if let location = locationManager.location {
+                    nearbyTrainsManager.startFetching(location: location)
+                }
+            }
+            .buttonStyle(.borderedProminent)
+            .font(.caption)
+        }
+        .padding()
+    }
+    
+    private var noTrainsView: some View {
+        VStack(spacing: 8) {
+            Image(systemName: "tram")
+                .foregroundColor(.gray)
+                .font(.title2)
+            Text("No Nearby Trains")
+                .font(.headline)
+                .foregroundColor(.white)
+            Text("No trains found in your area")
+                .font(.caption)
+                .foregroundColor(.gray)
+                .multilineTextAlignment(.center)
+        }
+        .padding()
+    }
+    
+    private var trainsListView: some View {
+        List {
+            ForEach(stationGroups) { stationGroup in
+                stationSection(for: stationGroup)
+            }
+        }
+        .listStyle(.plain)
+        .animation(.easeInOut(duration: 0.3), value: stationGroups.map { $0.id })
+        .refreshable {
+            if let location = locationManager.location {
+                nearbyTrainsManager.startFetching(location: location)
+            }
+        }
+    }
+    
+    private func stationSection(for stationGroup: StationGroup) -> some View {
+        Section {
+            ForEach(stationGroup.lineGroups) { lineGroup in
+                lineGroupView(lineGroup: lineGroup)
+            }
+        } header: {
+            stationHeaderView(for: stationGroup)
+        }
+    }
+    
+    private func lineGroupView(lineGroup: LineGroup) -> some View {
+        Group {
+            if let line = getLine(for: lineGroup.lineId) {
+                // Northbound train if available
+                if let northTrain = lineGroup.northbound {
+                    trainRowView(line: line, train: northTrain)
+                }
+                
+                // Southbound train if available
+                if let southTrain = lineGroup.southbound {
+                    trainRowView(line: line, train: southTrain)
+                }
+            }
+        }
+    }
+    
+    private func trainRowView(line: SubwayLine, train: NearbyTrain) -> some View {
+        TrainRowView(
+            line: line,
+            train: train,
+            onSelect: onSelect
+        )
+        .listRowInsets(EdgeInsets(top: 6, leading: 8, bottom: 6, trailing: 8))
+        .transition(.opacity.combined(with: .scale))
+        .id("train-\(train.id)")
+    }
+    
+    private func stationHeaderView(for stationGroup: StationGroup) -> some View {
+        HStack(alignment: .top) {
+            Text(stationGroup.stationDisplay)
+                .font(.custom("HelveticaNeue-Bold", size: 16))
+                .foregroundColor(.white)
+                .textCase(.none)
+            
+            Spacer()
+            
+            Text(stationGroup.distanceText)
+                .font(.custom("HelveticaNeue", size: 12))
+                .foregroundColor(.gray)
+                .textCase(.none)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .overlay(
+            Rectangle()
+                .frame(height: 1)
+                .foregroundColor(.white), // or whatever color you want
+            alignment: .top
+        )
+    }
 }
 
 // Individual train row component
@@ -340,13 +394,46 @@ struct TrainRowView: View {
                 
                 Spacer()
                 
-                // Time display
-                Text(train.timeText)
-                    .font(.custom("HelveticaNeue-Bold", size: 14))
-                    .foregroundColor(.white)
+                // Use dedicated time display component with its own timer
+                LiveTimeDisplay(train: train)
             }
             .contentShape(Rectangle())
         }
         .buttonStyle(PlainButtonStyle())
+    }
+}
+
+// Separate component for live time display with its own timer
+struct LiveTimeDisplay: View {
+    let train: NearbyTrain
+    
+    @State private var displayedTimeText: String = ""
+    @State private var currentTime = Date()
+    
+    // Timer for this specific component only
+    private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    
+    private var currentTimeText: String {
+        return train.getLiveTimeText(currentTime: currentTime)
+    }
+    
+    var body: some View {
+        Text(displayedTimeText)
+            .font(.custom("HelveticaNeue-Bold", size: 14))
+            .foregroundColor(.white)
+            .transition(.opacity.combined(with: .scale))
+            .animation(.easeInOut(duration: 0.3), value: displayedTimeText)
+            .onAppear {
+                currentTime = Date()
+                displayedTimeText = currentTimeText
+            }
+            .onReceive(timer) { time in
+                currentTime = time
+                let newTimeText = currentTimeText
+                // Only update and animate when the displayed text actually changes
+                if newTimeText != displayedTimeText {
+                    displayedTimeText = newTimeText
+                }
+            }
     }
 }
