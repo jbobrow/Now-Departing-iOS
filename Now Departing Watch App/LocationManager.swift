@@ -24,9 +24,9 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     override init() {
         super.init()
         locationManager.delegate = self
-        // Use more appropriate settings for Apple Watch
-        locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
-        locationManager.distanceFilter = 100 // Update location when user moves 100 meters
+        // Better settings for mobile use (biking, walking, etc.)
+        locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters // More precise for movement
+        locationManager.distanceFilter = 50 // Update more frequently when moving (50m instead of 100m)
     }
     
     func requestLocationPermission() {
@@ -63,9 +63,9 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             self?.requestPeriodicUpdate()
         }
         
-        // Set a timeout for location acquisition - more generous timeout
+        // More generous timeout for mobile scenarios - 30 seconds instead of 20
         locationTimeout?.invalidate()
-        locationTimeout = Timer.scheduledTimer(withTimeInterval: 20.0, repeats: false) { [weak self] _ in
+        locationTimeout = Timer.scheduledTimer(withTimeInterval: 30.0, repeats: false) { [weak self] _ in
             self?.handleLocationTimeout()
         }
     }
@@ -92,9 +92,9 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         
         // print("DEBUG: Requesting periodic location update")
         
-        // Reset timeout for each update attempt
+        // Reset timeout for each update attempt - more generous for mobile
         locationTimeout?.invalidate()
-        locationTimeout = Timer.scheduledTimer(withTimeInterval: 15.0, repeats: false) { [weak self] _ in
+        locationTimeout = Timer.scheduledTimer(withTimeInterval: 25.0, repeats: false) { [weak self] _ in
             self?.handlePeriodicTimeout()
         }
         
@@ -112,12 +112,12 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     
     private func handlePeriodicTimeout() {
         // print("DEBUG: Location timeout - periodic")
-        // For periodic timeouts, don't show error if we have an existing location
-        if location == nil {
+        // For periodic timeouts, be more lenient - don't show error if we have a reasonably recent location
+        if location == nil || abs(location!.timestamp.timeIntervalSinceNow) > 600 { // Only error if no location or very old (10 minutes)
             locationError = "Unable to update your location. Please try again."
             isSearchingForLocation = false
         }
-        // If we have an existing location, just silently continue
+        // If we have a recent-ish location, just silently continue
     }
     
     func retryLocation() {
@@ -149,9 +149,9 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             isSearchingForLocation = true
         }
         
-        // Set timeout for one-time update
+        // Set timeout for one-time update - more generous
         locationTimeout?.invalidate()
-        locationTimeout = Timer.scheduledTimer(withTimeInterval: 15.0, repeats: false) { [weak self] _ in
+        locationTimeout = Timer.scheduledTimer(withTimeInterval: 25.0, repeats: false) { [weak self] _ in
             self?.handleLocationTimeout()
         }
         
@@ -163,11 +163,32 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let newLocation = locations.last else { return }
         
-        // Filter out old or inaccurate locations
+        // More lenient filtering for mobile scenarios
         let age = abs(newLocation.timestamp.timeIntervalSinceNow)
-        if age > 30 || newLocation.horizontalAccuracy > 1000 || newLocation.horizontalAccuracy < 0 {
+        
+        // Allow older locations when moving (up to 60 seconds) and be more lenient with accuracy
+        if age > 60 || newLocation.horizontalAccuracy > 2000 || newLocation.horizontalAccuracy < 0 {
             // print("DEBUG: Filtering out location - age: \(age), accuracy: \(newLocation.horizontalAccuracy)")
             return
+        }
+        
+        // If we have an existing location, check if the new one is significantly better
+        if let existingLocation = location {
+            let existingAge = abs(existingLocation.timestamp.timeIntervalSinceNow)
+            let newAge = age
+            
+            // Only update if:
+            // 1. New location is significantly more recent (more than 30 seconds newer), OR
+            // 2. New location is much more accurate (more than 50m better), OR
+            // 3. Existing location is getting old (more than 2 minutes)
+            let isSignificantlyNewer = existingAge - newAge > 30
+            let isMuchMoreAccurate = existingLocation.horizontalAccuracy - newLocation.horizontalAccuracy > 50
+            let existingIsOld = existingAge > 120
+            
+            if !isSignificantlyNewer && !isMuchMoreAccurate && !existingIsOld {
+                // print("DEBUG: Keeping existing location - not significant improvement")
+                return
+            }
         }
         
         // print("DEBUG: Location updated: \(newLocation.coordinate.latitude), \(newLocation.coordinate.longitude), accuracy: \(newLocation.horizontalAccuracy)")
@@ -193,27 +214,39 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         if let clError = error as? CLError {
             switch clError.code {
             case .locationUnknown:
-                locationError = "Unable to find your location. Make sure you're outdoors or near a window."
+                // Be more lenient with this error - don't show error if we have a recent location
+                if location == nil || abs(location!.timestamp.timeIntervalSinceNow) > 300 {
+                    locationError = "Unable to find your location. Make sure you're outdoors or near a window."
+                }
             case .denied:
                 locationError = "Location access denied. Please enable location services in Settings."
             case .network:
                 locationError = "Network error. Please check your internet connection."
             case .headingFailure:
-                locationError = "Unable to determine your heading."
+                // Don't show heading errors for this use case
+                break
             case .regionMonitoringDenied, .regionMonitoringFailure:
-                locationError = "Region monitoring not available."
+                // Don't show region monitoring errors for this use case
+                break
             case .regionMonitoringSetupDelayed:
-                locationError = "Location setup delayed. Please try again."
+                // Don't show setup delay errors for this use case
+                break
             default:
-                locationError = "Location error: \(error.localizedDescription)"
+                // Only show other errors if we don't have a recent location
+                if location == nil || abs(location!.timestamp.timeIntervalSinceNow) > 300 {
+                    locationError = "Location error: \(error.localizedDescription)"
+                }
             }
         } else {
-            locationError = "Unable to determine your location. Please try again."
+            // Only show generic errors if we don't have a recent location
+            if location == nil || abs(location!.timestamp.timeIntervalSinceNow) > 300 {
+                locationError = "Unable to determine your location. Please try again."
+            }
         }
         
-        // If we're actively tracking and get an error, try again after a delay
-        if isActivelyTracking && location == nil {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) { [weak self] in
+        // If we're actively tracking and get an error, try again after a delay - but only if we don't have any location
+        if isActivelyTracking && (location == nil || abs(location!.timestamp.timeIntervalSinceNow) > 300) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) { [weak self] in // Longer delay for retries
                 guard let self = self, self.isActivelyTracking else { return }
                 // print("DEBUG: Retrying after error")
                 self.requestPeriodicUpdate()
