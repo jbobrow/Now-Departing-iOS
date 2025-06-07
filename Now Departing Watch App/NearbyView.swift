@@ -145,7 +145,7 @@ struct NearbyView: View {
             return ("airplane", "flying", true)
         } else if miles > 20 {
             return ("car", "driving", true)
-        } else if miles > 10 {
+        } else if miles > 3 {
             return ("bicycle", "biking", true)
         } else {
             return ("", "", false)
