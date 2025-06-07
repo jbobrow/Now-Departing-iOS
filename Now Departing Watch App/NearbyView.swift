@@ -68,15 +68,24 @@ class NearbyTrainWithState: ObservableObject, Identifiable {
             isWaitingToStart = false
         }
     }
+    
+    func resetToLoading() {
+        isWaitingToStart = true
+        hasAppeared = true
+    }
 }
 
 struct NearbyView: View {
     @EnvironmentObject var locationManager: LocationManager
     @EnvironmentObject var stationDataManager: StationDataManager
+    @Environment(\.scenePhase) private var scenePhase
     @StateObject private var nearbyTrainsManager = NearbyTrainsManager(stationDataManager: StationDataManager())
     @State private var hasAppeared = false
     @State private var isInitialized = false
     @State private var trainsWithState: [NearbyTrainWithState] = []
+    @State private var lastDataUpdateTime: Date = Date.distantPast
+    @State private var lastLocationUsedForData: CLLocation?
+    @State private var isShowingStaleData = false
     
     let onSelect: (SubwayLine, Station, String) -> Void
     let lines: [SubwayLine]
@@ -87,6 +96,10 @@ struct NearbyView: View {
     
     // Update trainsWithState when nearbyTrains changes
     private func updateTrainsWithState() {
+        lastDataUpdateTime = Date()
+        lastLocationUsedForData = locationManager.location
+        isShowingStaleData = false
+        
         // Create new NearbyTrainWithState objects for current trains
         trainsWithState = nearbyTrainsManager.nearbyTrains.enumerated().map { index, train in
             let trainWithState = NearbyTrainWithState(train: train)
@@ -96,6 +109,37 @@ struct NearbyView: View {
             trainWithState.startDisplaying(delay: delay)
             
             return trainWithState
+        }
+    }
+    
+    // Check if current data is stale (more than 3 minutes old)
+    private var isDataStale: Bool {
+        return abs(lastDataUpdateTime.timeIntervalSinceNow) > 180 // 3 minutes
+    }
+    
+    // Check if location has changed significantly (more than 500 meters)
+    private var hasLocationChangedSignificantly: Bool {
+        guard let lastLocation = lastLocationUsedForData,
+              let currentLocation = locationManager.location else {
+            return true
+        }
+        
+        let distance = lastLocation.distance(from: currentLocation)
+        return distance > 500 // 500 meters
+    }
+    
+    // Reset trains to show loading state when data is stale
+    private func resetTrainsForStaleData() {
+        isShowingStaleData = true
+        
+        // Reset all trains to waiting state if location hasn't changed much
+        if !hasLocationChangedSignificantly {
+            trainsWithState.forEach { trainWithState in
+                trainWithState.resetToLoading()
+            }
+        } else {
+            // If location changed significantly, clear trains to show main loading state
+            trainsWithState = []
         }
     }
     
@@ -124,7 +168,7 @@ struct NearbyView: View {
                     
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(String(format: "%.1f miles to closet station", miles))
+                    Text(String(format: "%.1f miles to closest station", miles))
                         .font(.custom("HelveticaNeue-Bold", size: 16))
                         .foregroundColor(.white)
                         .multilineTextAlignment(.leading)
@@ -256,6 +300,28 @@ struct NearbyView: View {
         .onChange(of: nearbyTrainsManager.nearbyTrains) { _, _ in
             updateTrainsWithState()
         }
+        .onChange(of: scenePhase) { oldPhase, newPhase in
+            guard hasAppeared else { return }
+            
+            switch newPhase {
+            case .active:
+                // When returning to active state, check if data is stale
+                if isDataStale && !trainsWithState.isEmpty {
+                    print("DEBUG: App became active with stale data - resetting for refresh")
+                    resetTrainsForStaleData()
+                    
+                    // Refresh data
+                    if let location = locationManager.location {
+                        nearbyTrainsManager.startFetching(location: location)
+                    }
+                }
+            case .background, .inactive:
+                // Don't change anything when going to background
+                break
+            @unknown default:
+                break
+            }
+        }
     }
     
     // MARK: - View Components
@@ -304,6 +370,9 @@ struct NearbyView: View {
             } else if let locationError = locationManager.locationError {
                 locationErrorView(error: locationError)
             } else if nearbyTrainsManager.isLoading && nearbyTrainsManager.nearbyTrains.isEmpty {
+                loadingTrainsView
+            } else if isShowingStaleData && hasLocationChangedSignificantly {
+                // Location changed significantly while data is stale - show finding trains
                 loadingTrainsView
             } else if !nearbyTrainsManager.errorMessage.isEmpty && nearbyTrainsManager.nearbyTrains.isEmpty {
                 trainsErrorView
