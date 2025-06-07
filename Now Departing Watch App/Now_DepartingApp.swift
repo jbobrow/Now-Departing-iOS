@@ -22,6 +22,5 @@ struct NowDepartingWatchApp: App {
                 .environmentObject(settingsManager)
                 .environmentObject(locationManager)
         }
-        .windowToolbarLabelStyle(fixed: .automatic)
     }
 }
