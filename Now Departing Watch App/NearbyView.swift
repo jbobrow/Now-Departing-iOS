@@ -99,7 +99,58 @@ struct NearbyView: View {
         }
     }
     
-    // Organize trains into station groups with line groupings - now grouped by station ID
+    // Calculate the closest station distance and show appropriate indicator
+    private var closestStationDistance: Double? {
+        guard !stationGroups.isEmpty else { return nil }
+        return stationGroups.map { $0.distanceInMeters }.min()
+    }
+    
+    private var distanceIndicatorView: AnyView? {
+        guard let distanceMeters = closestStationDistance else { return nil }
+        
+        // Convert to miles
+        let miles = distanceMeters * 0.000621371
+        
+        let (icon, transportText, shouldShow) = getDistanceIndicator(miles: miles)
+        
+        guard shouldShow else { return nil }
+        
+        return AnyView(
+            
+            HStack(alignment: .center, spacing: 8) {
+                Image(systemName: icon)
+                    .foregroundColor(.yellow)
+                    .font(.title)
+                    
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(String(format: "%.1f miles to closet station", miles))
+                        .font(.custom("HelveticaNeue-Bold", size: 16))
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.leading)
+
+                    Text("Consider \(transportText) to New York City")
+                        .font(.custom("HelveticaNeue", size: 14))
+                        .foregroundColor(.gray)
+                        .multilineTextAlignment(.leading)
+                }
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+        )
+    }
+    
+    private func getDistanceIndicator(miles: Double) -> (icon: String, transportText: String, shouldShow: Bool) {
+        if miles > 100 {
+            return ("airplane", "flying", true)
+        } else if miles > 20 {
+            return ("car", "driving", true)
+        } else if miles > 10 {
+            return ("bicycle", "biking", true)
+        } else {
+            return ("", "", false)
+        }
+    }
     private var stationGroups: [StationGroup] {
         // Group trains by station ID instead of station name
         let trainsByStationId = Dictionary(grouping: trainsWithState) { trainWithState in
@@ -345,6 +396,15 @@ struct NearbyView: View {
     
     private var trainsListView: some View {
         List {
+            // Distance indicator at the top when far from subway
+            if let distanceIndicator = distanceIndicatorView {
+                Section {
+                    distanceIndicator
+                }
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
+            }
+            
             ForEach(stationGroups) { stationGroup in
                 stationSection(for: stationGroup)
             }
