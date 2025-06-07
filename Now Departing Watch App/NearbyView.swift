@@ -42,12 +42,41 @@ struct LineGroup: Identifiable {
     let southbound: NearbyTrain?
 }
 
+// ObservableObject wrapper for individual trains to handle loading state
+class NearbyTrainWithState: ObservableObject, Identifiable {
+    let id = UUID()
+    let train: NearbyTrain
+    @Published var isWaitingToStart = true
+    @Published var hasAppeared = false
+    
+    var shouldShowLoader: Bool {
+        return isWaitingToStart && hasAppeared
+    }
+    
+    init(train: NearbyTrain) {
+        self.train = train
+    }
+    
+    func startDisplaying(delay: Double = 0.3) {
+        hasAppeared = true
+        
+        if delay > 0 {
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
+                self?.isWaitingToStart = false
+            }
+        } else {
+            isWaitingToStart = false
+        }
+    }
+}
+
 struct NearbyView: View {
     @EnvironmentObject var locationManager: LocationManager
     @EnvironmentObject var stationDataManager: StationDataManager
     @StateObject private var nearbyTrainsManager = NearbyTrainsManager(stationDataManager: StationDataManager())
     @State private var hasAppeared = false
     @State private var isInitialized = false
+    @State private var trainsWithState: [NearbyTrainWithState] = []
     
     let onSelect: (SubwayLine, Station, String) -> Void
     let lines: [SubwayLine]
@@ -56,33 +85,47 @@ struct NearbyView: View {
         return lines.first(where: { $0.id == id })
     }
     
+    // Update trainsWithState when nearbyTrains changes
+    private func updateTrainsWithState() {
+        // Create new NearbyTrainWithState objects for current trains
+        trainsWithState = nearbyTrainsManager.nearbyTrains.enumerated().map { index, train in
+            let trainWithState = NearbyTrainWithState(train: train)
+            
+            // Add a small delay to stagger the appearance of trains
+            let delay = Double(index) * 0.1 // 100ms apart
+            trainWithState.startDisplaying(delay: delay)
+            
+            return trainWithState
+        }
+    }
+    
     // Organize trains into station groups with line groupings - now grouped by station ID
     private var stationGroups: [StationGroup] {
         // Group trains by station ID instead of station name
-        let trainsByStationId = Dictionary(grouping: nearbyTrainsManager.nearbyTrains) { train in
-            train.stationId
+        let trainsByStationId = Dictionary(grouping: trainsWithState) { trainWithState in
+            trainWithState.train.stationId
         }
         
         // Convert to StationGroup objects
-        let groups = trainsByStationId.map { (stationId, trains) -> StationGroup in
+        let groups = trainsByStationId.map { (stationId, trainsWithState) -> StationGroup in
             // Get station info from first train
-            let firstTrain = trains.first!
+            let firstTrain = trainsWithState.first!.train
             
             // Group trains by line within this station
-            let trainsByLine = Dictionary(grouping: trains) { train in
-                train.lineId
+            let trainsByLine = Dictionary(grouping: trainsWithState) { trainWithState in
+                trainWithState.train.lineId
             }
             
             // Create LineGroup objects
-            let lineGroups = trainsByLine.map { (lineId, lineTrains) -> LineGroup in
+            let lineGroups = trainsByLine.map { (lineId, lineTrainsWithState) -> LineGroup in
                 // Find the closest northbound and southbound trains for this line
-                let northbound = lineTrains
-                    .filter { $0.direction == "N" }
-                    .min { $0.arrivalTime < $1.arrivalTime }
+                let northbound = lineTrainsWithState
+                    .filter { $0.train.direction == "N" }
+                    .min { $0.train.arrivalTime < $1.train.arrivalTime }?.train
                 
-                let southbound = lineTrains
-                    .filter { $0.direction == "S" }
-                    .min { $0.arrivalTime < $1.arrivalTime }
+                let southbound = lineTrainsWithState
+                    .filter { $0.train.direction == "S" }
+                    .min { $0.train.arrivalTime < $1.train.arrivalTime }?.train
                 
                 return LineGroup(
                     lineId: lineId,
@@ -158,6 +201,9 @@ struct NearbyView: View {
             } else if !isEnabled {
                 nearbyTrainsManager.stopFetching()
             }
+        }
+        .onChange(of: nearbyTrainsManager.nearbyTrains) { _, _ in
+            updateTrainsWithState()
         }
     }
     
@@ -326,25 +372,29 @@ struct NearbyView: View {
             if let line = getLine(for: lineGroup.lineId) {
                 // Northbound train if available
                 if let northTrain = lineGroup.northbound {
-                    trainRowView(line: line, train: northTrain)
+                    if let trainWithState = trainsWithState.first(where: { $0.train.id == northTrain.id }) {
+                        trainRowView(line: line, trainWithState: trainWithState)
+                    }
                 }
                 
                 // Southbound train if available
                 if let southTrain = lineGroup.southbound {
-                    trainRowView(line: line, train: southTrain)
+                    if let trainWithState = trainsWithState.first(where: { $0.train.id == southTrain.id }) {
+                        trainRowView(line: line, trainWithState: trainWithState)
+                    }
                 }
             }
         }
     }
     
-    private func trainRowView(line: SubwayLine, train: NearbyTrain) -> some View {
+    private func trainRowView(line: SubwayLine, trainWithState: NearbyTrainWithState) -> some View {
         TrainRowView(
             line: line,
-            train: train,
+            trainWithState: trainWithState,
             onSelect: onSelect
         )
         .listRowInsets(EdgeInsets(top: 6, leading: 8, bottom: 6, trailing: 8))
-        .id("train-\(train.lineId)-\(train.stationId)-\(train.direction)")  // Updated to use stationId
+        .id("train-\(trainWithState.train.lineId)-\(trainWithState.train.stationId)-\(trainWithState.train.direction)")
     }
     
     private func stationHeaderView(for stationGroup: StationGroup) -> some View {
@@ -372,10 +422,10 @@ struct NearbyView: View {
     }
 }
 
-// Individual train row component
+// Individual train row component - now uses NearbyTrainWithState
 struct TrainRowView: View {
     let line: SubwayLine
-    let train: NearbyTrain
+    @ObservedObject var trainWithState: NearbyTrainWithState
     let onSelect: (SubwayLine, Station, String) -> Void
     
     var body: some View {
@@ -383,8 +433,8 @@ struct TrainRowView: View {
             // Trigger haptic feedback
             WKInterfaceDevice.current().play(.start)
             
-            let station = Station(display: train.stationDisplay, name: train.stationName)
-            onSelect(line, station, train.direction)
+            let station = Station(display: trainWithState.train.stationDisplay, name: trainWithState.train.stationName)
+            onSelect(line, station, trainWithState.train.direction)
         }) {
             HStack(spacing: 8) {
                 // Train line circle
@@ -395,15 +445,22 @@ struct TrainRowView: View {
                     .background(Circle().fill(line.bg_color))
                 
                 // Direction info
-                Text("to \(train.destination)")
+                Text("to \(trainWithState.train.destination)")
                     .font(.custom("HelveticaNeue", size: 14))
                     .foregroundColor(.white)
                     .lineLimit(1)
                 
                 Spacer()
                 
-                // Use dedicated time display component with its own timer
-                LiveTimeDisplay(train: train)
+                // Time display with loading state like FavoritesView
+                VStack(alignment: .trailing, spacing: 2) {
+                    if trainWithState.shouldShowLoader {
+                        ProgressView()
+                            .scaleEffect(1.2)
+                    } else {
+                        LiveTimeDisplay(train: trainWithState.train)
+                    }
+                }
             }
             .contentShape(Rectangle())
         }
