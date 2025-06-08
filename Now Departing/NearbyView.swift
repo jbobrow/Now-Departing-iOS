@@ -95,25 +95,38 @@ struct NearbyView: View {
             TrainsList()
         }
     }
-    
     @ViewBuilder
     func TrainsList() -> some View {
         List {
             ForEach(groupTrainsByStation(), id: \.stationId) { group in
                 Section {
-                    ForEach(group.trains, id: \.id) { train in
-                        if let line = getLine(for: train.lineId) {
-                            TrainRow(train: train, line: line)
-                        }
+                    // Northbound trains
+                    if let northData = group.northbound {
+                        ConsolidatedTrainRow(
+                            primaryTrain: northData.trains[0],
+                            additionalTrains: Array(northData.trains.dropFirst()),
+                            line: northData.line
+                        )
+                    }
+                    
+                    // Southbound trains
+                    if let southData = group.southbound {
+                        ConsolidatedTrainRow(
+                            primaryTrain: southData.trains[0],
+                            additionalTrains: Array(southData.trains.dropFirst()),
+                            line: southData.line
+                        )
                     }
                 } header: {
                     HStack(alignment: .top) {
                         Text(group.stationDisplay)
-                            .font(.custom("HelveticaNeue-Bold", size: 32))
+                            .font(.custom("HelveticaNeue-Bold", size: 26))
                             .foregroundColor(.primary)
                             .textCase(.none)
                             .padding(EdgeInsets(top: 4, leading: 0, bottom: 0, trailing: 0))
+                        
                         Spacer()
+                        
                         Text(group.distanceText)
                             .font(.custom("HelveticaNeue", size: 14))
                             .foregroundColor(.secondary)
@@ -129,6 +142,7 @@ struct NearbyView: View {
                 }
             }
         }
+        .listStyle(.plain)
         .refreshable {
             if let location = locationManager.location {
                 nearbyTrainsManager.startFetching(location: location)
@@ -136,19 +150,97 @@ struct NearbyView: View {
         }
     }
     
-    func groupTrainsByStation() -> [(stationId: String, stationDisplay: String, distanceText: String, trains: [NearbyTrain])] {
+    struct ConsolidatedTrainRow: View {
+        let primaryTrain: NearbyTrain
+        let additionalTrains: [NearbyTrain]
+        let line: SubwayLine
+        @State private var currentTime = Date()
+        
+        private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+        
+        var body: some View {
+            VStack(alignment: .leading, spacing: 8) {
+                // Main row
+                HStack(spacing: 12) {
+                    // Line badge
+                    Text(line.label)
+                        .font(.custom("HelveticaNeue-Bold", size: 32))
+                        .foregroundColor(line.fg_color)
+                        .frame(width: 48, height: 48)
+                        .background(Circle().fill(line.bg_color))
+                    
+                    // Direction
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("to \(primaryTrain.destination)")
+                            .font(.custom("HelveticaNeue-Bold", size: 20))
+                        Text(primaryTrain.direction == "N" ? "Northbound" : "Southbound")
+                            .font(.custom("HelveticaNeue", size: 14))
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    Spacer()
+                    
+                    VStack(alignment: .trailing, spacing: 2) {
+                        // Primary time
+                        Text(primaryTrain.getLiveTimeText(currentTime: currentTime, fullText: true))
+                            .font(.custom("HelveticaNeue-Bold", size: 26))
+                            .foregroundColor(.primary)
+                        
+                        // Additional times (if any)
+                        if !additionalTrains.isEmpty {
+                            HStack {
+                                Text(additionalTrains.prefix(3).map { train in
+                                    train.getLiveTimeText(currentTime: currentTime)
+                                }.joined(separator: ", "))
+                                .font(.custom("HelveticaNeue", size: 14))
+                                .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                }
+                
+            }
+            .padding(.vertical, 4)
+            .onReceive(timer) { time in
+                currentTime = time
+            }
+        }
+    }
+    
+    func groupTrainsByStation() -> [(stationId: String, stationDisplay: String, distanceText: String, northbound: (line: SubwayLine, trains: [NearbyTrain])?, southbound: (line: SubwayLine, trains: [NearbyTrain])?)] {
         let grouped = Dictionary(grouping: nearbyTrainsManager.nearbyTrains) { $0.stationId }
         
         return grouped.map { (stationId, trains) in
             let firstTrain = trains.first!
             let distanceText = formatDistance(firstTrain.distanceInMeters)
+            
+            // Group by direction
+            let northTrains = trains.filter { $0.direction == "N" }.sorted { $0.arrivalTime < $1.arrivalTime }
+            let southTrains = trains.filter { $0.direction == "S" }.sorted { $0.arrivalTime < $1.arrivalTime }
+            
+            // Get line info for each direction
+            let northData: (line: SubwayLine, trains: [NearbyTrain])? = if !northTrains.isEmpty,
+                let line = getLine(for: northTrains[0].lineId) {
+                (line: line, trains: northTrains)
+            } else {
+                nil
+            }
+            
+            let southData: (line: SubwayLine, trains: [NearbyTrain])? = if !southTrains.isEmpty,
+                let line = getLine(for: southTrains[0].lineId) {
+                (line: line, trains: southTrains)
+            } else {
+                nil
+            }
+            
             return (
                 stationId: stationId,
                 stationDisplay: firstTrain.stationDisplay,
                 distanceText: distanceText,
-                trains: trains.sorted { $0.arrivalTime < $1.arrivalTime }
+                northbound: northData,
+                southbound: southData
             )
-        }.sorted { $0.trains.first!.distanceInMeters < $1.trains.first!.distanceInMeters }
+        }.sorted { $0.stationDisplay < $1.stationDisplay }
     }
     
     func formatDistance(_ meters: Double) -> String {
@@ -251,58 +343,6 @@ struct EmptyStateView: View {
                 .foregroundColor(.secondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-}
-
-struct TrainRow: View {
-    let train: NearbyTrain
-    let line: SubwayLine
-    @State private var currentTime = Date()
-    
-    private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-    
-    var body: some View {
-        HStack(spacing: 12) {
-            // Line badge
-            Text(line.label)
-                .font(.custom("HelveticaNeue-Bold", size: 32))
-                .foregroundColor(line.fg_color)
-                .frame(width: 48, height: 48)
-                .background(Circle().fill(line.bg_color))
-            
-            // Direction
-            VStack(alignment: .leading, spacing: 2) {
-                Text("to \(train.destination)")
-                    .font(.custom("HelveticaNeue-Bold", size: 20))
-                Text(train.direction == "N" ? "Northbound" : "Southbound")
-                    .font(.custom("HelveticaNeue", size: 14))
-                    .foregroundColor(.secondary)
-            }
-            
-            Spacer()
-            
-            // Time
-            Text(train.getLiveTimeText(currentTime: currentTime))
-                .font(.title2.bold())
-                .foregroundColor(timeColor)
-                .onReceive(timer) { time in
-                    currentTime = time
-                }
-        }
-        .padding(.vertical, 4)
-    }
-    
-    var timeColor: Color {
-        let timeInterval = train.arrivalTime.timeIntervalSince(currentTime)
-        let seconds = max(0, Int(timeInterval))
-        
-        if seconds <= 60 {
-            return .orange
-        } else if seconds <= 180 {
-            return .green
-        } else {
-            return .primary
-        }
     }
 }
 

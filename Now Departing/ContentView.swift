@@ -17,7 +17,13 @@ struct ContentView: View {
             if isReady {
                 NearbyView()
                     .environmentObject(locationManager)
-                    .navigationTitle("Nearby Trains")
+                    .toolbar {
+                        ToolbarItem(placement: .principal) {
+                            Image(systemName: "tram.fill")
+                                .font(.title)
+                                .foregroundColor(.secondary)
+                        }
+                    }
             } else {
                 ProgressView("Initializing...")
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
