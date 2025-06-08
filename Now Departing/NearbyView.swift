@@ -107,14 +107,25 @@ struct NearbyView: View {
                         }
                     }
                 } header: {
-                    HStack {
+                    HStack(alignment: .top) {
                         Text(group.stationDisplay)
-                            .font(.headline)
+                            .font(.custom("HelveticaNeue-Bold", size: 32))
+                            .foregroundColor(.primary)
+                            .textCase(.none)
+                            .padding(EdgeInsets(top: 4, leading: 0, bottom: 0, trailing: 0))
                         Spacer()
                         Text(group.distanceText)
-                            .font(.caption)
+                            .font(.custom("HelveticaNeue", size: 14))
                             .foregroundColor(.secondary)
+                            .textCase(.none)
+                            .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
                     }
+                    .overlay(
+                        Rectangle()
+                            .frame(height: 2)
+                            .foregroundColor(.primary), // or whatever color you want
+                        alignment: .top
+                    )
                 }
             }
         }
@@ -254,17 +265,17 @@ struct TrainRow: View {
         HStack(spacing: 12) {
             // Line badge
             Text(line.label)
-                .font(.title2.bold())
+                .font(.custom("HelveticaNeue-Bold", size: 32))
                 .foregroundColor(line.fg_color)
-                .frame(width: 44, height: 44)
+                .frame(width: 48, height: 48)
                 .background(Circle().fill(line.bg_color))
             
             // Direction
             VStack(alignment: .leading, spacing: 2) {
                 Text("to \(train.destination)")
-                    .font(.headline)
+                    .font(.custom("HelveticaNeue-Bold", size: 20))
                 Text(train.direction == "N" ? "Northbound" : "Southbound")
-                    .font(.caption)
+                    .font(.custom("HelveticaNeue", size: 14))
                     .foregroundColor(.secondary)
             }
             
