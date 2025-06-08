@@ -95,49 +95,23 @@ struct NearbyView: View {
             TrainsList()
         }
     }
+    
     @ViewBuilder
     func TrainsList() -> some View {
         List {
             ForEach(groupTrainsByStation(), id: \.stationId) { group in
                 Section {
-                    // Northbound trains
-                    if let northData = group.northbound {
+                    ForEach(group.trainsByLineAndDirection, id: \.lineDirectionId) { item in
                         ConsolidatedTrainRow(
-                            primaryTrain: northData.trains[0],
-                            additionalTrains: Array(northData.trains.dropFirst()),
-                            line: northData.line
-                        )
-                    }
-                    
-                    // Southbound trains
-                    if let southData = group.southbound {
-                        ConsolidatedTrainRow(
-                            primaryTrain: southData.trains[0],
-                            additionalTrains: Array(southData.trains.dropFirst()),
-                            line: southData.line
+                            primaryTrain: item.trains[0],
+                            additionalTrains: Array(item.trains.dropFirst()),
+                            line: item.line
                         )
                     }
                 } header: {
-                    HStack(alignment: .top) {
-                        Text(group.stationDisplay)
-                            .font(.custom("HelveticaNeue-Bold", size: 26))
-                            .foregroundColor(.primary)
-                            .textCase(.none)
-                            .padding(EdgeInsets(top: 4, leading: 0, bottom: 0, trailing: 0))
-                        
-                        Spacer()
-                        
-                        Text(group.distanceText)
-                            .font(.custom("HelveticaNeue", size: 14))
-                            .foregroundColor(.secondary)
-                            .textCase(.none)
-                            .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
-                    }
-                    .overlay(
-                        Rectangle()
-                            .frame(height: 2)
-                            .foregroundColor(.primary), // or whatever color you want
-                        alignment: .top
+                    StationHeader(
+                        stationDisplay: group.stationDisplay,
+                        distanceText: group.distanceText
                     )
                 }
             }
@@ -147,6 +121,33 @@ struct NearbyView: View {
             if let location = locationManager.location {
                 nearbyTrainsManager.startFetching(location: location)
             }
+        }
+    }
+
+    // Add this helper view
+    struct StationHeader: View {
+        let stationDisplay: String
+        let distanceText: String
+        
+        var body: some View {
+            HStack(alignment: .top) {
+                Text(stationDisplay)
+                    .font(.custom("HelveticaNeue-Bold", size: 32))
+                    .foregroundColor(.primary)
+                    .textCase(.none)
+                    .padding(EdgeInsets(top: 4, leading: 0, bottom: 0, trailing: 0))
+                Spacer()
+                Text(distanceText)
+                    .font(.custom("HelveticaNeue", size: 14))
+                    .foregroundColor(.secondary)
+                    .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
+            }
+            .overlay(
+                Rectangle()
+                    .frame(height: 2)
+                    .foregroundColor(.primary),
+                alignment: .top
+            )
         }
     }
     
@@ -207,40 +208,50 @@ struct NearbyView: View {
         }
     }
     
-    func groupTrainsByStation() -> [(stationId: String, stationDisplay: String, distanceText: String, northbound: (line: SubwayLine, trains: [NearbyTrain])?, southbound: (line: SubwayLine, trains: [NearbyTrain])?)] {
+    func groupTrainsByStation() -> [(stationId: String, stationDisplay: String, distanceText: String, trainsByLineAndDirection: [(line: SubwayLine, direction: String, trains: [NearbyTrain], lineDirectionId: String)])] {
         let grouped = Dictionary(grouping: nearbyTrainsManager.nearbyTrains) { $0.stationId }
         
         return grouped.map { (stationId, trains) in
             let firstTrain = trains.first!
             let distanceText = formatDistance(firstTrain.distanceInMeters)
             
-            // Group by direction
-            let northTrains = trains.filter { $0.direction == "N" }.sorted { $0.arrivalTime < $1.arrivalTime }
-            let southTrains = trains.filter { $0.direction == "S" }.sorted { $0.arrivalTime < $1.arrivalTime }
-            
-            // Get line info for each direction
-            let northData: (line: SubwayLine, trains: [NearbyTrain])? = if !northTrains.isEmpty,
-                let line = getLine(for: northTrains[0].lineId) {
-                (line: line, trains: northTrains)
-            } else {
-                nil
+            // Group by line AND direction
+            let lineDirectionGroups = Dictionary(grouping: trains) { train in
+                "\(train.lineId)-\(train.direction)"
             }
             
-            let southData: (line: SubwayLine, trains: [NearbyTrain])? = if !southTrains.isEmpty,
-                let line = getLine(for: southTrains[0].lineId) {
-                (line: line, trains: southTrains)
-            } else {
-                nil
+            let trainsByLineAndDirection = lineDirectionGroups.compactMap { (key, trains) -> (line: SubwayLine, direction: String, trains: [NearbyTrain], lineDirectionId: String)? in
+                guard let firstTrain = trains.first,
+                      let line = getLine(for: firstTrain.lineId) else { return nil }
+                
+                let sortedTrains = trains.sorted { $0.arrivalTime < $1.arrivalTime }
+                return (
+                    line: line,
+                    direction: firstTrain.direction,
+                    trains: sortedTrains,
+                    lineDirectionId: "\(line.id)-\(firstTrain.direction)"
+                )
+            }
+            .sorted { (a, b) in
+                // Sort by line ID first, then by direction (N before S)
+                if a.line.id == b.line.id {
+                    return a.direction < b.direction
+                }
+                return a.line.id < b.line.id
             }
             
             return (
                 stationId: stationId,
                 stationDisplay: firstTrain.stationDisplay,
                 distanceText: distanceText,
-                northbound: northData,
-                southbound: southData
+                trainsByLineAndDirection: trainsByLineAndDirection
             )
-        }.sorted { $0.stationDisplay < $1.stationDisplay }
+        }.sorted {
+            // Sort by distance (closest first)
+            let distance1 = $0.trainsByLineAndDirection.first?.trains.first?.distanceInMeters ?? Double.infinity
+            let distance2 = $1.trainsByLineAndDirection.first?.trains.first?.distanceInMeters ?? Double.infinity
+            return distance1 < distance2
+        }
     }
     
     func formatDistance(_ meters: Double) -> String {
