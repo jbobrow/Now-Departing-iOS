@@ -71,26 +71,20 @@ struct NearbyView: View {
             ProgressView("Finding your location...")
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if let error = locationManager.locationError {
-            VStack {
-                Text("Location Error:")
-                Text(error)
+            ErrorView(message: error) {
+                locationManager.retryLocation()
             }
         } else if nearbyTrainsManager.isLoading && nearbyTrainsManager.nearbyTrains.isEmpty {
             ProgressView("Loading nearby trains...")
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if !nearbyTrainsManager.errorMessage.isEmpty {
-            VStack {
-                Text("API Error:")
-                Text(nearbyTrainsManager.errorMessage)
-            }
-        } else if nearbyTrainsManager.nearbyTrains.isEmpty {
-            VStack {
-                Text("No trains found")
+            ErrorView(message: nearbyTrainsManager.errorMessage) {
                 if let location = locationManager.location {
-                    Text("Lat: \(location.coordinate.latitude)")
-                    Text("Lon: \(location.coordinate.longitude)")
+                    nearbyTrainsManager.startFetching(location: location)
                 }
             }
+        } else if nearbyTrainsManager.nearbyTrains.isEmpty {
+            EmptyStateView()
         } else {
             TrainsList()
         }
@@ -324,36 +318,102 @@ struct ErrorView: View {
     let retry: () -> Void
     
     var body: some View {
-        VStack(spacing: 20) {
-            Image(systemName: "exclamationmark.triangle")
-                .font(.system(size: 50))
-                .foregroundColor(.orange)
+        VStack(spacing: 24) {
+            Spacer()
             
-            Text(message)
-                .multilineTextAlignment(.center)
-                .foregroundColor(.secondary)
+            // Icon
+            ZStack {
+                Circle()
+                    .fill(Color.orange.opacity(0.1))
+                    .frame(width: 120, height: 120)
+                
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .font(.system(size: 70))
+                    .foregroundColor(.orange)
+                    .symbolRenderingMode(.hierarchical)
+            }
             
-            Button("Try Again", action: retry)
-                .buttonStyle(.borderedProminent)
+            VStack(spacing: 12) {
+                Text("Something Went Wrong")
+                    .font(.custom("HelveticaNeue-Bold", size: 28))
+                
+                Text(message)
+                    .font(.custom("HelveticaNeue", size: 17))
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(.secondary)
+                    .lineSpacing(4)
+            }
+            .padding(.horizontal, 24)
+            
+            Spacer()
+            
+            Button(action: retry) {
+                HStack {
+                    Image(systemName: "arrow.clockwise")
+                    Text("Try Again")
+                }
+                .font(.custom("HelveticaNeue-Medium", size: 18))
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(Color.orange)
+                .foregroundColor(.white)
+                .cornerRadius(14)
+            }
+            .padding(.horizontal, 24)
+            
+            Spacer()
+                .frame(height: 40)
         }
-        .padding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(UIColor.systemBackground))
     }
 }
 
 struct EmptyStateView: View {
     var body: some View {
-        VStack(spacing: 20) {
-            Image(systemName: "tram")
-                .font(.system(size: 50))
-                .foregroundColor(.gray)
+        VStack(spacing: 24) {
+            Spacer()
             
-            Text("No Nearby Trains")
-                .font(.title3.bold())
+            // Icon
+            ZStack {
+                Circle()
+                    .fill(Color.gray.opacity(0.1))
+                    .frame(width: 120, height: 120)
+                
+                Image(systemName: "tram.circle")
+                    .font(.system(size: 80))
+                    .foregroundColor(.gray)
+                    .symbolRenderingMode(.hierarchical)
+            }
             
-            Text("No trains found within 30 minutes")
-                .foregroundColor(.secondary)
+            VStack(spacing: 12) {
+                Text("No Trains Nearby")
+                    .font(.custom("HelveticaNeue-Bold", size: 28))
+                
+                Text("No trains arriving within the next\n30 minutes at nearby stations")
+                    .font(.custom("HelveticaNeue", size: 17))
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(.secondary)
+                    .lineSpacing(4)
+            }
+            
+            Spacer()
+            
+            VStack(spacing: 16) {
+                Image(systemName: "arrow.down")
+                    .font(.system(size: 24))
+                    .foregroundColor(.secondary)
+                
+                Text("Pull to refresh")
+                    .font(.custom("HelveticaNeue", size: 16))
+                    .foregroundColor(.secondary)
+            }
+            
+            Spacer()
+                .frame(height: 60)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(UIColor.systemBackground))
     }
 }
 
