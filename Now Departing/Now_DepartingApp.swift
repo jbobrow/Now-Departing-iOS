@@ -8,10 +8,13 @@
 import SwiftUI
 
 @main
-struct Now_DepartingApp: App {
+struct NowDepartingApp: App {
+    @StateObject private var stationDataManager = StationDataManager()
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(stationDataManager)
         }
     }
 }

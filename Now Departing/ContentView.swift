@@ -8,17 +8,29 @@
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject private var locationManager = LocationManager()
+    @EnvironmentObject var stationDataManager: StationDataManager
+    @State private var isReady = false
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        NavigationStack {
+            if isReady {
+                NearbyView()
+                    .environmentObject(locationManager)
+                    .navigationTitle("Nearby Trains")
+            } else {
+                ProgressView("Initializing...")
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
         }
-        .padding()
+        .onAppear {
+            // Small delay to ensure everything is initialized
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                print("DEBUG: Starting location updates from ContentView")
+                locationManager.requestLocationPermission()
+                locationManager.startLocationUpdates()
+                isReady = true
+            }
+        }
     }
-}
-
-#Preview {
-    ContentView()
 }
