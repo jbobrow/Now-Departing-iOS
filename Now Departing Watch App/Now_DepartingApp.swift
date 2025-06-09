@@ -12,6 +12,7 @@ struct NowDepartingWatchApp: App {
     @StateObject private var stationDataManager = StationDataManager()
     @StateObject private var favoritesManager = FavoritesManager()
     @StateObject private var settingsManager = SettingsManager()
+    @StateObject private var locationManager = LocationManager()
     
     var body: some Scene {
         WindowGroup {
@@ -19,7 +20,7 @@ struct NowDepartingWatchApp: App {
                 .environmentObject(stationDataManager)
                 .environmentObject(favoritesManager)
                 .environmentObject(settingsManager)
+                .environmentObject(locationManager)
         }
-        .windowToolbarLabelStyle(fixed: .automatic)
     }
 }

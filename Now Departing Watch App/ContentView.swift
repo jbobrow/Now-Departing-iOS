@@ -89,6 +89,7 @@ struct ContentView: View {
     @EnvironmentObject var settingsManager: SettingsManager
     @StateObject private var navigationState = NavigationState()
     @StateObject private var favoritesManager = FavoritesManager()
+    @StateObject private var locationManager = LocationManager()
     @State private var showSettings = false
     @State private var selectedTab = 0
     
@@ -130,7 +131,26 @@ struct ContentView: View {
     var body: some View {
         NavigationStack(path: $navigationState.path) {
             TabView(selection: $selectedTab) {
-                // Lines Grid View
+                // Nearby Trains View (new - leftmost)
+                NearbyView(
+                    onSelect: { line, station, direction in
+                        // Trigger haptic feedback
+                        WKInterfaceDevice.current().play(.start)
+
+                        navigationState.line = line
+                        navigationState.station = station
+                        navigationState.terminal = station
+                        navigationState.direction = direction
+                        DispatchQueue.main.async {
+                            navigationState.path.append("times")
+                        }
+                    },
+                    lines: lines
+                )
+                .environmentObject(locationManager)
+                .tag(0)
+                
+                // Lines Grid View (moved to middle)
                 LineSelectionView(
                     lines: lines,
                     onSelect: { line in
@@ -143,9 +163,9 @@ struct ContentView: View {
                         showSettings = true
                     }
                 )
-                .tag(0)
+                .tag(1)
                 
-                // Favorites View
+                // Favorites View (rightmost)
                 FavoritesView(
                     onSelect: { line, station, direction in
                         
@@ -154,15 +174,15 @@ struct ContentView: View {
 
                         navigationState.line = line
                         navigationState.station = station
-                        navigationState.terminal = station  // note this is setting the current station as the terminal... could lead to probs in the future
-                        navigationState.direction = direction   // really we just need direction, so that is why the previous line should be innocuous
+                        navigationState.terminal = station
+                        navigationState.direction = direction
                         DispatchQueue.main.async {
                             navigationState.path.append("times")
                         }
                     },
                     lines: lines
                 )
-                .tag(1)
+                .tag(2)
             }
             .tabViewStyle(.page)
             .navigationDestination(for: String.self) { route in
@@ -193,8 +213,9 @@ struct ContentView: View {
                         ProgressView()
                     } else if let line = navigationState.line,
                               let stations = stationDataManager.stations(for: line.id) {
-                        TerminalSelectionView(line: line, stations: stations, onSelect: { terminal in
+                        TerminalSelectionView(line: line, stations: stations, onSelect: { terminal, direction in
                             navigationState.terminal = terminal
+                            navigationState.direction = direction
                             DispatchQueue.main.async {
                                 navigationState.path.append("times")
                             }
@@ -211,11 +232,8 @@ struct ContentView: View {
                         ProgressView()
                     } else if let line = navigationState.line,
                               let station = navigationState.station,
-                              let terminal = navigationState.terminal,
-                              let stations = stationDataManager.stations(for: line.id) {
+                              let direction = navigationState.direction {
                         let viewModel = TimesViewModel()
-                        // Add a direction property to NavigationState
-                        let direction = navigationState.direction ?? (terminal == stations.first ? "N" : "S")
                         TimesView(viewModel: viewModel, line: line, station: station, direction: direction)
                     } else {
                         ProgressView()
@@ -237,18 +255,42 @@ struct ContentView: View {
         }
         .environmentObject(navigationState)
         .environmentObject(favoritesManager)
+        .onChange(of: selectedTab) { oldTab, newTab in
+            if newTab == 0 { // Nearby tab
+                // User swiped to location tab - request fresh location and start updates
+                locationManager.startLocationUpdates()
+            } else if oldTab == 0 {
+                // User swiped away from location tab - stop continuous updates
+                locationManager.stopLocationUpdates()
+            }
+        }
         .onChange(of: scenePhase) { oldPhase, newPhase in
+            // print("DEBUG: Scene phase changed from \(oldPhase) to \(newPhase)")
             switch newPhase {
             case .active:
                 stationDataManager.refreshStations()
                 scheduleNextBackgroundRefresh()
+                // If on nearby tab, restart location updates with a small delay to ensure proper state
+                if selectedTab == 0 {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        locationManager.startLocationUpdates()
+                    }
+                }
             case .background:
-                // Handle background state
+                // Stop location updates to save battery
+                locationManager.stopLocationUpdates()
                 break
             case .inactive:
+                // Don't stop location on inactive - this happens during transitions
                 break
             @unknown default:
                 break
+            }
+        }
+        .onAppear {
+            // If starting on nearby tab, begin location updates
+            if selectedTab == 0 {
+                locationManager.startLocationUpdates()
             }
         }
     }
@@ -412,10 +454,12 @@ struct StationSelectionView: View {
                                     Image(systemName: "exclamationmark.triangle.fill")
                                         .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
                                     Text(station.display)
+                                        .font(.custom("HelveticaNeue-Bold", size: 16))
                                         .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
                                 }
                                 else {
                                     Text(station.display)
+                                        .font(.custom("HelveticaNeue-Bold", size: 16))
                                         .foregroundColor(.white)
                                 }
                                 Spacer()
@@ -433,12 +477,12 @@ struct StationSelectionView: View {
             ToolbarItem(placement: .automatic) {
                 HStack {
                     Text(line.label)
-                        .font(.custom("HelveticaNeue-Bold", size: 26))
+                        .font(.custom("HelveticaNeue-Bold", size: 20))
                         .foregroundColor(line.fg_color)
-                        .frame(width: 40, height: 40)
+                        .frame(width: 30, height: 30)
                         .background(Circle().fill(line.bg_color))
                     Text("Select a station")
-                        .font(.custom("HelveticaNeue-Bold", size: 18))
+                        .font(.custom("HelveticaNeue-Bold", size: 16))
                 }
             }
         }
@@ -448,23 +492,51 @@ struct StationSelectionView: View {
 struct TerminalSelectionView: View {
     let line: SubwayLine
     let stations: [Station]
-    let onSelect: (Station) -> Void
+    let onSelect: (Station, String) -> Void  // Updated to include direction
     
-    var terminals: [Station] {
-        guard stations.count > 1 else { return stations }
-        return [stations.first!, stations.last!]
+    var terminals: [(station: Station, direction: String, description: String)] {
+        guard stations.count > 1 else {
+            // If only one station, still provide both directions if available
+            if let station = stations.first {
+                return [
+                    (station: station, direction: "N", description: DirectionHelper.getToDestination(for: line.id, direction: "N")),
+                    (station: station, direction: "S", description: DirectionHelper.getToDestination(for: line.id, direction: "S"))
+                ]
+            }
+            return []
+        }
+        
+        // Use first and last stations as terminals
+        let terminals: [(station: Station, direction: String, description: String)] = [
+            (station: stations.first!, direction: "N", description: DirectionHelper.getToDestination(for: line.id, direction: "N")),
+            (station: stations.last!, direction: "S", description: DirectionHelper.getToDestination(for: line.id, direction: "S"))
+        ]
+        
+        return terminals
     }
     
     var body: some View {
-        List(terminals) { terminal in
+        List(terminals, id: \.station.id) { terminal in
             Button(action: {
                 // Trigger haptic feedback
                 WKInterfaceDevice.current().play(.start)
-
-                onSelect(terminal) }) {
-                Text(terminal.display)
-                    .foregroundColor(.white)
+                
+                onSelect(terminal.station, terminal.direction)
+            }) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(terminal.station.display)
+                        .font(.custom("HelveticaNeue-Bold", size: 16))
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.leading)
+                    
+                    Text(terminal.description)
+                        .font(.custom("HelveticaNeue", size: 14))
+                        .foregroundColor(.gray)
+                        .multilineTextAlignment(.leading)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
+            .buttonStyle(PlainButtonStyle())
         }
         .listStyle(.plain)
         .navigationBarTitleDisplayMode(.inline)
@@ -472,12 +544,12 @@ struct TerminalSelectionView: View {
             ToolbarItem(placement: .automatic) {
                 HStack {
                     Text(line.label)
-                        .font(.custom("HelveticaNeue-Bold", size: 26))
+                        .font(.custom("HelveticaNeue-Bold", size: 20))
                         .foregroundColor(line.fg_color)
-                        .frame(width: 40, height: 40)
+                        .frame(width: 30, height: 30)
                         .background(Circle().fill(line.bg_color))
-                    Text("Select terminal station")
-                        .font(.custom("HelveticaNeue-Bold", size: 18))
+                    Text("Select direction")
+                        .font(.custom("HelveticaNeue-Bold", size: 16))
                 }
             }
         }

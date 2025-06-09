@@ -10,8 +10,6 @@
 		<string>CLKComplicationFamilyGraphicBezel</string>
 		<string>CLKComplicationFamilyGraphicRectangular</string>
 	</array>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
 	<key>WKApplication</key>
 	<true/>
 </dict>
