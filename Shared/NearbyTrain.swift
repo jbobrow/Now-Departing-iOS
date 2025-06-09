@@ -38,18 +38,23 @@ struct NearbyTrain: Identifiable, Equatable {
     }
     
     // Get live time text with current time for precise countdown
-    func getLiveTimeText(currentTime: Date) -> String {
+    func getLiveTimeText(currentTime: Date, fullText: Bool = false) -> String {
         let timeInterval = arrivalTime.timeIntervalSince(currentTime)
         let totalSeconds = max(0, Int(timeInterval))
         let minutes = totalSeconds / 60
         let seconds = totalSeconds % 60
         
-        if totalSeconds <= 0 {
+        if totalSeconds <= 30 {
             return "Now"
         } else if totalSeconds < 60 {
             return "Soon"
         } else {
-            return "\(minutes)m"
+            if(fullText) {
+                return "\(minutes) min"
+            }
+            else {
+                return "\(minutes)m"
+            }
         }
     }
     

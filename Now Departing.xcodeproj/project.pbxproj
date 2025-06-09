@@ -7,37 +7,27 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2BD7AADC2D222C3600A4B788 /* Now Departing Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 2BD7AADB2D222C3600A4B788 /* Now Departing Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		2B687C2D2DF67DBF007741D8 /* Now Departing Watch Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 2B687C232DF67DBE007741D8 /* Now Departing Watch Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		2BD7AADD2D222C3600A4B788 /* PBXContainerItemProxy */ = {
+		2B687C2B2DF67DBF007741D8 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 2BD7AACF2D222C3500A4B788 /* Project object */;
+			containerPortal = 2B687C092DF67CD0007741D8 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 2BD7AADA2D222C3600A4B788;
-			remoteInfo = "Now Departing Watch App";
+			remoteGlobalIDString = 2B687C222DF67DBE007741D8;
+			remoteInfo = "Now Departing Watch Watch App";
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		2B9455712D4DDC4300154649 /* Embed Foundation Extensions */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-			);
-			name = "Embed Foundation Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		2BD7AAEE2D222C3700A4B788 /* Embed Watch Content */ = {
+		2B687C312DF67DBF007741D8 /* Embed Watch Content */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
 			dstSubfolderSpec = 16;
 			files = (
-				2BD7AADC2D222C3600A4B788 /* Now Departing Watch App.app in Embed Watch Content */,
+				2B687C2D2DF67DBF007741D8 /* Now Departing Watch Watch App.app in Embed Watch Content */,
 			);
 			name = "Embed Watch Content";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -45,22 +35,50 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		2B94555E2D4DDC4200154649 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
-		2B9455602D4DDC4200154649 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
-		2BD7AAD52D222C3500A4B788 /* Now Departing.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Now Departing.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		2BD7AADB2D222C3600A4B788 /* Now Departing Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Now Departing Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		2B687C112DF67CD0007741D8 /* Now Departing.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Now Departing.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		2B687C232DF67DBE007741D8 /* Now Departing Watch Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Now Departing Watch Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		2B687C5E2DF6828C007741D8 /* Exceptions for "Shared" folder in "Now Departing" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				TimesViewModel.swift,
+			);
+			target = 2B687C102DF67CD0007741D8 /* Now Departing */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		2BD7AADF2D222C3600A4B788 /* Now Departing Watch App */ = {
+		2B687C132DF67CD0007741D8 /* Now Departing */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "Now Departing Watch App";
+			path = "Now Departing";
+			sourceTree = "<group>";
+		};
+		2B687C242DF67DBE007741D8 /* Now Departing Watch Watch app */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "Now Departing Watch Watch app";
+			sourceTree = "<group>";
+		};
+		2B687C532DF68035007741D8 /* Shared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				2B687C5E2DF6828C007741D8 /* Exceptions for "Shared" folder in "Now Departing" target */,
+			);
+			path = Shared;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		2BD7AAD82D222C3600A4B788 /* Frameworks */ = {
+		2B687C0E2DF67CD0007741D8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2B687C202DF67DBE007741D8 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -70,29 +88,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		2B94555D2D4DDC4200154649 /* Frameworks */ = {
+		2B687C082DF67CD0007741D8 = {
 			isa = PBXGroup;
 			children = (
-				2B94555E2D4DDC4200154649 /* WidgetKit.framework */,
-				2B9455602D4DDC4200154649 /* SwiftUI.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		2BD7AACE2D222C3500A4B788 = {
-			isa = PBXGroup;
-			children = (
-				2BD7AADF2D222C3600A4B788 /* Now Departing Watch App */,
-				2B94555D2D4DDC4200154649 /* Frameworks */,
-				2BD7AAD62D222C3500A4B788 /* Products */,
+				2B687C132DF67CD0007741D8 /* Now Departing */,
+				2B687C242DF67DBE007741D8 /* Now Departing Watch Watch app */,
+				2B687C122DF67CD0007741D8 /* Products */,
+				2B687C532DF68035007741D8 /* Shared */,
 			);
 			sourceTree = "<group>";
 		};
-		2BD7AAD62D222C3500A4B788 /* Products */ = {
+		2B687C122DF67CD0007741D8 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				2BD7AAD52D222C3500A4B788 /* Now Departing.app */,
-				2BD7AADB2D222C3600A4B788 /* Now Departing Watch App.app */,
+				2B687C112DF67CD0007741D8 /* Now Departing.app */,
+				2B687C232DF67DBE007741D8 /* Now Departing Watch Watch App.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -100,95 +110,101 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		2BD7AAD42D222C3500A4B788 /* Now Departing */ = {
+		2B687C102DF67CD0007741D8 /* Now Departing */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 2BD7AAEF2D222C3700A4B788 /* Build configuration list for PBXNativeTarget "Now Departing" */;
+			buildConfigurationList = 2B687C1C2DF67CD1007741D8 /* Build configuration list for PBXNativeTarget "Now Departing" */;
 			buildPhases = (
-				2BD7AAD32D222C3500A4B788 /* Resources */,
-				2BD7AAEE2D222C3700A4B788 /* Embed Watch Content */,
+				2B687C0D2DF67CD0007741D8 /* Sources */,
+				2B687C0E2DF67CD0007741D8 /* Frameworks */,
+				2B687C0F2DF67CD0007741D8 /* Resources */,
+				2B687C312DF67DBF007741D8 /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				2BD7AADE2D222C3600A4B788 /* PBXTargetDependency */,
+				2B687C2C2DF67DBF007741D8 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				2B687C132DF67CD0007741D8 /* Now Departing */,
+				2B687C532DF68035007741D8 /* Shared */,
 			);
 			name = "Now Departing";
 			packageProductDependencies = (
 			);
 			productName = "Now Departing";
-			productReference = 2BD7AAD52D222C3500A4B788 /* Now Departing.app */;
-			productType = "com.apple.product-type.application.watchapp2-container";
+			productReference = 2B687C112DF67CD0007741D8 /* Now Departing.app */;
+			productType = "com.apple.product-type.application";
 		};
-		2BD7AADA2D222C3600A4B788 /* Now Departing Watch App */ = {
+		2B687C222DF67DBE007741D8 /* Now Departing Watch Watch App */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 2BD7AAEB2D222C3700A4B788 /* Build configuration list for PBXNativeTarget "Now Departing Watch App" */;
+			buildConfigurationList = 2B687C2E2DF67DBF007741D8 /* Build configuration list for PBXNativeTarget "Now Departing Watch Watch App" */;
 			buildPhases = (
-				2BD7AAD72D222C3600A4B788 /* Sources */,
-				2BD7AAD82D222C3600A4B788 /* Frameworks */,
-				2BD7AAD92D222C3600A4B788 /* Resources */,
-				2B9455712D4DDC4300154649 /* Embed Foundation Extensions */,
+				2B687C1F2DF67DBE007741D8 /* Sources */,
+				2B687C202DF67DBE007741D8 /* Frameworks */,
+				2B687C212DF67DBE007741D8 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				2BD7AADF2D222C3600A4B788 /* Now Departing Watch App */,
+				2B687C242DF67DBE007741D8 /* Now Departing Watch Watch app */,
+				2B687C532DF68035007741D8 /* Shared */,
 			);
-			name = "Now Departing Watch App";
+			name = "Now Departing Watch Watch App";
 			packageProductDependencies = (
 			);
-			productName = "Now Departing Watch App";
-			productReference = 2BD7AADB2D222C3600A4B788 /* Now Departing Watch App.app */;
+			productName = "Now Departing Watch Watch App";
+			productReference = 2B687C232DF67DBE007741D8 /* Now Departing Watch Watch App.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		2BD7AACF2D222C3500A4B788 /* Project object */ = {
+		2B687C092DF67CD0007741D8 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1620;
-				LastUpgradeCheck = 1620;
+				LastSwiftUpdateCheck = 1640;
+				LastUpgradeCheck = 1640;
 				TargetAttributes = {
-					2BD7AAD42D222C3500A4B788 = {
-						CreatedOnToolsVersion = 16.2;
+					2B687C102DF67CD0007741D8 = {
+						CreatedOnToolsVersion = 16.4;
 					};
-					2BD7AADA2D222C3600A4B788 = {
-						CreatedOnToolsVersion = 16.2;
+					2B687C222DF67DBE007741D8 = {
+						CreatedOnToolsVersion = 16.4;
 					};
 				};
 			};
-			buildConfigurationList = 2BD7AAD22D222C3500A4B788 /* Build configuration list for PBXProject "Now Departing" */;
+			buildConfigurationList = 2B687C0C2DF67CD0007741D8 /* Build configuration list for PBXProject "Now Departing" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
 			);
-			mainGroup = 2BD7AACE2D222C3500A4B788;
+			mainGroup = 2B687C082DF67CD0007741D8;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 2BD7AAD62D222C3500A4B788 /* Products */;
+			productRefGroup = 2B687C122DF67CD0007741D8 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				2BD7AAD42D222C3500A4B788 /* Now Departing */,
-				2BD7AADA2D222C3600A4B788 /* Now Departing Watch App */,
+				2B687C102DF67CD0007741D8 /* Now Departing */,
+				2B687C222DF67DBE007741D8 /* Now Departing Watch Watch App */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		2BD7AAD32D222C3500A4B788 /* Resources */ = {
+		2B687C0F2DF67CD0007741D8 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		2BD7AAD92D222C3600A4B788 /* Resources */ = {
+		2B687C212DF67DBE007741D8 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -198,7 +214,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		2BD7AAD72D222C3600A4B788 /* Sources */ = {
+		2B687C0D2DF67CD0007741D8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2B687C1F2DF67DBE007741D8 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -208,15 +231,15 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		2BD7AADE2D222C3600A4B788 /* PBXTargetDependency */ = {
+		2B687C2C2DF67DBF007741D8 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 2BD7AADA2D222C3600A4B788 /* Now Departing Watch App */;
-			targetProxy = 2BD7AADD2D222C3600A4B788 /* PBXContainerItemProxy */;
+			target = 2B687C222DF67DBE007741D8 /* Now Departing Watch Watch App */;
+			targetProxy = 2B687C2B2DF67DBF007741D8 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		2BD7AAE92D222C3700A4B788 /* Debug */ = {
+		2B687C1A2DF67CD1007741D8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -251,6 +274,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 63KWA2RPU8;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -268,16 +292,18 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
-		2BD7AAEA2D222C3700A4B788 /* Release */ = {
+		2B687C1B2DF67CD1007741D8 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -312,6 +338,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 63KWA2RPU8;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -323,36 +350,100 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
 		};
-		2BD7AAEC2D222C3700A4B788 /* Debug */ = {
+		2B687C1D2DF67CD1007741D8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"Now Departing Watch App/Preview Content\"";
 				DEVELOPMENT_TEAM = 63KWA2RPU8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Now-Departing-Watch-App-Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Now Departing";
-				INFOPLIST_KEY_CLKComplicationPrincipalClass = Now_Departing_Watch_App.ComplicationController;
-				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "This app uses your location to show nearby subway departure times.";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				INFOPLIST_KEY_WKWatchOnly = YES;
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "This app needs location access to show nearby subway stations and train arrival times.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "This app needs location access to show nearby subway stations and train arrival times.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.4.1;
+				MARKETING_VERSION = 1.5;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.move38.Now-Departing";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		2B687C1E2DF67CD1007741D8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 63KWA2RPU8;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "This app needs location access to show nearby subway stations and train arrival times.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "This app needs location access to show nearby subway stations and train arrival times.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.5;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.move38.Now-Departing";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		2B687C2F2DF67DBF007741D8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 63KWA2RPU8;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Now-Departing-Watch-Watch-App-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Now Departing";
+				INFOPLIST_KEY_CLKComplicationPrincipalClass = "$(PRODUCT_MODULE_NAME).ComplicationController";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "This app needs location access to show nearby subway stations and train arrival times.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "This app needs location access to show nearby subway stations and train arrival times.";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = "com.move38.Now-Departing";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.5;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.move38.Now-Departing.watchkitapp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -364,29 +455,28 @@
 			};
 			name = Debug;
 		};
-		2BD7AAED2D222C3700A4B788 /* Release */ = {
+		2B687C302DF67DBF007741D8 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"Now Departing Watch App/Preview Content\"";
 				DEVELOPMENT_TEAM = 63KWA2RPU8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Now-Departing-Watch-App-Info.plist";
+				INFOPLIST_FILE = "Now-Departing-Watch-Watch-App-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Now Departing";
-				INFOPLIST_KEY_CLKComplicationPrincipalClass = Now_Departing_Watch_App.ComplicationController;
-				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "This app uses your location to show nearby subway departure times.";
+				INFOPLIST_KEY_CLKComplicationPrincipalClass = "$(PRODUCT_MODULE_NAME).ComplicationController";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "This app needs location access to show nearby subway stations and train arrival times.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "This app needs location access to show nearby subway stations and train arrival times.";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				INFOPLIST_KEY_WKWatchOnly = YES;
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = "com.move38.Now-Departing";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.4.1;
+				MARKETING_VERSION = 1.5;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.move38.Now-Departing.watchkitapp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -394,73 +484,41 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				VALIDATE_PRODUCT = YES;
 				WATCHOS_DEPLOYMENT_TARGET = 10.6;
-			};
-			name = Release;
-		};
-		2BD7AAF02D222C3700A4B788 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 63KWA2RPU8;
-				INFOPLIST_KEY_CFBundleDisplayName = "Now Departing";
-				MARKETING_VERSION = 1.4.1;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.move38.Now-Departing";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SWIFT_VERSION = 5.0;
-			};
-			name = Debug;
-		};
-		2BD7AAF12D222C3700A4B788 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 63KWA2RPU8;
-				INFOPLIST_KEY_CFBundleDisplayName = "Now Departing";
-				MARKETING_VERSION = 1.4.1;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.move38.Now-Departing";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SWIFT_VERSION = 5.0;
-				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		2BD7AAD22D222C3500A4B788 /* Build configuration list for PBXProject "Now Departing" */ = {
+		2B687C0C2DF67CD0007741D8 /* Build configuration list for PBXProject "Now Departing" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				2BD7AAE92D222C3700A4B788 /* Debug */,
-				2BD7AAEA2D222C3700A4B788 /* Release */,
+				2B687C1A2DF67CD1007741D8 /* Debug */,
+				2B687C1B2DF67CD1007741D8 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		2BD7AAEB2D222C3700A4B788 /* Build configuration list for PBXNativeTarget "Now Departing Watch App" */ = {
+		2B687C1C2DF67CD1007741D8 /* Build configuration list for PBXNativeTarget "Now Departing" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				2BD7AAEC2D222C3700A4B788 /* Debug */,
-				2BD7AAED2D222C3700A4B788 /* Release */,
+				2B687C1D2DF67CD1007741D8 /* Debug */,
+				2B687C1E2DF67CD1007741D8 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		2BD7AAEF2D222C3700A4B788 /* Build configuration list for PBXNativeTarget "Now Departing" */ = {
+		2B687C2E2DF67DBF007741D8 /* Build configuration list for PBXNativeTarget "Now Departing Watch Watch App" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				2BD7AAF02D222C3700A4B788 /* Debug */,
-				2BD7AAF12D222C3700A4B788 /* Release */,
+				2B687C2F2DF67DBF007741D8 /* Debug */,
+				2B687C302DF67DBF007741D8 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 2BD7AACF2D222C3500A4B788 /* Project object */;
+	rootObject = 2B687C092DF67CD0007741D8 /* Project object */;
 }
