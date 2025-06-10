@@ -5,14 +5,6 @@
 //  Created by Jonathan Bobrow on 6/8/25.
 //
 
-
-//
-//  NearbyView.swift
-//  Now Departing
-//
-//  Created by Jonathan Bobrow on 6/8/25.
-//
-
 import SwiftUI
 import CoreLocation
 
@@ -45,32 +37,57 @@ struct NearbyView: View {
         .onAppear {
             if !hasAppeared {
                 hasAppeared = true
-                
-                // Add small delay to avoid initialization issues
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    nearbyTrainsManager.updateStationDataManager(stationDataManager)
-                    
-                    print("DEBUG: Location enabled: \(locationManager.isLocationEnabled)")
-                    print("DEBUG: Authorization status: \(locationManager.authorizationStatus.rawValue)")
-                    print("DEBUG: Current location: \(locationManager.location?.description ?? "nil")")
-                    
-                    // Request permission if not determined
-                    if locationManager.authorizationStatus == .notDetermined {
-                        print("DEBUG: Requesting location permission")
-                        locationManager.requestLocationPermission()
-                    } else if locationManager.authorizationStatus == .authorizedWhenInUse && locationManager.location == nil {
-                        print("DEBUG: Permission granted but no location, requesting update")
-                        locationManager.requestOneTimeUpdate()
-                    }
-                }
+                setupInitialState()
+            }
+        }
+        .onChange(of: locationManager.authorizationStatus) { oldStatus, newStatus in
+            print("DEBUG: Authorization status changed from \(oldStatus.rawValue) to \(newStatus.rawValue)")
+            if newStatus == .authorizedWhenInUse || newStatus == .authorizedAlways {
+                // Request location immediately after permission is granted
+                locationManager.requestOneTimeUpdate()
             }
         }
         .onChange(of: locationManager.location) { oldLocation, newLocation in
             print("DEBUG: Location changed from \(oldLocation?.description ?? "nil") to \(newLocation?.description ?? "nil")")
             if let location = newLocation {
-                nearbyTrainsManager.startFetching(location: location)
+                startFetchingWithLocation(location)
             }
         }
+    }
+    
+    private func setupInitialState() {
+        // Small delay to avoid initialization issues
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            nearbyTrainsManager.updateStationDataManager(stationDataManager)
+            
+            print("DEBUG: Location enabled: \(locationManager.isLocationEnabled)")
+            print("DEBUG: Authorization status: \(locationManager.authorizationStatus.rawValue)")
+            print("DEBUG: Current location: \(locationManager.location?.description ?? "nil")")
+            
+            // Handle different authorization states
+            switch locationManager.authorizationStatus {
+            case .notDetermined:
+                print("DEBUG: Requesting location permission")
+                locationManager.requestLocationPermission()
+                
+            case .authorizedWhenInUse, .authorizedAlways:
+                if let location = locationManager.location {
+                    print("DEBUG: Starting initial fetch with existing location")
+                    startFetchingWithLocation(location)
+                } else {
+                    print("DEBUG: Permission granted but no location, requesting update")
+                    locationManager.requestOneTimeUpdate()
+                }
+                
+            default:
+                break
+            }
+        }
+    }
+    
+    private func startFetchingWithLocation(_ location: CLLocation) {
+        print("DEBUG: Starting fetch with location: \(location)")
+        nearbyTrainsManager.startFetching(location: location)
     }
     
     @ViewBuilder
@@ -80,50 +97,123 @@ struct NearbyView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if let error = locationManager.locationError {
             ErrorView(message: error) {
+                print("DEBUG: Retrying location from error view")
                 locationManager.retryLocation()
             }
-        } else if nearbyTrainsManager.isLoading && nearbyTrainsManager.nearbyTrains.isEmpty {
-            ProgressView("Loading nearby trains...")
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if !nearbyTrainsManager.errorMessage.isEmpty {
             ErrorView(message: nearbyTrainsManager.errorMessage) {
-                if let location = locationManager.location {
-                    nearbyTrainsManager.startFetching(location: location)
-                }
+                print("DEBUG: Retrying fetch from error view")
+                retryFetch()
             }
-        } else if nearbyTrainsManager.nearbyTrains.isEmpty {
-            EmptyStateView()
         } else {
             TrainsList()
         }
     }
     
+    private func retryFetch() {
+        if let location = locationManager.location {
+            startFetchingWithLocation(location)
+        } else {
+            print("DEBUG: No location available for retry, requesting location update")
+            locationManager.requestOneTimeUpdate()
+        }
+    }
+    
     @ViewBuilder
     func TrainsList() -> some View {
-        List {
-            ForEach(groupTrainsByStation(), id: \.stationId) { group in
+        if nearbyTrainsManager.nearbyTrains.isEmpty && !nearbyTrainsManager.isLoading {
+            // Show empty state but wrapped in a List for pull-to-refresh
+            List {
                 Section {
-                    ForEach(group.trainsByLineAndDirection, id: \.lineDirectionId) { item in
-                        ConsolidatedTrainRow(
-                            primaryTrain: item.trains[0],
-                            additionalTrains: Array(item.trains.dropFirst()),
-                            line: item.line
-                        )
+                    EmptyStateContent()
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+                }
+            }
+            .listStyle(.plain)
+            .refreshable {
+                print("DEBUG: Pull to refresh triggered on empty state")
+                await performRefreshWithText()
+            }
+        } else {
+            ZStack(alignment: .top) {
+                List {
+                    // Train data sections
+                    ForEach(groupTrainsByStation(), id: \.stationId) { group in
+                        Section {
+                            ForEach(group.trainsByLineAndDirection, id: \.lineDirectionId) { item in
+                                ConsolidatedTrainRow(
+                                    primaryTrain: item.trains[0],
+                                    additionalTrains: Array(item.trains.dropFirst()),
+                                    line: item.line
+                                )
+                            }
+                        } header: {
+                            StationHeader(
+                                stationDisplay: group.stationDisplay,
+                                distanceText: group.distanceText
+                            )
+                        }
                     }
-                } header: {
-                    StationHeader(
-                        stationDisplay: group.stationDisplay,
-                        distanceText: group.distanceText
-                    )
+                }
+                .listStyle(.plain)
+                .refreshable {
+                    print("DEBUG: Pull to refresh triggered on populated list")
+                    await performRefreshWithText()
+                }
+                
+                // Overlay text that appears during refresh, positioned right under the spinner
+                if nearbyTrainsManager.isLoading {
+                    VStack {
+                        Text("Loading nearby trains...")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.secondary)
+                            .transition(.opacity.combined(with: .move(edge: .top)))
+                        
+                        Spacer()
+                    }
+                    .animation(.easeInOut(duration: 0.3), value: nearbyTrainsManager.isLoading)
                 }
             }
         }
-        .listStyle(.plain)
-        .refreshable {
+    }
+
+    @MainActor
+    private func performRefreshWithText() async {
+        // Very small delay to let the native spinner appear first
+        try? await Task.sleep(for: .milliseconds(100))
+        
+        if let location = locationManager.location {
+            print("DEBUG: Refreshing with existing location: \(location)")
+            startFetchingWithLocation(location)
+            
+            // Wait for the actual network request to complete
+            // The native refreshable will keep the spinner visible until this function returns
+            while nearbyTrainsManager.isLoading {
+                try? await Task.sleep(for: .milliseconds(100))
+            }
+        } else {
+            print("DEBUG: No location for refresh, requesting new location")
+            locationManager.requestOneTimeUpdate()
+            
+            // Wait a bit for location to be updated
+            try? await Task.sleep(for: .seconds(2))
+            
             if let location = locationManager.location {
-                nearbyTrainsManager.startFetching(location: location)
+                print("DEBUG: Got location after waiting: \(location)")
+                startFetchingWithLocation(location)
+                
+                // Wait for completion
+                while nearbyTrainsManager.isLoading {
+                    try? await Task.sleep(for: .milliseconds(100))
+                }
+            } else {
+                print("DEBUG: Still no location after waiting")
             }
         }
+        
+        // Small delay to ensure smooth dismissal animation
+        try? await Task.sleep(for: .milliseconds(200))
     }
 
     // Add this helper view
@@ -377,10 +467,11 @@ struct ErrorView: View {
     }
 }
 
-struct EmptyStateView: View {
+struct EmptyStateContent: View {
     var body: some View {
         VStack(spacing: 24) {
             Spacer()
+                .frame(height: 60)
             
             // Icon
             ZStack {
@@ -406,6 +497,7 @@ struct EmptyStateView: View {
             }
             
             Spacer()
+                .frame(height: 40)
             
             VStack(spacing: 16) {
                 Image(systemName: "arrow.down")
@@ -420,8 +512,7 @@ struct EmptyStateView: View {
             Spacer()
                 .frame(height: 60)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(UIColor.systemBackground))
+        .frame(maxWidth: .infinity)
     }
 }
 
