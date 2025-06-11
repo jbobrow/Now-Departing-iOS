@@ -17,10 +17,11 @@ struct ContentView: View {
             if isReady {
                 NearbyView(
                     onLocationRequested: {
-                        // Only request location when user actively wants it
                         print("DEBUG: User requested location access")
                         locationManager.requestLocationPermission()
                         locationManager.startLocationUpdates()
+                        // NEW: Remember user's choice for future launches
+                        locationManager.hasUserEnabledLocation = true
                     }
                 )
                 .environmentObject(locationManager)
@@ -37,9 +38,14 @@ struct ContentView: View {
             }
         }
         .onAppear {
-            // Just initialize without requesting location
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                print("DEBUG: App ready - location will be requested when needed")
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                // NEW: Smart loading - if user previously enabled location, start immediately
+                if locationManager.hasUserEnabledLocation && locationManager.isLocationEnabled {
+                    print("DEBUG: User previously enabled location, starting immediately for instant results")
+                    locationManager.startLocationUpdates()
+                } else {
+                    print("DEBUG: App ready - location will be requested when needed")
+                }
                 isReady = true
             }
         }

@@ -71,17 +71,22 @@ struct NearbyView: View {
             print("DEBUG: Location enabled: \(locationManager.isLocationEnabled)")
             print("DEBUG: Authorization status: \(locationManager.authorizationStatus.rawValue)")
             print("DEBUG: Current location: \(locationManager.location?.description ?? "nil")")
+            print("DEBUG: Has user enabled location: \(locationManager.hasUserEnabledLocation)")
             
-            // Handle different authorization states - but DON'T auto-request permission
+            // Handle different authorization states
             switch locationManager.authorizationStatus {
             case .notDetermined:
-                print("DEBUG: Location permission not determined - waiting for user action")
-                // DON'T automatically request permission here
-                // locationManager.requestLocationPermission() // REMOVED
+                // Check if user previously enabled location
+                if locationManager.hasUserEnabledLocation {
+                    print("DEBUG: User previously enabled location but permission needs refresh")
+                    // Could show different prompt here if needed
+                } else {
+                    print("DEBUG: Location permission not determined - waiting for user action")
+                }
                 
             case .authorizedWhenInUse, .authorizedAlways:
                 if let location = locationManager.location {
-                    print("DEBUG: Starting initial fetch with existing location")
+                    print("DEBUG: Starting initial fetch with existing location (possibly cached)")
                     startFetchingWithLocation(location)
                 } else {
                     print("DEBUG: Permission granted but no location, requesting update")
@@ -102,9 +107,32 @@ struct NearbyView: View {
     
     @ViewBuilder
     func AuthorizedView() -> some View {
-        if locationManager.isSearchingForLocation {
-            ProgressView("Finding your location...")
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        if nearbyTrainsManager.nearbyTrains.isEmpty && nearbyTrainsManager.isLoading {
+            // Show loading, but with different message if we're getting fresh location vs using cached
+            VStack(spacing: 16) {
+                ProgressView()
+                    .scaleEffect(1.2)
+                
+                Text(locationManager.isSearchingForLocation ?
+                     "Finding your location..." :
+                     "Loading nearby trains...")
+                    .font(.headline)
+                    .foregroundColor(.secondary)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else if nearbyTrainsManager.nearbyTrains.isEmpty && !nearbyTrainsManager.isLoading && !locationManager.isSearchingForLocation {
+            // Empty state - but this should be rare with cached data
+            List {
+                Section {
+                    EmptyStateContent()
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+                }
+            }
+            .listStyle(.plain)
+            .refreshable {
+                await performRefreshWithText()
+            }
         } else if let error = locationManager.locationError {
             ErrorView(message: error) {
                 print("DEBUG: Retrying location from error view")

@@ -16,10 +16,55 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var locationError: String?
     @Published var isSearchingForLocation: Bool = false
     
+    // NEW: iOS-specific user preference tracking
+    @Published private var _hasUserEnabledLocation: Bool = false
+    
+    var hasUserEnabledLocation: Bool {
+        get {
+            #if os(iOS)
+            return UserDefaults.standard.bool(forKey: "hasUserEnabledLocation_iOS")
+            #else
+            return true // watchOS always assumes enabled for simplicity
+            #endif
+        }
+        set {
+            #if os(iOS)
+            UserDefaults.standard.set(newValue, forKey: "hasUserEnabledLocation_iOS")
+            _hasUserEnabledLocation = newValue // Trigger @Published updates
+            #endif
+        }
+    }
+    
     private let locationManager = CLLocationManager()
     private var locationTimeout: Timer?
     private var updateTimer: Timer?
     private var isActivelyTracking = false
+    
+    // NEW: Cached location for instant loading on iOS
+    private var cachedLocation: CLLocation? {
+        get {
+            #if os(iOS)
+            guard let data = UserDefaults.standard.data(forKey: "cachedLocation_iOS"),
+                  let location = try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as? CLLocation else {
+                return nil
+            }
+            // Only use cached location if it's less than 1 hour old
+            return Date().timeIntervalSince(location.timestamp) < 3600 ? location : nil
+            #else
+            return nil // watchOS doesn't use cached locations
+            #endif
+        }
+        set {
+            #if os(iOS)
+            if let location = newValue {
+                let data = try? NSKeyedArchiver.archivedData(withRootObject: location, requiringSecureCoding: true)
+                UserDefaults.standard.set(data, forKey: "cachedLocation_iOS")
+            } else {
+                UserDefaults.standard.removeObject(forKey: "cachedLocation_iOS")
+            }
+            #endif
+        }
+    }
     
     override init() {
         super.init()
@@ -27,6 +72,24 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         // Better settings for mobile use (biking, walking, etc.)
         locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters // More precise for movement
         locationManager.distanceFilter = 50 // Update more frequently when moving (50m instead of 100m)
+        
+        authorizationStatus = locationManager.authorizationStatus
+        isLocationEnabled = (authorizationStatus == .authorizedWhenInUse || authorizationStatus == .authorizedAlways)
+        
+        // Initialize the preference tracking
+        #if os(iOS)
+        _hasUserEnabledLocation = UserDefaults.standard.bool(forKey: "hasUserEnabledLocation_iOS")
+        #endif
+        
+        // NEW: Load cached location immediately on iOS if user previously enabled
+        #if os(iOS)
+        if hasUserEnabledLocation && isLocationEnabled {
+            location = cachedLocation
+            if let cached = cachedLocation {
+                print("DEBUG: Loaded cached location immediately: \(cached)")
+            }
+        }
+        #endif
     }
     
     func requestLocationPermission() {
@@ -39,10 +102,18 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             return
         }
         
-        // print("DEBUG: Starting location updates")
+        print("DEBUG: Starting location updates")
         
         // Clear any existing error state
         locationError = nil
+        
+        // NEW: On iOS, if we have cached location, use it immediately
+        #if os(iOS)
+        if let cached = cachedLocation {
+            location = cached
+            print("DEBUG: Using cached location for instant results")
+        }
+        #endif
         
         // Only show searching if we don't have a recent location
         if location == nil || abs(location!.timestamp.timeIntervalSinceNow) > 300 { // 5 minutes old
@@ -71,7 +142,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
     
     func stopLocationUpdates() {
-        // print("DEBUG: Stopping location updates")
+        print("DEBUG: Stopping location updates")
         isActivelyTracking = false
         isSearchingForLocation = false
         locationManager.stopUpdatingLocation()
@@ -90,7 +161,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             return
         }
         
-        // print("DEBUG: Requesting periodic location update")
+        print("DEBUG: Requesting periodic location update")
         
         // Reset timeout for each update attempt - more generous for mobile
         locationTimeout?.invalidate()
@@ -103,7 +174,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
     
     private func handleLocationTimeout() {
-        // print("DEBUG: Location timeout - initial")
+        print("DEBUG: Location timeout - initial")
         if location == nil && isSearchingForLocation {
             locationError = "Unable to find your location. Please ensure location services are enabled and try again."
             isSearchingForLocation = false
@@ -111,7 +182,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
     
     private func handlePeriodicTimeout() {
-        // print("DEBUG: Location timeout - periodic")
+        print("DEBUG: Location timeout - periodic")
         // For periodic timeouts, be more lenient - don't show error if we have a reasonably recent location
         if location == nil || abs(location!.timestamp.timeIntervalSinceNow) > 600 { // Only error if no location or very old (10 minutes)
             locationError = "Unable to update your location. Please try again."
@@ -121,7 +192,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
     
     func retryLocation() {
-        // print("DEBUG: Retrying location")
+        print("DEBUG: Retrying location")
         guard isLocationEnabled else {
             requestLocationPermission()
             return
@@ -142,7 +213,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             return
         }
         
-        // print("DEBUG: Requesting one-time location update")
+        print("DEBUG: Requesting one-time location update")
         
         // If we don't have a location yet, show searching indicator
         if location == nil {
@@ -168,7 +239,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         
         // Allow older locations when moving (up to 60 seconds) and be more lenient with accuracy
         if age > 60 || newLocation.horizontalAccuracy > 2000 || newLocation.horizontalAccuracy < 0 {
-            // print("DEBUG: Filtering out location - age: \(age), accuracy: \(newLocation.horizontalAccuracy)")
+            print("DEBUG: Filtering out location - age: \(age), accuracy: \(newLocation.horizontalAccuracy)")
             return
         }
         
@@ -186,17 +257,22 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             let existingIsOld = existingAge > 120
             
             if !isSignificantlyNewer && !isMuchMoreAccurate && !existingIsOld {
-                // print("DEBUG: Keeping existing location - not significant improvement")
+                print("DEBUG: Keeping existing location - not significant improvement")
                 return
             }
         }
         
-        // print("DEBUG: Location updated: \(newLocation.coordinate.latitude), \(newLocation.coordinate.longitude), accuracy: \(newLocation.horizontalAccuracy)")
+        print("DEBUG: Location updated: \(newLocation.coordinate.latitude), \(newLocation.coordinate.longitude), accuracy: \(newLocation.horizontalAccuracy)")
         
         location = newLocation
         isSearchingForLocation = false
         locationError = nil
         locationTimeout?.invalidate()
+        
+        // NEW: Cache the location on iOS for next app launch
+        #if os(iOS)
+        cachedLocation = newLocation
+        #endif
         
         // Don't stop continuous updates if we're actively tracking
         if !isActivelyTracking {
@@ -205,7 +281,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        // print("DEBUG: Location error: \(error.localizedDescription)")
+        print("DEBUG: Location error: \(error.localizedDescription)")
         
         // Always clear the searching state on error
         isSearchingForLocation = false
@@ -248,7 +324,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         if isActivelyTracking && (location == nil || abs(location!.timestamp.timeIntervalSinceNow) > 300) {
             DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) { [weak self] in // Longer delay for retries
                 guard let self = self, self.isActivelyTracking else { return }
-                // print("DEBUG: Retrying after error")
+                print("DEBUG: Retrying after error")
                 self.requestPeriodicUpdate()
             }
         }
@@ -258,12 +334,21 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         authorizationStatus = manager.authorizationStatus
         isLocationEnabled = (authorizationStatus == .authorizedWhenInUse || authorizationStatus == .authorizedAlways)
         
-        // print("DEBUG: Location authorization changed to: \(authorizationStatus.rawValue)")
+        print("DEBUG: Location authorization changed to: \(authorizationStatus.rawValue)")
         
         if isLocationEnabled {
+            // NEW: On iOS, when permission is granted and user previously enabled, start immediately
+            #if os(iOS)
+            if hasUserEnabledLocation && isActivelyTracking {
+                startLocationUpdates()
+            } else if isActivelyTracking {
+                startLocationUpdates()
+            }
+            #else
             if isActivelyTracking {
                 startLocationUpdates()
             }
+            #endif
         } else {
             stopLocationUpdates()
             if authorizationStatus == .denied {
