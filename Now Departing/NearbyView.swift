@@ -14,6 +14,11 @@ struct NearbyView: View {
     @StateObject private var nearbyTrainsManager = NearbyTrainsManager(stationDataManager: StationDataManager())
     @State private var hasAppeared = false
     
+    // Callback for when location is requested
+    let onLocationRequested: () -> Void
+    
+    @State private var hasRequestedLocation = false
+    
     private func getLine(for id: String) -> SubwayLine? {
         return SubwayLinesData.allLines.first(where: { $0.id == id })
     }
@@ -22,7 +27,10 @@ struct NearbyView: View {
         Group {
             switch locationManager.authorizationStatus {
             case .notDetermined:
-                LocationPermissionView()
+                LocationPromptView(onLocationRequested: {
+                    hasRequestedLocation = true
+                    onLocationRequested()
+                })
                 
             case .denied, .restricted:
                 LocationDeniedView()
@@ -64,11 +72,12 @@ struct NearbyView: View {
             print("DEBUG: Authorization status: \(locationManager.authorizationStatus.rawValue)")
             print("DEBUG: Current location: \(locationManager.location?.description ?? "nil")")
             
-            // Handle different authorization states
+            // Handle different authorization states - but DON'T auto-request permission
             switch locationManager.authorizationStatus {
             case .notDetermined:
-                print("DEBUG: Requesting location permission")
-                locationManager.requestLocationPermission()
+                print("DEBUG: Location permission not determined - waiting for user action")
+                // DON'T automatically request permission here
+                // locationManager.requestLocationPermission() // REMOVED
                 
             case .authorizedWhenInUse, .authorizedAlways:
                 if let location = locationManager.location {
@@ -80,6 +89,7 @@ struct NearbyView: View {
                 }
                 
             default:
+                print("DEBUG: Location access denied or restricted")
                 break
             }
         }
@@ -357,29 +367,66 @@ struct NearbyView: View {
     }
 }
 
-// MARK: - Supporting Views
+// MARK: - Location Permission Views
 
-struct LocationPermissionView: View {
-    @EnvironmentObject var locationManager: LocationManager
+struct LocationPromptView: View {
+    let onLocationRequested: () -> Void
     
     var body: some View {
-        VStack(spacing: 20) {
-            Image(systemName: "location.fill")
-                .font(.system(size: 60))
-                .foregroundColor(.blue)
+        VStack(spacing: 24) {
+            Spacer()
             
-            Text("Location Access Required")
-                .font(.title2.bold())
-            
-            Text("We need your location to show nearby trains")
-                .multilineTextAlignment(.center)
-                .foregroundColor(.secondary)
-            
-            Button("Allow Location Access") {
-                locationManager.requestLocationPermission()
+            // Icon with subtle animation
+            ZStack {
+                Circle()
+                    .fill(Color.blue.opacity(0.1))
+                    .frame(width: 120, height: 120)
+                
+                Image(systemName: "location.circle.fill")
+                    .font(.system(size: 80))
+                    .foregroundColor(.blue)
+                    .symbolRenderingMode(.hierarchical)
             }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
+            
+            VStack(spacing: 16) {
+                Text("Find Nearby Trains")
+                    .font(.custom("HelveticaNeue-Bold", size: 32))
+                    .multilineTextAlignment(.center)
+                
+                Text("See real-time subway arrivals at stations near your current location")
+                    .font(.custom("HelveticaNeue", size: 18))
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .lineSpacing(4)
+                    .padding(.horizontal, 8)
+            }
+            
+            Spacer()
+            
+            VStack(spacing: 16) {
+                Button(action: onLocationRequested) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "location.fill")
+                        Text("Enable Location")
+                    }
+                    .font(.custom("HelveticaNeue-Bold", size: 18))
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(Color.blue)
+                    .cornerRadius(14)
+                }
+                
+                Text("Location data is only used to find nearby stations and is not stored or shared")
+                    .font(.custom("HelveticaNeue", size: 14))
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 8)
+            }
+            .padding(.horizontal, 24)
+            
+            Spacer()
+                .frame(height: 40)
         }
         .padding()
     }
@@ -387,25 +434,56 @@ struct LocationPermissionView: View {
 
 struct LocationDeniedView: View {
     var body: some View {
-        VStack(spacing: 20) {
-            Image(systemName: "location.slash")
-                .font(.system(size: 60))
-                .foregroundColor(.red)
+        VStack(spacing: 24) {
+            Spacer()
             
-            Text("Location Access Denied")
-                .font(.title2.bold())
-            
-            Text("Please enable location services in Settings")
-                .multilineTextAlignment(.center)
-                .foregroundColor(.secondary)
-            
-            Button("Open Settings") {
-                if let url = URL(string: UIApplication.openSettingsURLString) {
-                    UIApplication.shared.open(url)
-                }
+            // Icon
+            ZStack {
+                Circle()
+                    .fill(Color.red.opacity(0.1))
+                    .frame(width: 120, height: 120)
+                
+                Image(systemName: "location.slash.fill")
+                    .font(.system(size: 80))
+                    .foregroundColor(.red)
+                    .symbolRenderingMode(.hierarchical)
             }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
+            
+            VStack(spacing: 16) {
+                Text("Location Access Denied")
+                    .font(.custom("HelveticaNeue-Bold", size: 28))
+                    .multilineTextAlignment(.center)
+                
+                Text("To see nearby trains, please enable location access in your device settings")
+                    .font(.custom("HelveticaNeue", size: 18))
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .lineSpacing(4)
+                    .padding(.horizontal, 8)
+            }
+            
+            Spacer()
+            
+            Button(action: {
+                if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(settingsURL)
+                }
+            }) {
+                HStack(spacing: 8) {
+                    Image(systemName: "gear")
+                    Text("Open Settings")
+                }
+                .font(.custom("HelveticaNeue-Bold", size: 18))
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(Color.gray)
+                .cornerRadius(14)
+            }
+            .padding(.horizontal, 24)
+            
+            Spacer()
+                .frame(height: 40)
         }
         .padding()
     }

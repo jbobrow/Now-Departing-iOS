@@ -15,26 +15,31 @@ struct ContentView: View {
     var body: some View {
         NavigationStack {
             if isReady {
-                NearbyView()
-                    .environmentObject(locationManager)
-                    .toolbar {
-                        ToolbarItem(placement: .principal) {
-                            Image(systemName: "tram.fill")
-                                .font(.title)
-                                .foregroundColor(.secondary)
-                        }
+                NearbyView(
+                    onLocationRequested: {
+                        // Only request location when user actively wants it
+                        print("DEBUG: User requested location access")
+                        locationManager.requestLocationPermission()
+                        locationManager.startLocationUpdates()
                     }
+                )
+                .environmentObject(locationManager)
+                .toolbar {
+                    ToolbarItem(placement: .principal) {
+                        Image(systemName: "tram.fill")
+                            .font(.title)
+                            .foregroundColor(.secondary)
+                    }
+                }
             } else {
                 ProgressView("Initializing...")
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
         .onAppear {
-            // Small delay to ensure everything is initialized
+            // Just initialize without requesting location
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                print("DEBUG: Starting location updates from ContentView")
-                locationManager.requestLocationPermission()
-                locationManager.startLocationUpdates()
+                print("DEBUG: App ready - location will be requested when needed")
                 isReady = true
             }
         }
