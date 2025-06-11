@@ -14,7 +14,7 @@ class StationDataManager: ObservableObject {
     @Published var stationsByLine: [String: [Station]] = [:]
     @Published var isLoading: Bool = true
     
-    private let remoteURL = URL(string: "https://raw.githubusercontent.com/jbobrow/Now-Departing-WatchOS/refs/heads/main/Now%20Departing%20Watch%20App/stations.json")!
+    private let remoteURL = URL(string: "https://raw.githubusercontent.com/jbobrow/Now-Departing-WatchOS/refs/heads/main/Shared/stations.json")!
     private var lastFetchTime: Date?
     private let cacheDuration: TimeInterval = 3600 // 1 hour
     private var loadedLines: Set<String> = []
