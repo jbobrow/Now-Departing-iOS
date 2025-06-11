@@ -44,15 +44,21 @@ struct NearbyTrain: Identifiable, Equatable {
         let minutes = totalSeconds / 60
         let seconds = totalSeconds % 60
         
-        if totalSeconds <= 30 {
-            return "Now"
-        } else if totalSeconds < 60 {
-            return "Soon"
-        } else {
-            if(fullText) {
+        if fullText {
+            if totalSeconds <= 30 {
+                return "Now"
+            } else if totalSeconds < 60 {
+                return "Arriving"
+            } else {
                 return "\(minutes) min"
             }
-            else {
+        }
+        else {
+            if totalSeconds <= 30 {
+                return "Now"
+            } else if totalSeconds < 60 {
+                return "Soon"
+            } else {
                 return "\(minutes)m"
             }
         }

@@ -282,7 +282,7 @@ struct NearbyView: View {
                         // Additional times (if any)
                         if !additionalTrains.isEmpty {
                             HStack {
-                                Text(additionalTrains.prefix(3).map { train in
+                                Text(additionalTrains.prefix(5).map { train in
                                     train.getLiveTimeText(currentTime: currentTime)
                                 }.joined(separator: ", "))
                                 .font(.custom("HelveticaNeue", size: 14))
