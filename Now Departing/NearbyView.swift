@@ -19,6 +19,11 @@ struct NearbyView: View {
     
     @State private var hasRequestedLocation = false
     
+    // Auto-refresh state
+    @State private var lastUpdated: Date?
+    @State private var autoRefreshTimer: Timer?
+    @State private var currentTime = Date() // For updating the "time since" display
+    
     private func getLine(for id: String) -> SubwayLine? {
         return SubwayLinesData.allLines.first(where: { $0.id == id })
     }
@@ -46,7 +51,12 @@ struct NearbyView: View {
             if !hasAppeared {
                 hasAppeared = true
                 setupInitialState()
+                startAutoRefresh()
+                startTimeUpdateTimer()
             }
+        }
+        .onDisappear {
+            stopAutoRefresh()
         }
         .onChange(of: locationManager.authorizationStatus) { oldStatus, newStatus in
             print("DEBUG: Authorization status changed from \(oldStatus.rawValue) to \(newStatus.rawValue)")
@@ -103,6 +113,55 @@ struct NearbyView: View {
     private func startFetchingWithLocation(_ location: CLLocation) {
         print("DEBUG: Starting fetch with location: \(location)")
         nearbyTrainsManager.startFetching(location: location)
+        lastUpdated = Date()
+    }
+    
+    // MARK: - Auto-refresh methods
+    
+    private func startAutoRefresh() {
+        autoRefreshTimer = Timer.scheduledTimer(withTimeInterval: 30.0, repeats: true) { _ in
+            performAutoRefresh()
+        }
+    }
+    
+    private func stopAutoRefresh() {
+        autoRefreshTimer?.invalidate()
+        autoRefreshTimer = nil
+    }
+    
+    private func startTimeUpdateTimer() {
+        let timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+            currentTime = Date()
+        }
+        // This ensures the timer continues running during UI interactions like scrolling/dragging
+        RunLoop.main.add(timer, forMode: .common)
+    }
+    
+    private func performAutoRefresh() {
+        // Only auto-refresh if we have location and are authorized
+        guard locationManager.authorizationStatus == .authorizedWhenInUse ||
+              locationManager.authorizationStatus == .authorizedAlways,
+              let location = locationManager.location else {
+            print("DEBUG: Skipping auto-refresh - no location or permission")
+            return
+        }
+        
+        print("DEBUG: Performing auto-refresh")
+        startFetchingWithLocation(location)
+    }
+    
+    private func getTimeSinceLastUpdated() -> String {
+        guard let lastUpdated = lastUpdated else { return "" }
+        
+        let interval = currentTime.timeIntervalSince(lastUpdated)
+        let minutes = Int(interval / 60)
+        let seconds = Int(interval.truncatingRemainder(dividingBy: 60))
+        
+        if minutes > 0 {
+            return "Updated \(minutes)m ago"
+        } else {
+            return "Updated \(seconds)s ago"
+        }
     }
     
     @ViewBuilder
@@ -122,16 +181,23 @@ struct NearbyView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if nearbyTrainsManager.nearbyTrains.isEmpty && !nearbyTrainsManager.isLoading && !locationManager.isSearchingForLocation {
             // Empty state - but this should be rare with cached data
-            List {
-                Section {
-                    EmptyStateContent()
-                        .listRowSeparator(.hidden)
-                        .listRowBackground(Color.clear)
+            VStack {
+                // Time since updated indicator for empty state
+                if lastUpdated != nil {
+                    TimeIndicatorView(timeSinceUpdated: getTimeSinceLastUpdated())
                 }
-            }
-            .listStyle(.plain)
-            .refreshable {
-                await performRefreshWithText()
+                
+                List {
+                    Section {
+                        EmptyStateContent()
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
+                    }
+                }
+                .listStyle(.plain)
+                .refreshable {
+                    await performRefreshWithText()
+                }
             }
         } else if let error = locationManager.locationError {
             ErrorView(message: error) {
@@ -161,43 +227,57 @@ struct NearbyView: View {
     func TrainsList() -> some View {
         if nearbyTrainsManager.nearbyTrains.isEmpty && !nearbyTrainsManager.isLoading {
             // Show empty state but wrapped in a List for pull-to-refresh
-            List {
-                Section {
-                    EmptyStateContent()
-                        .listRowSeparator(.hidden)
-                        .listRowBackground(Color.clear)
+            VStack {
+                // Time since updated indicator for empty state
+                if lastUpdated != nil {
+                    TimeIndicatorView(timeSinceUpdated: getTimeSinceLastUpdated())
                 }
-            }
-            .listStyle(.plain)
-            .refreshable {
-                print("DEBUG: Pull to refresh triggered on empty state")
-                await performRefreshWithText()
-            }
-        } else {
-            ZStack(alignment: .top) {
+                
                 List {
-                    // Train data sections
-                    ForEach(groupTrainsByStation(), id: \.stationId) { group in
-                        Section {
-                            ForEach(group.trainsByLineAndDirection, id: \.lineDirectionId) { item in
-                                ConsolidatedTrainRow(
-                                    primaryTrain: item.trains[0],
-                                    additionalTrains: Array(item.trains.dropFirst()),
-                                    line: item.line
-                                )
-                            }
-                        } header: {
-                            StationHeader(
-                                stationDisplay: group.stationDisplay,
-                                distanceText: group.distanceText
-                            )
-                        }
+                    Section {
+                        EmptyStateContent()
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
                     }
                 }
                 .listStyle(.plain)
                 .refreshable {
-                    print("DEBUG: Pull to refresh triggered on populated list")
+                    print("DEBUG: Pull to refresh triggered on empty state")
                     await performRefreshWithText()
+                }
+            }
+        } else {
+            ZStack(alignment: .top) {
+                VStack(spacing: 0) {
+                    // Time since updated indicator
+                    if lastUpdated != nil {
+                        TimeIndicatorView(timeSinceUpdated: getTimeSinceLastUpdated())
+                    }
+                    
+                    List {
+                        // Train data sections
+                        ForEach(groupTrainsByStation(), id: \.stationId) { group in
+                            Section {
+                                ForEach(group.trainsByLineAndDirection, id: \.lineDirectionId) { item in
+                                    ConsolidatedTrainRow(
+                                        primaryTrain: item.trains[0],
+                                        additionalTrains: Array(item.trains.dropFirst()),
+                                        line: item.line
+                                    )
+                                }
+                            } header: {
+                                StationHeader(
+                                    stationDisplay: group.stationDisplay,
+                                    distanceText: group.distanceText
+                                )
+                            }
+                        }
+                    }
+                    .listStyle(.plain)
+                    .refreshable {
+                        print("DEBUG: Pull to refresh triggered on populated list")
+                        await performRefreshWithText()
+                    }
                 }
                 
                 // Overlay text that appears during refresh, positioned right under the spinner
@@ -252,6 +332,24 @@ struct NearbyView: View {
         
         // Small delay to ensure smooth dismissal animation
         try? await Task.sleep(for: .milliseconds(200))
+    }
+
+    // MARK: - Time Indicator View
+    
+    struct TimeIndicatorView: View {
+        let timeSinceUpdated: String
+        
+        var body: some View {
+            HStack {
+                Spacer()
+                Text(timeSinceUpdated)
+                    .font(.custom("HelveticaNeue", size: 12))
+                    .foregroundColor(.secondary.opacity(0.7))
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 4)
+            }
+            .background(Color(UIColor.systemBackground))
+        }
     }
 
     // Add this helper view

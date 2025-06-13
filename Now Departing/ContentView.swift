@@ -25,13 +25,13 @@ struct ContentView: View {
                     }
                 )
                 .environmentObject(locationManager)
-                .toolbar {
-                    ToolbarItem(placement: .principal) {
-                        Image(systemName: "tram.fill")
-                            .font(.title)
-                            .foregroundColor(.secondary)
-                    }
-                }
+//                .toolbar {
+//                    ToolbarItem(placement: .principal) {
+//                        Image(systemName: "tram.fill")
+//                            .font(.title)
+//                            .foregroundColor(.secondary)
+//                    }
+//                }
             } else {
                 ProgressView("Initializing...")
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
