@@ -19,8 +19,8 @@ struct NearbyView: View {
     
     @State private var hasRequestedLocation = false
     
-    // Auto-refresh state
-    @State private var lastUpdated: Date?
+    // Auto-refresh state - Updated to track actual data updates
+    @State private var lastDataUpdated: Date?  // Changed from lastUpdated
     @State private var autoRefreshTimer: Timer?
     @State private var currentTime = Date() // For updating the "time since" display
     
@@ -48,14 +48,22 @@ struct NearbyView: View {
             }
         }
         .onAppear {
+            print("DEBUG: NearbyView onAppear - hasAppeared: \(hasAppeared)")
+            
             if !hasAppeared {
                 hasAppeared = true
                 setupInitialState()
-                startAutoRefresh()
                 startTimeUpdateTimer()
             }
+            
+            // ALWAYS start auto-refresh when the nearby tab is opened
+            startAutoRefresh()
+            
+            // ALWAYS trigger a data update when the nearby tab is opened
+            triggerDataUpdateOnTabOpen()
         }
         .onDisappear {
+            print("DEBUG: NearbyView onDisappear")
             stopAutoRefresh()
         }
         .onChange(of: locationManager.authorizationStatus) { oldStatus, newStatus in
@@ -70,6 +78,33 @@ struct NearbyView: View {
             if let location = newLocation {
                 startFetchingWithLocation(location)
             }
+        }
+        // NEW: Watch for when data actually gets updated and mark the timestamp
+        .onChange(of: nearbyTrainsManager.nearbyTrains) { oldTrains, newTrains in
+            if !newTrains.isEmpty && !nearbyTrainsManager.isLoading {
+                print("DEBUG: Data actually updated with \(newTrains.count) trains")
+                lastDataUpdated = Date()
+            }
+        }
+    }
+    
+    // NEW: Function to trigger data update when tab is opened
+    private func triggerDataUpdateOnTabOpen() {
+        print("DEBUG: Triggering data update on tab open")
+        
+        // Check if we have permission and location
+        guard locationManager.authorizationStatus == .authorizedWhenInUse ||
+              locationManager.authorizationStatus == .authorizedAlways else {
+            print("DEBUG: No location permission for tab open update")
+            return
+        }
+        
+        if let location = locationManager.location {
+            print("DEBUG: Starting fetch with existing location on tab open")
+            startFetchingWithLocation(location)
+        } else {
+            print("DEBUG: Requesting location update on tab open")
+            locationManager.requestOneTimeUpdate()
         }
     }
     
@@ -113,20 +148,27 @@ struct NearbyView: View {
     private func startFetchingWithLocation(_ location: CLLocation) {
         print("DEBUG: Starting fetch with location: \(location)")
         nearbyTrainsManager.startFetching(location: location)
-        lastUpdated = Date()
+        // Note: We don't set lastDataUpdated here anymore - we wait for actual data
     }
     
     // MARK: - Auto-refresh methods
     
     private func startAutoRefresh() {
+        // Stop any existing timer first
+        stopAutoRefresh()
+        
+        print("DEBUG: Starting auto-refresh timer (30 second interval)")
         autoRefreshTimer = Timer.scheduledTimer(withTimeInterval: 30.0, repeats: true) { _ in
             performAutoRefresh()
         }
     }
     
     private func stopAutoRefresh() {
-        autoRefreshTimer?.invalidate()
-        autoRefreshTimer = nil
+        if autoRefreshTimer != nil {
+            print("DEBUG: Stopping auto-refresh timer")
+            autoRefreshTimer?.invalidate()
+            autoRefreshTimer = nil
+        }
     }
     
     private func startTimeUpdateTimer() {
@@ -138,22 +180,23 @@ struct NearbyView: View {
     }
     
     private func performAutoRefresh() {
-        // Only auto-refresh if we have location and are authorized
+        // Only auto-refresh if we have permission
         guard locationManager.authorizationStatus == .authorizedWhenInUse ||
-              locationManager.authorizationStatus == .authorizedAlways,
-              let location = locationManager.location else {
-            print("DEBUG: Skipping auto-refresh - no location or permission")
+              locationManager.authorizationStatus == .authorizedAlways else {
+            print("DEBUG: Skipping auto-refresh - no location permission")
             return
         }
         
-        print("DEBUG: Performing auto-refresh")
-        startFetchingWithLocation(location)
+        print("DEBUG: Performing auto-refresh (30s timer) - requesting fresh location")
+        
+        // Always request a fresh location for auto-refresh to ensure we're using current position
+        locationManager.requestOneTimeUpdate()
     }
     
     private func getTimeSinceLastUpdated() -> String {
-        guard let lastUpdated = lastUpdated else { return "" }
+        guard let lastDataUpdated = lastDataUpdated else { return "" }
         
-        let interval = currentTime.timeIntervalSince(lastUpdated)
+        let interval = currentTime.timeIntervalSince(lastDataUpdated)
         let minutes = Int(interval / 60)
         let seconds = Int(interval.truncatingRemainder(dividingBy: 60))
         
@@ -183,7 +226,7 @@ struct NearbyView: View {
             // Empty state - but this should be rare with cached data
             VStack {
                 // Time since updated indicator for empty state
-                if lastUpdated != nil {
+                if lastDataUpdated != nil {
                     TimeIndicatorView(timeSinceUpdated: getTimeSinceLastUpdated())
                 }
                 
@@ -229,7 +272,7 @@ struct NearbyView: View {
             // Show empty state but wrapped in a List for pull-to-refresh
             VStack {
                 // Time since updated indicator for empty state
-                if lastUpdated != nil {
+                if lastDataUpdated != nil {
                     TimeIndicatorView(timeSinceUpdated: getTimeSinceLastUpdated())
                 }
                 
@@ -250,7 +293,7 @@ struct NearbyView: View {
             ZStack(alignment: .top) {
                 VStack(spacing: 0) {
                     // Time since updated indicator
-                    if lastUpdated != nil {
+                    if lastDataUpdated != nil {
                         TimeIndicatorView(timeSinceUpdated: getTimeSinceLastUpdated())
                     }
                     
@@ -298,6 +341,8 @@ struct NearbyView: View {
 
     @MainActor
     private func performRefreshWithText() async {
+        print("DEBUG: Manual refresh triggered")
+        
         // Very small delay to let the native spinner appear first
         try? await Task.sleep(for: .milliseconds(100))
         
@@ -475,9 +520,15 @@ struct NearbyView: View {
                 trainsByLineAndDirection: trainsByLineAndDirection
             )
         }.sorted {
-            // Sort by distance (closest first)
+            // Sort by distance (closest first), then by station ID alphabetically for consistent ordering
             let distance1 = $0.trainsByLineAndDirection.first?.trains.first?.distanceInMeters ?? Double.infinity
             let distance2 = $1.trainsByLineAndDirection.first?.trains.first?.distanceInMeters ?? Double.infinity
+            
+            // If distances are very close (within 10 meters), sort alphabetically by station ID
+            if abs(distance1 - distance2) < 10 {
+                return $0.stationId < $1.stationId
+            }
+            
             return distance1 < distance2
         }
     }
