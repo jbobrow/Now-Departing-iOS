@@ -11,6 +11,7 @@ import CoreLocation
 struct NearbyView: View {
     @EnvironmentObject var locationManager: LocationManager
     @EnvironmentObject var stationDataManager: StationDataManager
+    @EnvironmentObject var favoritesManager: FavoritesManager
     @StateObject private var nearbyTrainsManager = NearbyTrainsManager(stationDataManager: StationDataManager())
     @State private var hasAppeared = false
     
@@ -340,7 +341,8 @@ struct NearbyView: View {
                     primaryTrain: item.trains[0],
                     additionalTrains: Array(item.trains.dropFirst()),
                     line: item.line,
-                    stationDataManager: stationDataManager
+                    stationDataManager: stationDataManager,
+                    favoritesManager: favoritesManager // Add this line
                 )
             }
         } header: {
@@ -456,9 +458,19 @@ struct NearbyView: View {
         let additionalTrains: [NearbyTrain]
         let line: SubwayLine
         let stationDataManager: StationDataManager
+        let favoritesManager: FavoritesManager // Add favorites manager
         @State private var currentTime = Date()
         
         private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+        
+        // Check if this train/station/direction combination is already favorited
+        private var isFavorited: Bool {
+            favoritesManager.isFavorite(
+                lineId: primaryTrain.lineId,
+                stationName: primaryTrain.stationName,
+                direction: primaryTrain.direction
+            )
+        }
         
         var body: some View {
             VStack(alignment: .leading, spacing: 8) {
@@ -473,9 +485,15 @@ struct NearbyView: View {
                     
                     // Direction
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("to \(primaryTrain.destination)")
+                        // Use terminal station if available, fallback to destination
+                        Text(DirectionHelper.getToTerminalStation(
+                            for: primaryTrain.lineId,
+                            direction: primaryTrain.direction,
+                            stationDataManager: stationDataManager
+                        ))
                             .font(.custom("HelveticaNeue-Bold", size: 20))
-                        Text(DirectionHelper.getTerminalStationName(for: primaryTrain.lineId, direction: primaryTrain.direction, stationDataManager: stationDataManager)!)
+                        
+                        Text(primaryTrain.direction == "N" ? "Northbound" : "Southbound")
                             .font(.custom("HelveticaNeue", size: 14))
                             .foregroundColor(.secondary)
                     }
@@ -500,11 +518,78 @@ struct NearbyView: View {
                         }
                     }
                 }
-                
             }
             .padding(.vertical, 4)
             .onReceive(timer) { time in
                 currentTime = time
+            }
+            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                if isFavorited {
+                    // Remove from favorites button
+                    Button {
+                        removeFavorite()
+                    } label: {
+                        Label("Remove", systemImage: "heart.slash.fill")
+                    }
+                    .tint(.red)
+                } else {
+                    // Add to favorites button
+                    Button {
+                        addToFavorites()
+                    } label: {
+                        Label("Favorite", systemImage: "heart.fill")
+                    }
+                    .tint(.blue)
+                }
+            }
+            .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                if isFavorited {
+                    // Remove from favorites button (left swipe)
+                    Button {
+                        removeFavorite()
+                    } label: {
+                        Label("Remove", systemImage: "heart.slash.fill")
+                    }
+                    .tint(.red)
+                } else {
+                    // Add to favorites button (left swipe)
+                    Button {
+                        addToFavorites()
+                    } label: {
+                        Label("Favorite", systemImage: "heart.fill")
+                    }
+                    .tint(.blue)
+                }
+            }
+        }
+        
+        // MARK: - Favorite Actions
+        
+        private func addToFavorites() {
+            // Add haptic feedback
+            let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
+            impactFeedback.impactOccurred()
+            
+            favoritesManager.addFavorite(
+                lineId: primaryTrain.lineId,
+                stationName: primaryTrain.stationName,
+                stationDisplay: primaryTrain.stationDisplay,
+                direction: primaryTrain.direction
+            )
+        }
+        
+        private func removeFavorite() {
+            // Add haptic feedback
+            let impactFeedback = UIImpactFeedbackGenerator(style: .light)
+            impactFeedback.impactOccurred()
+            
+            // Find the matching favorite and remove it
+            if let favorite = favoritesManager.favorites.first(where: {
+                $0.lineId == primaryTrain.lineId &&
+                $0.stationName == primaryTrain.stationName &&
+                $0.direction == primaryTrain.direction
+            }) {
+                favoritesManager.removeFavorite(favorite: favorite)
             }
         }
     }
