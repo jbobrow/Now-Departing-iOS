@@ -73,4 +73,70 @@ struct DirectionHelper {
         let destination = getDestination(for: lineId, direction: direction)
         return "to \(destination)"
     }
+    
+    // MARK: - Terminal Station Functions
+    
+    /// Get the terminal station for a specific line and direction using station data
+    /// - Parameters:
+    ///   - lineId: The subway line ID
+    ///   - direction: The direction ("N" for north, "S" for south)
+    ///   - stationDataManager: The station data manager containing station information
+    /// - Returns: The terminal station for the given line and direction, or nil if not found
+    static func getTerminalStation(for lineId: String, direction: String, stationDataManager: StationDataManager) -> Station? {
+        guard let stations = stationDataManager.stations(for: lineId), !stations.isEmpty else {
+            return nil
+        }
+        
+        // For northbound (N), return the first station (typically the northern terminus)
+        // For southbound (S), return the last station (typically the southern terminus)
+        return direction == "N" ? stations.first : stations.last
+    }
+    
+    /// Get both terminal stations for a given line
+    /// - Parameters:
+    ///   - lineId: The subway line ID
+    ///   - stationDataManager: The station data manager containing station information
+    /// - Returns: A tuple with (north: Station?, south: Station?) terminals
+    static func getTerminalStations(for lineId: String, stationDataManager: StationDataManager) -> (north: Station?, south: Station?) {
+        guard let stations = stationDataManager.stations(for: lineId), !stations.isEmpty else {
+            return (north: nil, south: nil)
+        }
+        
+        return (north: stations.first, south: stations.last)
+    }
+    
+    /// Get the terminal station name for a specific line and direction
+    /// - Parameters:
+    ///   - lineId: The subway line ID
+    ///   - direction: The direction ("N" for north, "S" for south)
+    ///   - stationDataManager: The station data manager containing station information
+    /// - Returns: The display name of the terminal station, or nil if not found
+    static func getTerminalStationName(for lineId: String, direction: String, stationDataManager: StationDataManager) -> String? {
+        return getTerminalStation(for: lineId, direction: direction, stationDataManager: stationDataManager)?.display
+    }
+    
+    /// Get both terminal station names for a given line
+    /// - Parameters:
+    ///   - lineId: The subway line ID
+    ///   - stationDataManager: The station data manager containing station information
+    /// - Returns: A tuple with (north: String?, south: String?) terminal station names
+    static func getTerminalStationNames(for lineId: String, stationDataManager: StationDataManager) -> (north: String?, south: String?) {
+        let terminals = getTerminalStations(for: lineId, stationDataManager: stationDataManager)
+        return (north: terminals.north?.display, south: terminals.south?.display)
+    }
+    
+    /// Get a formatted string showing the terminal station for a direction
+    /// - Parameters:
+    ///   - lineId: The subway line ID
+    ///   - direction: The direction ("N" for north, "S" for south)
+    ///   - stationDataManager: The station data manager containing station information
+    /// - Returns: Formatted string like "to Van Cortlandt Park-242nd Street" or fallback to destination
+    static func getToTerminalStation(for lineId: String, direction: String, stationDataManager: StationDataManager) -> String {
+        if let terminalName = getTerminalStationName(for: lineId, direction: direction, stationDataManager: stationDataManager) {
+            return "to \(terminalName)"
+        } else {
+            // Fallback to the destination-based approach
+            return getToDestination(for: lineId, direction: direction)
+        }
+    }
 }

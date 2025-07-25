@@ -42,7 +42,7 @@ struct NearbyTrain: Identifiable, Equatable {
         let timeInterval = arrivalTime.timeIntervalSince(currentTime)
         let totalSeconds = max(0, Int(timeInterval))
         let minutes = totalSeconds / 60
-        let seconds = totalSeconds % 60
+//        let seconds = totalSeconds % 60
         
         if fullText {
             if totalSeconds <= 30 {

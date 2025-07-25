@@ -270,73 +270,99 @@ struct NearbyView: View {
     @ViewBuilder
     func TrainsList() -> some View {
         if nearbyTrainsManager.nearbyTrains.isEmpty && !nearbyTrainsManager.isLoading {
-            // Show empty state but wrapped in a List for pull-to-refresh
-            VStack {
-                // Time since updated indicator for empty state
-                if lastDataUpdated != nil {
-                    TimeIndicatorView(timeSinceUpdated: getTimeSinceLastUpdated())
-                }
-                
-                List {
-                    Section {
-                        EmptyStateContent()
-                            .listRowSeparator(.hidden)
-                            .listRowBackground(Color.clear)
-                    }
-                }
-                .listStyle(.plain)
-                .refreshable {
-                    print("DEBUG: Pull to refresh triggered on empty state")
-                    await performRefreshWithText()
-                }
-            }
+            EmptyStateView()
         } else {
-            ZStack(alignment: .top) {
-                VStack(spacing: 0) {
-                    // Time since updated indicator
-                    if lastDataUpdated != nil {
-                        TimeIndicatorView(timeSinceUpdated: getTimeSinceLastUpdated())
-                    }
-                    
-                    List {
-                        // Train data sections
-                        ForEach(groupTrainsByStation(), id: \.stationId) { group in
-                            Section {
-                                ForEach(group.trainsByLineAndDirection, id: \.lineDirectionId) { item in
-                                    ConsolidatedTrainRow(
-                                        primaryTrain: item.trains[0],
-                                        additionalTrains: Array(item.trains.dropFirst()),
-                                        line: item.line
-                                    )
-                                }
-                            } header: {
-                                StationHeader(
-                                    stationDisplay: group.stationDisplay,
-                                    distanceText: group.distanceText
-                                )
-                            }
-                        }
-                    }
-                    .listStyle(.plain)
-                    .refreshable {
-                        print("DEBUG: Pull to refresh triggered on populated list")
-                        await performRefreshWithText()
-                    }
-                }
-                
-                // Overlay text that appears during refresh, positioned right under the spinner
-                if nearbyTrainsManager.isLoading {
-                    VStack {
-                        Text("Loading nearby trains...")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.secondary)
-                            .transition(.opacity.combined(with: .move(edge: .top)))
-                        
-                        Spacer()
-                    }
-                    .animation(.easeInOut(duration: 0.3), value: nearbyTrainsManager.isLoading)
+            PopulatedTrainsView()
+        }
+    }
+
+    @ViewBuilder
+    private func EmptyStateView() -> some View {
+        VStack {
+            // Time since updated indicator for empty state
+            if lastDataUpdated != nil {
+                TimeIndicatorView(timeSinceUpdated: getTimeSinceLastUpdated())
+            }
+            
+            List {
+                Section {
+                    EmptyStateContent()
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
                 }
             }
+            .listStyle(.plain)
+            .refreshable {
+                await performRefreshWithText()
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func PopulatedTrainsView() -> some View {
+        ZStack(alignment: .top) {
+            TrainsListContent()
+            LoadingOverlay()
+        }
+    }
+
+    @ViewBuilder
+    private func TrainsListContent() -> some View {
+        VStack(spacing: 0) {
+            // Time since updated indicator
+            if lastDataUpdated != nil {
+                TimeIndicatorView(timeSinceUpdated: getTimeSinceLastUpdated())
+            }
+            
+            TrainsListView()
+        }
+    }
+
+    @ViewBuilder
+    private func TrainsListView() -> some View {
+        List {
+            // Train data sections
+            ForEach(groupTrainsByStation(), id: \.stationId) { group in
+                TrainGroupSection(group: group)
+            }
+        }
+        .listStyle(.plain)
+        .refreshable {
+            await performRefreshWithText()
+        }
+    }
+
+    @ViewBuilder
+    private func TrainGroupSection(group: (stationId: String, stationDisplay: String, distanceText: String, trainsByLineAndDirection: [(line: SubwayLine, direction: String, trains: [NearbyTrain], lineDirectionId: String)])) -> some View {
+        Section {
+            ForEach(group.trainsByLineAndDirection, id: \.lineDirectionId) { item in
+                ConsolidatedTrainRow(
+                    primaryTrain: item.trains[0],
+                    additionalTrains: Array(item.trains.dropFirst()),
+                    line: item.line,
+                    stationDataManager: stationDataManager
+                )
+            }
+        } header: {
+            StationHeader(
+                stationDisplay: group.stationDisplay,
+                distanceText: group.distanceText
+            )
+        }
+    }
+
+    @ViewBuilder
+    private func LoadingOverlay() -> some View {
+        if nearbyTrainsManager.isLoading {
+            VStack {
+                Text("Loading nearby trains...")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.secondary)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+                
+                Spacer()
+            }
+            .animation(.easeInOut(duration: 0.3), value: nearbyTrainsManager.isLoading)
         }
     }
 
@@ -429,6 +455,7 @@ struct NearbyView: View {
         let primaryTrain: NearbyTrain
         let additionalTrains: [NearbyTrain]
         let line: SubwayLine
+        let stationDataManager: StationDataManager
         @State private var currentTime = Date()
         
         private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -448,7 +475,7 @@ struct NearbyView: View {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("to \(primaryTrain.destination)")
                             .font(.custom("HelveticaNeue-Bold", size: 20))
-                        Text(primaryTrain.direction == "N" ? "Northbound" : "Southbound")
+                        Text(DirectionHelper.getTerminalStationName(for: primaryTrain.lineId, direction: primaryTrain.direction, stationDataManager: stationDataManager)!)
                             .font(.custom("HelveticaNeue", size: 14))
                             .foregroundColor(.secondary)
                     }
