@@ -485,15 +485,15 @@ struct NearbyView: View {
                     
                     // Direction
                     VStack(alignment: .leading, spacing: 2) {
+                        Text(DirectionHelper.getToDestination(for: primaryTrain.lineId, direction: primaryTrain.direction))
+                            .font(.custom("HelveticaNeue-Bold", size: 20))
+                        
                         // Use terminal station if available, fallback to destination
                         Text(DirectionHelper.getToTerminalStation(
                             for: primaryTrain.lineId,
                             direction: primaryTrain.direction,
                             stationDataManager: stationDataManager
                         ))
-                            .font(.custom("HelveticaNeue-Bold", size: 20))
-                        
-                        Text(primaryTrain.direction == "N" ? "Northbound" : "Southbound")
                             .font(.custom("HelveticaNeue", size: 14))
                             .foregroundColor(.secondary)
                     }
