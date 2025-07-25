@@ -47,6 +47,7 @@ struct NearbyView: View {
                 EmptyView()
             }
         }
+        .preferredColorScheme(.dark)
         .onAppear {
             print("DEBUG: NearbyView onAppear - hasAppeared: \(hasAppeared)")
             
