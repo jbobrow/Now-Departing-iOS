@@ -342,8 +342,9 @@ struct NearbyView: View {
                     additionalTrains: Array(item.trains.dropFirst()),
                     line: item.line,
                     stationDataManager: stationDataManager,
-                    favoritesManager: favoritesManager // Add this line
+                    favoritesManager: favoritesManager
                 )
+                .environmentObject(locationManager) // Add this line
             }
         } header: {
             StationHeader(
@@ -458,7 +459,9 @@ struct NearbyView: View {
         let additionalTrains: [NearbyTrain]
         let line: SubwayLine
         let stationDataManager: StationDataManager
-        let favoritesManager: FavoritesManager // Add favorites manager
+        let favoritesManager: FavoritesManager
+        // Add location manager to get current location
+        @EnvironmentObject var locationManager: LocationManager
         @State private var currentTime = Date()
         
         private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -483,9 +486,13 @@ struct NearbyView: View {
                         .frame(width: 48, height: 48)
                         .background(Circle().fill(line.bg_color))
                     
-                    // Direction
+                    // Direction - Updated to use location-based helper
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(DirectionHelper.getToDestination(for: primaryTrain.lineId, direction: primaryTrain.direction))
+                        Text(LocationBasedDirectionHelper.getToContextualDestination(
+                            for: primaryTrain.lineId,
+                            direction: primaryTrain.direction,
+                            currentLocation: locationManager.location
+                        ))
                             .font(.custom("HelveticaNeue-Bold", size: 20))
                         
                         // Use terminal station if available, fallback to destination
