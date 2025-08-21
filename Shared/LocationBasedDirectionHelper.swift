@@ -68,7 +68,12 @@ struct LocationBasedDirectionHelper {
         case .manhattan:
             // In Manhattan, use Uptown/Downtown for north-south lines
             if isNorthSouthLine(lineId) {
-                return direction == "N" ? "Uptown" : "Downtown"
+                let manhattanDirection = direction == "N" ? "Uptown" : "Downtown"
+                if let ultimateDestination = getUltimateDestination(lineId, direction: direction) {
+                    return "\(manhattanDirection) & \(ultimateDestination)"
+                } else {
+                    return manhattanDirection
+                }
             } else {
                 // For cross-borough lines, show the destination borough
                 return direction == "N" ? destinations.north : destinations.south
@@ -126,6 +131,37 @@ struct LocationBasedDirectionHelper {
         }
     }
     
+    /// Get the ultimate destination borough for a line in a given direction
+    private static func getUltimateDestination(_ lineId: String, direction: String) -> String? {
+        let lineDestinations: [String: (north: String?, south: String?)] = [
+            "1": (north: nil, south: nil), // Stays in Manhattan
+            "2": (north: "Bronx", south: "Brooklyn"),
+            "3": (north: "Bronx", south: "Brooklyn"),
+            "4": (north: "Bronx", south: "Brooklyn"),
+            "5": (north: "Bronx", south: "Brooklyn"),
+            "6": (north: "Bronx", south: nil), // Stays in Manhattan
+            "7": (north: "Queens", south: nil), // Stays in Manhattan
+            "A": (north: nil, south: "Queens"), // A goes uptown to Harlem, downtown to Far Rockaway
+            "B": (north: "Bronx", south: "Brooklyn"),
+            "C": (north: nil, south: "Brooklyn"), // C goes to Brooklyn
+            "D": (north: "Bronx", south: "Brooklyn"),
+            "E": (north: "Queens", south: nil), // E goes to Queens
+            "F": (north: "Queens", south: "Brooklyn"),
+            "G": (north: "Queens", south: "Brooklyn"), // G only runs Brooklyn-Queens
+            "J": (north: "Queens", south: nil),
+            "L": (north: nil, south: "Brooklyn"), // L runs east-west
+            "M": (north: "Queens", south: "Brooklyn"),
+            "N": (north: "Queens", south: "Brooklyn"),
+            "Q": (north: nil, south: "Brooklyn"), // Q goes to Brooklyn
+            "R": (north: "Queens", south: "Brooklyn"),
+            "W": (north: "Queens", south: nil),
+            "Z": (north: "Queens", south: nil)
+        ]
+        
+        let destinations = lineDestinations[lineId]
+        return direction == "N" ? destinations?.north : destinations?.south
+    }
+
     /// Check if a line primarily runs north-south through Manhattan
     private static func isNorthSouthLine(_ lineId: String) -> Bool {
         let northSouthLines = ["1", "2", "3", "4", "5", "6", "A", "B", "C", "D", "Q", "R", "W"]

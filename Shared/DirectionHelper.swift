@@ -28,7 +28,7 @@ struct DirectionHelper {
         "F": ("Queens", "Brooklyn"),
         "G": ("Queens", "Brooklyn"),
         "J": ("Queens", "Manhattan"),
-        "L": ("Brooklyn", "Manhattan"),
+        "L": ("Manhattan", "Brooklyn"),
         "M": ("Queens", "Brooklyn"),
         "N": ("Queens", "Brooklyn"),
         "Q": ("Uptown", "Brooklyn"),
