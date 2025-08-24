@@ -304,6 +304,32 @@ struct NearbyView: View {
         ZStack(alignment: .top) {
             TrainsListContent()
             LoadingOverlay()
+            
+            // Debug borough display
+//            VStack {
+//                if let location = locationManager.location {
+//                    let borough = LocationBasedDirectionHelper.getBoroughForLocation(location)
+//                    let boroughName = switch borough {
+//                    case .manhattan: "Manhattan"
+//                    case .brooklyn: "Brooklyn"
+//                    case .queens: "Queens"
+//                    case .bronx: "Bronx"
+//                    case .statenIsland: "Staten Island"
+//                    case .unknown: "Unknown"
+//                    }
+//                    
+//                    Text("\(boroughName)")
+//                        .font(.caption)
+//                        .fontWeight(.bold)
+//                        .foregroundColor(.black)
+//                        .padding(.horizontal, 12)
+//                        .padding(.vertical, 4)
+//                        .background(Color.white)
+//                        .cornerRadius(12)
+//                        .padding(.top, 8)
+//                }
+//                Spacer()
+//            }
         }
     }
 
@@ -488,7 +514,7 @@ struct NearbyView: View {
                     
                     // Direction - Updated to use location-based helper
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(LocationBasedDirectionHelper.getToContextualDestination(
+                        Text(LocationBasedDirectionHelper.getContextualDestination(
                             for: primaryTrain.lineId,
                             direction: primaryTrain.direction,
                             currentLocation: locationManager.location
