@@ -86,6 +86,10 @@ struct NearbyView: View {
     @State private var lastDataUpdateTime: Date = Date.distantPast
     @State private var lastLocationUsedForData: CLLocation?
     @State private var isShowingStaleData = false
+    @State private var currentTime = Date() // Add current time tracking
+    
+    // Timer to update current time and filter out expired trains
+    private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     
     let onSelect: (SubwayLine, Station, String) -> Void
     let lines: [SubwayLine]
@@ -94,14 +98,26 @@ struct NearbyView: View {
         return lines.first(where: { $0.id == id })
     }
     
+    // Filter out trains that have already departed
+    private var activeTrainsWithState: [NearbyTrainWithState] {
+        return trainsWithState.filter { trainWithState in
+            trainWithState.train.arrivalTime > currentTime
+        }
+    }
+    
     // Update trainsWithState when nearbyTrains changes
     private func updateTrainsWithState() {
         lastDataUpdateTime = Date()
         lastLocationUsedForData = locationManager.location
         isShowingStaleData = false
         
+        // Only keep trains that haven't already departed
+        let validTrains = nearbyTrainsManager.nearbyTrains.filter { train in
+            train.arrivalTime > Date()
+        }
+        
         // Create new NearbyTrainWithState objects for current trains
-        trainsWithState = nearbyTrainsManager.nearbyTrains.enumerated().map { index, train in
+        trainsWithState = validTrains.enumerated().map { index, train in
             let trainWithState = NearbyTrainWithState(train: train)
             
             // Add a small delay to stagger the appearance of trains
@@ -195,9 +211,13 @@ struct NearbyView: View {
             return ("", "", false)
         }
     }
+    
     private var stationGroups: [StationGroup] {
+        // Use activeTrainsWithState instead of trainsWithState to filter out expired trains
+        let activeTrains = activeTrainsWithState
+        
         // Group trains by station ID instead of station name
-        let trainsByStationId = Dictionary(grouping: trainsWithState) { trainWithState in
+        let trainsByStationId = Dictionary(grouping: activeTrains) { trainWithState in
             trainWithState.train.stationId
         }
         
@@ -262,6 +282,9 @@ struct NearbyView: View {
             @unknown default:
                 EmptyView()
             }
+        }
+        .onReceive(timer) { time in
+            currentTime = time
         }
         .onAppear {
             guard !hasAppeared else { return }
@@ -501,14 +524,16 @@ struct NearbyView: View {
             if let line = getLine(for: lineGroup.lineId) {
                 // Northbound train if available
                 if let northTrain = lineGroup.northbound {
-                    if let trainWithState = trainsWithState.first(where: { $0.train.id == northTrain.id }) {
+                    // Use activeTrainsWithState to ensure we only show non-expired trains
+                    if let trainWithState = activeTrainsWithState.first(where: { $0.train.id == northTrain.id }) {
                         trainRowView(line: line, trainWithState: trainWithState)
                     }
                 }
                 
                 // Southbound train if available
                 if let southTrain = lineGroup.southbound {
-                    if let trainWithState = trainsWithState.first(where: { $0.train.id == southTrain.id }) {
+                    // Use activeTrainsWithState to ensure we only show non-expired trains
+                    if let trainWithState = activeTrainsWithState.first(where: { $0.train.id == southTrain.id }) {
                         trainRowView(line: line, trainWithState: trainWithState)
                     }
                 }
