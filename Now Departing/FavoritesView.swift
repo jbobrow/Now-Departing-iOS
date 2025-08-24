@@ -144,6 +144,7 @@ struct FavoriteTrainRow: View {
     let trainData: [TrainArrival]?
     let stationDataManager: StationDataManager
     @State private var currentTime = Date()
+    @State private var hasTimedOut = false
     
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     
@@ -198,17 +199,36 @@ struct FavoriteTrainRow: View {
                                 .foregroundColor(.secondary)
                             }
                         }
+                    } else if hasTimedOut {  // ← NEW: Show "--" after timeout
+                        Text("--")
+                            .font(.custom("HelveticaNeue-Bold", size: 26))
+                            .foregroundColor(.primary)
+
+                        Text("No trains")
+                            .font(.custom("HelveticaNeue", size: 14))
+                            .foregroundColor(.secondary)
                     } else {
                         // Loading state
-                        VStack(alignment: .trailing, spacing: 2) {
+                        VStack(alignment: .center) {
+                            Spacer()
                             ProgressView()
-                                .scaleEffect(0.8)
-                                .frame(height: 26) // Match the height of the primary time text
-                            
-                            Text("Loading...")
-                                .font(.custom("HelveticaNeue", size: 14))
-                                .foregroundColor(.secondary)
+                                .scaleEffect(1.5)
+                            Spacer()
                         }
+                    }
+                }
+                .onAppear {  // ← NEW: Added timeout logic
+                    // Set timeout for loading state
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) {
+                        if trainData?.isEmpty ?? true {
+                            hasTimedOut = true
+                        }
+                    }
+                }
+                .onChange(of: trainData) { oldData, newData in  // ← NEW: Reset timeout when data arrives
+                    // Reset timeout when new data arrives
+                    if newData != nil && !newData!.isEmpty {
+                        hasTimedOut = false
                     }
                 }
             }
@@ -380,7 +400,7 @@ class FavoriteTrainDataManager: ObservableObject {
 
 // MARK: - Supporting Data Structures
 
-struct TrainArrival {
+struct TrainArrival: Equatable {
     let arrivalTime: Date
     let routeId: String
 }
