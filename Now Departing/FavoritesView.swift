@@ -37,18 +37,35 @@ struct FavoritesView: View {
     @ViewBuilder
     private func FavoritesList() -> some View {
         List {
-            ForEach(favoritesManager.favorites) { favorite in
-                FavoriteTrainRow(
-                    favorite: favorite,
-                    trainData: trainDataManager.getTrainData(for: favorite),
-                    stationDataManager: stationDataManager
-                )
+            Section {
+                ForEach(favoritesManager.favorites) { favorite in
+                    FavoriteTrainRow(
+                        favorite: favorite,
+                        trainData: trainDataManager.getTrainData(for: favorite),
+                        stationDataManager: stationDataManager
+                    )
+                }
+                .onDelete(perform: deleteFavorites)
+                .onMove(perform: moveFavorites)
+            } header: {
+                HStack {
+                    Text("Favorites")
+                        .font(.custom("HelveticaNeue-Bold", size: 32))
+                        .foregroundColor(.primary)
+                        .textCase(.none)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                    Spacer()
+                }
             }
-            .onDelete(perform: deleteFavorites)
-            .onMove(perform: moveFavorites)
         }
+        .background(Color.black)
         .listStyle(.plain)
+        .clipped() // Prevent content from showing above the header
+        .padding(.top, 64)
+        .ignoresSafeArea(edges: .top)
     }
+
     
     // MARK: - Actions
     
@@ -341,13 +358,20 @@ class FavoriteTrainDataManager: ObservableObject {
         }
         
         let trains = favorite.direction == "N" ? stationData.N : stationData.S
-        let trainArrivals = trains.compactMap { train -> TrainArrival? in
+        let filteredTrains = trains.filter { $0.route == favorite.lineId }
+        
+        let trainArrivals = filteredTrains.compactMap { train -> TrainArrival? in
             // Convert time string to Date using ISO8601DateFormatter
             let formatter = ISO8601DateFormatter()
-            guard let arrivalTime = formatter.date(from: train.time) else { return nil }
+            guard let arrivalTime = formatter.date(from: train.time) else {
+                print("DEBUG: Failed to parse time: \(train.time)")
+                return nil
+            }
             return TrainArrival(arrivalTime: arrivalTime, routeId: train.route)
         }.filter { $0.arrivalTime > Date() } // Only keep future times
         .sorted { $0.arrivalTime < $1.arrivalTime }
+        
+        print("DEBUG: Processed \(trainArrivals.count) trains for favorite: \(favorite.stationDisplay) \(favorite.lineId) \(favorite.direction)")
         
         trainDataCache[key] = trainArrivals
         lastFetchTime[key] = Date()
