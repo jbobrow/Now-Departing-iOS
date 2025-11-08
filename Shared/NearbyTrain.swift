@@ -40,9 +40,14 @@ struct NearbyTrain: Identifiable, Equatable {
     // Get live time text with current time for precise countdown
     func getLiveTimeText(currentTime: Date, fullText: Bool = false) -> String {
         let timeInterval = arrivalTime.timeIntervalSince(currentTime)
-        let totalSeconds = max(0, Int(timeInterval))
+        let totalSeconds = Int(timeInterval)
         let minutes = totalSeconds / 60
 //        let seconds = totalSeconds % 60
+        
+        // Handle stale/past data - if time is in the past by more than 60 seconds, show as stale
+        if totalSeconds < -60 {
+            return "—" // Em dash indicates stale data
+        }
         
         if fullText {
             if totalSeconds <= 30 {

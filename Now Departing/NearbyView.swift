@@ -21,12 +21,26 @@ struct NearbyView: View {
     @State private var hasRequestedLocation = false
     
     // Auto-refresh state - Updated to track actual data updates
-    @State private var lastDataUpdated: Date?  // Changed from lastUpdated
+    @State private var lastDataUpdated: Date?   // Changed from lastUpdated
     @State private var autoRefreshTimer: Timer?
-    @State private var currentTime = Date() // For updating the "time since" display
+    @State private var currentTime = Date()     // For updating the "time since" display
+    @State private var liveTimeTimer: Timer?    // Timer for live time updates
+
+    // Location update tracking
+    @State private var lastLocationUpdate: Date?
+    @State private var locationUpdateCount = 0
     
     private func getLine(for id: String) -> SubwayLine? {
         return SubwayLinesData.allLines.first(where: { $0.id == id })
+    }
+    
+    private func handleLocationChange(_ newLocation: CLLocation?) {
+        guard let location = newLocation else { return }
+        
+        lastLocationUpdate = Date()
+        locationUpdateCount += 1
+        print("DEBUG: Location updated (#\(locationUpdateCount)): \(location.coordinate.latitude), \(location.coordinate.longitude)")
+        startFetchingWithLocation(location)
     }
     
     var body: some View {
@@ -56,6 +70,7 @@ struct NearbyView: View {
                 hasAppeared = true
                 setupInitialState()
                 startTimeUpdateTimer()
+                startLiveTimeTimer()
             }
             
             // ALWAYS start auto-refresh when the nearby tab is opened
@@ -67,6 +82,7 @@ struct NearbyView: View {
         .onDisappear {
             print("DEBUG: NearbyView onDisappear")
             stopAutoRefresh()
+            stopLiveTimeTimer()
         }
         .onChange(of: locationManager.authorizationStatus) { oldStatus, newStatus in
             print("DEBUG: Authorization status changed from \(oldStatus.rawValue) to \(newStatus.rawValue)")
@@ -75,11 +91,8 @@ struct NearbyView: View {
                 locationManager.requestOneTimeUpdate()
             }
         }
-        .onChange(of: locationManager.location) { oldLocation, newLocation in
-            print("DEBUG: Location changed from \(oldLocation?.description ?? "nil") to \(newLocation?.description ?? "nil")")
-            if let location = newLocation {
-                startFetchingWithLocation(location)
-            }
+        .onChange(of: locationManager.location) { _, newLocation in
+            handleLocationChange(newLocation)
         }
         // NEW: Watch for when data actually gets updated and mark the timestamp
         .onChange(of: nearbyTrainsManager.nearbyTrains) { oldTrains, newTrains in
@@ -159,7 +172,7 @@ struct NearbyView: View {
         // Stop any existing timer first
         stopAutoRefresh()
         
-        print("DEBUG: Starting auto-refresh timer (30 second interval)")
+        print("DEBUG: Starting auto-refresh timer (30 second interval for iOS)")
         autoRefreshTimer = Timer.scheduledTimer(withTimeInterval: 30.0, repeats: true) { _ in
             performAutoRefresh()
         }
@@ -181,6 +194,21 @@ struct NearbyView: View {
         RunLoop.main.add(timer, forMode: .common)
     }
     
+    // Start live time timer for real-time updates
+    private func startLiveTimeTimer() {
+        print("DEBUG: Starting live time timer")
+        liveTimeTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+            currentTime = Date()
+        }
+    }
+
+    // Stop live time timer
+    private func stopLiveTimeTimer() {
+        print("DEBUG: Stopping live time timer")
+        liveTimeTimer?.invalidate()
+        liveTimeTimer = nil
+    }
+    
     private func performAutoRefresh() {
         // Only auto-refresh if we have permission
         guard locationManager.authorizationStatus == .authorizedWhenInUse ||
@@ -189,10 +217,15 @@ struct NearbyView: View {
             return
         }
         
-        print("DEBUG: Performing auto-refresh (30s timer) - requesting fresh location")
+        print("DEBUG: Performing auto-refresh (15s timer) - requesting fresh location")
         
-        // Always request a fresh location for auto-refresh to ensure we're using current position
+        // UPDATED: For iOS, also refresh location more frequently since users might be moving
         locationManager.requestOneTimeUpdate()
+        
+        // Also refresh train data with current location if available
+        if let location = locationManager.location {
+            startFetchingWithLocation(location)
+        }
     }
     
     private func getTimeSinceLastUpdated() -> String {
@@ -229,7 +262,11 @@ struct NearbyView: View {
             VStack {
                 // Time since updated indicator for empty state
                 if lastDataUpdated != nil {
-                    TimeIndicatorView(timeSinceUpdated: getTimeSinceLastUpdated())
+                    TimeIndicatorView(
+                        timeSinceUpdated: getTimeSinceLastUpdated(),
+                        lastLocationUpdate: lastLocationUpdate,
+                        locationUpdateCount: locationUpdateCount
+                    )
                 }
                 
                 List {
@@ -242,6 +279,9 @@ struct NearbyView: View {
                 .listStyle(.plain)
                 .refreshable {
                     await performRefreshWithText()
+                }
+                .safeAreaInset(edge: .bottom) {
+                    Color.clear.frame(height: 20)
                 }
             }
         } else if let error = locationManager.locationError {
@@ -282,7 +322,11 @@ struct NearbyView: View {
         VStack {
             // Time since updated indicator for empty state
             if lastDataUpdated != nil {
-                TimeIndicatorView(timeSinceUpdated: getTimeSinceLastUpdated())
+                TimeIndicatorView(
+                    timeSinceUpdated: getTimeSinceLastUpdated(),
+                    lastLocationUpdate: lastLocationUpdate,
+                    locationUpdateCount: locationUpdateCount
+                )
             }
             
             List {
@@ -295,6 +339,9 @@ struct NearbyView: View {
             .listStyle(.plain)
             .refreshable {
                 await performRefreshWithText()
+            }
+            .safeAreaInset(edge: .bottom) {
+                Color.clear.frame(height: 20)
             }
         }
     }
@@ -338,7 +385,11 @@ struct NearbyView: View {
         VStack(spacing: 0) {
             // Time since updated indicator
             if lastDataUpdated != nil {
-                TimeIndicatorView(timeSinceUpdated: getTimeSinceLastUpdated())
+                TimeIndicatorView(
+                    timeSinceUpdated: getTimeSinceLastUpdated(),
+                    lastLocationUpdate: lastLocationUpdate,
+                    locationUpdateCount: locationUpdateCount
+                )
             }
             
             TrainsListView()
@@ -356,6 +407,9 @@ struct NearbyView: View {
         .listStyle(.plain)
         .refreshable {
             await performRefreshWithText()
+        }
+        .safeAreaInset(edge: .bottom) {
+            Color.clear.frame(height: 20)
         }
     }
 
@@ -384,10 +438,23 @@ struct NearbyView: View {
     private func LoadingOverlay() -> some View {
         if nearbyTrainsManager.isLoading {
             VStack {
-                Text("Loading nearby trains...")
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.secondary)
-                    .transition(.opacity.combined(with: .move(edge: .top)))
+                HStack(spacing: 8) {
+                    ProgressView()
+                        .scaleEffect(0.8)
+                    
+                    Text("Updating...")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.secondary)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color(UIColor.systemBackground).opacity(0.95))
+                        .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 2)
+                )
+                .padding(.top, 8)
+                .transition(.opacity.combined(with: .move(edge: .top)))
                 
                 Spacer()
             }
@@ -439,17 +506,48 @@ struct NearbyView: View {
     
     struct TimeIndicatorView: View {
         let timeSinceUpdated: String
+        let lastLocationUpdate: Date?
+        let locationUpdateCount: Int
+        @State private var currentTime = Date()
+        
+        private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+        
+        private var locationUpdateText: String {
+            guard let lastLocationUpdate = lastLocationUpdate else { return "No location updates" }
+            
+            let interval = currentTime.timeIntervalSince(lastLocationUpdate)
+            let seconds = Int(interval)
+            
+            if seconds < 60 {
+                return "Location updated \(seconds)s ago (#\(locationUpdateCount))"
+            } else {
+                let minutes = seconds / 60
+                return "Location updated \(minutes)m ago (#\(locationUpdateCount))"
+            }
+        }
         
         var body: some View {
-            HStack {
-                Spacer()
-                Text(timeSinceUpdated)
-                    .font(.custom("HelveticaNeue", size: 12))
-                    .foregroundColor(.secondary.opacity(0.7))
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 4)
+            VStack(alignment: .trailing, spacing: 2) {
+                HStack {
+                    Spacer()
+                    Text(timeSinceUpdated)
+                        .font(.custom("HelveticaNeue", size: 12))
+                        .foregroundColor(.secondary.opacity(0.7))
+                }
+                
+                HStack {
+                    Spacer()
+                    Text(locationUpdateText)
+                        .font(.custom("HelveticaNeue", size: 10))
+                        .foregroundColor(.secondary.opacity(0.5))
+                }
             }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 4)
             .background(Color(UIColor.systemBackground))
+            .onReceive(timer) { time in
+                currentTime = time
+            }
         }
     }
 
@@ -486,9 +584,14 @@ struct NearbyView: View {
         let line: SubwayLine
         let stationDataManager: StationDataManager
         let favoritesManager: FavoritesManager
+        
         // Add location manager to get current location
         @EnvironmentObject var locationManager: LocationManager
         @State private var currentTime = Date()
+        
+        // Location update tracking
+        @State private var lastLocationUpdate: Date?
+        @State private var locationUpdateCount = 0
         
         private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
         
@@ -628,7 +731,19 @@ struct NearbyView: View {
     }
     
     func groupTrainsByStation() -> [(stationId: String, stationDisplay: String, distanceText: String, trainsByLineAndDirection: [(line: SubwayLine, direction: String, trains: [NearbyTrain], lineDirectionId: String)])] {
-        let grouped = Dictionary(grouping: nearbyTrainsManager.nearbyTrains) { $0.stationId }
+        // Filter out stale trains (those that have departed more than 2 minutes ago)
+        let currentTime = Date()
+        let freshTrains = nearbyTrainsManager.nearbyTrains.filter { train in
+            let timeInterval = train.arrivalTime.timeIntervalSince(currentTime)
+            return timeInterval > -120 // Keep trains that departed less than 2 minutes ago
+        }
+        
+        // If we filtered out trains, it means we have stale data - show loading indicator
+        if freshTrains.count < nearbyTrainsManager.nearbyTrains.count {
+            print("DEBUG: Filtered out \(nearbyTrainsManager.nearbyTrains.count - freshTrains.count) stale trains")
+        }
+        
+        let grouped = Dictionary(grouping: freshTrains) { $0.stationId }
         
         return grouped.map { (stationId, trains) in
             let firstTrain = trains.first!
