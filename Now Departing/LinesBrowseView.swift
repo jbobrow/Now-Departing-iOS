@@ -252,9 +252,13 @@ struct TerminalSelectionView: View {
                         .font(.custom("HelveticaNeue-Bold", size: 20))
                         .foregroundColor(.primary)
 
-                    Text(terminal.direction)
-                        .font(.custom("HelveticaNeue", size: 16))
-                        .foregroundColor(.secondary)
+                    Text(DirectionHelper.getToTerminalStation(
+                        for: line.id,
+                        direction: terminal.direction,
+                        stationDataManager: stationDataManager
+                    ))
+                    .font(.custom("HelveticaNeue", size: 16))
+                    .foregroundColor(.secondary)
                 }
                 .padding(.vertical, 8)
             }
