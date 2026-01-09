@@ -10,6 +10,7 @@ import SwiftUI
 struct ContentView: View {
     @StateObject private var locationManager = LocationManager()
     @EnvironmentObject var stationDataManager: StationDataManager
+    @EnvironmentObject var favoritesManager: FavoritesManager
     @State private var isReady = false
     
     var body: some View {
@@ -36,15 +37,13 @@ struct ContentView: View {
                 }
                 
                 // Lines Tab
-                NavigationStack {
-                    LinesView()
-//                        .navigationTitle("Lines")
-//                        .navigationBarTitleDisplayMode(.large)
-                }
-                .tabItem {
-                    Image(systemName: "tram.fill")
-                    Text("Lines")
-                }
+                LinesBrowseView()
+                    .environmentObject(stationDataManager)
+                    .environmentObject(favoritesManager)
+                    .tabItem {
+                        Image(systemName: "tram.fill")
+                        Text("Lines")
+                    }
                 
                 // Favorites Tab
                 NavigationStack {
