@@ -1,5 +1,5 @@
-# 🚇 Now Departing - WatchOS
-An Apple Watch app for seeing live times for the train you are trying to catch (Limited to the NYC Subway)
+# 🚇 Now Departing - iOS & WatchOS
+An iOS app for seeing live times for the train you are trying to catch (Limited to the NYC Subway)
 
 🖼️ Placeholder for images of Watch App
 
