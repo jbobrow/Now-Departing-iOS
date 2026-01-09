@@ -204,7 +204,7 @@ struct StationSelectionView: View {
                 }
             }
         }
-        .navigationTitle(line.label + " Line")
+        .navigationTitle("Select Station")
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
             ToolbarItem(placement: .principal) {
@@ -248,11 +248,11 @@ struct TerminalSelectionView: View {
                 navigationState.path.append(NavigationRoute.times(line, station, terminal.direction))
             }) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(station.display)
+                    Text(terminal.description)
                         .font(.custom("HelveticaNeue-Bold", size: 20))
                         .foregroundColor(.primary)
 
-                    Text(terminal.description)
+                    Text(terminal.direction)
                         .font(.custom("HelveticaNeue", size: 16))
                         .foregroundColor(.secondary)
                 }
