@@ -66,6 +66,36 @@ enum NavigationRoute: Hashable {
     case stations(SubwayLine)
     case terminals(SubwayLine, Station)
     case times(SubwayLine, Station, String)
+
+    func hash(into hasher: inout Hasher) {
+        switch self {
+        case .stations(let line):
+            hasher.combine("stations")
+            hasher.combine(line.id)
+        case .terminals(let line, let station):
+            hasher.combine("terminals")
+            hasher.combine(line.id)
+            hasher.combine(station.id)
+        case .times(let line, let station, let direction):
+            hasher.combine("times")
+            hasher.combine(line.id)
+            hasher.combine(station.id)
+            hasher.combine(direction)
+        }
+    }
+
+    static func == (lhs: NavigationRoute, rhs: NavigationRoute) -> Bool {
+        switch (lhs, rhs) {
+        case (.stations(let line1), .stations(let line2)):
+            return line1.id == line2.id
+        case (.terminals(let line1, let station1), .terminals(let line2, let station2)):
+            return line1.id == line2.id && station1.id == station2.id
+        case (.times(let line1, let station1, let dir1), .times(let line2, let station2, let dir2)):
+            return line1.id == line2.id && station1.id == station2.id && dir1 == dir2
+        default:
+            return false
+        }
+    }
 }
 
 class NavigationState: ObservableObject {
@@ -124,7 +154,7 @@ struct LineSelectionView: View {
 struct StationSelectionView: View {
     let line: SubwayLine
     @EnvironmentObject var stationDataManager: StationDataManager
-    @ObservedObject var navigationState: NavigationState
+    @EnvironmentObject var navigationState: NavigationState
 
     var body: some View {
         Group {
@@ -197,7 +227,7 @@ struct TerminalSelectionView: View {
     let line: SubwayLine
     let station: Station
     @EnvironmentObject var stationDataManager: StationDataManager
-    @ObservedObject var navigationState: NavigationState
+    @EnvironmentObject var navigationState: NavigationState
 
     var terminals: [(direction: String, description: String)] {
         [
@@ -253,7 +283,7 @@ struct TimesView: View {
 
     @EnvironmentObject var favoritesManager: FavoritesManager
     @EnvironmentObject var stationDataManager: StationDataManager
-    @ObservedObject var navigationState: NavigationState
+    @EnvironmentObject var navigationState: NavigationState
     @StateObject private var viewModel = TimesViewModel()
     @State private var showingFavoriteAlert = false
     @State private var currentTime = Date()
