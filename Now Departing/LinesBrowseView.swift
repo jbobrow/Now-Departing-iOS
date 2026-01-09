@@ -118,6 +118,7 @@ struct LineSelectionView: View {
             LazyVGrid(columns: [
                 GridItem(.flexible()),
                 GridItem(.flexible()),
+                GridItem(.flexible()),
                 GridItem(.flexible())
             ], spacing: 16) {
                 ForEach(lines) { line in
@@ -133,19 +134,19 @@ struct LineSelectionView: View {
                         }
                     }) {
                         Text(line.label)
-                            .font(.custom("HelveticaNeue-Bold", size: 44))
+                            .font(.custom("HelveticaNeue-Bold", size: 34))
                             .foregroundColor(line.fg_color)
-                            .frame(width: 100, height: 100)
+                            .frame(width: 80, height: 80)
                             .background(Circle().fill(line.bg_color))
                             .scaleEffect(selectedLineId == line.id ? 1.05 : 1.0)
                             .animation(.spring(response: 0.3, dampingFraction: 0.6), value: selectedLineId == line.id)
                     }
+                    .buttonStyle(PlainButtonStyle())
                 }
             }
             .padding()
         }
-        .navigationTitle("Browse by Line")
-        .navigationBarTitleDisplayMode(.large)
+        .navigationBarHidden(true)
     }
 }
 
