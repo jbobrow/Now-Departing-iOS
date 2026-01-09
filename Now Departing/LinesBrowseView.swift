@@ -274,6 +274,110 @@ struct TerminalSelectionView: View {
     }
 }
 
+// MARK: - Times View Model (iOS)
+
+class TimesViewModeliOS: ObservableObject {
+    @Published var nextTrains: [(minutes: Int, seconds: Int)] = []
+    @Published var loading: Bool = false
+    @Published var errorMessage: String = ""
+
+    private var apiTimer: Timer?
+    private var displayTimer: Timer?
+    private var arrivalTimes: [Date] = []
+
+    func startFetchingTimes(for line: SubwayLine, station: Station, direction: String) {
+        loading = true
+        fetchArrivalTimes(for: line, station: station, direction: direction)
+
+        // Refresh every 30 seconds
+        apiTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { [weak self] _ in
+            self?.fetchArrivalTimes(for: line, station: station, direction: direction)
+        }
+
+        // Update display every second
+        displayTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
+            self?.updateDisplayTimes()
+        }
+    }
+
+    func stopFetchingTimes() {
+        apiTimer?.invalidate()
+        apiTimer = nil
+        displayTimer?.invalidate()
+        displayTimer = nil
+    }
+
+    private func updateDisplayTimes() {
+        let now = Date()
+        nextTrains = arrivalTimes.compactMap { arrivalTime in
+            let interval = arrivalTime.timeIntervalSince(now)
+            if interval < 0 { return nil }
+
+            let totalSeconds = Int(interval)
+            let minutes = totalSeconds / 60
+            let seconds = totalSeconds % 60
+
+            return (minutes: minutes, seconds: seconds)
+        }.sorted { $0.minutes * 60 + $0.seconds < $1.minutes * 60 + $1.seconds }
+
+        // Clean up past arrival times
+        arrivalTimes = arrivalTimes.filter { $0 > now }
+    }
+
+    private func fetchArrivalTimes(for line: SubwayLine, station: Station, direction: String) {
+        let apiURL = "https://api.wheresthefuckingtrain.com/by-route/\(line.id)"
+
+        guard let url = URL(string: apiURL) else {
+            errorMessage = "Invalid URL"
+            loading = false
+            return
+        }
+
+        URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    self?.errorMessage = "Network error: \(error.localizedDescription)"
+                    self?.loading = false
+                    return
+                }
+
+                guard let data = data else {
+                    self?.errorMessage = "No data received"
+                    self?.loading = false
+                    return
+                }
+
+                do {
+                    let response = try JSONDecoder().decode(APIResponse.self, from: data)
+                    if let stationData = response.data.first(where: { $0.name == station.name }) {
+                        let trains = direction == "N" ? stationData.N : stationData.S
+                        let filteredTrains = trains.filter { $0.route == line.id }
+
+                        let formatter = ISO8601DateFormatter()
+                        self?.arrivalTimes = filteredTrains.compactMap { train -> Date? in
+                            formatter.date(from: train.time)
+                        }.filter { $0 > Date() }
+                        .sorted()
+
+                        if self?.arrivalTimes.isEmpty == true {
+                            self?.errorMessage = "No trains scheduled"
+                        } else {
+                            self?.errorMessage = ""
+                        }
+                        self?.updateDisplayTimes()
+                    } else {
+                        self?.errorMessage = "Station not found"
+                    }
+                    self?.loading = false
+                } catch {
+                    self?.errorMessage = "Failed to decode data"
+                    self?.loading = false
+                }
+            }
+        }.resume()
+    }
+}
+
 // MARK: - Times View
 
 struct TimesView: View {
@@ -284,7 +388,7 @@ struct TimesView: View {
     @EnvironmentObject var favoritesManager: FavoritesManager
     @EnvironmentObject var stationDataManager: StationDataManager
     @EnvironmentObject var navigationState: NavigationState
-    @StateObject private var viewModel = TimesViewModel()
+    @StateObject private var viewModel = TimesViewModeliOS()
     @State private var showingFavoriteAlert = false
     @State private var currentTime = Date()
 
