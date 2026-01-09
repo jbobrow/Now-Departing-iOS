@@ -54,7 +54,6 @@ struct LinesBrowseView: View {
                             .environmentObject(navigationState)
                     case .times(let line, let station, let direction):
                         TimesView(line: line, station: station, direction: direction)
-                            .environmentObject(navigationState)
                     }
                 }
         }
@@ -393,10 +392,12 @@ struct TimesView: View {
 
     @EnvironmentObject var favoritesManager: FavoritesManager
     @EnvironmentObject var stationDataManager: StationDataManager
-    @EnvironmentObject var navigationState: NavigationState
     @StateObject private var viewModel = TimesViewModeliOS()
     @State private var showingFavoriteAlert = false
     @State private var currentTime = Date()
+
+    // Make navigationState optional - only exists when navigating from LinesBrowseView
+    @Environment(\.dismiss) private var dismiss
 
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
@@ -506,7 +507,7 @@ struct TimesView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button(action: {
-                    navigationState.reset()
+                    dismiss()
                 }) {
                     HStack(spacing: 4) {
                         Image(systemName: "xmark")
