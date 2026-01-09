@@ -410,66 +410,76 @@ struct TimesView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            // Header with line badge
-            VStack(spacing: 16) {
+        VStack(alignment: .leading, spacing: 0) {
+            // Header with line badge and station info
+            HStack(alignment: .top, spacing: 12) {
+                // Line badge
                 Text(line.label)
-                    .font(.custom("HelveticaNeue-Bold", size: 80))
+                    .font(.custom("HelveticaNeue-Bold", size: 48))
                     .foregroundColor(line.fg_color)
-                    .frame(width: 140, height: 140)
+                    .frame(width: 72, height: 72)
                     .background(Circle().fill(line.bg_color))
 
-                Text(station.display)
-                    .font(.custom("HelveticaNeue-Bold", size: 28))
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
+                // Station info
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(station.display)
+                        .font(.custom("HelveticaNeue-Bold", size: 24))
+                        .foregroundColor(.primary)
 
-                Text(DirectionHelper.getToTerminalStation(
-                    for: line.id,
-                    direction: direction,
-                    stationDataManager: stationDataManager
-                ))
-                .font(.custom("HelveticaNeue", size: 18))
-                .foregroundColor(.secondary)
+                    Text(DirectionHelper.getToTerminalStation(
+                        for: line.id,
+                        direction: direction,
+                        stationDataManager: stationDataManager
+                    ))
+                    .font(.custom("HelveticaNeue", size: 16))
+                    .foregroundColor(.secondary)
+                }
+
+                Spacer()
             }
-            .padding(.top, 40)
+            .padding(.horizontal, 24)
+            .padding(.top, 60)
+            .padding(.bottom, 32)
 
             Spacer()
 
             // Train times
-            if viewModel.loading && viewModel.nextTrains.isEmpty {
-                ProgressView()
-                    .scaleEffect(1.5)
-                    .padding()
-            } else if !viewModel.errorMessage.isEmpty {
-                VStack(spacing: 16) {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .font(.system(size: 50))
-                        .foregroundColor(.orange)
+            VStack(spacing: 0) {
+                if viewModel.loading && viewModel.nextTrains.isEmpty {
+                    ProgressView()
+                        .scaleEffect(1.5)
+                        .padding()
+                } else if !viewModel.errorMessage.isEmpty {
+                    VStack(spacing: 16) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(.system(size: 50))
+                            .foregroundColor(.orange)
 
-                    Text(viewModel.errorMessage)
-                        .font(.custom("HelveticaNeue", size: 18))
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
-                }
-            } else if !viewModel.nextTrains.isEmpty {
-                VStack(spacing: 12) {
-                    // Primary time
-                    Text(getTimeText(for: viewModel.nextTrains[0]))
-                        .font(.custom("HelveticaNeue-Bold", size: 48))
-                        .foregroundColor(.primary)
+                        Text(viewModel.errorMessage)
+                            .font(.custom("HelveticaNeue", size: 18))
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal)
+                    }
+                } else if !viewModel.nextTrains.isEmpty {
+                    VStack(spacing: 16) {
+                        // Primary time - largest
+                        Text(getTimeText(for: viewModel.nextTrains[0]))
+                            .font(.custom("HelveticaNeue-Bold", size: 72))
+                            .foregroundColor(.primary)
 
-                    // Additional times
-                    if viewModel.nextTrains.count > 1 {
-                        Text(viewModel.nextTrains.dropFirst().prefix(3).map { train in
-                            getAdditionalTimeText(for: train)
-                        }.joined(separator: ", "))
-                        .font(.custom("HelveticaNeue", size: 20))
-                        .foregroundColor(.secondary)
+                        // Additional times - smaller, underneath
+                        if viewModel.nextTrains.count > 1 {
+                            Text(viewModel.nextTrains.dropFirst().prefix(5).map { train in
+                                getAdditionalTimeText(for: train)
+                            }.joined(separator: ", "))
+                            .font(.custom("HelveticaNeue", size: 24))
+                            .foregroundColor(.secondary)
+                        }
                     }
                 }
             }
+            .frame(maxWidth: .infinity)
 
             Spacer()
 
