@@ -41,8 +41,8 @@ struct LinesBrowseView: View {
     ]
 
     var body: some View {
-        NavigationStack {
-            LineSelectionView(lines: lines, navigationState: navigationState)
+        NavigationStack(path: $navigationState.path) {
+            LineSelectionView(lines: lines)
                 .environmentObject(navigationState)
                 .navigationDestination(for: NavigationRoute.self) { route in
                     switch route {
@@ -111,7 +111,7 @@ class NavigationState: ObservableObject {
 
 struct LineSelectionView: View {
     let lines: [SubwayLine]
-    @ObservedObject var navigationState: NavigationState
+    @EnvironmentObject var navigationState: NavigationState
     @State private var selectedLineId: String? = nil
 
     var body: some View {
