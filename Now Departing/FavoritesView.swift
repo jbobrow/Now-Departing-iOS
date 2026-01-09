@@ -153,16 +153,27 @@ struct FavoriteTrainRow: View {
     }
     
     var body: some View {
-        NavigationLink(destination: {
+        Group {
             if let line = line {
-                TimesView(
+                NavigationLink(destination: TimesView(
                     line: line,
                     station: Station(display: favorite.stationDisplay, name: favorite.stationName),
                     direction: favorite.direction
-                )
+                )) {
+                    rowContent
+                }
+                .buttonStyle(PlainButtonStyle())
+            } else {
+                rowContent
             }
-        }()) {
-            VStack(alignment: .leading, spacing: 12) {
+        }
+        .onReceive(timer) { time in
+            currentTime = time
+        }
+    }
+
+    private var rowContent: some View {
+        VStack(alignment: .leading, spacing: 12) {
                 // Station and Line Info
                 HStack(alignment: .top, spacing: 12) {
                     // Line badge
@@ -243,11 +254,6 @@ struct FavoriteTrainRow: View {
             }
         }
         .padding(.vertical, 8)
-        }
-        .buttonStyle(PlainButtonStyle())
-        .onReceive(timer) { time in
-            currentTime = time
-        }
     }
     
     // Helper functions for time formatting
