@@ -575,45 +575,89 @@ struct TimesView: View {
         }
     }
 
-    // Small widget - compact view
+    // Small widget - compact view with directional background
     private var smallWidgetContent: some View {
-        VStack(spacing: 8) {
-            HStack(spacing: 8) {
-                Text(line.label)
-                    .font(.custom("HelveticaNeue-Bold", size: 24))
-                    .foregroundColor(line.fg_color)
-                    .frame(width: 36, height: 36)
-                    .background(Circle().fill(line.bg_color))
+        ZStack {
+            // Directional background shape
+            DirectionalBackground(direction: direction, lineColor: line.bg_color)
 
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(station.display)
-                        .font(.custom("HelveticaNeue-Bold", size: 14))
-                        .lineLimit(1)
-                    Text(DirectionHelper.getToTerminalStation(for: line.id, direction: direction, stationDataManager: stationDataManager))
-                        .font(.custom("HelveticaNeue", size: 10))
-                        .foregroundColor(.secondary)
-                        .lineLimit(1)
+            VStack(spacing: 4) {
+                // Top row: Line badge and updated time
+                HStack {
+                    Text(line.label)
+                        .font(.custom("HelveticaNeue-Bold", size: 28))
+                        .foregroundColor(line.fg_color)
+                        .frame(width: 44, height: 44)
+                        .background(Circle().fill(line.bg_color))
+
+                    Spacer()
                 }
+
                 Spacer()
-            }
 
-            Spacer()
+                // Center: Train time
+                if viewModel.loading && viewModel.nextTrains.isEmpty {
+                    ProgressView()
+                } else if !viewModel.errorMessage.isEmpty {
+                    Text("--")
+                        .font(.custom("HelveticaNeue-Bold", size: 56))
+                        .foregroundColor(.primary)
+                } else if !viewModel.nextTrains.isEmpty {
+                    Text(getTimeText(for: viewModel.nextTrains[0]))
+                        .font(.custom("HelveticaNeue-Bold", size: 56))
+                        .foregroundColor(.primary)
+                }
 
-            if viewModel.loading && viewModel.nextTrains.isEmpty {
-                ProgressView()
-            } else if !viewModel.errorMessage.isEmpty {
-                Text("--")
-                    .font(.custom("HelveticaNeue-Bold", size: 48))
-                    .foregroundColor(.secondary)
-            } else if !viewModel.nextTrains.isEmpty {
-                Text(getTimeText(for: viewModel.nextTrains[0]))
-                    .font(.custom("HelveticaNeue-Bold", size: 48))
+                Spacer()
+
+                // Bottom: Station name
+                Text(station.display)
+                    .font(.custom("HelveticaNeue-Bold", size: 14))
                     .foregroundColor(.primary)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
             }
-
-            Spacer()
+            .padding(16)
         }
-        .padding(16)
+    }
+
+    // Directional background shape for small widget
+    private struct DirectionalBackground: View {
+        let direction: String
+        let lineColor: Color
+
+        var body: some View {
+            GeometryReader { geometry in
+                Path { path in
+                    let width = geometry.size.width
+                    let height = geometry.size.height
+
+                    if direction == "N" {
+                        // Northbound - curve at top
+                        path.move(to: CGPoint(x: 0, y: height * 0.3))
+                        path.addQuadCurve(
+                            to: CGPoint(x: width, y: height * 0.3),
+                            control: CGPoint(x: width / 2, y: 0)
+                        )
+                        path.addLine(to: CGPoint(x: width, y: height))
+                        path.addLine(to: CGPoint(x: 0, y: height))
+                        path.closeSubpath()
+                    } else {
+                        // Southbound - curve at bottom
+                        path.move(to: CGPoint(x: 0, y: 0))
+                        path.addLine(to: CGPoint(x: width, y: 0))
+                        path.addLine(to: CGPoint(x: width, y: height * 0.7))
+                        path.addQuadCurve(
+                            to: CGPoint(x: 0, y: height * 0.7),
+                            control: CGPoint(x: width / 2, y: height)
+                        )
+                        path.closeSubpath()
+                    }
+                }
+                .fill(lineColor.opacity(0.15))
+            }
+        }
     }
 
     // Medium widget - horizontal layout
