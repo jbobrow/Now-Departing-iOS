@@ -396,7 +396,7 @@ struct TimesView: View {
     @State private var showingFavoriteAlert = false
     @State private var showingWidgetInfo = false
     @State private var currentTime = Date()
-    @State private var widgetSize: WidgetSize = .medium
+    @State private var widgetSize: WidgetSize = .large
 
     // Make navigationState optional - only exists when navigating from LinesBrowseView
     @Environment(\.dismiss) private var dismiss
