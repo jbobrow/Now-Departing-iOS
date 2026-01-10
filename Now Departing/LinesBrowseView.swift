@@ -423,11 +423,11 @@ struct TimesView: View {
             VStack(spacing: 24) {
                 // Widget size picker with SF Symbols
                 Picker("Widget Size", selection: $widgetSize) {
-                    Image(systemName: "square.fill")
+                    Image(systemName: "widget.small")
                         .tag(WidgetSize.small)
-                    Image(systemName: "rectangle.fill")
+                    Image(systemName: "widget.medium")
                         .tag(WidgetSize.medium)
-                    Image(systemName: "rectangle.portrait.fill")
+                    Image(systemName: "widget.large")
                         .tag(WidgetSize.large)
                 }
                 .pickerStyle(.segmented)
