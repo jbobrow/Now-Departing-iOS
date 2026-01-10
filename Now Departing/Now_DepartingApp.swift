@@ -8,9 +8,10 @@
 import SwiftUI
 
 // AppDelegate to handle quick actions
-class AppDelegate: NSObject, UIApplicationDelegate {
+class AppDelegate: NSObject, UIApplicationDelegate, ObservableObject {
     static var shared: AppDelegate?
     var shortcutItemToProcess: UIApplicationShortcutItem?
+    @Published var shouldShowAppUI = true
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         AppDelegate.shared = self
@@ -32,6 +33,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
         if let shortcutItem = options.shortcutItem {
             shortcutItemToProcess = shortcutItem
+            if shortcutItem.type == "com.move38.Now-Departing.share" {
+                shouldShowAppUI = false
+            }
         }
 
         let sceneConfiguration = UISceneConfiguration(name: "Custom Configuration", sessionRole: connectingSceneSession.role)
@@ -46,11 +50,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     func windowScene(_ windowScene: UIWindowScene, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
         if shortcutItem.type == "com.move38.Now-Departing.share" {
-            // Present share sheet immediately without fully launching the app
+            AppDelegate.shared?.shouldShowAppUI = false
+            // Present share sheet immediately
             DispatchQueue.main.async {
-                self.presentShareSheet(in: windowScene)
+                self.presentShareSheet(in: windowScene, completion: completionHandler)
             }
-            completionHandler(true)
         } else {
             completionHandler(false)
         }
@@ -60,17 +64,25 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Handle quick action if app was launched from it
         if let shortcutItem = connectionOptions.shortcutItem {
             if shortcutItem.type == "com.move38.Now-Departing.share" {
-                // Delay briefly to ensure window is ready
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    self.presentShareSheet(in: scene as! UIWindowScene)
-                }
+                AppDelegate.shared?.shouldShowAppUI = false
             }
         }
     }
 
-    private func presentShareSheet(in windowScene: UIWindowScene) {
+    func sceneDidBecomeActive(_ scene: UIScene) {
+        // Present share sheet as soon as scene becomes active for quick actions
+        if let shortcutItem = AppDelegate.shared?.shortcutItemToProcess,
+           shortcutItem.type == "com.move38.Now-Departing.share",
+           let windowScene = scene as? UIWindowScene {
+            AppDelegate.shared?.shortcutItemToProcess = nil
+            presentShareSheet(in: windowScene) { _ in }
+        }
+    }
+
+    private func presentShareSheet(in windowScene: UIWindowScene, completion: @escaping (Bool) -> Void) {
         guard let window = windowScene.windows.first,
               let rootViewController = window.rootViewController else {
+            completion(false)
             return
         }
 
@@ -94,7 +106,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             popoverController.permittedArrowDirections = []
         }
 
-        topController.present(activityViewController, animated: true)
+        // Reset flag after share sheet is dismissed
+        activityViewController.completionWithItemsHandler = { _, _, _, _ in
+            AppDelegate.shared?.shouldShowAppUI = true
+        }
+
+        topController.present(activityViewController, animated: true) {
+            completion(true)
+        }
     }
 }
 
@@ -107,11 +126,17 @@ struct Now_DepartingApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .environmentObject(favoritesManager)
-                .environmentObject(stationDataManager)
-                .environmentObject(locationManager)
-                .preferredColorScheme(.dark) // Your dark mode preference
+            if appDelegate.shouldShowAppUI {
+                ContentView()
+                    .environmentObject(favoritesManager)
+                    .environmentObject(stationDataManager)
+                    .environmentObject(locationManager)
+                    .preferredColorScheme(.dark) // Your dark mode preference
+            } else {
+                // Show minimal view while share sheet is being presented
+                Color.clear
+                    .ignoresSafeArea()
+            }
         }
     }
 }
