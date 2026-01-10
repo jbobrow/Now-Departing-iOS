@@ -42,10 +42,59 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
 // SceneDelegate to handle quick actions
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+    var window: UIWindow?
+
     func windowScene(_ windowScene: UIWindowScene, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
-        AppDelegate.shared?.shortcutItemToProcess = shortcutItem
-        NotificationCenter.default.post(name: NSNotification.Name("QuickActionTriggered"), object: shortcutItem)
-        completionHandler(true)
+        if shortcutItem.type == "com.move38.Now-Departing.share" {
+            // Present share sheet immediately without fully launching the app
+            DispatchQueue.main.async {
+                self.presentShareSheet(in: windowScene)
+            }
+            completionHandler(true)
+        } else {
+            completionHandler(false)
+        }
+    }
+
+    func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+        // Handle quick action if app was launched from it
+        if let shortcutItem = connectionOptions.shortcutItem {
+            if shortcutItem.type == "com.move38.Now-Departing.share" {
+                // Delay briefly to ensure window is ready
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    self.presentShareSheet(in: scene as! UIWindowScene)
+                }
+            }
+        }
+    }
+
+    private func presentShareSheet(in windowScene: UIWindowScene) {
+        guard let window = windowScene.windows.first,
+              let rootViewController = window.rootViewController else {
+            return
+        }
+
+        // Find the topmost view controller
+        var topController = rootViewController
+        while let presented = topController.presentedViewController {
+            topController = presented
+        }
+
+        // Present the share sheet
+        let url = URL(string: "https://apps.apple.com/us/app/now-departing/id6740440448")!
+        let activityViewController = UIActivityViewController(
+            activityItems: [url],
+            applicationActivities: nil
+        )
+
+        // For iPad support
+        if let popoverController = activityViewController.popoverPresentationController {
+            popoverController.sourceView = topController.view
+            popoverController.sourceRect = CGRect(x: topController.view.bounds.midX, y: topController.view.bounds.midY, width: 0, height: 0)
+            popoverController.permittedArrowDirections = []
+        }
+
+        topController.present(activityViewController, animated: true)
     }
 }
 
@@ -55,7 +104,6 @@ struct Now_DepartingApp: App {
     @StateObject private var favoritesManager = FavoritesManager()
     @StateObject private var stationDataManager = StationDataManager()
     @StateObject private var locationManager = LocationManager()
-    @State private var showShareSheet = false
 
     var body: some Scene {
         WindowGroup {
@@ -64,44 +112,6 @@ struct Now_DepartingApp: App {
                 .environmentObject(stationDataManager)
                 .environmentObject(locationManager)
                 .preferredColorScheme(.dark) // Your dark mode preference
-                .sheet(isPresented: $showShareSheet) {
-                    ShareSheet(activityItems: [URL(string: "https://apps.apple.com/us/app/now-departing/id6740440448")!])
-                }
-                .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("QuickActionTriggered"))) { notification in
-                    if let shortcutItem = notification.object as? UIApplicationShortcutItem {
-                        handleShortcutItem(shortcutItem)
-                    }
-                }
-                .onAppear {
-                    // Handle quick action if app was launched from it
-                    if let shortcutItem = appDelegate.shortcutItemToProcess {
-                        handleShortcutItem(shortcutItem)
-                        appDelegate.shortcutItemToProcess = nil
-                    }
-                }
         }
-    }
-
-    private func handleShortcutItem(_ shortcutItem: UIApplicationShortcutItem) {
-        if shortcutItem.type == "com.move38.Now-Departing.share" {
-            showShareSheet = true
-        }
-    }
-}
-
-// Share Sheet wrapper for UIActivityViewController
-struct ShareSheet: UIViewControllerRepresentable {
-    let activityItems: [Any]
-
-    func makeUIViewController(context: Context) -> UIActivityViewController {
-        let controller = UIActivityViewController(
-            activityItems: activityItems,
-            applicationActivities: nil
-        )
-        return controller
-    }
-
-    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {
-        // No update needed
     }
 }
