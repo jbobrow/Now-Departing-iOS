@@ -455,8 +455,9 @@ struct TimesView: View {
                         largeWidgetContent
                     }
                 }
-                .frame(height: widgetHeight)
+                .frame(width: widgetWidth, height: widgetHeight)
                 .animation(.easeInOut(duration: 0.3), value: widgetSize)
+                .frame(maxWidth: .infinity) // Center the widget
                 .padding(.horizontal, 24)
 
                 // Action buttons with glass effect
@@ -558,6 +559,14 @@ struct TimesView: View {
         case .small: return 20
         case .medium: return 20
         case .large: return 24
+        }
+    }
+
+    private var widgetWidth: CGFloat? {
+        switch widgetSize {
+        case .small: return 160  // Half width, will be centered
+        case .medium: return nil // Full width
+        case .large: return nil  // Full width
         }
     }
 
