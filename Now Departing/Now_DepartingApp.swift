@@ -106,8 +106,17 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             popoverController.permittedArrowDirections = []
         }
 
-        // Reset flag after share sheet is dismissed
-        activityViewController.completionWithItemsHandler = { _, _, _, _ in
+        // Reset flag and close app after share sheet is dismissed
+        activityViewController.completionWithItemsHandler = { [weak windowScene] _, _, _, _ in
+            // If we showed the share sheet without the app UI, exit the app after sharing
+            if let appDelegate = AppDelegate.shared, !appDelegate.shouldShowAppUI {
+                // Background the app to return to home screen
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    if let scene = windowScene {
+                        UIApplication.shared.requestSceneSessionDestruction(scene.session, options: nil)
+                    }
+                }
+            }
             AppDelegate.shared?.shouldShowAppUI = true
         }
 
