@@ -394,12 +394,20 @@ struct TimesView: View {
     @EnvironmentObject var stationDataManager: StationDataManager
     @StateObject private var viewModel = TimesViewModeliOS()
     @State private var showingFavoriteAlert = false
+    @State private var showingWidgetInfo = false
     @State private var currentTime = Date()
+    @State private var widgetSize: WidgetSize = .medium
 
     // Make navigationState optional - only exists when navigating from LinesBrowseView
     @Environment(\.dismiss) private var dismiss
 
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+
+    enum WidgetSize: String, CaseIterable {
+        case small = "Small"
+        case medium = "Medium"
+        case large = "Large"
+    }
 
     // Check if this is already favorited
     private var isFavorited: Bool {
@@ -411,97 +419,61 @@ struct TimesView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            // Header with line badge and station info
-            HStack(alignment: .top, spacing: 12) {
-                // Line badge
-                Text(line.label)
-                    .font(.custom("HelveticaNeue-Bold", size: 48))
-                    .foregroundColor(line.fg_color)
-                    .frame(width: 72, height: 72)
-                    .background(Circle().fill(line.bg_color))
-
-                // Station info
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(station.display)
-                        .font(.custom("HelveticaNeue-Bold", size: 24))
-                        .foregroundColor(.primary)
-
-                    Text(DirectionHelper.getToTerminalStation(
-                        for: line.id,
-                        direction: direction,
-                        stationDataManager: stationDataManager
-                    ))
-                    .font(.custom("HelveticaNeue", size: 16))
-                    .foregroundColor(.secondary)
-                }
-
-                Spacer()
-            }
-            .padding(.horizontal, 24)
-            .padding(.top, 60)
-            .padding(.bottom, 32)
-
-            Spacer()
-
-            // Train times
-            VStack(spacing: 0) {
-                if viewModel.loading && viewModel.nextTrains.isEmpty {
-                    ProgressView()
-                        .scaleEffect(1.5)
-                        .padding()
-                } else if !viewModel.errorMessage.isEmpty {
-                    VStack(spacing: 16) {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .font(.system(size: 50))
-                            .foregroundColor(.orange)
-
-                        Text(viewModel.errorMessage)
-                            .font(.custom("HelveticaNeue", size: 18))
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal)
+        ScrollView {
+            VStack(spacing: 24) {
+                // Widget size picker
+                Picker("Widget Size", selection: $widgetSize) {
+                    ForEach(WidgetSize.allCases, id: \.self) { size in
+                        Text(size.rawValue).tag(size)
                     }
-                } else if !viewModel.nextTrains.isEmpty {
-                    VStack(spacing: 16) {
-                        // Primary time - largest
-                        Text(getTimeText(for: viewModel.nextTrains[0]))
-                            .font(.custom("HelveticaNeue-Bold", size: 72))
-                            .foregroundColor(.primary)
+                }
+                .pickerStyle(.segmented)
+                .padding(.horizontal, 24)
+                .padding(.top, 20)
 
-                        // Additional times - smaller, underneath
-                        if viewModel.nextTrains.count > 1 {
-                            Text(viewModel.nextTrains.dropFirst().prefix(5).map { train in
-                                getAdditionalTimeText(for: train)
-                            }.joined(separator: ", "))
-                            .font(.custom("HelveticaNeue", size: 24))
-                            .foregroundColor(.secondary)
+                // Widget preview container
+                widgetPreview
+                    .padding(.horizontal, 24)
+
+                // Action buttons
+                VStack(spacing: 12) {
+                    // Add Widget to Homescreen button
+                    Button(action: {
+                        showingWidgetInfo = true
+                    }) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "plus.app.fill")
+                            Text("Add Widget to Homescreen")
                         }
+                        .font(.custom("HelveticaNeue-Bold", size: 18))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(Color.green)
+                        .cornerRadius(14)
+                    }
+
+                    // Favorite button
+                    Button(action: {
+                        showingFavoriteAlert = true
+                    }) {
+                        HStack(spacing: 8) {
+                            Image(systemName: isFavorited ? "heart.fill" : "heart")
+                            Text(isFavorited ? "Remove from Favorites" : "Add to Favorites")
+                        }
+                        .font(.custom("HelveticaNeue-Bold", size: 18))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(isFavorited ? Color.red : Color.blue)
+                        .cornerRadius(14)
                     }
                 }
+                .padding(.horizontal, 24)
+                .padding(.bottom, 40)
             }
-            .frame(maxWidth: .infinity)
-
-            Spacer()
-
-            // Favorite button
-            Button(action: {
-                showingFavoriteAlert = true
-            }) {
-                HStack(spacing: 8) {
-                    Image(systemName: isFavorited ? "heart.fill" : "heart")
-                    Text(isFavorited ? "Remove from Favorites" : "Add to Favorites")
-                }
-                .font(.custom("HelveticaNeue-Bold", size: 18))
-                .foregroundColor(.white)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
-                .background(isFavorited ? Color.red : Color.blue)
-                .cornerRadius(14)
-            }
-            .padding(.horizontal, 24)
-            .padding(.bottom, 40)
         }
+        .background(Color(UIColor.systemGroupedBackground))
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .toolbar {
@@ -525,6 +497,16 @@ struct TimesView: View {
         .onReceive(timer) { time in
             currentTime = time
         }
+        .alert("Add Widget to Homescreen", isPresented: $showingWidgetInfo) {
+            Button("Open Settings") {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("To add a widget to your homescreen:\n\n1. Long press on your homescreen\n2. Tap the + button\n3. Search for 'Now Departing'\n4. Select this train and direction")
+        }
         .confirmationDialog("Favorites", isPresented: $showingFavoriteAlert, titleVisibility: .visible) {
             if isFavorited {
                 Button("Remove from Favorites", role: .destructive) {
@@ -537,6 +519,200 @@ struct TimesView: View {
             }
             Button("Cancel", role: .cancel) {}
         }
+    }
+
+    @ViewBuilder
+    private var widgetPreview: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: widgetCornerRadius)
+                .fill(Color(UIColor.systemBackground))
+                .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 4)
+
+            switch widgetSize {
+            case .small:
+                smallWidgetContent
+            case .medium:
+                mediumWidgetContent
+            case .large:
+                largeWidgetContent
+            }
+        }
+        .frame(height: widgetHeight)
+        .animation(.easeInOut(duration: 0.3), value: widgetSize)
+    }
+
+    private var widgetCornerRadius: CGFloat {
+        switch widgetSize {
+        case .small: return 20
+        case .medium: return 20
+        case .large: return 24
+        }
+    }
+
+    private var widgetHeight: CGFloat {
+        switch widgetSize {
+        case .small: return 160
+        case .medium: return 160
+        case .large: return 340
+        }
+    }
+
+    // Small widget - compact view
+    private var smallWidgetContent: some View {
+        VStack(spacing: 8) {
+            HStack(spacing: 8) {
+                Text(line.label)
+                    .font(.custom("HelveticaNeue-Bold", size: 24))
+                    .foregroundColor(line.fg_color)
+                    .frame(width: 36, height: 36)
+                    .background(Circle().fill(line.bg_color))
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(station.display)
+                        .font(.custom("HelveticaNeue-Bold", size: 14))
+                        .lineLimit(1)
+                    Text(DirectionHelper.getToTerminalStation(for: line.id, direction: direction, stationDataManager: stationDataManager))
+                        .font(.custom("HelveticaNeue", size: 10))
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
+                }
+                Spacer()
+            }
+
+            Spacer()
+
+            if viewModel.loading && viewModel.nextTrains.isEmpty {
+                ProgressView()
+            } else if !viewModel.errorMessage.isEmpty {
+                Text("--")
+                    .font(.custom("HelveticaNeue-Bold", size: 48))
+                    .foregroundColor(.secondary)
+            } else if !viewModel.nextTrains.isEmpty {
+                Text(getTimeText(for: viewModel.nextTrains[0]))
+                    .font(.custom("HelveticaNeue-Bold", size: 48))
+                    .foregroundColor(.primary)
+            }
+
+            Spacer()
+        }
+        .padding(16)
+    }
+
+    // Medium widget - horizontal layout
+    private var mediumWidgetContent: some View {
+        HStack(spacing: 16) {
+            // Left side - Line and station info
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 8) {
+                    Text(line.label)
+                        .font(.custom("HelveticaNeue-Bold", size: 32))
+                        .foregroundColor(line.fg_color)
+                        .frame(width: 48, height: 48)
+                        .background(Circle().fill(line.bg_color))
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(station.display)
+                            .font(.custom("HelveticaNeue-Bold", size: 16))
+                            .lineLimit(2)
+                        Text(DirectionHelper.getToTerminalStation(for: line.id, direction: direction, stationDataManager: stationDataManager))
+                            .font(.custom("HelveticaNeue", size: 12))
+                            .foregroundColor(.secondary)
+                            .lineLimit(1)
+                    }
+                }
+                Spacer()
+            }
+
+            Spacer()
+
+            // Right side - Train times
+            VStack(spacing: 4) {
+                if viewModel.loading && viewModel.nextTrains.isEmpty {
+                    ProgressView()
+                } else if !viewModel.errorMessage.isEmpty {
+                    Text("--")
+                        .font(.custom("HelveticaNeue-Bold", size: 48))
+                        .foregroundColor(.secondary)
+                } else if !viewModel.nextTrains.isEmpty {
+                    Text(getTimeText(for: viewModel.nextTrains[0]))
+                        .font(.custom("HelveticaNeue-Bold", size: 48))
+                        .foregroundColor(.primary)
+
+                    if viewModel.nextTrains.count > 1 {
+                        Text(viewModel.nextTrains.dropFirst().prefix(2).map { train in
+                            getAdditionalTimeText(for: train)
+                        }.joined(separator: ", "))
+                        .font(.custom("HelveticaNeue", size: 14))
+                        .foregroundColor(.secondary)
+                    }
+                }
+            }
+        }
+        .padding(20)
+    }
+
+    // Large widget - vertical layout with more info
+    private var largeWidgetContent: some View {
+        VStack(spacing: 16) {
+            // Header
+            HStack(alignment: .top, spacing: 12) {
+                Text(line.label)
+                    .font(.custom("HelveticaNeue-Bold", size: 48))
+                    .foregroundColor(line.fg_color)
+                    .frame(width: 72, height: 72)
+                    .background(Circle().fill(line.bg_color))
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(station.display)
+                        .font(.custom("HelveticaNeue-Bold", size: 24))
+                    Text(DirectionHelper.getToTerminalStation(for: line.id, direction: direction, stationDataManager: stationDataManager))
+                        .font(.custom("HelveticaNeue", size: 16))
+                        .foregroundColor(.secondary)
+                }
+                Spacer()
+            }
+
+            Divider()
+
+            // Train times
+            if viewModel.loading && viewModel.nextTrains.isEmpty {
+                Spacer()
+                ProgressView()
+                    .scaleEffect(1.5)
+                Spacer()
+            } else if !viewModel.errorMessage.isEmpty {
+                Spacer()
+                VStack(spacing: 8) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .font(.system(size: 40))
+                        .foregroundColor(.orange)
+                    Text(viewModel.errorMessage)
+                        .font(.custom("HelveticaNeue", size: 14))
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+                Spacer()
+            } else if !viewModel.nextTrains.isEmpty {
+                VStack(spacing: 12) {
+                    // Primary time
+                    Text(getTimeText(for: viewModel.nextTrains[0]))
+                        .font(.custom("HelveticaNeue-Bold", size: 72))
+                        .foregroundColor(.primary)
+
+                    // Additional times
+                    if viewModel.nextTrains.count > 1 {
+                        Text(viewModel.nextTrains.dropFirst().prefix(5).map { train in
+                            getAdditionalTimeText(for: train)
+                        }.joined(separator: ", "))
+                        .font(.custom("HelveticaNeue", size: 20))
+                        .foregroundColor(.secondary)
+                    }
+                }
+
+                Spacer()
+            }
+        }
+        .padding(24)
     }
 
     private func getTimeText(for train: (minutes: Int, seconds: Int)) -> String {
