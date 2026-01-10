@@ -421,21 +421,45 @@ struct TimesView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
-                // Widget size picker
+                // Widget size picker with SF Symbols
                 Picker("Widget Size", selection: $widgetSize) {
-                    ForEach(WidgetSize.allCases, id: \.self) { size in
-                        Text(size.rawValue).tag(size)
-                    }
+                    Image(systemName: "square.fill")
+                        .tag(WidgetSize.small)
+                    Image(systemName: "rectangle.fill")
+                        .tag(WidgetSize.medium)
+                    Image(systemName: "rectangle.portrait.fill")
+                        .tag(WidgetSize.large)
                 }
                 .pickerStyle(.segmented)
                 .padding(.horizontal, 24)
                 .padding(.top, 20)
 
-                // Widget preview container
-                widgetPreview
-                    .padding(.horizontal, 24)
+                // Widget preview container with centered content
+                ZStack {
+                    // Glass/frosted background
+                    RoundedRectangle(cornerRadius: widgetCornerRadius)
+                        .fill(.ultraThinMaterial)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: widgetCornerRadius)
+                                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                        )
+                        .shadow(color: Color.black.opacity(0.2), radius: 12, x: 0, y: 6)
 
-                // Action buttons
+                    // Widget content
+                    switch widgetSize {
+                    case .small:
+                        smallWidgetContent
+                    case .medium:
+                        mediumWidgetContent
+                    case .large:
+                        largeWidgetContent
+                    }
+                }
+                .frame(height: widgetHeight)
+                .animation(.easeInOut(duration: 0.3), value: widgetSize)
+                .padding(.horizontal, 24)
+
+                // Action buttons with glass effect
                 VStack(spacing: 12) {
                     // Add Widget to Homescreen button
                     Button(action: {
@@ -449,7 +473,11 @@ struct TimesView: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
-                        .background(Color.green)
+                        .background(.ultraThinMaterial)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14)
+                                .stroke(Color.green.opacity(0.5), lineWidth: 2)
+                        )
                         .cornerRadius(14)
                     }
 
@@ -465,7 +493,11 @@ struct TimesView: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
-                        .background(isFavorited ? Color.red : Color.blue)
+                        .background(.ultraThinMaterial)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14)
+                                .stroke(isFavorited ? Color.red.opacity(0.5) : Color.blue.opacity(0.5), lineWidth: 2)
+                        )
                         .cornerRadius(14)
                     }
                 }
@@ -519,26 +551,6 @@ struct TimesView: View {
             }
             Button("Cancel", role: .cancel) {}
         }
-    }
-
-    @ViewBuilder
-    private var widgetPreview: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: widgetCornerRadius)
-                .fill(Color(UIColor.systemBackground))
-                .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 4)
-
-            switch widgetSize {
-            case .small:
-                smallWidgetContent
-            case .medium:
-                mediumWidgetContent
-            case .large:
-                largeWidgetContent
-            }
-        }
-        .frame(height: widgetHeight)
-        .animation(.easeInOut(duration: 0.3), value: widgetSize)
     }
 
     private var widgetCornerRadius: CGFloat {
