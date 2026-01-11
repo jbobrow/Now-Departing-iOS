@@ -8,6 +8,7 @@
 
 import Foundation
 import SwiftUI
+import Combine
 
 // Defines the structure for a favorite item
 struct FavoriteItem: Codable, Identifiable, Equatable {
