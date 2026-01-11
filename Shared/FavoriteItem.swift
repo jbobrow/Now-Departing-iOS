@@ -30,7 +30,7 @@ struct FavoriteItem: Codable, Identifiable, Equatable {
 class FavoritesManager: ObservableObject {
     @Published private(set) var favorites: [FavoriteItem] = []
     private let favoritesKey = "savedFavorites"
-    private let appGroupId = "group.com.jonathanbobrow.NowDeparting"
+    private let appGroupId = "group.com.move38.Now-Departing"
 
     init() {
         loadFavorites()

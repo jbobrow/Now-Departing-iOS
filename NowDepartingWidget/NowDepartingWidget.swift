@@ -107,7 +107,7 @@ struct TrainTimelineProvider: TimelineProvider {
 
     private func loadFavorites() -> [FavoriteItem] {
         // Use App Group to share data between app and widget
-        guard let sharedDefaults = UserDefaults(suiteName: "group.com.jonathanbobrow.NowDeparting"),
+        guard let sharedDefaults = UserDefaults(suiteName: "group.com.move38.Now-Departing"),
               let data = sharedDefaults.data(forKey: "savedFavorites"),
               let favorites = try? JSONDecoder().decode([FavoriteItem].self, from: data) else {
             // Fallback to standard UserDefaults for testing

@@ -7,10 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2B22E41E2F13641A00000D5A /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B22E41D2F13641A00000D5A /* WidgetKit.framework */; };
+		2B22E4202F13641A00000D5A /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B22E41F2F13641A00000D5A /* SwiftUI.framework */; };
+		2B22E42F2F13641B00000D5A /* NowDepartingWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 2B22E41B2F13641A00000D5A /* NowDepartingWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		2B687C2D2DF67DBF007741D8 /* Now Departing Watch Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 2B687C232DF67DBE007741D8 /* Now Departing Watch Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		2B22E42D2F13641B00000D5A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2B687C092DF67CD0007741D8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2B22E41A2F13641A00000D5A;
+			remoteInfo = NowDepartingWidgetExtension;
+		};
 		2B687C2B2DF67DBF007741D8 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 2B687C092DF67CD0007741D8 /* Project object */;
@@ -21,6 +31,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		2B22E4342F13641B00000D5A /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				2B22E42F2F13641B00000D5A /* NowDepartingWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2B687C312DF67DBF007741D8 /* Embed Watch Content */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -35,11 +56,37 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		2B22E41B2F13641A00000D5A /* NowDepartingWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = NowDepartingWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		2B22E41D2F13641A00000D5A /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		2B22E41F2F13641A00000D5A /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		2B22E4432F1365D600000D5A /* NowDepartingWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = NowDepartingWidgetExtension.entitlements; sourceTree = "<group>"; };
 		2B687C112DF67CD0007741D8 /* Now Departing.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Now Departing.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2B687C232DF67DBE007741D8 /* Now Departing Watch Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Now Departing Watch Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		2B22E4302F13641B00000D5A /* Exceptions for "NowDepartingWidget" folder in "NowDepartingWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 2B22E41A2F13641A00000D5A /* NowDepartingWidgetExtension */;
+		};
+		2B22E43E2F13654100000D5A /* Exceptions for "Shared" folder in "NowDepartingWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				FavoriteItem.swift,
+				SubwayConfiguration.swift,
+			);
+			target = 2B22E41A2F13641A00000D5A /* NowDepartingWidgetExtension */;
+		};
+		2B22E4412F13656100000D5A /* Exceptions for "Now Departing" folder in "NowDepartingWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Models.swift,
+			);
+			target = 2B22E41A2F13641A00000D5A /* NowDepartingWidgetExtension */;
+		};
 		2B687C5E2DF6828C007741D8 /* Exceptions for "Shared" folder in "Now Departing" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -50,8 +97,19 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		2B22E4212F13641A00000D5A /* NowDepartingWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				2B22E4302F13641B00000D5A /* Exceptions for "NowDepartingWidget" folder in "NowDepartingWidgetExtension" target */,
+			);
+			path = NowDepartingWidget;
+			sourceTree = "<group>";
+		};
 		2B687C132DF67CD0007741D8 /* Now Departing */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				2B22E4412F13656100000D5A /* Exceptions for "Now Departing" folder in "NowDepartingWidgetExtension" target */,
+			);
 			path = "Now Departing";
 			sourceTree = "<group>";
 		};
@@ -64,6 +122,7 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				2B687C5E2DF6828C007741D8 /* Exceptions for "Shared" folder in "Now Departing" target */,
+				2B22E43E2F13654100000D5A /* Exceptions for "Shared" folder in "NowDepartingWidgetExtension" target */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -71,6 +130,15 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		2B22E4182F13641A00000D5A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2B22E4202F13641A00000D5A /* SwiftUI.framework in Frameworks */,
+				2B22E41E2F13641A00000D5A /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2B687C0E2DF67CD0007741D8 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -88,11 +156,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2B22E41C2F13641A00000D5A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				2B22E41D2F13641A00000D5A /* WidgetKit.framework */,
+				2B22E41F2F13641A00000D5A /* SwiftUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		2B687C082DF67CD0007741D8 = {
 			isa = PBXGroup;
 			children = (
+				2B22E4432F1365D600000D5A /* NowDepartingWidgetExtension.entitlements */,
 				2B687C132DF67CD0007741D8 /* Now Departing */,
 				2B687C242DF67DBE007741D8 /* Now Departing Watch Watch app */,
+				2B22E4212F13641A00000D5A /* NowDepartingWidget */,
+				2B22E41C2F13641A00000D5A /* Frameworks */,
 				2B687C122DF67CD0007741D8 /* Products */,
 				2B687C532DF68035007741D8 /* Shared */,
 			);
@@ -103,6 +183,7 @@
 			children = (
 				2B687C112DF67CD0007741D8 /* Now Departing.app */,
 				2B687C232DF67DBE007741D8 /* Now Departing Watch Watch App.app */,
+				2B22E41B2F13641A00000D5A /* NowDepartingWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -110,6 +191,28 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		2B22E41A2F13641A00000D5A /* NowDepartingWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2B22E4312F13641B00000D5A /* Build configuration list for PBXNativeTarget "NowDepartingWidgetExtension" */;
+			buildPhases = (
+				2B22E4172F13641A00000D5A /* Sources */,
+				2B22E4182F13641A00000D5A /* Frameworks */,
+				2B22E4192F13641A00000D5A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				2B22E4212F13641A00000D5A /* NowDepartingWidget */,
+			);
+			name = NowDepartingWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = NowDepartingWidgetExtension;
+			productReference = 2B22E41B2F13641A00000D5A /* NowDepartingWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		2B687C102DF67CD0007741D8 /* Now Departing */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2B687C1C2DF67CD1007741D8 /* Build configuration list for PBXNativeTarget "Now Departing" */;
@@ -118,11 +221,13 @@
 				2B687C0E2DF67CD0007741D8 /* Frameworks */,
 				2B687C0F2DF67CD0007741D8 /* Resources */,
 				2B687C312DF67DBF007741D8 /* Embed Watch Content */,
+				2B22E4342F13641B00000D5A /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				2B687C2C2DF67DBF007741D8 /* PBXTargetDependency */,
+				2B22E42E2F13641B00000D5A /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				2B687C132DF67CD0007741D8 /* Now Departing */,
@@ -165,9 +270,12 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1640;
+				LastSwiftUpdateCheck = 2620;
 				LastUpgradeCheck = 1640;
 				TargetAttributes = {
+					2B22E41A2F13641A00000D5A = {
+						CreatedOnToolsVersion = 26.2;
+					};
 					2B687C102DF67CD0007741D8 = {
 						CreatedOnToolsVersion = 16.4;
 					};
@@ -192,11 +300,19 @@
 			targets = (
 				2B687C102DF67CD0007741D8 /* Now Departing */,
 				2B687C222DF67DBE007741D8 /* Now Departing Watch Watch App */,
+				2B22E41A2F13641A00000D5A /* NowDepartingWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		2B22E4192F13641A00000D5A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2B687C0F2DF67CD0007741D8 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -214,6 +330,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		2B22E4172F13641A00000D5A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2B687C0D2DF67CD0007741D8 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -231,6 +354,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		2B22E42E2F13641B00000D5A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2B22E41A2F13641A00000D5A /* NowDepartingWidgetExtension */;
+			targetProxy = 2B22E42D2F13641B00000D5A /* PBXContainerItemProxy */;
+		};
 		2B687C2C2DF67DBF007741D8 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 2B687C222DF67DBE007741D8 /* Now Departing Watch Watch App */;
@@ -239,6 +367,70 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		2B22E4322F13641B00000D5A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = NowDepartingWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 63KWA2RPU8;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = NowDepartingWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = NowDepartingWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.move38.Now-Departing.NowDepartingWidget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		2B22E4332F13641B00000D5A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = NowDepartingWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 63KWA2RPU8;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = NowDepartingWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = NowDepartingWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.move38.Now-Departing.NowDepartingWidget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		2B687C1A2DF67CD1007741D8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -365,6 +557,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Now Departing/Now Departing.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 63KWA2RPU8;
@@ -396,6 +589,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Now Departing/Now Departing.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 63KWA2RPU8;
@@ -493,6 +687,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		2B22E4312F13641B00000D5A /* Build configuration list for PBXNativeTarget "NowDepartingWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2B22E4322F13641B00000D5A /* Debug */,
+				2B22E4332F13641B00000D5A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		2B687C0C2DF67CD0007741D8 /* Build configuration list for PBXProject "Now Departing" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
