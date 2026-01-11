@@ -456,6 +456,7 @@ struct TimesView: View {
                     }
                 }
                 .frame(width: widgetWidth, height: widgetHeight)
+                .aspectRatio(widgetSize == .small ? 1 : nil, contentMode: .fit)
                 .animation(.easeInOut(duration: 0.3), value: widgetSize)
                 .frame(maxWidth: .infinity) // Center the widget
                 .padding(.horizontal, 24)
@@ -508,16 +509,6 @@ struct TimesView: View {
         }
         .background(Color(UIColor.systemGroupedBackground))
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button(action: {
-                    dismiss()
-                }) {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 17, weight: .semibold))
-                }
-            }
-        }
         .onAppear {
             viewModel.startFetchingTimes(for: line, station: station, direction: direction)
         }
@@ -559,11 +550,11 @@ struct TimesView: View {
         }
     }
 
-    private var widgetWidth: CGFloat? {
+    private var widgetWidth: CGFloat {
         switch widgetSize {
-        case .small: return 160  // Half width, will be centered
-        case .medium: return nil // Full width
-        case .large: return nil  // Full width
+        case .small: return 160
+        case .medium: return 338
+        case .large: return 338
         }
     }
 
