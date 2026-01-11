@@ -15,9 +15,7 @@ struct NowDepartingWidgetEntryView: View {
     var entry: TrainEntry
 
     var body: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
-
+        Group {
             switch family {
             case .systemSmall:
                 SmallWidgetView(entry: entry)
@@ -28,6 +26,9 @@ struct NowDepartingWidgetEntryView: View {
             @unknown default:
                 SmallWidgetView(entry: entry)
             }
+        }
+        .containerBackground(for: .widget) {
+            Color.black
         }
     }
 }
@@ -41,7 +42,7 @@ struct SmallWidgetView: View {
         if let favorite = entry.favoriteItem {
             let line = getSubwayLine(for: favorite.lineId)
 
-            VStack(spacing: 8) {
+            VStack(spacing: 0) {
                 // Top row: Line badge
                 HStack {
                     Text(line.label)
@@ -53,38 +54,39 @@ struct SmallWidgetView: View {
                     Spacer()
                 }
 
-                Spacer()
+                Spacer(minLength: 0)
 
                 // Center: Train time
-                VStack(spacing: 4) {
+                VStack(spacing: 2) {
                     if !entry.errorMessage.isEmpty {
                         Text("--")
-                            .font(.custom("HelveticaNeue-Bold", size: 32))
+                            .font(.custom("HelveticaNeue-Bold", size: 40))
                             .foregroundColor(.white)
                     } else if !entry.nextTrains.isEmpty {
                         Text(getTimeText(for: entry.nextTrains[0]))
-                            .font(.custom("HelveticaNeue-Bold", size: 32))
+                            .font(.custom("HelveticaNeue-Bold", size: 40))
                             .foregroundColor(.white)
 
                         if entry.nextTrains.count > 1 {
                             Text(entry.nextTrains.dropFirst().prefix(2).map { train in
                                 getAdditionalTimeText(for: train)
                             }.joined(separator: ", "))
-                            .font(.custom("HelveticaNeue", size: 14))
+                            .font(.custom("HelveticaNeue", size: 13))
                             .foregroundColor(.white.opacity(0.6))
+                            .padding(.top, 2)
                         }
                     } else {
                         Text("--")
-                            .font(.custom("HelveticaNeue-Bold", size: 32))
+                            .font(.custom("HelveticaNeue-Bold", size: 40))
                             .foregroundColor(.white)
                     }
                 }
 
-                Spacer()
+                Spacer(minLength: 0)
 
                 // Bottom: Station name
                 Text(favorite.stationDisplay)
-                    .font(.custom("HelveticaNeue-Bold", size: 12))
+                    .font(.custom("HelveticaNeue-Bold", size: 11))
                     .foregroundColor(.white)
                     .lineLimit(2)
                     .multilineTextAlignment(.center)
