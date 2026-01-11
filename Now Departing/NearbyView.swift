@@ -605,28 +605,33 @@ struct NearbyView: View {
         }
         
         var body: some View {
-            VStack(alignment: .leading, spacing: 8) {
-                // Main row
-                HStack(spacing: 12) {
-                    // Line badge
-                    Text(line.label)
-                        .font(.custom("HelveticaNeue-Bold", size: 32))
-                        .foregroundColor(line.fg_color)
-                        .frame(width: 48, height: 48)
-                        .background(Circle().fill(line.bg_color))
-                    
-                    // Direction - Updated to use location-based helper
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(LocationBasedDirectionHelper.getContextualDestination(
-                            for: primaryTrain.lineId,
-                            direction: primaryTrain.direction,
-                            currentLocation: locationManager.location
-                        ))
-                            .font(.custom("HelveticaNeue-Bold", size: 20))
-                        
-                        // Use terminal station if available, fallback to destination
-                        Text(DirectionHelper.getToTerminalStation(
-                            for: primaryTrain.lineId,
+            NavigationLink(destination: TimesView(
+                line: line,
+                station: Station(display: primaryTrain.stationDisplay, name: primaryTrain.stationName),
+                direction: primaryTrain.direction
+            )) {
+                VStack(alignment: .leading, spacing: 8) {
+                    // Main row
+                    HStack(spacing: 12) {
+                        // Line badge
+                        Text(line.label)
+                            .font(.custom("HelveticaNeue-Bold", size: 32))
+                            .foregroundColor(line.fg_color)
+                            .frame(width: 48, height: 48)
+                            .background(Circle().fill(line.bg_color))
+
+                        // Direction - Updated to use location-based helper
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(LocationBasedDirectionHelper.getContextualDestination(
+                                for: primaryTrain.lineId,
+                                direction: primaryTrain.direction,
+                                currentLocation: locationManager.location
+                            ))
+                                .font(.custom("HelveticaNeue-Bold", size: 20))
+
+                            // Use terminal station if available, fallback to destination
+                            Text(DirectionHelper.getToTerminalStation(
+                                for: primaryTrain.lineId,
                             direction: primaryTrain.direction,
                             stationDataManager: stationDataManager
                         ))
@@ -656,6 +661,8 @@ struct NearbyView: View {
                 }
             }
             .padding(.vertical, 4)
+            }
+            .buttonStyle(PlainButtonStyle())
             .onReceive(timer) { time in
                 currentTime = time
             }

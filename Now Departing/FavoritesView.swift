@@ -153,17 +153,37 @@ struct FavoriteTrainRow: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            // Station and Line Info
-            HStack(alignment: .top, spacing: 12) {
-                // Line badge
-                if let line = line {
-                    Text(line.label)
-                        .font(.custom("HelveticaNeue-Bold", size: 32))
-                        .foregroundColor(line.fg_color)
-                        .frame(width: 48, height: 48)
-                        .background(Circle().fill(line.bg_color))
+        Group {
+            if let line = line {
+                NavigationLink(destination: TimesView(
+                    line: line,
+                    station: Station(display: favorite.stationDisplay, name: favorite.stationName),
+                    direction: favorite.direction
+                )) {
+                    rowContent
                 }
+                .buttonStyle(PlainButtonStyle())
+            } else {
+                rowContent
+            }
+        }
+        .onReceive(timer) { time in
+            currentTime = time
+        }
+    }
+
+    private var rowContent: some View {
+        VStack(alignment: .leading, spacing: 12) {
+                // Station and Line Info
+                HStack(alignment: .top, spacing: 12) {
+                    // Line badge
+                    if let line = line {
+                        Text(line.label)
+                            .font(.custom("HelveticaNeue-Bold", size: 32))
+                            .foregroundColor(line.fg_color)
+                            .frame(width: 48, height: 48)
+                            .background(Circle().fill(line.bg_color))
+                    }
                 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(favorite.stationDisplay)
@@ -234,9 +254,6 @@ struct FavoriteTrainRow: View {
             }
         }
         .padding(.vertical, 8)
-        .onReceive(timer) { time in
-            currentTime = time
-        }
     }
     
     // Helper functions for time formatting
