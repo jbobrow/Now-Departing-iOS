@@ -519,12 +519,7 @@ struct TimesView: View {
             currentTime = time
         }
         .alert("Add Widget to Homescreen", isPresented: $showingWidgetInfo) {
-            Button("Open Settings") {
-                if let url = URL(string: UIApplication.openSettingsURLString) {
-                    UIApplication.shared.open(url)
-                }
-            }
-            Button("Cancel", role: .cancel) {}
+            Button("Got It", role: .cancel) {}
         } message: {
             Text("To add a widget to your homescreen:\n\n1. Long press on your homescreen\n2. Tap the + button\n3. Search for 'Now Departing'\n4. Select this train and direction")
         }
