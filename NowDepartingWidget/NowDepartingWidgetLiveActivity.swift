@@ -26,8 +26,9 @@ struct NowDepartingWidgetLiveActivity: Widget {
             VStack {
                 Text("Hello \(context.state.emoji)")
             }
-            .activityBackgroundTint(Color.cyan)
-            .activitySystemActionForegroundColor(Color.black)
+            .preferredColorScheme(.dark)
+            .activityBackgroundTint(Color.black)
+            .activitySystemActionForegroundColor(Color.white)
 
         } dynamicIsland: { context in
             DynamicIsland {
@@ -51,7 +52,7 @@ struct NowDepartingWidgetLiveActivity: Widget {
                 Text(context.state.emoji)
             }
             .widgetURL(URL(string: "http://www.apple.com"))
-            .keylineTint(Color.red)
+            .keylineTint(Color.white)
         }
     }
 }

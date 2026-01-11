@@ -15,16 +15,19 @@ struct NowDepartingWidgetEntryView: View {
     var entry: TrainEntry
 
     var body: some View {
-        switch family {
-        case .systemSmall:
-            SmallWidgetView(entry: entry)
-        case .systemMedium:
-            MediumWidgetView(entry: entry)
-        case .systemLarge:
-            LargeWidgetView(entry: entry)
-        @unknown default:
-            SmallWidgetView(entry: entry)
+        Group {
+            switch family {
+            case .systemSmall:
+                SmallWidgetView(entry: entry)
+            case .systemMedium:
+                MediumWidgetView(entry: entry)
+            case .systemLarge:
+                LargeWidgetView(entry: entry)
+            @unknown default:
+                SmallWidgetView(entry: entry)
+            }
         }
+        .preferredColorScheme(.dark)
     }
 }
 
