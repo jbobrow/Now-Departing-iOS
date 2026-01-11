@@ -128,7 +128,7 @@ struct MediumWidgetView: View {
                             Text(favorite.stationDisplay)
                                 .font(.custom("HelveticaNeue-Bold", size: 16))
                                 .lineLimit(2)
-                            Text(DirectionHelper.getToTerminalStation(for: favorite.lineId, direction: favorite.direction))
+                            Text(WidgetDirectionHelper.getToTerminalStation(for: favorite.lineId, direction: favorite.direction))
                                 .font(.custom("HelveticaNeue", size: 12))
                                 .foregroundColor(.secondary)
                                 .lineLimit(1)
@@ -199,7 +199,7 @@ struct LargeWidgetView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(favorite.stationDisplay)
                             .font(.custom("HelveticaNeue-Bold", size: 24))
-                        Text(DirectionHelper.getToTerminalStation(for: favorite.lineId, direction: favorite.direction))
+                        Text(WidgetDirectionHelper.getToTerminalStation(for: favorite.lineId, direction: favorite.direction))
                             .font(.custom("HelveticaNeue", size: 16))
                             .foregroundColor(.secondary)
                     }
@@ -339,7 +339,7 @@ func getSubwayLine(for lineId: String) -> SubwayLine {
 
 // MARK: - Direction Helper (Widget Version)
 
-struct DirectionHelper {
+struct WidgetDirectionHelper {
     static func getToTerminalStation(for lineId: String, direction: String) -> String {
         // Simplified version for widgets - just show the terminal stations
         let terminals: [String: (N: String, S: String)] = [

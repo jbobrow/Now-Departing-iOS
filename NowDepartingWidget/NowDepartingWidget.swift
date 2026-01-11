@@ -180,7 +180,6 @@ struct TrainTimelineProvider: TimelineProvider {
 
 // MARK: - Widget Configuration
 
-@main
 struct NowDepartingWidget: Widget {
     let kind: String = "NowDepartingWidget"
 
@@ -191,5 +190,15 @@ struct NowDepartingWidget: Widget {
         .configurationDisplayName("Now Departing")
         .description("See train times for your favorite station")
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
+    }
+}
+
+// MARK: - Widget Bundle
+
+@main
+struct NowDepartingWidgetBundle: WidgetBundle {
+    var body: some Widget {
+        NowDepartingWidget()
+        NowDepartingWidgetLiveActivity()
     }
 }
