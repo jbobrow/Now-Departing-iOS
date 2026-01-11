@@ -15,7 +15,9 @@ struct NowDepartingWidgetEntryView: View {
     var entry: TrainEntry
 
     var body: some View {
-        Group {
+        ZStack {
+            Color.black.ignoresSafeArea()
+
             switch family {
             case .systemSmall:
                 SmallWidgetView(entry: entry)
@@ -27,7 +29,6 @@ struct NowDepartingWidgetEntryView: View {
                 SmallWidgetView(entry: entry)
             }
         }
-        .preferredColorScheme(.dark)
     }
 }
 
@@ -40,59 +41,56 @@ struct SmallWidgetView: View {
         if let favorite = entry.favoriteItem {
             let line = getSubwayLine(for: favorite.lineId)
 
-            ZStack {
-                // Directional background shape
-                DirectionalBackground(direction: favorite.direction, lineColor: line.bg_color)
-
-                VStack(spacing: 4) {
-                    // Top row: Line badge
-                    HStack {
-                        Text(line.label)
-                            .font(.custom("HelveticaNeue-Bold", size: 28))
-                            .foregroundColor(line.fg_color)
-                            .frame(width: 44, height: 44)
-                            .background(Circle().fill(line.bg_color))
-
-                        Spacer()
-                    }
+            VStack(spacing: 8) {
+                // Top row: Line badge
+                HStack {
+                    Text(line.label)
+                        .font(.custom("HelveticaNeue-Bold", size: 28))
+                        .foregroundColor(line.fg_color)
+                        .frame(width: 44, height: 44)
+                        .background(Circle().fill(line.bg_color))
 
                     Spacer()
+                }
 
-                    // Center: Train time
+                Spacer()
+
+                // Center: Train time
+                VStack(spacing: 4) {
                     if !entry.errorMessage.isEmpty {
                         Text("--")
-                            .font(.custom("HelveticaNeue-Bold", size: 28))
-                            .foregroundColor(.primary)
+                            .font(.custom("HelveticaNeue-Bold", size: 32))
+                            .foregroundColor(.white)
                     } else if !entry.nextTrains.isEmpty {
                         Text(getTimeText(for: entry.nextTrains[0]))
-                            .font(.custom("HelveticaNeue-Bold", size: 28))
-                            .foregroundColor(.primary)
+                            .font(.custom("HelveticaNeue-Bold", size: 32))
+                            .foregroundColor(.white)
 
                         if entry.nextTrains.count > 1 {
                             Text(entry.nextTrains.dropFirst().prefix(2).map { train in
                                 getAdditionalTimeText(for: train)
                             }.joined(separator: ", "))
                             .font(.custom("HelveticaNeue", size: 14))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.white.opacity(0.6))
                         }
                     } else {
                         Text("--")
-                            .font(.custom("HelveticaNeue-Bold", size: 28))
-                            .foregroundColor(.primary)
+                            .font(.custom("HelveticaNeue-Bold", size: 32))
+                            .foregroundColor(.white)
                     }
-
-                    Spacer()
-
-                    // Bottom: Station name
-                    Text(favorite.stationDisplay)
-                        .font(.custom("HelveticaNeue-Bold", size: 14))
-                        .foregroundColor(.primary)
-                        .lineLimit(2)
-                        .multilineTextAlignment(.center)
-                        .frame(maxWidth: .infinity)
                 }
-                .padding(16)
+
+                Spacer()
+
+                // Bottom: Station name
+                Text(favorite.stationDisplay)
+                    .font(.custom("HelveticaNeue-Bold", size: 12))
+                    .foregroundColor(.white)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
             }
+            .padding(12)
         } else {
             VStack(spacing: 8) {
                 Image(systemName: "star.fill")
@@ -100,7 +98,7 @@ struct SmallWidgetView: View {
                     .foregroundColor(.yellow)
                 Text("Add a favorite\nin the app")
                     .font(.custom("HelveticaNeue", size: 14))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.white)
                     .multilineTextAlignment(.center)
             }
             .padding()
@@ -130,10 +128,11 @@ struct MediumWidgetView: View {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(favorite.stationDisplay)
                                 .font(.custom("HelveticaNeue-Bold", size: 16))
+                                .foregroundColor(.white)
                                 .lineLimit(2)
                             Text(WidgetDirectionHelper.getToTerminalStation(for: favorite.lineId, direction: favorite.direction))
                                 .font(.custom("HelveticaNeue", size: 12))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(.white.opacity(0.6))
                                 .lineLimit(1)
                         }
                     }
@@ -146,23 +145,23 @@ struct MediumWidgetView: View {
                     if !entry.errorMessage.isEmpty {
                         Text("--")
                             .font(.custom("HelveticaNeue-Bold", size: 28))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.white.opacity(0.6))
                     } else if !entry.nextTrains.isEmpty {
                         Text(getTimeText(for: entry.nextTrains[0]))
                             .font(.custom("HelveticaNeue-Bold", size: 28))
-                            .foregroundColor(.primary)
+                            .foregroundColor(.white)
 
                         if entry.nextTrains.count > 1 {
                             Text(entry.nextTrains.dropFirst().prefix(2).map { train in
                                 getAdditionalTimeText(for: train)
                             }.joined(separator: ", "))
                             .font(.custom("HelveticaNeue", size: 14))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.white.opacity(0.6))
                         }
                     } else {
                         Text("--")
                             .font(.custom("HelveticaNeue-Bold", size: 28))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.white.opacity(0.6))
                     }
                 }
             }
@@ -174,7 +173,7 @@ struct MediumWidgetView: View {
                     .foregroundColor(.yellow)
                 Text("Add a favorite in the app")
                     .font(.custom("HelveticaNeue", size: 16))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.white)
             }
             .padding()
         }
@@ -202,14 +201,16 @@ struct LargeWidgetView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(favorite.stationDisplay)
                             .font(.custom("HelveticaNeue-Bold", size: 24))
+                            .foregroundColor(.white)
                         Text(WidgetDirectionHelper.getToTerminalStation(for: favorite.lineId, direction: favorite.direction))
                             .font(.custom("HelveticaNeue", size: 16))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.white.opacity(0.6))
                     }
                     Spacer()
                 }
 
                 Divider()
+                    .background(Color.white.opacity(0.3))
 
                 // Train times
                 if !entry.errorMessage.isEmpty {
@@ -220,7 +221,7 @@ struct LargeWidgetView: View {
                             .foregroundColor(.orange)
                         Text(entry.errorMessage)
                             .font(.custom("HelveticaNeue", size: 14))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.white.opacity(0.6))
                             .multilineTextAlignment(.center)
                     }
                     Spacer()
@@ -229,7 +230,7 @@ struct LargeWidgetView: View {
                         // Primary time
                         Text(getTimeText(for: entry.nextTrains[0]))
                             .font(.custom("HelveticaNeue-Bold", size: 72))
-                            .foregroundColor(.primary)
+                            .foregroundColor(.white)
 
                         // Additional times
                         if entry.nextTrains.count > 1 {
@@ -237,7 +238,7 @@ struct LargeWidgetView: View {
                                 getAdditionalTimeText(for: train)
                             }.joined(separator: ", "))
                             .font(.custom("HelveticaNeue", size: 20))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.white.opacity(0.6))
                         }
                     }
 
@@ -246,7 +247,7 @@ struct LargeWidgetView: View {
                     Spacer()
                     Text("No trains")
                         .font(.custom("HelveticaNeue", size: 18))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.white.opacity(0.6))
                     Spacer()
                 }
             }
@@ -258,10 +259,10 @@ struct LargeWidgetView: View {
                     .foregroundColor(.yellow)
                 Text("Add a favorite in the app")
                     .font(.custom("HelveticaNeue-Bold", size: 18))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.white)
                 Text("Go to a station and tap 'Add to Favorites'")
                     .font(.custom("HelveticaNeue", size: 14))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.white.opacity(0.6))
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
             }
