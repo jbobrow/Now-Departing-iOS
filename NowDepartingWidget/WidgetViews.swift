@@ -60,11 +60,11 @@ struct SmallWidgetView: View {
                 VStack(spacing: 2) {
                     if !entry.errorMessage.isEmpty {
                         Text("--")
-                            .font(.custom("HelveticaNeue-Bold", size: 40))
+                            .font(.custom("HelveticaNeue-Bold", size: 32))
                             .foregroundColor(.white)
                     } else if !entry.nextTrains.isEmpty {
                         Text(getTimeText(for: entry.nextTrains[0]))
-                            .font(.custom("HelveticaNeue-Bold", size: 40))
+                            .font(.custom("HelveticaNeue-Bold", size: 32))
                             .foregroundColor(.white)
 
                         if entry.nextTrains.count > 1 {
@@ -77,7 +77,7 @@ struct SmallWidgetView: View {
                         }
                     } else {
                         Text("--")
-                            .font(.custom("HelveticaNeue-Bold", size: 40))
+                            .font(.custom("HelveticaNeue-Bold", size: 32))
                             .foregroundColor(.white)
                     }
                 }
@@ -92,7 +92,6 @@ struct SmallWidgetView: View {
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: .infinity)
             }
-            .padding(12)
         } else {
             VStack(spacing: 8) {
                 Image(systemName: "star.fill")
@@ -167,7 +166,6 @@ struct MediumWidgetView: View {
                     }
                 }
             }
-            .padding(20)
         } else {
             HStack {
                 Image(systemName: "star.fill")
