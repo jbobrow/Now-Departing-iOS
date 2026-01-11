@@ -469,7 +469,7 @@ struct TimesView: View {
                     }) {
                         HStack(spacing: 8) {
                             Image(systemName: "plus.app.fill")
-                            Text("Add Widget to Homescreen")
+                            Text("Add to Homescreen")
                         }
                         .font(.custom("HelveticaNeue-Bold", size: 18))
                         .foregroundColor(.white)
@@ -584,22 +584,26 @@ struct TimesView: View {
                     Spacer()
                 }
 
-                Spacer()
-
                 // Center: Train time
                 if viewModel.loading && viewModel.nextTrains.isEmpty {
                     ProgressView()
                 } else if !viewModel.errorMessage.isEmpty {
                     Text("--")
-                        .font(.custom("HelveticaNeue-Bold", size: 56))
+                        .font(.custom("HelveticaNeue-Bold", size: 28))
                         .foregroundColor(.primary)
                 } else if !viewModel.nextTrains.isEmpty {
                     Text(getTimeText(for: viewModel.nextTrains[0]))
-                        .font(.custom("HelveticaNeue-Bold", size: 56))
+                        .font(.custom("HelveticaNeue-Bold", size: 28))
                         .foregroundColor(.primary)
+                    
+                    if viewModel.nextTrains.count > 1 {
+                        Text(viewModel.nextTrains.dropFirst().prefix(2).map { train in
+                            getAdditionalTimeText(for: train)
+                        }.joined(separator: ", "))
+                        .font(.custom("HelveticaNeue", size: 14))
+                        .foregroundColor(.secondary)
+                    }
                 }
-
-                Spacer()
 
                 // Bottom: Station name
                 Text(station.display)
@@ -673,10 +677,7 @@ struct TimesView: View {
                             .lineLimit(1)
                     }
                 }
-                Spacer()
             }
-
-            Spacer()
 
             // Right side - Train times
             VStack(spacing: 4) {
@@ -684,11 +685,11 @@ struct TimesView: View {
                     ProgressView()
                 } else if !viewModel.errorMessage.isEmpty {
                     Text("--")
-                        .font(.custom("HelveticaNeue-Bold", size: 48))
+                        .font(.custom("HelveticaNeue-Bold", size: 28))
                         .foregroundColor(.secondary)
                 } else if !viewModel.nextTrains.isEmpty {
                     Text(getTimeText(for: viewModel.nextTrains[0]))
-                        .font(.custom("HelveticaNeue-Bold", size: 48))
+                        .font(.custom("HelveticaNeue-Bold", size: 28))
                         .foregroundColor(.primary)
 
                     if viewModel.nextTrains.count > 1 {
