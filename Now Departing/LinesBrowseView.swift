@@ -134,7 +134,7 @@ struct LineSelectionView: View {
                         }
                     }) {
                         Text(line.label)
-                            .font(.custom("HelveticaNeue-Bold", size: 64))
+                            .font(.custom("HelveticaNeue-Bold", size: 56))
                             .foregroundColor(line.fg_color)
                             .frame(width: 80, height: 80)
                             .background(Circle().fill(line.bg_color))
@@ -146,7 +146,8 @@ struct LineSelectionView: View {
             }
             .padding()
         }
-        .navigationBarHidden(true)
+        .navigationTitle("Select Line")
+        .navigationBarTitleDisplayMode(.large)
     }
 }
 
@@ -209,7 +210,7 @@ struct StationSelectionView: View {
             ToolbarItem(placement: .principal) {
                 HStack(spacing: 8) {
                     Text(line.label)
-                        .font(.custom("HelveticaNeue-Bold", size: 24))
+                        .font(.custom("HelveticaNeue-Bold", size: 28))
                         .foregroundColor(line.fg_color)
                         .frame(width: 40, height: 40)
                         .background(Circle().fill(line.bg_color))
@@ -247,7 +248,11 @@ struct TerminalSelectionView: View {
                 navigationState.path.append(NavigationRoute.times(line, station, terminal.direction))
             }) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(terminal.description)
+                    Text(LocationBasedDirectionHelper.getContextualDestination(
+                        for: line.id,
+                        direction: terminal.direction,
+                        currentLocation: nil,
+                    ))
                         .font(.custom("HelveticaNeue-Bold", size: 20))
                         .foregroundColor(.primary)
 
@@ -269,7 +274,7 @@ struct TerminalSelectionView: View {
             ToolbarItem(placement: .principal) {
                 HStack(spacing: 8) {
                     Text(line.label)
-                        .font(.custom("HelveticaNeue-Bold", size: 24))
+                        .font(.custom("HelveticaNeue-Bold", size: 28))
                         .foregroundColor(line.fg_color)
                         .frame(width: 40, height: 40)
                         .background(Circle().fill(line.bg_color))
@@ -706,7 +711,7 @@ struct TimesView: View {
             // Header
             HStack(alignment: .top, spacing: 12) {
                 Text(line.label)
-                    .font(.custom("HelveticaNeue-Bold", size: 48))
+                    .font(.custom("HelveticaNeue-Bold", size: 50))
                     .foregroundColor(line.fg_color)
                     .frame(width: 72, height: 72)
                     .background(Circle().fill(line.bg_color))
