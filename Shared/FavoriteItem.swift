@@ -8,6 +8,7 @@
 
 import Foundation
 import SwiftUI
+import Combine
 
 // Defines the structure for a favorite item
 struct FavoriteItem: Codable, Identifiable, Equatable {
@@ -30,22 +31,39 @@ struct FavoriteItem: Codable, Identifiable, Equatable {
 class FavoritesManager: ObservableObject {
     @Published private(set) var favorites: [FavoriteItem] = []
     private let favoritesKey = "savedFavorites"
-    
+    private let appGroupId = "group.com.move38.Now-Departing"
+
     init() {
         loadFavorites()
     }
-    
-    // Load favorites from UserDefaults
+
+    // Load favorites from UserDefaults (with App Group support for widgets)
     private func loadFavorites() {
+        // Try to load from App Group first (for widget support)
+        if let sharedDefaults = UserDefaults(suiteName: appGroupId),
+           let data = sharedDefaults.data(forKey: favoritesKey),
+           let decodedFavorites = try? JSONDecoder().decode([FavoriteItem].self, from: data) {
+            favorites = decodedFavorites
+            return
+        }
+
+        // Fallback to standard UserDefaults and migrate if found
         if let data = UserDefaults.standard.data(forKey: favoritesKey),
            let decodedFavorites = try? JSONDecoder().decode([FavoriteItem].self, from: data) {
             favorites = decodedFavorites
+            // Migrate to App Group
+            saveFavorites()
         }
     }
-    
-    // Save favorites to UserDefaults
+
+    // Save favorites to UserDefaults (with App Group support for widgets)
     private func saveFavorites() {
         if let encoded = try? JSONEncoder().encode(favorites) {
+            // Save to App Group for widget access
+            if let sharedDefaults = UserDefaults(suiteName: appGroupId) {
+                sharedDefaults.set(encoded, forKey: favoritesKey)
+            }
+            // Also save to standard UserDefaults for backwards compatibility
             UserDefaults.standard.set(encoded, forKey: favoritesKey)
         }
     }
