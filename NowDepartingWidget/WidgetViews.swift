@@ -372,10 +372,12 @@ struct DynamicTrainTimeView: View {
 
         if minutesUntil < 1 {
             Text("Now")
+        } else if fullText {
+            // For full text, use .relative which shows "in 5 minutes"
+            Text(arrivalDate, style: .relative)
         } else {
-            // Use native SwiftUI .timer style for dynamic countdown (shows MM:SS format)
-            // This is the only way to get truly dynamic text in widgets
-            Text(arrivalDate, style: .timer)
+            // For compact text, try .offset which might show "+5 min"
+            Text(arrivalDate, style: .offset)
                 .monospacedDigit()
         }
     }
