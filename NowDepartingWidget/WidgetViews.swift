@@ -135,7 +135,7 @@ struct MediumWidgetView: View {
                                 .font(.custom("HelveticaNeue-Bold", size: 16))
                                 .foregroundColor(.white)
                                 .lineLimit(2)
-                            Text(WidgetDirectionHelper.getToTerminalStation(for: favorite.lineId, direction: favorite.direction))
+                            Text(TerminalStationsHelper.getToTerminalStation(for: favorite.lineId, direction: favorite.direction))
                                 .font(.custom("HelveticaNeue", size: 12))
                                 .foregroundColor(.white.opacity(0.6))
                                 .lineLimit(1)
@@ -206,7 +206,7 @@ struct LargeWidgetView: View {
                         Text(favorite.stationDisplay)
                             .font(.custom("HelveticaNeue-Bold", size: 24))
                             .foregroundColor(.white)
-                        Text(WidgetDirectionHelper.getToTerminalStation(for: favorite.lineId, direction: favorite.direction))
+                        Text(TerminalStationsHelper.getToTerminalStation(for: favorite.lineId, direction: favorite.direction))
                             .font(.custom("HelveticaNeue", size: 16))
                             .foregroundColor(.white.opacity(0.6))
                     }
@@ -317,68 +317,13 @@ struct DirectionalBackground: View {
 // MARK: - Helper Functions
 
 func getTimeText(for train: (minutes: Int, seconds: Int)) -> String {
-    let totalSeconds = train.minutes * 60 + train.seconds
-
-    if totalSeconds == 0 {
-        return "Departing"
-    } else if totalSeconds <= 30 {
-        return "Departing"
-    } else if totalSeconds < 60 {
-        return "Arriving"
-    } else {
-        return "\(train.minutes) min"
-    }
+    return TimeFormatter.formatArrivalTime(minutes: train.minutes, seconds: train.seconds, fullText: true)
 }
 
 func getAdditionalTimeText(for train: (minutes: Int, seconds: Int)) -> String {
-    let totalSeconds = train.minutes * 60 + train.seconds
-
-    if totalSeconds < 60 {
-        return "Arriving"
-    } else {
-        return "\(train.minutes) min"
-    }
+    return TimeFormatter.formatAdditionalTime(minutes: train.minutes, seconds: train.seconds)
 }
 
 func getSubwayLine(for lineId: String) -> SubwayLine {
-    let colors = SubwayConfiguration.lineColors[lineId] ?? (background: .gray, foreground: .white)
-    return SubwayLine(id: lineId, label: lineId, bg_color: colors.background, fg_color: colors.foreground)
-}
-
-// MARK: - Direction Helper (Widget Version)
-
-struct WidgetDirectionHelper {
-    static func getToTerminalStation(for lineId: String, direction: String) -> String {
-        // Simplified version for widgets - just show the terminal stations
-        let terminals: [String: (N: String, S: String)] = [
-            "1": (N: "to Van Cortlandt Park", S: "to South Ferry"),
-            "2": (N: "to Wakefield", S: "to Flatbush Av"),
-            "3": (N: "to Harlem", S: "to New Lots Av"),
-            "4": (N: "to Woodlawn", S: "to New Lots Av/Crown Hts"),
-            "5": (N: "to Eastchester", S: "to Flatbush Av"),
-            "6": (N: "to Pelham Bay Park", S: "to Brooklyn Bridge"),
-            "7": (N: "to Flushing", S: "to Hudson Yards"),
-            "A": (N: "to Inwood", S: "to Far Rockaway/Lefferts"),
-            "C": (N: "to Washington Heights", S: "to Euclid Av"),
-            "E": (N: "to Jamaica Center", S: "to World Trade Center"),
-            "G": (N: "to Court Sq", S: "to Church Av"),
-            "B": (N: "to Bedford Park", S: "to Brighton Beach"),
-            "D": (N: "to Norwood", S: "to Coney Island"),
-            "F": (N: "to Jamaica", S: "to Coney Island"),
-            "M": (N: "to Forest Hills", S: "to Middle Village"),
-            "N": (N: "to Astoria", S: "to Coney Island"),
-            "Q": (N: "to 96 St", S: "to Coney Island"),
-            "R": (N: "to Forest Hills", S: "to Bay Ridge"),
-            "W": (N: "to Astoria", S: "to Whitehall St"),
-            "J": (N: "to Jamaica Center", S: "to Broad St"),
-            "Z": (N: "to Jamaica Center", S: "to Broad St"),
-            "L": (N: "to 8 Av", S: "to Canarsie")
-        ]
-
-        if let terminal = terminals[lineId] {
-            return direction == "N" ? terminal.N : terminal.S
-        }
-
-        return direction == "N" ? "Northbound" : "Southbound"
-    }
+    return SubwayLineFactory.line(for: lineId)
 }

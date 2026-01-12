@@ -258,16 +258,7 @@ struct FavoriteTrainRow: View {
     
     // Helper functions for time formatting
     private func getTimeText(for train: TrainArrival) -> String {
-        let interval = train.arrivalTime.timeIntervalSince(currentTime)
-        let minutes = max(0, Int(interval / 60))
-        
-        if minutes == 0 {
-            return "Now"
-        } else if minutes == 1 {
-            return "1 min"
-        } else {
-            return "\(minutes) min"
-        }
+        return TimeFormatter.formatArrivalTime(train.arrivalTime, currentTime: currentTime, fullText: true)
     }
 
     private func getAdditionalTimeText(for train: TrainArrival) -> String {
@@ -313,16 +304,7 @@ struct TrainTimesView: View {
     }
     
     private func getTimeText(for train: TrainArrival) -> String {
-        let interval = train.arrivalTime.timeIntervalSince(currentTime)
-        let minutes = max(0, Int(interval / 60))
-        
-        if minutes == 0 {
-            return "Now"
-        } else if minutes == 1 {
-            return "1 min"
-        } else {
-            return "\(minutes) min"
-        }
+        return TimeFormatter.formatArrivalTime(train.arrivalTime, currentTime: currentTime, fullText: true)
     }
 }
 

@@ -4,35 +4,11 @@
 //
 //  Created by Jonathan Bobrow on 6/8/25.
 //
+//  This file now imports shared models from the Shared framework.
+//  All model definitions have been moved to Shared/SharedModels.swift
+//
 
 import SwiftUI
 
-struct SubwayLine: Identifiable, Equatable {
-    let id: String
-    let label: String
-    let bg_color: Color
-    let fg_color: Color
-}
-
-struct Station: Identifiable, Codable, Equatable {
-    var id: String = UUID().uuidString
-    let display: String
-    let name: String
-    var hasAvailableTimes: Bool?
-}
-
-// Copy the API response models from your WatchOS app
-struct APIResponse: Decodable {
-    let data: [StationData]
-}
-
-struct StationData: Decodable {
-    let name: String
-    let N: [Train]
-    let S: [Train]
-}
-
-struct Train: Decodable {
-    let route: String
-    let time: String
-}
+// All models are now defined in SharedModels.swift
+// This file is kept for backwards compatibility and can be removed if all imports are updated
