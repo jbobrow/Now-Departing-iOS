@@ -362,43 +362,32 @@ func getSubwayLine(for lineId: String) -> SubwayLine {
 
 // MARK: - Dynamic Time Views
 
-/// View that displays train arrival time with automatic countdown using dynamic text
+/// View that displays train arrival time with automatic countdown using native SwiftUI dynamic text
 struct DynamicTrainTimeView: View {
     let arrivalDate: Date
     let fullText: Bool
 
     var body: some View {
-        // TimelineView with 1-second updates for dynamic countdown
-        TimelineView(.periodic(from: Date.now, by: 1.0)) { context in
-            let interval = arrivalDate.timeIntervalSince(context.date)
-            let totalSeconds = max(0, Int(interval))
-            let minutes = totalSeconds / 60
+        let minutesUntil = Int(arrivalDate.timeIntervalSince(Date()) / 60)
 
-            if totalSeconds < 60 {
-                Text("Now")
-            } else {
-                Text(fullText ? "\(minutes) min" : "\(minutes)m")
-            }
+        if minutesUntil < 1 {
+            Text("Now")
+        } else {
+            // Use native SwiftUI .timer style for dynamic countdown (shows MM:SS format)
+            // This is the only way to get truly dynamic text in widgets
+            Text(arrivalDate, style: .timer)
+                .monospacedDigit()
         }
     }
 }
 
-/// View that displays relative time since last update using dynamic text
+/// View that displays relative time since last update using native SwiftUI dynamic text
 struct RelativeTimeView: View {
     let date: Date
 
     var body: some View {
-        // TimelineView with 1-second updates for counting up
-        TimelineView(.periodic(from: Date.now, by: 1.0)) { context in
-            let interval = context.date.timeIntervalSince(date)
-            let seconds = Int(interval)
-
-            if seconds < 60 {
-                Text("Updated \(seconds) sec ago")
-            } else {
-                let minutes = seconds / 60
-                Text("Updated \(minutes) min ago")
-            }
-        }
+        // Use native SwiftUI .relative style for dynamic "X ago" text in widgets
+        // This is the only way to get truly dynamic "time ago" in widgets
+        Text(date, style: .relative)
     }
 }
