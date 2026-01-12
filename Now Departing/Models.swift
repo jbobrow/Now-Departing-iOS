@@ -15,7 +15,7 @@ struct SubwayLine: Identifiable, Equatable {
 }
 
 struct Station: Identifiable, Codable, Equatable {
-    let id: String = UUID().uuidString
+    var id: String = UUID().uuidString
     let display: String
     let name: String
     var hasAvailableTimes: Bool?

@@ -60,7 +60,7 @@ class LiveActivityManager {
         do {
             let activity = try Activity.request(
                 attributes: attributes,
-                content: .init(state: initialState, staleDate: nil),
+                content: ActivityContent(state: initialState, staleDate: nil),
                 pushType: nil
             )
             currentActivity = activity
@@ -86,7 +86,7 @@ class LiveActivityManager {
 
         Task {
             await activity.update(
-                .init(state: updatedState, staleDate: nil)
+                ActivityContent(state: updatedState, staleDate: nil)
             )
         }
     }
@@ -104,10 +104,7 @@ class LiveActivityManager {
 
     // Check if Live Activities are supported
     static func isSupported() -> Bool {
-        if #available(iOS 16.2, *) {
-            return ActivityAuthorizationInfo().areActivitiesEnabled
-        }
-        return false
+        return ActivityAuthorizationInfo().areActivitiesEnabled
     }
 }
 #endif
