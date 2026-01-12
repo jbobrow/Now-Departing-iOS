@@ -39,11 +39,30 @@ struct Station: Identifiable, Codable, Equatable {
         self.hasAvailableTimes = hasAvailableTimes
     }
 
+    // Custom coding to handle missing "id" in JSON
     private enum CodingKeys: String, CodingKey {
         case display
         case name
-        case id
         case hasAvailableTimes
+        // Note: "id" is NOT in CodingKeys, so it won't be decoded from JSON
+        // It will be auto-generated via init() when decoding
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.display = try container.decode(String.self, forKey: .display)
+        self.name = try container.decode(String.self, forKey: .name)
+        self.hasAvailableTimes = try container.decodeIfPresent(Bool.self, forKey: .hasAvailableTimes)
+        // Generate a stable ID based on the name to ensure consistency
+        self.id = name
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(display, forKey: .display)
+        try container.encode(name, forKey: .name)
+        try container.encodeIfPresent(hasAvailableTimes, forKey: .hasAvailableTimes)
+        // Note: "id" is not encoded, as it's derived from "name"
     }
 }
 
