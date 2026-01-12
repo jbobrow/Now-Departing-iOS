@@ -23,6 +23,10 @@ struct NowDepartingWidgetEntryView: View {
                 MediumWidgetView(entry: entry)
             case .systemLarge:
                 LargeWidgetView(entry: entry)
+            case .systemExtraLarge:
+                LargeWidgetView(entry: entry)
+            case .accessoryCircular, .accessoryRectangular, .accessoryInline:
+                SmallWidgetView(entry: entry)
             @unknown default:
                 SmallWidgetView(entry: entry)
             }
