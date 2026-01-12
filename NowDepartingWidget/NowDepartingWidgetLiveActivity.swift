@@ -162,37 +162,15 @@ struct NowDepartingWidgetLiveActivity: Widget {
 
     // Helper functions for time display
     private func getTimeText(for train: NowDepartingWidgetAttributes.ContentState.TrainTime) -> String {
-        let totalSeconds = train.minutes * 60 + train.seconds
-
-        if totalSeconds == 0 {
-            return "Now"
-        } else if totalSeconds <= 30 {
-            return "Now"
-        } else if totalSeconds < 60 {
-            return "1 min"
-        } else {
-            return "\(train.minutes) min"
-        }
+        return TimeFormatter.formatArrivalTime(minutes: train.minutes, seconds: train.seconds, fullText: true)
     }
 
     private func getAdditionalTimeText(for train: NowDepartingWidgetAttributes.ContentState.TrainTime) -> String {
-        let totalSeconds = train.minutes * 60 + train.seconds
-
-        if totalSeconds < 60 {
-            return "1 min"
-        } else {
-            return "\(train.minutes) min"
-        }
+        return TimeFormatter.formatAdditionalTime(minutes: train.minutes, seconds: train.seconds)
     }
 
     private func getCompactTimeText(for train: NowDepartingWidgetAttributes.ContentState.TrainTime) -> String {
-        let totalSeconds = train.minutes * 60 + train.seconds
-
-        if totalSeconds < 60 {
-            return "Now"
-        } else {
-            return "\(train.minutes)m"
-        }
+        return TimeFormatter.formatCompactTime(minutes: train.minutes, seconds: train.seconds)
     }
 }
 

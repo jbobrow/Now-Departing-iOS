@@ -15,31 +15,8 @@ struct LinesBrowseView: View {
     @EnvironmentObject var favoritesManager: FavoritesManager
     @StateObject private var navigationState = NavigationState()
 
-    let lines = [
-        SubwayLine(id: "1", label: "1", bg_color: SubwayConfiguration.lineColors["1"]!.background, fg_color: SubwayConfiguration.lineColors["1"]!.foreground),
-        SubwayLine(id: "2", label: "2", bg_color: SubwayConfiguration.lineColors["2"]!.background, fg_color: SubwayConfiguration.lineColors["2"]!.foreground),
-        SubwayLine(id: "3", label: "3", bg_color: SubwayConfiguration.lineColors["3"]!.background, fg_color: SubwayConfiguration.lineColors["3"]!.foreground),
-        SubwayLine(id: "X", label: "X", bg_color: SubwayConfiguration.lineColors["X"]!.background, fg_color: SubwayConfiguration.lineColors["X"]!.foreground),
-        SubwayLine(id: "4", label: "4", bg_color: SubwayConfiguration.lineColors["4"]!.background, fg_color: SubwayConfiguration.lineColors["4"]!.foreground),
-        SubwayLine(id: "5", label: "5", bg_color: SubwayConfiguration.lineColors["5"]!.background, fg_color: SubwayConfiguration.lineColors["5"]!.foreground),
-        SubwayLine(id: "6", label: "6", bg_color: SubwayConfiguration.lineColors["6"]!.background, fg_color: SubwayConfiguration.lineColors["6"]!.foreground),
-        SubwayLine(id: "7", label: "7", bg_color: SubwayConfiguration.lineColors["7"]!.background, fg_color: SubwayConfiguration.lineColors["7"]!.foreground),
-        SubwayLine(id: "A", label: "A", bg_color: SubwayConfiguration.lineColors["A"]!.background, fg_color: SubwayConfiguration.lineColors["A"]!.foreground),
-        SubwayLine(id: "C", label: "C", bg_color: SubwayConfiguration.lineColors["C"]!.background, fg_color: SubwayConfiguration.lineColors["C"]!.foreground),
-        SubwayLine(id: "E", label: "E", bg_color: SubwayConfiguration.lineColors["E"]!.background, fg_color: SubwayConfiguration.lineColors["E"]!.foreground),
-        SubwayLine(id: "G", label: "G", bg_color: SubwayConfiguration.lineColors["G"]!.background, fg_color: SubwayConfiguration.lineColors["G"]!.foreground),
-        SubwayLine(id: "B", label: "B", bg_color: SubwayConfiguration.lineColors["B"]!.background, fg_color: SubwayConfiguration.lineColors["B"]!.foreground),
-        SubwayLine(id: "D", label: "D", bg_color: SubwayConfiguration.lineColors["D"]!.background, fg_color: SubwayConfiguration.lineColors["D"]!.foreground),
-        SubwayLine(id: "F", label: "F", bg_color: SubwayConfiguration.lineColors["F"]!.background, fg_color: SubwayConfiguration.lineColors["F"]!.foreground),
-        SubwayLine(id: "M", label: "M", bg_color: SubwayConfiguration.lineColors["M"]!.background, fg_color: SubwayConfiguration.lineColors["M"]!.foreground),
-        SubwayLine(id: "N", label: "N", bg_color: SubwayConfiguration.lineColors["N"]!.background, fg_color: SubwayConfiguration.lineColors["N"]!.foreground),
-        SubwayLine(id: "Q", label: "Q", bg_color: SubwayConfiguration.lineColors["Q"]!.background, fg_color: SubwayConfiguration.lineColors["Q"]!.foreground),
-        SubwayLine(id: "R", label: "R", bg_color: SubwayConfiguration.lineColors["R"]!.background, fg_color: SubwayConfiguration.lineColors["R"]!.foreground),
-        SubwayLine(id: "W", label: "W", bg_color: SubwayConfiguration.lineColors["W"]!.background, fg_color: SubwayConfiguration.lineColors["W"]!.foreground),
-        SubwayLine(id: "J", label: "J", bg_color: SubwayConfiguration.lineColors["J"]!.background, fg_color: SubwayConfiguration.lineColors["J"]!.foreground),
-        SubwayLine(id: "Z", label: "Z", bg_color: SubwayConfiguration.lineColors["Z"]!.background, fg_color: SubwayConfiguration.lineColors["Z"]!.foreground),
-        SubwayLine(id: "L", label: "L", bg_color: SubwayConfiguration.lineColors["L"]!.background, fg_color: SubwayConfiguration.lineColors["L"]!.foreground)
-    ]
+    // Use shared subway line factory
+    let lines = SubwayLineFactory.allLines
 
     var body: some View {
         NavigationStack(path: $navigationState.path) {
@@ -61,43 +38,8 @@ struct LinesBrowseView: View {
     }
 }
 
-// MARK: - Navigation State
-
-enum NavigationRoute: Hashable {
-    case stations(SubwayLine)
-    case terminals(SubwayLine, Station)
-    case times(SubwayLine, Station, String)
-
-    func hash(into hasher: inout Hasher) {
-        switch self {
-        case .stations(let line):
-            hasher.combine("stations")
-            hasher.combine(line.id)
-        case .terminals(let line, let station):
-            hasher.combine("terminals")
-            hasher.combine(line.id)
-            hasher.combine(station.id)
-        case .times(let line, let station, let direction):
-            hasher.combine("times")
-            hasher.combine(line.id)
-            hasher.combine(station.id)
-            hasher.combine(direction)
-        }
-    }
-
-    static func == (lhs: NavigationRoute, rhs: NavigationRoute) -> Bool {
-        switch (lhs, rhs) {
-        case (.stations(let line1), .stations(let line2)):
-            return line1.id == line2.id
-        case (.terminals(let line1, let station1), .terminals(let line2, let station2)):
-            return line1.id == line2.id && station1.id == station2.id
-        case (.times(let line1, let station1, let dir1), .times(let line2, let station2, let dir2)):
-            return line1.id == line2.id && station1.id == station2.id && dir1 == dir2
-        default:
-            return false
-        }
-    }
-}
+// MARK: - Navigation State (iOS-specific)
+// Note: NavigationRoute is imported from NavigationModels.swift
 
 class NavigationState: ObservableObject {
     @Published var path = NavigationPath()
@@ -854,27 +796,11 @@ struct TimesView: View {
     }
 
     private func getTimeText(for train: (minutes: Int, seconds: Int)) -> String {
-        let totalSeconds = train.minutes * 60 + train.seconds
-
-        if totalSeconds == 0 {
-            return "Departing"
-        } else if totalSeconds <= 30 {
-            return "Departing"
-        } else if totalSeconds < 60 {
-            return "Arriving"
-        } else {
-            return "\(train.minutes) min"
-        }
+        return TimeFormatter.formatArrivalTime(minutes: train.minutes, seconds: train.seconds, fullText: true)
     }
 
     private func getAdditionalTimeText(for train: (minutes: Int, seconds: Int)) -> String {
-        let totalSeconds = train.minutes * 60 + train.seconds
-
-        if totalSeconds < 60 {
-            return "Arriving"
-        } else {
-            return "\(train.minutes) min"
-        }
+        return TimeFormatter.formatAdditionalTime(minutes: train.minutes, seconds: train.seconds)
     }
 
     private func addToFavorites() {

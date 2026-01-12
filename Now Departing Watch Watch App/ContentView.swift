@@ -9,76 +9,17 @@ import SwiftUI
 import Combine
 import WatchKit
 
-// Models
-struct SubwayLine: Identifiable, Equatable {
-    let id: String
-    let label: String
-    let bg_color: Color
-    let fg_color: Color
-}
-
-struct Station: Identifiable, Codable, Equatable {
-    let id: String = UUID().uuidString // Automatically generated unique ID
-    let display: String
-    let name: String
-    var hasAvailableTimes: Bool?  // New property
-    
-    private enum CodingKeys: String, CodingKey {
-        case display
-        case name
-        case id
-        case hasAvailableTimes
-    }
-    
-    // Custom encoding to ensure id is included
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(display, forKey: .display)
-        try container.encode(name, forKey: .name)
-        try container.encode(id, forKey: .id)
-        try container.encodeIfPresent(hasAvailableTimes, forKey: .hasAvailableTimes)
-    }
-}
-
-struct APIResponse: Decodable {
-    let data: [StationData]
-}
-
-struct StationData: Decodable {
-    let name: String
-    let N: [Train]
-    let S: [Train]
-}
-
-struct Train: Decodable {
-    let route: String
-    let time: String
-}
+// MARK: - Models
+// Note: SubwayLine, Station, APIResponse, StationData, Train are now imported from SharedModels.swift
+// Note: NavigationState is now imported from NavigationModels.swift
 
 struct TrainData: Decodable {
     let station: String
     let arrivalTimes: [Int]
-    
+
     private enum CodingKeys: String, CodingKey {
         case station
         case arrivalTimes = "times"
-    }
-}
-
-// Navigation State Management
-class NavigationState: ObservableObject {
-    @Published var line: SubwayLine?
-    @Published var station: Station?
-    @Published var terminal: Station?
-    @Published var direction: String?
-    @Published var path = NavigationPath()
-    
-    func reset() {
-        line = nil
-        station = nil
-        terminal = nil
-        direction = nil
-        path = NavigationPath()
     }
 }
 
@@ -92,32 +33,9 @@ struct ContentView: View {
     @StateObject private var locationManager = LocationManager()
     @State private var showSettings = false
     @State private var selectedTab = 0
-    
-    let lines = [
-        SubwayLine(id: "1", label: "1", bg_color: SubwayConfiguration.lineColors["1"]!.background, fg_color: SubwayConfiguration.lineColors["1"]!.foreground),
-        SubwayLine(id: "2", label: "2", bg_color: SubwayConfiguration.lineColors["2"]!.background, fg_color: SubwayConfiguration.lineColors["2"]!.foreground),
-        SubwayLine(id: "3", label: "3", bg_color: SubwayConfiguration.lineColors["3"]!.background, fg_color: SubwayConfiguration.lineColors["3"]!.foreground),
-        SubwayLine(id: "X", label: "X", bg_color: SubwayConfiguration.lineColors["X"]!.background, fg_color: SubwayConfiguration.lineColors["X"]!.foreground),
-        SubwayLine(id: "4", label: "4", bg_color: SubwayConfiguration.lineColors["4"]!.background, fg_color: SubwayConfiguration.lineColors["4"]!.foreground),
-        SubwayLine(id: "5", label: "5", bg_color: SubwayConfiguration.lineColors["5"]!.background, fg_color: SubwayConfiguration.lineColors["5"]!.foreground),
-        SubwayLine(id: "6", label: "6", bg_color: SubwayConfiguration.lineColors["6"]!.background, fg_color: SubwayConfiguration.lineColors["6"]!.foreground),
-        SubwayLine(id: "7", label: "7", bg_color: SubwayConfiguration.lineColors["7"]!.background, fg_color: SubwayConfiguration.lineColors["7"]!.foreground),
-        SubwayLine(id: "A", label: "A", bg_color: SubwayConfiguration.lineColors["A"]!.background, fg_color: SubwayConfiguration.lineColors["A"]!.foreground),
-        SubwayLine(id: "C", label: "C", bg_color: SubwayConfiguration.lineColors["C"]!.background, fg_color: SubwayConfiguration.lineColors["C"]!.foreground),
-        SubwayLine(id: "E", label: "E", bg_color: SubwayConfiguration.lineColors["E"]!.background, fg_color: SubwayConfiguration.lineColors["E"]!.foreground),
-        SubwayLine(id: "G", label: "G", bg_color: SubwayConfiguration.lineColors["G"]!.background, fg_color: SubwayConfiguration.lineColors["G"]!.foreground),
-        SubwayLine(id: "B", label: "B", bg_color: SubwayConfiguration.lineColors["B"]!.background, fg_color: SubwayConfiguration.lineColors["B"]!.foreground),
-        SubwayLine(id: "D", label: "D", bg_color: SubwayConfiguration.lineColors["D"]!.background, fg_color: SubwayConfiguration.lineColors["D"]!.foreground),
-        SubwayLine(id: "F", label: "F", bg_color: SubwayConfiguration.lineColors["F"]!.background, fg_color: SubwayConfiguration.lineColors["F"]!.foreground),
-        SubwayLine(id: "M", label: "M", bg_color: SubwayConfiguration.lineColors["M"]!.background, fg_color: SubwayConfiguration.lineColors["M"]!.foreground),
-        SubwayLine(id: "N", label: "N", bg_color: SubwayConfiguration.lineColors["N"]!.background, fg_color: SubwayConfiguration.lineColors["N"]!.foreground),
-        SubwayLine(id: "Q", label: "Q", bg_color: SubwayConfiguration.lineColors["Q"]!.background, fg_color: SubwayConfiguration.lineColors["Q"]!.foreground),
-        SubwayLine(id: "R", label: "R", bg_color: SubwayConfiguration.lineColors["R"]!.background, fg_color: SubwayConfiguration.lineColors["R"]!.foreground),
-        SubwayLine(id: "W", label: "W", bg_color: SubwayConfiguration.lineColors["W"]!.background, fg_color: SubwayConfiguration.lineColors["W"]!.foreground),
-        SubwayLine(id: "J", label: "J", bg_color: SubwayConfiguration.lineColors["J"]!.background, fg_color: SubwayConfiguration.lineColors["J"]!.foreground),
-        SubwayLine(id: "Z", label: "Z", bg_color: SubwayConfiguration.lineColors["Z"]!.background, fg_color: SubwayConfiguration.lineColors["Z"]!.foreground),
-        SubwayLine(id: "L", label: "L", bg_color: SubwayConfiguration.lineColors["L"]!.background, fg_color: SubwayConfiguration.lineColors["L"]!.foreground)
-    ]
+
+    // Use shared subway line factory
+    let lines = SubwayLineFactory.allLines
     
     private func scheduleNextBackgroundRefresh() {
         let refreshDate = Date().addingTimeInterval(15 * 60) // 15 minutes
