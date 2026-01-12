@@ -84,7 +84,12 @@
 			membershipExceptions = (
 				FavoriteItem.swift,
 				LiveActivityAttributes.swift,
+				NavigationModels.swift,
+				SharedModels.swift,
 				SubwayConfiguration.swift,
+				SubwayLineFactory.swift,
+				TerminalStationsHelper.swift,
+				TimeFormatter.swift,
 			);
 			target = 2B22E41A2F13641A00000D5A /* NowDepartingWidgetExtension */;
 		};
