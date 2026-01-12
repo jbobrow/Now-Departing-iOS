@@ -38,16 +38,8 @@ struct LinesBrowseView: View {
     }
 }
 
-// MARK: - Navigation State (iOS-specific)
-// Note: NavigationRoute is imported from NavigationModels.swift
-
-class NavigationState: ObservableObject {
-    @Published var path = NavigationPath()
-
-    func reset() {
-        path = NavigationPath()
-    }
-}
+// MARK: - Navigation State
+// NavigationState and NavigationRoute are imported from Shared/NavigationModels.swift
 
 // MARK: - Line Selection View
 
