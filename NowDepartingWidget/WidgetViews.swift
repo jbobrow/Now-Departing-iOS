@@ -34,6 +34,21 @@ struct NowDepartingWidgetEntryView: View {
         .containerBackground(for: .widget) {
             Color.black
         }
+        .widgetURL(makeWidgetURL())
+    }
+
+    private func makeWidgetURL() -> URL? {
+        guard let favorite = entry.favoriteItem else { return nil }
+        var components = URLComponents()
+        components.scheme = "nowdeparting"
+        components.host = "train"
+        components.queryItems = [
+            URLQueryItem(name: "lineId", value: favorite.lineId),
+            URLQueryItem(name: "stationName", value: favorite.stationName),
+            URLQueryItem(name: "stationDisplay", value: favorite.stationDisplay),
+            URLQueryItem(name: "direction", value: favorite.direction)
+        ]
+        return components.url
     }
 }
 

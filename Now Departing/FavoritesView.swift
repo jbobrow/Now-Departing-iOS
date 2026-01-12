@@ -12,16 +12,17 @@ struct FavoritesView: View {
     @EnvironmentObject var favoritesManager: FavoritesManager
     @EnvironmentObject var stationDataManager: StationDataManager
     @StateObject private var trainDataManager = FavoriteTrainDataManager()
+    @ObservedObject var deepLinkManager: DeepLinkManager
     @State private var showingEditMode = false
-    
+    @State private var navigationPath = NavigationPath()
+    @State private var deepLinkTimesView: (line: SubwayLine, station: Station, direction: String)? = nil
+
     var body: some View {
-        NavigationView {
-            Group {
-                if favoritesManager.favorites.isEmpty {
-                    EmptyFavoritesView()
-                } else {
-                    FavoritesList()
-                }
+        Group {
+            if favoritesManager.favorites.isEmpty {
+                EmptyFavoritesView()
+            } else {
+                FavoritesList()
             }
         }
         .onAppear {
@@ -30,6 +31,37 @@ struct FavoritesView: View {
         .refreshable {
             await refreshTrainDataAsync()
         }
+        .onChange(of: deepLinkManager.activeLink) { oldLink, newLink in
+            if let link = newLink {
+                handleDeepLink(link)
+                deepLinkManager.clearLink()
+            }
+        }
+        .fullScreenCover(item: Binding(
+            get: { deepLinkTimesView.map { DeepLinkWrapper(line: $0.line, station: $0.station, direction: $0.direction) } },
+            set: { if $0 == nil { deepLinkTimesView = nil } }
+        )) { wrapper in
+            NavigationStack {
+                TimesView(line: wrapper.line, station: wrapper.station, direction: wrapper.direction)
+                    .environmentObject(favoritesManager)
+                    .environmentObject(stationDataManager)
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarLeading) {
+                            Button("Close") {
+                                deepLinkTimesView = nil
+                            }
+                        }
+                    }
+            }
+        }
+    }
+
+    // Wrapper to make the deep link data Identifiable
+    private struct DeepLinkWrapper: Identifiable {
+        let id = UUID()
+        let line: SubwayLine
+        let station: Station
+        let direction: String
     }
     
     // MARK: - Favorites List
@@ -77,8 +109,7 @@ struct FavoritesView: View {
     }
     
     private func moveFavorites(from source: IndexSet, to destination: Int) {
-        // Note: You'll need to add a reorder function to FavoritesManager
-        // For now, this is a placeholder
+        favoritesManager.reorderFavorites(from: source, to: destination)
     }
     
     private func refreshTrainData() {
@@ -92,6 +123,17 @@ struct FavoritesView: View {
         for favorite in favoritesManager.favorites {
             await trainDataManager.fetchTrainDataAsync(for: favorite)
         }
+    }
+
+    private func handleDeepLink(_ link: DeepLinkManager.DeepLink) {
+        // Find the line
+        let line = SubwayLineFactory.line(for: link.lineId)
+
+        // Create station
+        let station = Station(display: link.stationDisplay, name: link.stationName)
+
+        // Show the times view
+        deepLinkTimesView = (line: line, station: station, direction: link.direction)
     }
 }
 

@@ -91,4 +91,10 @@ class FavoritesManager: ObservableObject {
     func isFavorite(lineId: String, stationName: String, direction: String) -> Bool {
         return favorites.contains(where: { $0.stationName == stationName && $0.lineId == lineId && $0.direction == direction })
     }
+
+    // Reorder favorites
+    func reorderFavorites(from source: IndexSet, to destination: Int) {
+        favorites.move(fromOffsets: source, toOffset: destination)
+        saveFavorites()
+    }
 }

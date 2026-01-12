@@ -65,3 +65,45 @@ enum NavigationRoute: Hashable {
         }
     }
 }
+
+// MARK: - Deep Link Manager (iOS)
+
+/// Manages deep linking from widgets to app
+class DeepLinkManager: ObservableObject {
+    @Published var activeLink: DeepLink?
+
+    struct DeepLink: Equatable {
+        let lineId: String
+        let stationName: String
+        let stationDisplay: String
+        let direction: String
+    }
+
+    func handleURL(_ url: URL) {
+        guard url.scheme == "nowdeparting",
+              url.host == "train",
+              let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+              let queryItems = components.queryItems else {
+            return
+        }
+
+        let lineId = queryItems.first(where: { $0.name == "lineId" })?.value
+        let stationName = queryItems.first(where: { $0.name == "stationName" })?.value
+        let stationDisplay = queryItems.first(where: { $0.name == "stationDisplay" })?.value
+        let direction = queryItems.first(where: { $0.name == "direction" })?.value
+
+        if let lineId = lineId, let stationName = stationName,
+           let stationDisplay = stationDisplay, let direction = direction {
+            activeLink = DeepLink(
+                lineId: lineId,
+                stationName: stationName,
+                stationDisplay: stationDisplay,
+                direction: direction
+            )
+        }
+    }
+
+    func clearLink() {
+        activeLink = nil
+    }
+}
