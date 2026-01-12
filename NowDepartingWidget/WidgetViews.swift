@@ -58,10 +58,15 @@ struct SmallWidgetView: View {
 
                         Spacer()
 
-                        RelativeTimeView(date: entry.lastUpdated)
-                            .font(.custom("HelveticaNeue", size: 8))
-                            .foregroundColor(.white.opacity(0.5))
-                            .multilineTextAlignment(.trailing)
+                        VStack(alignment: .trailing) {
+                            Text("Last updated")
+                                .font(.custom("HelveticaNeue", size: 10))
+                                .foregroundColor(.white.opacity(0.5))
+                            RelativeTimeView(date: entry.lastUpdated)
+                                .font(.custom("HelveticaNeue", size: 10))
+                                .foregroundColor(.white.opacity(0.5))
+                                .multilineTextAlignment(.trailing)
+                        }
                     }
                 }
 
@@ -102,7 +107,7 @@ struct SmallWidgetView: View {
 
                 // Bottom: Station name
                 Text(favorite.stationDisplay)
-                    .font(.custom("HelveticaNeue-Bold", size: 11))
+                    .font(.custom("HelveticaNeue-Bold", size: 13))
                     .foregroundColor(.white)
                     .lineLimit(2)
                     .multilineTextAlignment(.center)
@@ -375,10 +380,14 @@ struct DynamicTrainTimeView: View {
         } else if fullText {
             // For full text, use .relative which shows "in 5 minutes"
             Text(arrivalDate, style: .relative)
+                .lineLimit(1)
+                .truncationMode(.tail)
         } else {
             // For compact text, try .offset which might show "+5 min"
-            Text(arrivalDate, style: .offset)
+            Text(arrivalDate, style: .relative)
                 .monospacedDigit()
+                .lineLimit(1)
+                .truncationMode(.tail)
         }
     }
 }
