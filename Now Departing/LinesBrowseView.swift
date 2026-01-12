@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import ActivityKit
 
 // MARK: - Main Browse View
 
@@ -400,6 +401,8 @@ struct TimesView: View {
     @StateObject private var viewModel = TimesViewModeliOS()
     @State private var showingFavoriteAlert = false
     @State private var showingWidgetInfo = false
+    @State private var showingLiveActivityInfo = false
+    @State private var liveActivityStarted = false
     @State private var currentTime = Date()
     @State private var widgetSize: WidgetSize = .large
 
@@ -507,6 +510,28 @@ struct TimesView: View {
                         )
                         .cornerRadius(14)
                     }
+
+                    // Live Activity for StandBy mode button
+                    if #available(iOS 16.2, *), LiveActivityManager.isSupported() {
+                        Button(action: {
+                            toggleLiveActivity()
+                        }) {
+                            HStack(spacing: 8) {
+                                Image(systemName: liveActivityStarted ? "iphone.gen3.radiowaves.left.and.right" : "iphone.gen3")
+                                Text(liveActivityStarted ? "Stop Live Activity" : "Start Live Activity")
+                            }
+                            .font(.custom("HelveticaNeue-Bold", size: 18))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(.ultraThinMaterial)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 14)
+                                    .stroke(liveActivityStarted ? Color.orange.opacity(0.5) : Color.purple.opacity(0.5), lineWidth: 2)
+                            )
+                            .cornerRadius(14)
+                        }
+                    }
                 }
                 .padding(.horizontal, 24)
                 .padding(.bottom, 40)
@@ -519,14 +544,34 @@ struct TimesView: View {
         }
         .onDisappear {
             viewModel.stopFetchingTimes()
+            // Stop Live Activity when leaving the view
+            if liveActivityStarted {
+                if #available(iOS 16.2, *) {
+                    LiveActivityManager.shared.endActivity()
+                }
+                liveActivityStarted = false
+            }
         }
         .onReceive(timer) { time in
             currentTime = time
+        }
+        .onReceive(viewModel.$nextTrains) { trains in
+            // Update Live Activity when train times change
+            if liveActivityStarted && !trains.isEmpty {
+                if #available(iOS 16.2, *) {
+                    LiveActivityManager.shared.updateActivity(nextTrains: trains)
+                }
+            }
         }
         .alert("Add Widget to Homescreen", isPresented: $showingWidgetInfo) {
             Button("Got It", role: .cancel) {}
         } message: {
             Text("To add a widget to your homescreen:\n\n1. Long press on your homescreen\n2. Tap the + button\n3. Search for 'Now Departing'\n4. Select this train and direction")
+        }
+        .alert("Live Activity for StandBy", isPresented: $showingLiveActivityInfo) {
+            Button("Got It", role: .cancel) {}
+        } message: {
+            Text("Live Activity started! Place your iPhone horizontally on a charger to see it in StandBy mode.\n\nThe display will show real-time train arrivals and automatically update.")
         }
         .confirmationDialog("Favorites", isPresented: $showingFavoriteAlert, titleVisibility: .visible) {
             if isFavorited {
@@ -540,6 +585,45 @@ struct TimesView: View {
             }
             Button("Cancel", role: .cancel) {}
         }
+    }
+
+    // MARK: - Live Activity Functions
+
+    @available(iOS 16.2, *)
+    private func toggleLiveActivity() {
+        if liveActivityStarted {
+            LiveActivityManager.shared.endActivity()
+            liveActivityStarted = false
+        } else {
+            startLiveActivity()
+        }
+    }
+
+    @available(iOS 16.2, *)
+    private func startLiveActivity() {
+        let destinationStation = DirectionHelper.getToTerminalStation(
+            for: line.id,
+            direction: direction,
+            stationDataManager: stationDataManager
+        )
+
+        LiveActivityManager.shared.startActivity(
+            lineId: line.id,
+            lineLabel: line.label,
+            lineBgColor: line.bg_color,
+            lineFgColor: line.fg_color,
+            stationName: station.name,
+            stationDisplay: station.display,
+            direction: direction,
+            destinationStation: destinationStation,
+            nextTrains: viewModel.nextTrains
+        )
+
+        liveActivityStarted = true
+        showingLiveActivityInfo = true
+
+        let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
+        impactFeedback.impactOccurred()
     }
 
     private var widgetCornerRadius: CGFloat {
