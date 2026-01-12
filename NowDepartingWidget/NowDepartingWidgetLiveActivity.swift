@@ -13,52 +13,58 @@ struct NowDepartingWidgetLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: NowDepartingWidgetAttributes.self) { context in
             // Lock screen/banner UI and StandBy mode UI
-            HStack(spacing: 16) {
+            HStack(spacing: 20) {
                 // Left side - Line badge and station info
-                HStack(spacing: 12) {
+                HStack(spacing: 16) {
                     Text(context.attributes.lineLabel)
-                        .font(.custom("HelveticaNeue-Bold", size: 50))
+                        .font(.system(size: 60, weight: .bold))
                         .foregroundColor(context.attributes.lineFgColor)
-                        .frame(width: 80, height: 80)
+                        .frame(width: 100, height: 100)
                         .background(Circle().fill(context.attributes.lineBgColor))
 
-                    VStack(alignment: .leading, spacing: 2) {
+                    VStack(alignment: .leading, spacing: 4) {
                         Text(context.attributes.stationName)
-                            .font(.custom("HelveticaNeue-Bold", size: 28))
+                            .font(.system(size: 36, weight: .bold))
                             .foregroundColor(.white)
-                            .lineLimit(2)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
                         Text("to \(context.attributes.destinationStation)")
-                            .font(.custom("HelveticaNeue", size: 16))
+                            .font(.system(size: 20, weight: .regular))
                             .foregroundColor(.white.opacity(0.7))
                             .lineLimit(1)
+                            .minimumScaleFactor(0.8)
                     }
                 }
 
                 Spacer()
 
                 // Right side - Train times
-                VStack(alignment: .trailing, spacing: 4) {
+                VStack(alignment: .trailing, spacing: 8) {
                     if let primaryTrain = context.state.nextTrains.first {
                         Text(getTimeText(for: primaryTrain))
-                            .font(.custom("HelveticaNeue-Bold", size: 72))
+                            .font(.system(size: 96, weight: .bold))
                             .foregroundColor(.white)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
 
                         if context.state.nextTrains.count > 1 {
                             let additionalTimes = context.state.nextTrains.dropFirst().prefix(2).map { train in
                                 getAdditionalTimeText(for: train)
                             }.joined(separator: ", ")
                             Text(additionalTimes)
-                                .font(.custom("HelveticaNeue", size: 22))
+                                .font(.system(size: 28, weight: .regular))
                                 .foregroundColor(.white.opacity(0.7))
+                                .lineLimit(1)
                         }
                     } else {
                         Text("--")
-                            .font(.custom("HelveticaNeue-Bold", size: 72))
+                            .font(.system(size: 96, weight: .bold))
                             .foregroundColor(.white.opacity(0.5))
                     }
                 }
             }
-            .padding(24)
+            .padding(.horizontal, 32)
+            .padding(.vertical, 24)
             .activityBackgroundTint(Color.black)
             .activitySystemActionForegroundColor(Color.white)
 
@@ -66,51 +72,81 @@ struct NowDepartingWidgetLiveActivity: Widget {
             DynamicIsland {
                 // Expanded UI for Dynamic Island
                 DynamicIslandExpandedRegion(.leading) {
-                    Text(context.attributes.lineLabel)
-                        .font(.custom("HelveticaNeue-Bold", size: 20))
-                        .foregroundColor(context.attributes.lineFgColor)
-                        .frame(width: 32, height: 32)
-                        .background(Circle().fill(context.attributes.lineBgColor))
+                    HStack(spacing: 8) {
+                        Text(context.attributes.lineLabel)
+                            .font(.system(size: 24, weight: .bold))
+                            .foregroundColor(context.attributes.lineFgColor)
+                            .frame(width: 36, height: 36)
+                            .background(Circle().fill(context.attributes.lineBgColor))
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Now Departing")
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundColor(.white.opacity(0.8))
+                            Text(context.attributes.stationName)
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundColor(.white)
+                                .lineLimit(1)
+                        }
+                    }
                 }
                 DynamicIslandExpandedRegion(.trailing) {
-                    if let primaryTrain = context.state.nextTrains.first {
-                        Text(getTimeText(for: primaryTrain))
-                            .font(.custom("HelveticaNeue-Bold", size: 24))
-                            .foregroundColor(.white)
+                    VStack(alignment: .trailing, spacing: 2) {
+                        if let primaryTrain = context.state.nextTrains.first {
+                            Text(getTimeText(for: primaryTrain))
+                                .font(.system(size: 28, weight: .bold))
+                                .foregroundColor(.white)
+                            if context.state.nextTrains.count > 1 {
+                                let additionalTime = getAdditionalTimeText(for: context.state.nextTrains[1])
+                                Text(additionalTime)
+                                    .font(.system(size: 12, weight: .regular))
+                                    .foregroundColor(.white.opacity(0.7))
+                            }
+                        }
                     }
                 }
                 DynamicIslandExpandedRegion(.bottom) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(context.attributes.stationName)
-                            .font(.custom("HelveticaNeue", size: 14))
-                            .foregroundColor(.white)
-                        if context.state.nextTrains.count > 1 {
-                            let additionalTimes = context.state.nextTrains.dropFirst().prefix(2).map { train in
+                    HStack {
+                        Text("to \(context.attributes.destinationStation)")
+                            .font(.system(size: 13, weight: .regular))
+                            .foregroundColor(.white.opacity(0.7))
+                            .lineLimit(1)
+                        Spacer()
+                        if context.state.nextTrains.count > 2 {
+                            let moreTimes = context.state.nextTrains.dropFirst(2).prefix(2).map { train in
                                 getAdditionalTimeText(for: train)
                             }.joined(separator: ", ")
-                            Text("Also: \(additionalTimes)")
-                                .font(.custom("HelveticaNeue", size: 12))
-                                .foregroundColor(.white.opacity(0.7))
+                            Text(moreTimes)
+                                .font(.system(size: 13, weight: .regular))
+                                .foregroundColor(.white.opacity(0.6))
                         }
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 4)
                 }
             } compactLeading: {
-                Text(context.attributes.lineLabel)
-                    .font(.custom("HelveticaNeue-Bold", size: 16))
-                    .foregroundColor(context.attributes.lineFgColor)
-                    .frame(width: 20, height: 20)
-                    .background(Circle().fill(context.attributes.lineBgColor))
+                HStack(spacing: 6) {
+                    Text(context.attributes.lineLabel)
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(context.attributes.lineFgColor)
+                        .frame(width: 18, height: 18)
+                        .background(Circle().fill(context.attributes.lineBgColor))
+
+                    Text("Now Departing")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(.white)
+                }
             } compactTrailing: {
                 if let primaryTrain = context.state.nextTrains.first {
                     Text(getCompactTimeText(for: primaryTrain))
-                        .font(.custom("HelveticaNeue-Bold", size: 14))
+                        .font(.system(size: 15, weight: .bold))
                         .foregroundColor(.white)
                 }
             } minimal: {
                 Text(context.attributes.lineLabel)
-                    .font(.custom("HelveticaNeue-Bold", size: 12))
+                    .font(.system(size: 14, weight: .bold))
                     .foregroundColor(context.attributes.lineFgColor)
+                    .frame(width: 18, height: 18)
+                    .background(Circle().fill(context.attributes.lineBgColor))
             }
             .keylineTint(context.attributes.lineBgColor)
         }
@@ -121,11 +157,11 @@ struct NowDepartingWidgetLiveActivity: Widget {
         let totalSeconds = train.minutes * 60 + train.seconds
 
         if totalSeconds == 0 {
-            return "Departing"
+            return "Now"
         } else if totalSeconds <= 30 {
-            return "Departing"
+            return "Now"
         } else if totalSeconds < 60 {
-            return "Arriving"
+            return "1 min"
         } else {
             return "\(train.minutes) min"
         }
@@ -135,7 +171,7 @@ struct NowDepartingWidgetLiveActivity: Widget {
         let totalSeconds = train.minutes * 60 + train.seconds
 
         if totalSeconds < 60 {
-            return "Arriving"
+            return "1 min"
         } else {
             return "\(train.minutes) min"
         }
