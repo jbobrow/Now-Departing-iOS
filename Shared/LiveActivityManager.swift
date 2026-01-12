@@ -5,6 +5,7 @@
 //  Manages Live Activities for train departures
 //
 
+#if os(iOS)
 import ActivityKit
 import SwiftUI
 
@@ -109,3 +110,4 @@ class LiveActivityManager {
         return false
     }
 }
+#endif

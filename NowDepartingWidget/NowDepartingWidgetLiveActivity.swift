@@ -74,16 +74,17 @@ struct NowDepartingWidgetLiveActivity: Widget {
                 // Right side - Train times
                 VStack(alignment: .trailing, spacing: 4) {
                     if let primaryTrain = context.state.nextTrains.first {
-                        Text(getTimeText(for: primaryTrain, currentTime: Date()))
+                        Text(getTimeText(for: primaryTrain))
                             .font(.custom("HelveticaNeue-Bold", size: 72))
                             .foregroundColor(.white)
 
                         if context.state.nextTrains.count > 1 {
-                            Text(context.state.nextTrains.dropFirst().prefix(2).map { train in
-                                getAdditionalTimeText(for: train, currentTime: Date())
-                            }.joined(separator: ", "))
-                            .font(.custom("HelveticaNeue", size: 22))
-                            .foregroundColor(.white.opacity(0.7))
+                            let additionalTimes = context.state.nextTrains.dropFirst().prefix(2).map { train in
+                                getAdditionalTimeText(for: train)
+                            }.joined(separator: ", ")
+                            Text(additionalTimes)
+                                .font(.custom("HelveticaNeue", size: 22))
+                                .foregroundColor(.white.opacity(0.7))
                         }
                     } else {
                         Text("--")
@@ -93,7 +94,6 @@ struct NowDepartingWidgetLiveActivity: Widget {
                 }
             }
             .padding(24)
-            .preferredColorScheme(.dark)
             .activityBackgroundTint(Color.black)
             .activitySystemActionForegroundColor(Color.white)
 
@@ -101,17 +101,15 @@ struct NowDepartingWidgetLiveActivity: Widget {
             DynamicIsland {
                 // Expanded UI for Dynamic Island
                 DynamicIslandExpandedRegion(.leading) {
-                    HStack(spacing: 8) {
-                        Text(context.attributes.lineLabel)
-                            .font(.custom("HelveticaNeue-Bold", size: 20))
-                            .foregroundColor(context.attributes.lineFgColor)
-                            .frame(width: 32, height: 32)
-                            .background(Circle().fill(context.attributes.lineBgColor))
-                    }
+                    Text(context.attributes.lineLabel)
+                        .font(.custom("HelveticaNeue-Bold", size: 20))
+                        .foregroundColor(context.attributes.lineFgColor)
+                        .frame(width: 32, height: 32)
+                        .background(Circle().fill(context.attributes.lineBgColor))
                 }
                 DynamicIslandExpandedRegion(.trailing) {
                     if let primaryTrain = context.state.nextTrains.first {
-                        Text(getTimeText(for: primaryTrain, currentTime: Date()))
+                        Text(getTimeText(for: primaryTrain))
                             .font(.custom("HelveticaNeue-Bold", size: 24))
                             .foregroundColor(.white)
                     }
@@ -122,11 +120,12 @@ struct NowDepartingWidgetLiveActivity: Widget {
                             .font(.custom("HelveticaNeue", size: 14))
                             .foregroundColor(.white)
                         if context.state.nextTrains.count > 1 {
-                            Text("Also: \(context.state.nextTrains.dropFirst().prefix(2).map { train in
-                                getAdditionalTimeText(for: train, currentTime: Date())
-                            }.joined(separator: ", "))")
-                            .font(.custom("HelveticaNeue", size: 12))
-                            .foregroundColor(.white.opacity(0.7))
+                            let additionalTimes = context.state.nextTrains.dropFirst().prefix(2).map { train in
+                                getAdditionalTimeText(for: train)
+                            }.joined(separator: ", ")
+                            Text("Also: \(additionalTimes)")
+                                .font(.custom("HelveticaNeue", size: 12))
+                                .foregroundColor(.white.opacity(0.7))
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -139,7 +138,7 @@ struct NowDepartingWidgetLiveActivity: Widget {
                     .background(Circle().fill(context.attributes.lineBgColor))
             } compactTrailing: {
                 if let primaryTrain = context.state.nextTrains.first {
-                    Text(getCompactTimeText(for: primaryTrain, currentTime: Date()))
+                    Text(getCompactTimeText(for: primaryTrain))
                         .font(.custom("HelveticaNeue-Bold", size: 14))
                         .foregroundColor(.white)
                 }
@@ -153,7 +152,7 @@ struct NowDepartingWidgetLiveActivity: Widget {
     }
 
     // Helper functions for time display
-    private func getTimeText(for train: NowDepartingWidgetAttributes.ContentState.TrainTime, currentTime: Date) -> String {
+    private func getTimeText(for train: NowDepartingWidgetAttributes.ContentState.TrainTime) -> String {
         let totalSeconds = train.minutes * 60 + train.seconds
 
         if totalSeconds == 0 {
@@ -167,7 +166,7 @@ struct NowDepartingWidgetLiveActivity: Widget {
         }
     }
 
-    private func getAdditionalTimeText(for train: NowDepartingWidgetAttributes.ContentState.TrainTime, currentTime: Date) -> String {
+    private func getAdditionalTimeText(for train: NowDepartingWidgetAttributes.ContentState.TrainTime) -> String {
         let totalSeconds = train.minutes * 60 + train.seconds
 
         if totalSeconds < 60 {
@@ -177,7 +176,7 @@ struct NowDepartingWidgetLiveActivity: Widget {
         }
     }
 
-    private func getCompactTimeText(for train: NowDepartingWidgetAttributes.ContentState.TrainTime, currentTime: Date) -> String {
+    private func getCompactTimeText(for train: NowDepartingWidgetAttributes.ContentState.TrainTime) -> String {
         let totalSeconds = train.minutes * 60 + train.seconds
 
         if totalSeconds < 60 {
