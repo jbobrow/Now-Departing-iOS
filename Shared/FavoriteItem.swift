@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 import Combine
+import WidgetKit
 
 // Defines the structure for a favorite item
 struct FavoriteItem: Codable, Identifiable, Equatable {
@@ -65,6 +66,9 @@ class FavoritesManager: ObservableObject {
             }
             // Also save to standard UserDefaults for backwards compatibility
             UserDefaults.standard.set(encoded, forKey: favoritesKey)
+
+            // Force widget to reload immediately when favorites change
+            WidgetCenter.shared.reloadAllTimelines()
         }
     }
     

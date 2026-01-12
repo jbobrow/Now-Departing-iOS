@@ -103,17 +103,44 @@ struct TrainTimelineProvider: TimelineProvider {
 
         fetchTrainTimes(for: favorite) { trains, error, fetchTime in
             let currentDate = Date()
-            let entry = TrainEntry(
+
+            // Create multiple timeline entries (iOS prefers this and may refresh more often)
+            var entries: [TrainEntry] = []
+
+            // Entry 1: Now
+            entries.append(TrainEntry(
                 date: currentDate,
                 favoriteItem: favorite,
                 nextTrains: trains,
                 lastUpdated: fetchTime,
                 errorMessage: error
-            )
+            ))
 
-            // Refresh every 30 seconds
-            let nextUpdate = Calendar.current.date(byAdding: .second, value: 30, to: currentDate)!
-            let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
+            // Entry 2: 30 seconds from now
+            if let date30 = Calendar.current.date(byAdding: .second, value: 30, to: currentDate) {
+                entries.append(TrainEntry(
+                    date: date30,
+                    favoriteItem: favorite,
+                    nextTrains: trains,
+                    lastUpdated: fetchTime,
+                    errorMessage: error
+                ))
+            }
+
+            // Entry 3: 60 seconds from now
+            if let date60 = Calendar.current.date(byAdding: .second, value: 60, to: currentDate) {
+                entries.append(TrainEntry(
+                    date: date60,
+                    favoriteItem: favorite,
+                    nextTrains: trains,
+                    lastUpdated: fetchTime,
+                    errorMessage: error
+                ))
+            }
+
+            // Use .atEnd policy to request immediate reload when timeline expires
+            // This signals to iOS that this is time-sensitive data
+            let timeline = Timeline(entries: entries, policy: .atEnd)
             completion(timeline)
         }
     }
