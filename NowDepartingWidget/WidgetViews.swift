@@ -362,49 +362,43 @@ func getSubwayLine(for lineId: String) -> SubwayLine {
 
 // MARK: - Dynamic Time Views
 
-/// View that displays train arrival time with automatic countdown
+/// View that displays train arrival time with automatic countdown using dynamic text
 struct DynamicTrainTimeView: View {
     let arrivalDate: Date
     let fullText: Bool
 
     var body: some View {
-        TimelineView(.periodic(from: Date(), by: 1.0)) { context in
-            Text(formatDynamicTime(arrivalDate: arrivalDate, currentDate: context.date))
-        }
-    }
+        // TimelineView with 1-second updates for dynamic countdown
+        TimelineView(.periodic(from: Date.now, by: 1.0)) { context in
+            let interval = arrivalDate.timeIntervalSince(context.date)
+            let totalSeconds = max(0, Int(interval))
+            let minutes = totalSeconds / 60
 
-    private func formatDynamicTime(arrivalDate: Date, currentDate: Date) -> String {
-        let interval = arrivalDate.timeIntervalSince(currentDate)
-        let totalSeconds = max(0, Int(interval))
-        let minutes = totalSeconds / 60
-
-        if totalSeconds < 60 {
-            return "Now"
-        } else {
-            return fullText ? "\(minutes) min" : "\(minutes)m"
+            if totalSeconds < 60 {
+                Text("Now")
+            } else {
+                Text(fullText ? "\(minutes) min" : "\(minutes)m")
+            }
         }
     }
 }
 
-/// View that displays relative time since last update
+/// View that displays relative time since last update using dynamic text
 struct RelativeTimeView: View {
     let date: Date
 
     var body: some View {
-        TimelineView(.periodic(from: Date(), by: 1.0)) { context in
-            Text("Updated \(formatRelativeTime(from: date, to: context.date))")
-        }
-    }
+        // TimelineView with 1-second updates for counting up
+        TimelineView(.periodic(from: Date.now, by: 1.0)) { context in
+            let interval = context.date.timeIntervalSince(date)
+            let seconds = Int(interval)
 
-    private func formatRelativeTime(from date: Date, to currentDate: Date) -> String {
-        let interval = currentDate.timeIntervalSince(date)
-        let seconds = Int(interval)
-
-        if seconds < 60 {
-            return "\(seconds) sec ago"
-        } else {
-            let minutes = seconds / 60
-            return "\(minutes) min ago"
+            if seconds < 60 {
+                Text("Updated \(seconds) sec ago")
+            } else {
+                let minutes = seconds / 60
+                Text("Updated \(minutes) min ago")
+            }
         }
     }
 }
