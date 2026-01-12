@@ -390,6 +390,13 @@ struct DynamicTrainTimeView: View {
     var body: some View {
         let minutesUntil = Int(arrivalDate.timeIntervalSince(Date()) / 60)
 
+        // LIMITATION: We cannot prevent .relative from showing "X ago" for past dates
+        // in home screen widgets. TimelineView doesn't work here - only Live Activities.
+        //
+        // The only truly dynamic element is the native Text date style itself.
+        // Best we can do is aggressively filter departed trains at the timeline
+        // provider level, but between widget refreshes (5-15 min), trains may
+        // briefly show "X minutes ago" after they depart.
         if minutesUntil < 1 {
             Text("Now")
         } else if fullText {
