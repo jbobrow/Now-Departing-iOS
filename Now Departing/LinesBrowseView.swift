@@ -471,25 +471,6 @@ struct TimesView: View {
 
                 // Action buttons with glass effect
                 VStack(spacing: 12) {
-                    // Add Widget to Homescreen button
-                    Button(action: {
-                        showingWidgetInfo = true
-                    }) {
-                        HStack(spacing: 8) {
-                            Image(systemName: "plus.app.fill")
-                            Text("Add to Homescreen")
-                        }
-                        .font(.custom("HelveticaNeue-Bold", size: 18))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(.ultraThinMaterial)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 14)
-                                .stroke(Color.green.opacity(0.5), lineWidth: 2)
-                        )
-                        .cornerRadius(14)
-                    }
 
                     // Favorite button
                     Button(action: {
@@ -506,8 +487,27 @@ struct TimesView: View {
                         .background(.ultraThinMaterial)
                         .overlay(
                             RoundedRectangle(cornerRadius: 14)
-                                .stroke(isFavorited ? Color.red.opacity(0.5) : Color.blue.opacity(0.5), lineWidth: 2)
+                                .stroke(isFavorited ? Color.red.opacity(0.5) : Color.white.opacity(0.2), lineWidth: 1)
                         )
+                        .cornerRadius(14)
+                    }
+                    
+                    // Add Widget to Homescreen button
+                    Button(action: {
+                        showingWidgetInfo = true
+                    }) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "plus.app.fill")
+                            Text("Add to Homescreen")
+                        }
+                        .font(.custom("HelveticaNeue-Bold", size: 18))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(.ultraThinMaterial)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14)
+                                .stroke(Color.white.opacity(0.2), lineWidth: 1)                        )
                         .cornerRadius(14)
                     }
 
@@ -527,7 +527,7 @@ struct TimesView: View {
                             .background(.ultraThinMaterial)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 14)
-                                    .stroke(liveActivityStarted ? Color.orange.opacity(0.5) : Color.purple.opacity(0.5), lineWidth: 2)
+                                    .stroke(liveActivityStarted ? Color.red.opacity(0.5) : Color.white.opacity(0.2), lineWidth: 1)
                             )
                             .cornerRadius(14)
                         }

@@ -13,13 +13,15 @@ struct NowDepartingWidgetLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: NowDepartingWidgetAttributes.self) { context in
             // Lock screen/banner UI and StandBy mode UI
-            HStack(spacing: 20) {
+            VStack() {
+                Spacer()
+                
                 // Left side - Line badge and station info
-                HStack(spacing: 16) {
+                HStack(alignment: .top, spacing: 16) {
                     Text(context.attributes.lineLabel)
-                        .font(.system(size: 60, weight: .bold))
+                        .font(.system(size: 48, weight: .bold))
                         .foregroundColor(context.attributes.lineFgColor)
-                        .frame(width: 100, height: 100)
+                        .frame(width: 64, height: 64)
                         .background(Circle().fill(context.attributes.lineBgColor))
 
                     VStack(alignment: .leading, spacing: 4) {
@@ -34,37 +36,43 @@ struct NowDepartingWidgetLiveActivity: Widget {
                             .lineLimit(1)
                             .minimumScaleFactor(0.8)
                     }
+                    
+                    Spacer()
                 }
-
-                Spacer()
 
                 // Right side - Train times
-                VStack(alignment: .trailing, spacing: 8) {
-                    if let primaryTrain = context.state.nextTrains.first {
-                        Text(getTimeText(for: primaryTrain))
-                            .font(.system(size: 96, weight: .bold))
-                            .foregroundColor(.white)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.8)
-
-                        if context.state.nextTrains.count > 1 {
-                            let additionalTimes = context.state.nextTrains.dropFirst().prefix(2).map { train in
-                                getAdditionalTimeText(for: train)
-                            }.joined(separator: ", ")
-                            Text(additionalTimes)
-                                .font(.system(size: 28, weight: .regular))
-                                .foregroundColor(.white.opacity(0.7))
+                HStack(alignment:.bottom) {
+                    
+                    Spacer()
+                    
+                    VStack(alignment: .trailing, spacing: 0) {
+                        if let primaryTrain = context.state.nextTrains.first {
+                            Text(getTimeText(for: primaryTrain))
+                                .font(.system(size: 48, weight: .bold))
+                                .foregroundColor(.white)
                                 .lineLimit(1)
+                                .minimumScaleFactor(0.8)
+                            
+                            if context.state.nextTrains.count > 1 {
+                                let additionalTimes = context.state.nextTrains.dropFirst().prefix(2).map { train in
+                                    getAdditionalTimeText(for: train)
+                                }.joined(separator: ", ")
+                                Text(additionalTimes)
+                                    .font(.system(size: 24, weight: .regular))
+                                    .foregroundColor(.white.opacity(0.7))
+                                    .lineLimit(1)
+                            }
+                        } else {
+                            Text("--")
+                                .font(.system(size: 48, weight: .bold))
+                                .foregroundColor(.white.opacity(0.5))
                         }
-                    } else {
-                        Text("--")
-                            .font(.system(size: 96, weight: .bold))
-                            .foregroundColor(.white.opacity(0.5))
                     }
                 }
+                
+                Spacer()
             }
-            .padding(.horizontal, 32)
-            .padding(.vertical, 24)
+            .padding(.horizontal, 16)
             .activityBackgroundTint(Color.black)
             .activitySystemActionForegroundColor(Color.white)
 
