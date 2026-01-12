@@ -408,7 +408,11 @@ struct TimesView: View {
 
                     // Favorite button
                     Button(action: {
-                        showingFavoriteAlert = true
+                        if isFavorited {
+                            removeFavorite()
+                        } else {
+                            addToFavorites()
+                        }
                     }) {
                         HStack(spacing: 8) {
                             Image(systemName: isFavorited ? "heart.fill" : "heart")
@@ -507,18 +511,7 @@ struct TimesView: View {
         } message: {
             Text("Live Activity started! Place your iPhone horizontally on a charger to see it in StandBy mode.\n\nThe display will show real-time train arrivals and automatically update.")
         }
-        .confirmationDialog("Favorites", isPresented: $showingFavoriteAlert, titleVisibility: .visible) {
-            if isFavorited {
-                Button("Remove from Favorites", role: .destructive) {
-                    removeFavorite()
-                }
-            } else {
-                Button("Add to Favorites") {
-                    addToFavorites()
-                }
-            }
-            Button("Cancel", role: .cancel) {}
-        }
+        // Removed confirmation dialog - favorites now work with single tap
     }
 
     // MARK: - Live Activity Functions

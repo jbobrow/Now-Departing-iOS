@@ -9,13 +9,15 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var locationManager = LocationManager()
+    @StateObject private var deepLinkManager = DeepLinkManager()
     @EnvironmentObject var stationDataManager: StationDataManager
     @EnvironmentObject var favoritesManager: FavoritesManager
     @State private var isReady = false
-    
+    @State private var selectedTab = 0
+
     var body: some View {
         if isReady {
-            TabView {
+            TabView(selection: $selectedTab) {
                 // Nearby Tab
                 NavigationStack {
                     NearbyView(
@@ -35,7 +37,8 @@ struct ContentView: View {
                     Image(systemName: "location.circle.fill")
                     Text("Nearby")
                 }
-                
+                .tag(0)
+
                 // Lines Tab
                 LinesBrowseView()
                     .environmentObject(stationDataManager)
@@ -44,10 +47,11 @@ struct ContentView: View {
                         Image(systemName: "tram.fill")
                         Text("Lines")
                     }
-                
+                    .tag(1)
+
                 // Favorites Tab
                 NavigationStack {
-                    FavoritesView()
+                    FavoritesView(deepLinkManager: deepLinkManager)
 //                        .navigationTitle("Favorites")
 //                        .navigationBarTitleDisplayMode(.large)
                 }
@@ -55,8 +59,14 @@ struct ContentView: View {
                     Image(systemName: "heart.fill")
                     Text("Favorites")
                 }
+                .tag(2)
             }
             .accentColor(.blue)
+            .onOpenURL { url in
+                deepLinkManager.handleURL(url)
+                // Switch to favorites tab when widget is tapped
+                selectedTab = 2
+            }
         } else {
             ProgressView("Initializing...")
                 .frame(maxWidth: .infinity, maxHeight: .infinity)

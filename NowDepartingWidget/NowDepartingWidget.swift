@@ -13,7 +13,8 @@ import SwiftUI
 struct TrainEntry: TimelineEntry {
     let date: Date
     let favoriteItem: FavoriteItem?
-    let nextTrains: [(minutes: Int, seconds: Int)]
+    let nextTrains: [Date]
+    let lastUpdated: Date
     let errorMessage: String
 }
 
@@ -21,15 +22,20 @@ struct TrainEntry: TimelineEntry {
 
 struct TrainTimelineProvider: TimelineProvider {
     func placeholder(in context: Context) -> TrainEntry {
-        TrainEntry(
-            date: Date(),
+        let now = Date()
+        return TrainEntry(
+            date: now,
             favoriteItem: FavoriteItem(
                 lineId: "1",
                 stationName: "Times Sq-42 St",
                 stationDisplay: "Times Sq-42 St",
                 direction: "N"
             ),
-            nextTrains: [(minutes: 5, seconds: 0), (minutes: 12, seconds: 0)],
+            nextTrains: [
+                now.addingTimeInterval(5 * 60),
+                now.addingTimeInterval(12 * 60)
+            ],
+            lastUpdated: now,
             errorMessage: ""
         )
     }
@@ -40,24 +46,30 @@ struct TrainTimelineProvider: TimelineProvider {
         let favorite = favorites.first
 
         if context.isPreview {
+            let now = Date()
             let entry = TrainEntry(
-                date: Date(),
+                date: now,
                 favoriteItem: favorite ?? FavoriteItem(
                     lineId: "1",
                     stationName: "Times Sq-42 St",
                     stationDisplay: "Times Sq-42 St",
                     direction: "N"
                 ),
-                nextTrains: [(minutes: 5, seconds: 0), (minutes: 12, seconds: 0)],
+                nextTrains: [
+                    now.addingTimeInterval(5 * 60),
+                    now.addingTimeInterval(12 * 60)
+                ],
+                lastUpdated: now,
                 errorMessage: ""
             )
             completion(entry)
         } else if let favorite = favorite {
-            fetchTrainTimes(for: favorite) { trains, error in
+            fetchTrainTimes(for: favorite) { trains, error, fetchTime in
                 let entry = TrainEntry(
                     date: Date(),
                     favoriteItem: favorite,
                     nextTrains: trains,
+                    lastUpdated: fetchTime,
                     errorMessage: error
                 )
                 completion(entry)
@@ -67,6 +79,7 @@ struct TrainTimelineProvider: TimelineProvider {
                 date: Date(),
                 favoriteItem: nil,
                 nextTrains: [],
+                lastUpdated: Date(),
                 errorMessage: "No favorites set"
             ))
         }
@@ -80,6 +93,7 @@ struct TrainTimelineProvider: TimelineProvider {
                 date: Date(),
                 favoriteItem: nil,
                 nextTrains: [],
+                lastUpdated: Date(),
                 errorMessage: "No favorites set"
             )
             let timeline = Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(300)))
@@ -87,18 +101,46 @@ struct TrainTimelineProvider: TimelineProvider {
             return
         }
 
-        fetchTrainTimes(for: favorite) { trains, error in
+        fetchTrainTimes(for: favorite) { trains, error, fetchTime in
             let currentDate = Date()
-            let entry = TrainEntry(
+
+            // Create multiple timeline entries (iOS prefers this and may refresh more often)
+            var entries: [TrainEntry] = []
+
+            // Entry 1: Now
+            entries.append(TrainEntry(
                 date: currentDate,
                 favoriteItem: favorite,
                 nextTrains: trains,
+                lastUpdated: fetchTime,
                 errorMessage: error
-            )
+            ))
 
-            // Refresh every 30 seconds
-            let nextUpdate = Calendar.current.date(byAdding: .second, value: 30, to: currentDate)!
-            let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
+            // Entry 2: 30 seconds from now
+            if let date30 = Calendar.current.date(byAdding: .second, value: 30, to: currentDate) {
+                entries.append(TrainEntry(
+                    date: date30,
+                    favoriteItem: favorite,
+                    nextTrains: trains,
+                    lastUpdated: fetchTime,
+                    errorMessage: error
+                ))
+            }
+
+            // Entry 3: 60 seconds from now
+            if let date60 = Calendar.current.date(byAdding: .second, value: 60, to: currentDate) {
+                entries.append(TrainEntry(
+                    date: date60,
+                    favoriteItem: favorite,
+                    nextTrains: trains,
+                    lastUpdated: fetchTime,
+                    errorMessage: error
+                ))
+            }
+
+            // Use .atEnd policy to request immediate reload when timeline expires
+            // This signals to iOS that this is time-sensitive data
+            let timeline = Timeline(entries: entries, policy: .atEnd)
             completion(timeline)
         }
     }
@@ -120,22 +162,23 @@ struct TrainTimelineProvider: TimelineProvider {
         return favorites
     }
 
-    private func fetchTrainTimes(for favorite: FavoriteItem, completion: @escaping ([(minutes: Int, seconds: Int)], String) -> Void) {
+    private func fetchTrainTimes(for favorite: FavoriteItem, completion: @escaping ([Date], String, Date) -> Void) {
+        let fetchTime = Date()
         let apiURL = "https://api.wheresthefuckingtrain.com/by-route/\(favorite.lineId)"
 
         guard let url = URL(string: apiURL) else {
-            completion([], "Invalid URL")
+            completion([], "Invalid URL", fetchTime)
             return
         }
 
         URLSession.shared.dataTask(with: url) { data, response, error in
             if error != nil {
-                completion([], "Network error")
+                completion([], "Network error", fetchTime)
                 return
             }
 
             guard let data = data else {
-                completion([], "No data")
+                completion([], "No data", fetchTime)
                 return
             }
 
@@ -152,27 +195,16 @@ struct TrainTimelineProvider: TimelineProvider {
                     }.filter { $0 > now }
                     .sorted()
 
-                    let nextTrains = arrivalTimes.compactMap { arrivalTime -> (minutes: Int, seconds: Int)? in
-                        let interval = arrivalTime.timeIntervalSince(now)
-                        if interval < 0 { return nil }
-
-                        let totalSeconds = Int(interval)
-                        let minutes = totalSeconds / 60
-                        let seconds = totalSeconds % 60
-
-                        return (minutes: minutes, seconds: seconds)
-                    }.sorted { $0.minutes * 60 + $0.seconds < $1.minutes * 60 + $1.seconds }
-
-                    if nextTrains.isEmpty {
-                        completion([], "No trains")
+                    if arrivalTimes.isEmpty {
+                        completion([], "No trains", fetchTime)
                     } else {
-                        completion(nextTrains, "")
+                        completion(arrivalTimes, "", fetchTime)
                     }
                 } else {
-                    completion([], "Station not found")
+                    completion([], "Station not found", fetchTime)
                 }
             } catch {
-                completion([], "Error loading data")
+                completion([], "Error loading data", fetchTime)
             }
         }.resume()
     }
