@@ -47,15 +47,22 @@ struct SmallWidgetView: View {
             let line = getSubwayLine(for: favorite.lineId)
 
             VStack(spacing: 0) {
-                // Top row: Line badge
-                HStack {
-                    Text(line.label)
-                        .font(.custom("HelveticaNeue-Bold", size: 28))
-                        .foregroundColor(line.fg_color)
-                        .frame(width: 44, height: 44)
-                        .background(Circle().fill(line.bg_color))
+                // Top row: Line badge and update time
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(alignment: .top) {
+                        Text(line.label)
+                            .font(.custom("HelveticaNeue-Bold", size: 28))
+                            .foregroundColor(line.fg_color)
+                            .frame(width: 44, height: 44)
+                            .background(Circle().fill(line.bg_color))
 
-                    Spacer()
+                        Spacer()
+
+                        RelativeTimeView(date: entry.lastUpdated)
+                            .font(.custom("HelveticaNeue", size: 8))
+                            .foregroundColor(.white.opacity(0.5))
+                            .multilineTextAlignment(.trailing)
+                    }
                 }
 
                 Spacer(minLength: 0)
@@ -67,14 +74,19 @@ struct SmallWidgetView: View {
                             .font(.custom("HelveticaNeue-Bold", size: 32))
                             .foregroundColor(.white)
                     } else if !entry.nextTrains.isEmpty {
-                        Text(getTimeText(for: entry.nextTrains[0]))
+                        DynamicTrainTimeView(arrivalDate: entry.nextTrains[0], fullText: true)
                             .font(.custom("HelveticaNeue-Bold", size: 32))
                             .foregroundColor(.white)
 
                         if entry.nextTrains.count > 1 {
-                            Text(entry.nextTrains.dropFirst().prefix(2).map { train in
-                                getAdditionalTimeText(for: train)
-                            }.joined(separator: ", "))
+                            HStack(spacing: 4) {
+                                ForEach(Array(entry.nextTrains.dropFirst().prefix(2).enumerated()), id: \.offset) { _, trainDate in
+                                    DynamicTrainTimeView(arrivalDate: trainDate, fullText: false)
+                                    if trainDate != entry.nextTrains.dropFirst().prefix(2).last {
+                                        Text(",")
+                                    }
+                                }
+                            }
                             .font(.custom("HelveticaNeue", size: 13))
                             .foregroundColor(.white.opacity(0.6))
                             .padding(.top, 2)
@@ -120,30 +132,39 @@ struct MediumWidgetView: View {
         if let favorite = entry.favoriteItem {
             let line = getSubwayLine(for: favorite.lineId)
 
-            HStack(spacing: 16) {
-                // Left side - Line and station info
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack(spacing: 8) {
-                        Text(line.label)
-                            .font(.custom("HelveticaNeue-Bold", size: 32))
-                            .foregroundColor(line.fg_color)
-                            .frame(width: 48, height: 48)
-                            .background(Circle().fill(line.bg_color))
-
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(favorite.stationDisplay)
-                                .font(.custom("HelveticaNeue-Bold", size: 16))
-                                .foregroundColor(.white)
-                                .lineLimit(2)
-                            Text(TerminalStationsHelper.getToTerminalStation(for: favorite.lineId, direction: favorite.direction))
-                                .font(.custom("HelveticaNeue", size: 12))
-                                .foregroundColor(.white.opacity(0.6))
-                                .lineLimit(1)
-                        }
-                    }
+            VStack(spacing: 8) {
+                // Update time at top
+                HStack {
+                    RelativeTimeView(date: entry.lastUpdated)
+                        .font(.custom("HelveticaNeue", size: 9))
+                        .foregroundColor(.white.opacity(0.5))
+                    Spacer()
                 }
 
-                Spacer()
+                HStack(spacing: 16) {
+                    // Left side - Line and station info
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack(spacing: 8) {
+                            Text(line.label)
+                                .font(.custom("HelveticaNeue-Bold", size: 32))
+                                .foregroundColor(line.fg_color)
+                                .frame(width: 48, height: 48)
+                                .background(Circle().fill(line.bg_color))
+
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(favorite.stationDisplay)
+                                    .font(.custom("HelveticaNeue-Bold", size: 16))
+                                    .foregroundColor(.white)
+                                    .lineLimit(2)
+                                Text(TerminalStationsHelper.getToTerminalStation(for: favorite.lineId, direction: favorite.direction))
+                                    .font(.custom("HelveticaNeue", size: 12))
+                                    .foregroundColor(.white.opacity(0.6))
+                                    .lineLimit(1)
+                            }
+                        }
+                    }
+
+                    Spacer()
 
                 // Right side - Train times
                 VStack(spacing: 4) {
@@ -152,14 +173,19 @@ struct MediumWidgetView: View {
                             .font(.custom("HelveticaNeue-Bold", size: 28))
                             .foregroundColor(.white.opacity(0.6))
                     } else if !entry.nextTrains.isEmpty {
-                        Text(getTimeText(for: entry.nextTrains[0]))
+                        DynamicTrainTimeView(arrivalDate: entry.nextTrains[0], fullText: true)
                             .font(.custom("HelveticaNeue-Bold", size: 28))
                             .foregroundColor(.white)
 
                         if entry.nextTrains.count > 1 {
-                            Text(entry.nextTrains.dropFirst().prefix(2).map { train in
-                                getAdditionalTimeText(for: train)
-                            }.joined(separator: ", "))
+                            HStack(spacing: 4) {
+                                ForEach(Array(entry.nextTrains.dropFirst().prefix(2).enumerated()), id: \.offset) { _, trainDate in
+                                    DynamicTrainTimeView(arrivalDate: trainDate, fullText: false)
+                                    if trainDate != entry.nextTrains.dropFirst().prefix(2).last {
+                                        Text(",")
+                                    }
+                                }
+                            }
                             .font(.custom("HelveticaNeue", size: 14))
                             .foregroundColor(.white.opacity(0.6))
                         }
@@ -168,6 +194,7 @@ struct MediumWidgetView: View {
                             .font(.custom("HelveticaNeue-Bold", size: 28))
                             .foregroundColor(.white.opacity(0.6))
                     }
+                }
                 }
             }
         } else {
@@ -213,6 +240,14 @@ struct LargeWidgetView: View {
                     Spacer()
                 }
 
+                // Update time
+                HStack {
+                    RelativeTimeView(date: entry.lastUpdated)
+                        .font(.custom("HelveticaNeue", size: 11))
+                        .foregroundColor(.white.opacity(0.5))
+                    Spacer()
+                }
+
                 Divider()
                     .background(Color.white.opacity(0.3))
 
@@ -232,15 +267,20 @@ struct LargeWidgetView: View {
                 } else if !entry.nextTrains.isEmpty {
                     VStack(spacing: 12) {
                         // Primary time
-                        Text(getTimeText(for: entry.nextTrains[0]))
+                        DynamicTrainTimeView(arrivalDate: entry.nextTrains[0], fullText: true)
                             .font(.custom("HelveticaNeue-Bold", size: 72))
                             .foregroundColor(.white)
 
                         // Additional times
                         if entry.nextTrains.count > 1 {
-                            Text(entry.nextTrains.dropFirst().prefix(5).map { train in
-                                getAdditionalTimeText(for: train)
-                            }.joined(separator: ", "))
+                            HStack(spacing: 4) {
+                                ForEach(Array(entry.nextTrains.dropFirst().prefix(5).enumerated()), id: \.offset) { _, trainDate in
+                                    DynamicTrainTimeView(arrivalDate: trainDate, fullText: false)
+                                    if trainDate != entry.nextTrains.dropFirst().prefix(5).last {
+                                        Text(",")
+                                    }
+                                }
+                            }
                             .font(.custom("HelveticaNeue", size: 20))
                             .foregroundColor(.white.opacity(0.6))
                         }
@@ -316,14 +356,55 @@ struct DirectionalBackground: View {
 
 // MARK: - Helper Functions
 
-func getTimeText(for train: (minutes: Int, seconds: Int)) -> String {
-    return TimeFormatter.formatArrivalTime(minutes: train.minutes, seconds: train.seconds, fullText: true)
-}
-
-func getAdditionalTimeText(for train: (minutes: Int, seconds: Int)) -> String {
-    return TimeFormatter.formatAdditionalTime(minutes: train.minutes, seconds: train.seconds)
-}
-
 func getSubwayLine(for lineId: String) -> SubwayLine {
     return SubwayLineFactory.line(for: lineId)
+}
+
+// MARK: - Dynamic Time Views
+
+/// View that displays train arrival time with automatic countdown
+struct DynamicTrainTimeView: View {
+    let arrivalDate: Date
+    let fullText: Bool
+
+    var body: some View {
+        TimelineView(.periodic(from: Date(), by: 1.0)) { context in
+            Text(formatDynamicTime(arrivalDate: arrivalDate, currentDate: context.date))
+        }
+    }
+
+    private func formatDynamicTime(arrivalDate: Date, currentDate: Date) -> String {
+        let interval = arrivalDate.timeIntervalSince(currentDate)
+        let totalSeconds = max(0, Int(interval))
+        let minutes = totalSeconds / 60
+
+        if totalSeconds < 60 {
+            return "Now"
+        } else {
+            return fullText ? "\(minutes) min" : "\(minutes)m"
+        }
+    }
+}
+
+/// View that displays relative time since last update
+struct RelativeTimeView: View {
+    let date: Date
+
+    var body: some View {
+        TimelineView(.periodic(from: Date(), by: 1.0)) { context in
+            Text("Updated \(formatRelativeTime(from: date, to: context.date))")
+        }
+    }
+
+    private func formatRelativeTime(from date: Date, to currentDate: Date) -> String {
+        let interval = currentDate.timeIntervalSince(date)
+        let seconds = Int(interval)
+
+        if seconds < 60 {
+            return "\(seconds) sec ago"
+        } else {
+            let minutes = seconds / 60
+            return "\(minutes) min ago"
+        }
+    }
 }
