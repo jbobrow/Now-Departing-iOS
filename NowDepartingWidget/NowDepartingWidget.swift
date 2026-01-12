@@ -23,7 +23,7 @@ struct TrainEntry: TimelineEntry {
 struct TrainTimelineProvider: TimelineProvider {
     func placeholder(in context: Context) -> TrainEntry {
         let now = Date()
-        TrainEntry(
+        return TrainEntry(
             date: now,
             favoriteItem: FavoriteItem(
                 lineId: "1",
