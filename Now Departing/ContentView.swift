@@ -14,6 +14,7 @@ struct ContentView: View {
     @EnvironmentObject var favoritesManager: FavoritesManager
     @State private var isReady = false
     @State private var selectedTab = 0
+    @State private var showWelcomeCarousel = !UserDefaults.standard.bool(forKey: "hasSeenWelcomeCarousel")
 
     var body: some View {
         if isReady {
@@ -66,6 +67,12 @@ struct ContentView: View {
                 deepLinkManager.handleURL(url)
                 // Switch to favorites tab when widget is tapped
                 selectedTab = 2
+            }
+            .fullScreenCover(isPresented: $showWelcomeCarousel) {
+                WelcomeCarouselView(isPresented: $showWelcomeCarousel)
+                    .onDisappear {
+                        UserDefaults.standard.set(true, forKey: "hasSeenWelcomeCarousel")
+                    }
             }
         } else {
             ProgressView("Initializing...")
