@@ -9,6 +9,7 @@ import com.move38.nowdeparting.data.repository.FavoritesRepository
 import com.move38.nowdeparting.data.repository.LocationRepository
 import com.move38.nowdeparting.data.repository.SubwayRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -34,6 +35,8 @@ class NearbyViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(NearbyUiState())
     val uiState: StateFlow<NearbyUiState> = _uiState.asStateFlow()
 
+    private var locationUpdatesJob: Job? = null
+
     init {
         checkLocationPermission()
         observeFavorites()
@@ -52,7 +55,29 @@ class NearbyViewModel @Inject constructor(
         val hasPermission = locationRepository.hasLocationPermission()
         _uiState.update { it.copy(hasLocationPermission = hasPermission) }
         if (hasPermission) {
+            startLocationUpdates()
             fetchNearbyTrains()
+        }
+    }
+
+    private fun startLocationUpdates() {
+        locationUpdatesJob?.cancel()
+        locationUpdatesJob = viewModelScope.launch {
+            locationRepository.getLocationUpdates()
+                .distinctUntilChanged { old, new ->
+                    // Only trigger update if location changed significantly (50 meters)
+                    val distance = FloatArray(1)
+                    Location.distanceBetween(
+                        old.latitude, old.longitude,
+                        new.latitude, new.longitude,
+                        distance
+                    )
+                    distance[0] < 50f
+                }
+                .collect { location ->
+                    _uiState.update { it.copy(currentLocation = location) }
+                    fetchNearbyTrainsForLocation(location)
+                }
         }
     }
 
@@ -72,28 +97,33 @@ class NearbyViewModel @Inject constructor(
             }
 
             _uiState.update { it.copy(currentLocation = location) }
-
-            subwayRepository.getNearbyTrains(location.latitude, location.longitude)
-                .onSuccess { trains ->
-                    val trainsByStation = trains.groupBy { it.stationName }
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            trains = trains,
-                            trainsByStation = trainsByStation,
-                            error = null
-                        )
-                    }
-                }
-                .onFailure { exception ->
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            error = exception.message ?: "Failed to fetch nearby trains"
-                        )
-                    }
-                }
+            fetchNearbyTrainsForLocation(location)
         }
+    }
+
+    private suspend fun fetchNearbyTrainsForLocation(location: Location) {
+        _uiState.update { it.copy(isLoading = true, error = null) }
+
+        subwayRepository.getNearbyTrains(location.latitude, location.longitude)
+            .onSuccess { trains ->
+                val trainsByStation = trains.groupBy { it.stationName }
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        trains = trains,
+                        trainsByStation = trainsByStation,
+                        error = null
+                    )
+                }
+            }
+            .onFailure { exception ->
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        error = exception.message ?: "Failed to fetch nearby trains"
+                    )
+                }
+            }
     }
 
     fun startPeriodicRefresh() {
@@ -138,5 +168,10 @@ class NearbyViewModel @Inject constructor(
     fun isFavorite(train: NearbyTrain): Boolean {
         val key = "${train.lineId}|${train.stationName}|${train.direction}"
         return _uiState.value.favorites.contains(key)
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        locationUpdatesJob?.cancel()
     }
 }

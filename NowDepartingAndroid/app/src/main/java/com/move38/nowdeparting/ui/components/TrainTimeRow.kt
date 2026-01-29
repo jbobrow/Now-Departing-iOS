@@ -43,13 +43,13 @@ fun TrainTimeRow(
         // Direction and destination
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = train.destination,
+                text = train.generalDirection.ifEmpty { train.directionText },
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium,
                 color = Color.White
             )
             Text(
-                text = train.directionText,
+                text = train.destination,
                 style = MaterialTheme.typography.bodySmall,
                 color = Color(0xFF8E8E93)
             )

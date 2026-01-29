@@ -12,6 +12,7 @@ data class NearbyTrain(
     val stationDisplay: String,
     val direction: String,
     val destination: String,
+    val generalDirection: String = "", // Borough name like "Brooklyn", "Manhattan", etc.
     val arrivalTime: Instant,
     val distanceInMeters: Double
 ) {
