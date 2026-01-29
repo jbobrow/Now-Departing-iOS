@@ -167,7 +167,7 @@ class NearbyViewModel @Inject constructor(
                     destination = first.destination,
                     trains = sortedTrains
                 )
-            }.sortedBy { it.trains.first().arrivalTime } // Sort by next arrival
+            }.sortedWith(compareBy({ it.lineId }, { it.direction })) // Sort alphabetically by line, then N before S
 
             StationGroup(
                 stationName = stationName,

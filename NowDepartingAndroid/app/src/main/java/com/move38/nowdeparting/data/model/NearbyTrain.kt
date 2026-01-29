@@ -42,10 +42,9 @@ data class NearbyTrain(
         return when {
             secs < 0 -> "--"
             secs < 30 -> "Now"
-            secs < 60 -> "${secs}s"
             else -> {
-                val mins = secs / 60
-                if (mins == 1L) "1 min" else "$mins min"
+                val mins = (secs + 30) / 60 // Round to nearest minute
+                if (mins <= 1L) "1 min" else "$mins min"
             }
         }
     }
