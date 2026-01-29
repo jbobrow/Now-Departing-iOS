@@ -136,7 +136,7 @@ private fun FavoriteCard(
 
         Spacer(modifier = Modifier.width(12.dp))
 
-        SubwayLineBadge(lineId = favorite.lineId, size = 40.dp, fontSize = 20.sp)
+        SubwayLineBadge(lineId = favorite.lineId, size = 48.dp, fontSize = 32.sp)
 
         Spacer(modifier = Modifier.width(12.dp))
 
@@ -180,7 +180,7 @@ private fun FavoriteCard(
                 text = timeText,
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                color = if (isUrgent) Color(0xFFFF9500) else Color.White
+                color = Color.White
             )
         }
 

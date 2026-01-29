@@ -22,7 +22,7 @@ fun SubwayLineBadge(
     lineId: String,
     modifier: Modifier = Modifier,
     size: Dp = 40.dp,
-    fontSize: TextUnit = 20.sp
+    fontSize: TextUnit = 28.sp
 ) {
     val line = SubwayConfiguration.getSubwayLine(lineId)
     SubwayLineBadge(line = line, modifier = modifier, size = size, fontSize = fontSize)
@@ -33,7 +33,7 @@ fun SubwayLineBadge(
     line: SubwayLine,
     modifier: Modifier = Modifier,
     size: Dp = 40.dp,
-    fontSize: TextUnit = 20.sp
+    fontSize: TextUnit = 28.sp
 ) {
     Box(
         modifier = modifier
@@ -60,7 +60,7 @@ fun SmallSubwayLineBadge(
         lineId = lineId,
         modifier = modifier,
         size = 28.dp,
-        fontSize = 14.sp
+        fontSize = 20.sp
     )
 }
 
@@ -72,7 +72,7 @@ fun LargeSubwayLineBadge(
     SubwayLineBadge(
         lineId = lineId,
         modifier = modifier,
-        size = 60.dp,
-        fontSize = 32.sp
+        size = 72.dp,
+        fontSize = 48.sp
     )
 }

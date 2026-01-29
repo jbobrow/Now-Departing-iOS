@@ -109,7 +109,7 @@ private fun LinesGrid(
                     SubwayLineBadge(
                         line = line,
                         size = 72.dp,
-                        fontSize = 32.sp,
+                        fontSize = 48.sp,
                         modifier = Modifier.clickable { onLineClick(line) }
                     )
                 }
@@ -145,7 +145,7 @@ private fun StationsList(
                     .padding(vertical = 16.dp),
                 contentAlignment = Alignment.Center
             ) {
-                SubwayLineBadge(lineId = lineId, size = 72.dp, fontSize = 32.sp)
+                SubwayLineBadge(lineId = lineId, size = 72.dp, fontSize = 48.sp)
             }
 
             LazyColumn(

@@ -199,7 +199,7 @@ private fun WidgetContent(
                             text = lineColors.label,
                             style = TextStyle(
                                 color = ColorProvider(ComposeColor(lineColors.fgColor)),
-                                fontSize = 16.sp,
+                                fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold
                             )
                         )

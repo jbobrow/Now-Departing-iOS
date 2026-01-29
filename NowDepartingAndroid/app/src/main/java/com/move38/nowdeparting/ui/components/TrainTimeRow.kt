@@ -36,7 +36,7 @@ fun TrainTimeRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Line badge
-        SubwayLineBadge(lineId = train.lineId, size = 36.dp, fontSize = 18.sp)
+        SubwayLineBadge(lineId = train.lineId, size = 36.dp, fontSize = 27.sp)
 
         Spacer(modifier = Modifier.width(12.dp))
 
@@ -99,7 +99,7 @@ fun ConsolidatedTrainRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Line badge
-        SubwayLineBadge(lineId = primaryTrain.lineId, size = 48.dp, fontSize = 24.sp)
+        SubwayLineBadge(lineId = primaryTrain.lineId, size = 48.dp, fontSize = 32.sp)
 
         Spacer(modifier = Modifier.width(12.dp))
 
@@ -169,7 +169,7 @@ fun NearbyStationHeader(
     ) {
         Text(
             text = stationName,
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.headlineLarge,
             fontWeight = FontWeight.SemiBold,
             color = Color.White
         )
