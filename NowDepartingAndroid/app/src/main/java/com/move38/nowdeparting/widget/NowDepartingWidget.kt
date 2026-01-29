@@ -2,6 +2,7 @@ package com.move38.nowdeparting.widget
 
 import android.content.Context
 import android.content.Intent
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.*
