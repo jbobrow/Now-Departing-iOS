@@ -12,7 +12,6 @@ data class Train(
 ) {
     val arrivalTime: Instant? get() {
         return try {
-            // Parse ISO8601 format like "2024-01-15T10:30:00-05:00"
             ZonedDateTime.parse(time, DateTimeFormatter.ISO_OFFSET_DATE_TIME).toInstant()
         } catch (e: Exception) {
             try {
@@ -25,13 +24,14 @@ data class Train(
 }
 
 @Serializable
-data class StationData(
+data class RouteStationData(
+    val name: String = "",
     val N: List<Train> = emptyList(),
     val S: List<Train> = emptyList()
 )
 
 @Serializable
 data class RouteApiResponse(
-    val data: Map<String, StationData> = emptyMap(),
+    val data: List<RouteStationData> = emptyList(),
     val updated: String? = null
 )

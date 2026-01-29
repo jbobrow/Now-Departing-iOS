@@ -52,7 +52,8 @@ class SubwayRepository @Inject constructor(
     ): Result<List<Instant>> = withContext(Dispatchers.IO) {
         try {
             val response = apiService.getTrainsByRoute(lineId)
-            val stationData = response.data[stationName]
+            // Find the station by name in the list
+            val stationData = response.data.find { it.name == stationName }
 
             if (stationData == null) {
                 return@withContext Result.success(emptyList())
