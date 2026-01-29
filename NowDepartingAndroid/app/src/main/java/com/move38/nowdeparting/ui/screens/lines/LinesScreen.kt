@@ -39,7 +39,7 @@ fun LinesScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = uiState.selectedLine?.let { "Line ${it.label}" } ?: "Lines",
+                        text = if (uiState.selectedLine != null) "Select Station" else "Select Line",
                         color = Color.White
                     )
                 },
@@ -130,23 +130,36 @@ private fun StationsList(
             CircularProgressIndicator(color = Color.White)
         }
     } else {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+        Column(
+            modifier = Modifier.fillMaxSize()
         ) {
-            items(stations, key = { it.name }) { station ->
-                StationItem(
-                    station = station,
-                    lineId = lineId,
-                    isExpanded = expandedStation == station.name,
-                    onExpandToggle = {
-                        expandedStation = if (expandedStation == station.name) null else station.name
-                    },
-                    onDirectionSelected = { direction ->
-                        onStationSelected(station, direction)
-                    }
-                )
+            // Line badge at top
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                SubwayLineBadge(lineId = lineId, size = 72.dp, fontSize = 32.sp)
+            }
+
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(stations, key = { it.name }) { station ->
+                    StationItem(
+                        station = station,
+                        isExpanded = expandedStation == station.name,
+                        onExpandToggle = {
+                            expandedStation = if (expandedStation == station.name) null else station.name
+                        },
+                        onDirectionSelected = { direction ->
+                            onStationSelected(station, direction)
+                        }
+                    )
+                }
             }
         }
     }
@@ -155,7 +168,6 @@ private fun StationsList(
 @Composable
 private fun StationItem(
     station: Station,
-    lineId: String,
     isExpanded: Boolean,
     onExpandToggle: () -> Unit,
     onDirectionSelected: (String) -> Unit
@@ -173,8 +185,6 @@ private fun StationItem(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            SubwayLineBadge(lineId = lineId, size = 32.dp, fontSize = 16.sp)
-            Spacer(modifier = Modifier.width(12.dp))
             Text(
                 text = station.displayName,
                 style = MaterialTheme.typography.bodyLarge,

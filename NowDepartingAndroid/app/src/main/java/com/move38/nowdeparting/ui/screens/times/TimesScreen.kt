@@ -207,11 +207,7 @@ private fun TrainTimeCard(
             style = if (isFirst) MaterialTheme.typography.headlineLarge else MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
             fontSize = if (isFirst) 48.sp else 24.sp,
-            color = when {
-                isUrgent -> Color(0xFFFF9500)
-                isFirst -> Color.White
-                else -> Color(0xFFAAAAAA)
-            }
+            color = if (isFirst) Color.White else Color(0xFFAAAAAA)
         )
     }
 }

@@ -57,10 +57,14 @@ object SubwayConfiguration {
         )
     }
 
+    // Ordered for 4-column grid display: [1,2,3,_], [4,5,6,7], [A,C,E,G], [B,D,F,M], [N,Q,R,W], [J,Z,L,_]
     val allLines: List<SubwayLine> = listOf(
-        "1", "2", "3", "4", "5", "6", "7",
-        "A", "C", "E", "B", "D", "F", "M",
-        "G", "J", "Z", "L", "N", "Q", "R", "W", "S"
+        "1", "2", "3",
+        "4", "5", "6", "7",
+        "A", "C", "E", "G",
+        "B", "D", "F", "M",
+        "N", "Q", "R", "W",
+        "J", "Z", "L"
     ).map { getSubwayLine(it) }
 
     // Lines grouped by color family for grid display
