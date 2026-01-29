@@ -6,7 +6,9 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import androidx.glance.appwidget.GlanceAppWidgetManager
 import com.move38.nowdeparting.data.model.FavoriteItem
+import com.move38.nowdeparting.widget.NowDepartingWidget
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -49,6 +51,7 @@ class FavoritesRepository @Inject constructor(
                 preferences[favoritesKey] = json.encodeToString(newList)
             }
         }
+        updateWidgets()
     }
 
     suspend fun removeFavorite(favoriteId: String) {
@@ -57,11 +60,25 @@ class FavoritesRepository @Inject constructor(
             val newList = currentList.filter { it.id != favoriteId }
             preferences[favoritesKey] = json.encodeToString(newList)
         }
+        updateWidgets()
     }
 
     suspend fun reorderFavorites(newOrder: List<FavoriteItem>) {
         context.favoritesDataStore.edit { preferences ->
             preferences[favoritesKey] = json.encodeToString(newOrder)
+        }
+        updateWidgets()
+    }
+
+    private suspend fun updateWidgets() {
+        try {
+            val manager = GlanceAppWidgetManager(context)
+            val glanceIds = manager.getGlanceIds(NowDepartingWidget::class.java)
+            glanceIds.forEach { glanceId ->
+                NowDepartingWidget().update(context, glanceId)
+            }
+        } catch (e: Exception) {
+            // Widget update failed, ignore
         }
     }
 

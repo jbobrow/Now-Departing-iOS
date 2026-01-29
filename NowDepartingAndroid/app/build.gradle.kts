@@ -96,6 +96,9 @@ dependencies {
     implementation("androidx.glance:glance-appwidget:1.0.0")
     implementation("androidx.glance:glance-material3:1.0.0")
 
+    // WorkManager for periodic widget updates
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
+
     // Reorderable list
     implementation("org.burnoutcrew.composereorderable:reorderable:0.9.6")
 

@@ -19,6 +19,7 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
+import androidx.work.*
 import com.move38.nowdeparting.MainActivity
 import com.move38.nowdeparting.data.model.FavoriteItem
 import com.move38.nowdeparting.data.model.SubwayConfiguration
@@ -257,6 +258,60 @@ private fun WidgetContent(
 
 class NowDepartingWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = NowDepartingWidget()
+
+    override fun onEnabled(context: Context) {
+        super.onEnabled(context)
+        // Schedule periodic widget updates when first widget is added
+        scheduleWidgetUpdate(context)
+    }
+
+    override fun onDisabled(context: Context) {
+        super.onDisabled(context)
+        // Cancel periodic updates when last widget is removed
+        WorkManager.getInstance(context).cancelUniqueWork(WIDGET_UPDATE_WORK_NAME)
+    }
+
+    companion object {
+        private const val WIDGET_UPDATE_WORK_NAME = "widget_update_work"
+
+        fun scheduleWidgetUpdate(context: Context) {
+            val constraints = Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build()
+
+            // Refresh every 15 minutes (minimum for periodic work)
+            val workRequest = PeriodicWorkRequestBuilder<WidgetUpdateWorker>(
+                15, TimeUnit.MINUTES
+            )
+                .setConstraints(constraints)
+                .build()
+
+            WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+                WIDGET_UPDATE_WORK_NAME,
+                ExistingPeriodicWorkPolicy.KEEP,
+                workRequest
+            )
+        }
+    }
+}
+
+class WidgetUpdateWorker(
+    private val context: Context,
+    workerParams: WorkerParameters
+) : CoroutineWorker(context, workerParams) {
+
+    override suspend fun doWork(): Result {
+        return try {
+            val manager = GlanceAppWidgetManager(context)
+            val glanceIds = manager.getGlanceIds(NowDepartingWidget::class.java)
+            glanceIds.forEach { glanceId ->
+                NowDepartingWidget().update(context, glanceId)
+            }
+            Result.success()
+        } catch (e: Exception) {
+            Result.retry()
+        }
+    }
 }
 
 class RefreshAction : ActionCallback {

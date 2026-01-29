@@ -126,7 +126,8 @@ fun TimesScreen(
                 else -> {
                     TrainTimesList(
                         trains = uiState.trains,
-                        viewModel = viewModel
+                        viewModel = viewModel,
+                        currentTimeMillis = uiState.currentTimeMillis
                     )
                 }
             }
@@ -137,18 +138,31 @@ fun TimesScreen(
 @Composable
 private fun TrainTimesList(
     trains: List<Instant>,
-    viewModel: TimesViewModel
+    viewModel: TimesViewModel,
+    currentTimeMillis: Long // Used to trigger recomposition every second
 ) {
+    // Filter out trains that have already departed (more than 30 seconds ago)
+    // This ensures the display updates in real-time as trains depart
+    val now = Instant.ofEpochMilli(currentTimeMillis)
+    val activeTrains = trains.filter { trainTime ->
+        val secondsUntil = java.time.temporal.ChronoUnit.SECONDS.between(now, trainTime)
+        secondsUntil > -30 // Keep trains that are arriving now or in the future
+    }
+
+    if (activeTrains.isEmpty()) {
+        NoTrainsContent()
+        return
+    }
+
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        itemsIndexed(trains.take(10)) { index, trainTime ->
+        itemsIndexed(activeTrains.take(10)) { index, trainTime ->
             val minutes = viewModel.getMinutesUntil(trainTime)
             val seconds = viewModel.getSecondsUntil(trainTime)
 
             val timeText = when {
-                seconds < 0 -> "--"
                 seconds < 30 -> "Now"
                 seconds < 60 -> "${seconds}s"
                 minutes == 1L -> "1 min"
@@ -156,7 +170,7 @@ private fun TrainTimesList(
             }
 
             val isFirst = index == 0
-            val isUrgent = minutes <= 1 && seconds >= 0
+            val isUrgent = minutes <= 1
 
             TrainTimeCard(
                 timeText = timeText,
