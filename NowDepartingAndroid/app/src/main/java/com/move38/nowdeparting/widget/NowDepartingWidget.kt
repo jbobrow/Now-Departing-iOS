@@ -2,24 +2,21 @@ package com.move38.nowdeparting.widget
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.*
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.*
 import androidx.glance.appwidget.action.ActionCallback
-import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.provideContent
 import androidx.glance.layout.*
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
+import androidx.glance.unit.ColorProvider
+import com.move38.nowdeparting.MainActivity
 import com.move38.nowdeparting.data.model.FavoriteItem
 import com.move38.nowdeparting.data.model.SubwayConfiguration
 import com.move38.nowdeparting.data.repository.DirectionHelper
@@ -33,6 +30,7 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit
+import androidx.compose.ui.graphics.Color as ComposeColor
 
 class NowDepartingWidget : GlanceAppWidget() {
 
@@ -61,6 +59,7 @@ class NowDepartingWidget : GlanceAppWidget() {
 
         provideContent {
             WidgetContent(
+                context = context,
                 favorite = firstFavorite,
                 nextTrainMinutes = nextTrainMinutes
             )
@@ -117,24 +116,26 @@ class NowDepartingWidget : GlanceAppWidget() {
 
 @Composable
 private fun WidgetContent(
+    context: Context,
     favorite: FavoriteItem?,
     nextTrainMinutes: Long?
 ) {
     val size = LocalSize.current
+    val intent = Intent(context, MainActivity::class.java)
 
     Box(
         modifier = GlanceModifier
             .fillMaxSize()
-            .background(Color.Black)
+            .background(ColorProvider(ComposeColor.Black))
             .cornerRadius(16.dp)
-            .clickable(actionStartActivity<com.move38.nowdeparting.MainActivity>()),
+            .clickable(actionStartActivity(intent)),
         contentAlignment = Alignment.Center
     ) {
         if (favorite == null) {
             Text(
                 text = "Add a favorite",
                 style = TextStyle(
-                    color = ColorProvider(Color.White),
+                    color = ColorProvider(ComposeColor.White),
                     fontSize = 14.sp
                 )
             )
@@ -158,14 +159,14 @@ private fun WidgetContent(
                     Box(
                         modifier = GlanceModifier
                             .size(32.dp)
-                            .background(ColorProvider(Color(lineColors.bgColor)))
+                            .background(ColorProvider(ComposeColor(lineColors.bgColor)))
                             .cornerRadius(16.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = lineColors.label,
                             style = TextStyle(
-                                color = ColorProvider(Color(lineColors.fgColor)),
+                                color = ColorProvider(ComposeColor(lineColors.fgColor)),
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold
                             )
@@ -178,7 +179,7 @@ private fun WidgetContent(
                         Text(
                             text = favorite.stationDisplay.ifEmpty { favorite.stationName },
                             style = TextStyle(
-                                color = ColorProvider(Color.White),
+                                color = ColorProvider(ComposeColor.White),
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Medium
                             ),
@@ -187,7 +188,7 @@ private fun WidgetContent(
                         Text(
                             text = "to $destination",
                             style = TextStyle(
-                                color = ColorProvider(Color(0xFF8E8E93)),
+                                color = ColorProvider(ComposeColor(0xFF8E8E93)),
                                 fontSize = 10.sp
                             ),
                             maxLines = 1
@@ -210,9 +211,9 @@ private fun WidgetContent(
                     style = TextStyle(
                         color = ColorProvider(
                             if (nextTrainMinutes != null && nextTrainMinutes <= 1)
-                                Color(0xFFFF9500)
+                                ComposeColor(0xFFFF9500)
                             else
-                                Color.White
+                                ComposeColor.White
                         ),
                         fontSize = if (size.width > 150.dp) 36.sp else 28.sp,
                         fontWeight = FontWeight.Bold

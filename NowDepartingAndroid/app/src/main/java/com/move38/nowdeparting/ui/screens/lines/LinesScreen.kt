@@ -186,7 +186,7 @@ private fun StationItem(
         }
 
         if (isExpanded) {
-            HorizontalDivider(color = Color(0xFF3A3A3C))
+            Divider(color = Color(0xFF3A3A3C))
             DirectionButtons(
                 onDirectionSelected = onDirectionSelected
             )

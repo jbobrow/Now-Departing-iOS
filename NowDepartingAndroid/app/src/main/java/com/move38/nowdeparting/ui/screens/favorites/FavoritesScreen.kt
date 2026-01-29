@@ -118,104 +118,86 @@ private fun FavoriteCard(
     val favorite = favoriteWithTimes.favorite
     val destination = DirectionHelper.getDestination(favorite.lineId, favorite.direction)
 
-    SwipeToDismissBox(
-        state = rememberSwipeToDismissBoxState(
-            confirmValueChange = { value ->
-                if (value == SwipeToDismissBoxValue.EndToStart) {
-                    onDelete()
-                    true
-                } else {
-                    false
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color(0xFF1C1C1E))
+            .clickable(onClick = onClick)
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = Icons.Default.DragHandle,
+            contentDescription = "Drag to reorder",
+            tint = Color(0xFF8E8E93),
+            modifier = Modifier.size(24.dp)
+        )
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        SubwayLineBadge(lineId = favorite.lineId, size = 40.dp, fontSize = 20.sp)
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = favorite.stationDisplay.ifEmpty { favorite.stationName },
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium,
+                color = Color.White
+            )
+            Text(
+                text = "to $destination",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color(0xFF8E8E93)
+            )
+        }
+
+        // Time display
+        if (favoriteWithTimes.isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(24.dp),
+                color = Color.White,
+                strokeWidth = 2.dp
+            )
+        } else {
+            val timeText = favoriteWithTimes.nextTrain?.let { time ->
+                val minutes = ChronoUnit.MINUTES.between(Instant.now(), time)
+                when {
+                    minutes < 0 -> "--"
+                    minutes == 0L -> "Now"
+                    minutes == 1L -> "1 min"
+                    else -> "$minutes min"
                 }
-            }
-        ),
-        backgroundContent = {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFFFF3B30))
-                    .padding(horizontal = 20.dp),
-                contentAlignment = Alignment.CenterEnd
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = "Delete",
-                    tint = Color.White
-                )
-            }
-        },
-        content = {
-            Row(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFF1C1C1E))
-                    .clickable(onClick = onClick)
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Default.DragHandle,
-                    contentDescription = "Drag to reorder",
-                    tint = Color(0xFF8E8E93),
-                    modifier = Modifier.size(24.dp)
-                )
+            } ?: "--"
 
-                Spacer(modifier = Modifier.width(12.dp))
+            val isUrgent = favoriteWithTimes.nextTrain?.let { time ->
+                ChronoUnit.MINUTES.between(Instant.now(), time) <= 1
+            } ?: false
 
-                SubwayLineBadge(lineId = favorite.lineId, size = 40.dp, fontSize = 20.sp)
+            Text(
+                text = timeText,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = if (isUrgent) Color(0xFFFF9500) else Color.White
+            )
+        }
 
-                Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(8.dp))
 
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = favorite.stationDisplay.ifEmpty { favorite.stationName },
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Medium,
-                        color = Color.White
-                    )
-                    Text(
-                        text = "to $destination",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color(0xFF8E8E93)
-                    )
-                }
-
-                // Time display
-                if (favoriteWithTimes.isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        color = Color.White,
-                        strokeWidth = 2.dp
-                    )
-                } else {
-                    val timeText = favoriteWithTimes.nextTrain?.let { time ->
-                        val minutes = ChronoUnit.MINUTES.between(Instant.now(), time)
-                        when {
-                            minutes < 0 -> "--"
-                            minutes == 0L -> "Now"
-                            minutes == 1L -> "1 min"
-                            else -> "$minutes min"
-                        }
-                    } ?: "--"
-
-                    val isUrgent = favoriteWithTimes.nextTrain?.let { time ->
-                        ChronoUnit.MINUTES.between(Instant.now(), time) <= 1
-                    } ?: false
-
-                    Text(
-                        text = timeText,
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = if (isUrgent) Color(0xFFFF9500) else Color.White
-                    )
-                }
-            }
-        },
-        enableDismissFromStartToEnd = false,
-        enableDismissFromEndToStart = true
-    )
+        // Delete button
+        IconButton(
+            onClick = onDelete,
+            modifier = Modifier.size(32.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Delete,
+                contentDescription = "Delete",
+                tint = Color(0xFF8E8E93)
+            )
+        }
+    }
 }
 
 @Composable
