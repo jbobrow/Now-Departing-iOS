@@ -19,8 +19,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.move38.nowdeparting.data.model.NearbyTrain
+import com.move38.nowdeparting.ui.components.ConsolidatedTrainRow
 import com.move38.nowdeparting.ui.components.NearbyStationHeader
-import com.move38.nowdeparting.ui.components.TrainTimeRow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -102,7 +102,7 @@ fun NearbyScreen(
                 }
                 else -> {
                     NearbyTrainsList(
-                        trainsByStation = uiState.trainsByStation,
+                        stationGroups = uiState.groupedTrains,
                         onTrainClick = onTrainClick,
                         isFavorite = { viewModel.isFavorite(it) },
                         onFavoriteClick = { viewModel.toggleFavorite(it) }
@@ -115,7 +115,7 @@ fun NearbyScreen(
 
 @Composable
 private fun NearbyTrainsList(
-    trainsByStation: Map<String, List<NearbyTrain>>,
+    stationGroups: List<StationGroup>,
     onTrainClick: (NearbyTrain) -> Unit,
     isFavorite: (NearbyTrain) -> Boolean,
     onFavoriteClick: (NearbyTrain) -> Unit
@@ -125,25 +125,31 @@ private fun NearbyTrainsList(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        trainsByStation.forEach { (stationName, trains) ->
-            item {
-                val firstTrain = trains.first()
+        stationGroups.forEach { stationGroup ->
+            item(key = "header_${stationGroup.stationName}") {
                 NearbyStationHeader(
-                    stationName = stationName,
-                    distance = firstTrain.distanceText
+                    stationName = stationGroup.stationDisplay,
+                    distance = stationGroup.distanceText
                 )
             }
 
-            items(trains.take(5), key = { it.id }) { train ->
-                TrainTimeRow(
-                    train = train,
-                    isFavorite = isFavorite(train),
-                    onFavoriteClick = { onFavoriteClick(train) },
-                    onClick = { onTrainClick(train) }
-                )
+            // One row per line/direction combination
+            stationGroup.lineDirectionGroups.forEach { lineGroup ->
+                item(key = "${stationGroup.stationName}_${lineGroup.lineId}_${lineGroup.direction}") {
+                    val primaryTrain = lineGroup.trains.first()
+                    val additionalTrains = lineGroup.trains.drop(1)
+
+                    ConsolidatedTrainRow(
+                        primaryTrain = primaryTrain,
+                        additionalTrains = additionalTrains,
+                        isFavorite = isFavorite(primaryTrain),
+                        onFavoriteClick = { onFavoriteClick(primaryTrain) },
+                        onClick = { onTrainClick(primaryTrain) }
+                    )
+                }
             }
 
-            item {
+            item(key = "spacer_${stationGroup.stationName}") {
                 Spacer(modifier = Modifier.height(16.dp))
             }
         }

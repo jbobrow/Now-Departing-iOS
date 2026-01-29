@@ -87,6 +87,15 @@ class SubwayRepository @Inject constructor(
             val trains = mutableListOf<NearbyTrain>()
 
             for (stationData in response.data) {
+                // Calculate distance from user location to station
+                val distanceResults = FloatArray(1)
+                android.location.Location.distanceBetween(
+                    latitude, longitude,
+                    stationData.latitude, stationData.longitude,
+                    distanceResults
+                )
+                val distanceInMeters = distanceResults[0].toDouble()
+
                 // Process North-bound trains
                 for (trainData in stationData.N) {
                     val arrivalTime = parseTime(trainData.time) ?: continue
@@ -102,7 +111,7 @@ class SubwayRepository @Inject constructor(
                             destination = DirectionHelper.getDestination(trainData.route, "N"),
                             generalDirection = DirectionHelper.getGeneralDirection(trainData.route, "N"),
                             arrivalTime = arrivalTime,
-                            distanceInMeters = stationData.distance
+                            distanceInMeters = distanceInMeters
                         )
                     )
                 }
@@ -122,7 +131,7 @@ class SubwayRepository @Inject constructor(
                             destination = DirectionHelper.getDestination(trainData.route, "S"),
                             generalDirection = DirectionHelper.getGeneralDirection(trainData.route, "S"),
                             arrivalTime = arrivalTime,
-                            distanceInMeters = stationData.distance
+                            distanceInMeters = distanceInMeters
                         )
                     )
                 }

@@ -79,6 +79,81 @@ fun TrainTimeRow(
     }
 }
 
+// Consolidated row showing primary train time and following times
+@Composable
+fun ConsolidatedTrainRow(
+    primaryTrain: NearbyTrain,
+    additionalTrains: List<NearbyTrain>,
+    isFavorite: Boolean,
+    onFavoriteClick: () -> Unit,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color(0xFF1C1C1E))
+            .clickable(onClick = onClick)
+            .padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Line badge
+        SubwayLineBadge(lineId = primaryTrain.lineId, size = 48.dp, fontSize = 24.sp)
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        // Direction and destination
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = primaryTrain.generalDirection.ifEmpty { primaryTrain.directionText },
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+            Text(
+                text = primaryTrain.destination,
+                style = MaterialTheme.typography.bodySmall,
+                color = Color(0xFF8E8E93)
+            )
+        }
+
+        // Times column
+        Column(horizontalAlignment = Alignment.End) {
+            // Primary arrival time (large)
+            Text(
+                text = primaryTrain.preciseTimeText,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                color = if (primaryTrain.minutes <= 1) Color(0xFFFF9500) else Color.White
+            )
+
+            // Following times (smaller, comma-separated)
+            if (additionalTrains.isNotEmpty()) {
+                Text(
+                    text = additionalTrains.take(4).joinToString(", ") { it.timeText },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color(0xFF8E8E93)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        // Favorite button
+        IconButton(
+            onClick = onFavoriteClick,
+            modifier = Modifier.size(32.dp)
+        ) {
+            Icon(
+                imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
+                tint = if (isFavorite) Color(0xFFFF3B30) else Color(0xFF8E8E93)
+            )
+        }
+    }
+}
+
 @Composable
 fun NearbyStationHeader(
     stationName: String,

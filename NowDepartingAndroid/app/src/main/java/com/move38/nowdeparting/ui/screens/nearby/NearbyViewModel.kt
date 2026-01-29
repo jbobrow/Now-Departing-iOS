@@ -19,10 +19,29 @@ data class NearbyUiState(
     val isLoading: Boolean = false,
     val trains: List<NearbyTrain> = emptyList(),
     val trainsByStation: Map<String, List<NearbyTrain>> = emptyMap(),
+    val groupedTrains: List<StationGroup> = emptyList(), // New grouped format
     val error: String? = null,
     val hasLocationPermission: Boolean = false,
     val currentLocation: Location? = null,
     val favorites: Set<String> = emptySet() // Set of "lineId|stationName|direction"
+)
+
+// Group of trains for a single line/direction at a station
+data class LineDirectionGroup(
+    val lineId: String,
+    val direction: String,
+    val generalDirection: String,
+    val destination: String,
+    val trains: List<NearbyTrain> // Sorted by arrival time
+)
+
+// Group of all line/direction groups for a station
+data class StationGroup(
+    val stationName: String,
+    val stationDisplay: String,
+    val distanceText: String,
+    val distanceInMeters: Double,
+    val lineDirectionGroups: List<LineDirectionGroup>
 )
 
 @HiltViewModel
@@ -107,11 +126,13 @@ class NearbyViewModel @Inject constructor(
         subwayRepository.getNearbyTrains(location.latitude, location.longitude)
             .onSuccess { trains ->
                 val trainsByStation = trains.groupBy { it.stationName }
+                val groupedTrains = groupTrainsByStation(trains)
                 _uiState.update {
                     it.copy(
                         isLoading = false,
                         trains = trains,
                         trainsByStation = trainsByStation,
+                        groupedTrains = groupedTrains,
                         error = null
                     )
                 }
@@ -124,6 +145,38 @@ class NearbyViewModel @Inject constructor(
                     )
                 }
             }
+    }
+
+    private fun groupTrainsByStation(trains: List<NearbyTrain>): List<StationGroup> {
+        // Group trains by station
+        val byStation = trains.groupBy { it.stationName }
+
+        return byStation.map { (stationName, stationTrains) ->
+            val firstTrain = stationTrains.first()
+
+            // Group by line + direction within this station
+            val byLineDirection = stationTrains.groupBy { "${it.lineId}|${it.direction}" }
+
+            val lineDirectionGroups = byLineDirection.map { (_, lineTrains) ->
+                val sortedTrains = lineTrains.sortedBy { it.arrivalTime }
+                val first = sortedTrains.first()
+                LineDirectionGroup(
+                    lineId = first.lineId,
+                    direction = first.direction,
+                    generalDirection = first.generalDirection,
+                    destination = first.destination,
+                    trains = sortedTrains
+                )
+            }.sortedBy { it.trains.first().arrivalTime } // Sort by next arrival
+
+            StationGroup(
+                stationName = stationName,
+                stationDisplay = firstTrain.stationDisplay,
+                distanceText = firstTrain.distanceText,
+                distanceInMeters = firstTrain.distanceInMeters,
+                lineDirectionGroups = lineDirectionGroups
+            )
+        }.sortedBy { it.distanceInMeters } // Sort stations by distance
     }
 
     fun startPeriodicRefresh() {
