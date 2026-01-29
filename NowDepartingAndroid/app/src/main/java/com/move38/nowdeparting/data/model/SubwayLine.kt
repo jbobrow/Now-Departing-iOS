@@ -57,15 +57,19 @@ object SubwayConfiguration {
         )
     }
 
-    // Ordered for 4-column grid display: [1,2,3,_], [4,5,6,7], [A,C,E,G], [B,D,F,M], [N,Q,R,W], [J,Z,L,_]
+    // Ordered for 4-column grid display: [1,2,3,X], [4,5,6,7], [A,C,E,G], [B,D,F,M], [N,Q,R,W], [J,Z,L,X]
+    // "X" is an invisible spacer
     val allLines: List<SubwayLine> = listOf(
-        "1", "2", "3",
+        "1", "2", "3", "X",
         "4", "5", "6", "7",
         "A", "C", "E", "G",
         "B", "D", "F", "M",
         "N", "Q", "R", "W",
-        "J", "Z", "L"
+        "J", "Z", "L", "X"
     ).map { getSubwayLine(it) }
+
+    // Check if a line is a spacer (invisible)
+    fun isSpacer(id: String): Boolean = id == "X"
 
     // Lines grouped by color family for grid display
     val redLines = listOf("1", "2", "3").map { getSubwayLine(it) }

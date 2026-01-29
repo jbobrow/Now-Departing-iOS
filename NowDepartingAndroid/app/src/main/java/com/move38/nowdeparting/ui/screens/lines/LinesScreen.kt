@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.move38.nowdeparting.data.model.Station
+import com.move38.nowdeparting.data.model.SubwayConfiguration
 import com.move38.nowdeparting.data.model.SubwayLine
 import com.move38.nowdeparting.ui.components.SubwayLineBadge
 
@@ -97,17 +98,21 @@ private fun LinesGrid(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         modifier = Modifier.fillMaxSize()
     ) {
-        items(lines, key = { it.id }) { line ->
+        items(lines.size, key = { index -> "${lines[index].id}_$index" }) { index ->
+            val line = lines[index]
             Box(
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
-                SubwayLineBadge(
-                    line = line,
-                    size = 72.dp,
-                    fontSize = 32.sp,
-                    modifier = Modifier.clickable { onLineClick(line) }
-                )
+                // "X" is an invisible spacer
+                if (!SubwayConfiguration.isSpacer(line.id)) {
+                    SubwayLineBadge(
+                        line = line,
+                        size = 72.dp,
+                        fontSize = 32.sp,
+                        modifier = Modifier.clickable { onLineClick(line) }
+                    )
+                }
             }
         }
     }
