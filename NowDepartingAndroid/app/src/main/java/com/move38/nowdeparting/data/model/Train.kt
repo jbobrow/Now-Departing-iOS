@@ -30,4 +30,8 @@ data class StationData(
     val S: List<Train> = emptyList()
 )
 
-typealias RouteApiResponse = Map<String, StationData>
+@Serializable
+data class RouteApiResponse(
+    val data: Map<String, StationData> = emptyMap(),
+    val updated: String? = null
+)

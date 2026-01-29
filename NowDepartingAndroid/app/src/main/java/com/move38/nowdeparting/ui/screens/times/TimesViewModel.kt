@@ -12,6 +12,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import javax.inject.Inject
@@ -43,11 +45,20 @@ class TimesViewModel @Inject constructor(
     private var refreshJob: Job? = null
 
     init {
-        // Get navigation arguments
+        // Get navigation arguments and decode URL encoding
         val lineId = savedStateHandle.get<String>("lineId") ?: ""
-        val stationName = savedStateHandle.get<String>("stationName") ?: ""
-        val stationDisplay = savedStateHandle.get<String>("stationDisplay") ?: stationName
+        val stationNameRaw = savedStateHandle.get<String>("stationName") ?: ""
+        val stationDisplayRaw = savedStateHandle.get<String>("stationDisplay") ?: stationNameRaw
         val direction = savedStateHandle.get<String>("direction") ?: ""
+
+        // URL decode the station names (handles + and %20 for spaces)
+        val stationName = try {
+            URLDecoder.decode(stationNameRaw, StandardCharsets.UTF_8.toString())
+        } catch (e: Exception) { stationNameRaw }
+
+        val stationDisplay = try {
+            URLDecoder.decode(stationDisplayRaw, StandardCharsets.UTF_8.toString())
+        } catch (e: Exception) { stationDisplayRaw }
 
         _uiState.update {
             it.copy(

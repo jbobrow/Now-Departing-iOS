@@ -92,18 +92,23 @@ private fun LinesGrid(
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(4),
-        contentPadding = PaddingValues(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        contentPadding = PaddingValues(24.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
         modifier = Modifier.fillMaxSize()
     ) {
         items(lines, key = { it.id }) { line ->
-            SubwayLineBadge(
-                line = line,
-                size = 64.dp,
-                fontSize = 28.sp,
-                modifier = Modifier.clickable { onLineClick(line) }
-            )
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                SubwayLineBadge(
+                    line = line,
+                    size = 72.dp,
+                    fontSize = 32.sp,
+                    modifier = Modifier.clickable { onLineClick(line) }
+                )
+            }
         }
     }
 }

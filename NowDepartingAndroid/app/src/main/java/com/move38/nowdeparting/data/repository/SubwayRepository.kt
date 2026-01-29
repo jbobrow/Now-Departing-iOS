@@ -52,7 +52,7 @@ class SubwayRepository @Inject constructor(
     ): Result<List<Instant>> = withContext(Dispatchers.IO) {
         try {
             val response = apiService.getTrainsByRoute(lineId)
-            val stationData = response[stationName]
+            val stationData = response.data[stationName]
 
             if (stationData == null) {
                 return@withContext Result.success(emptyList())
