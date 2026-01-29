@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Now Departing</string>
+    <string name="tab_nearby">Nearby</string>
+    <string name="tab_lines">Lines</string>
+    <string name="tab_favorites">Favorites</string>
+    <string name="widget_name">Now Departing</string>
+    <string name="widget_description">Shows your favorite subway departure times</string>
+</resources>

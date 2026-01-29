@@ -1,0 +1,107 @@
+package com.move38.nowdeparting.ui.components
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.move38.nowdeparting.data.model.NearbyTrain
+
+@Composable
+fun TrainTimeRow(
+    train: NearbyTrain,
+    isFavorite: Boolean,
+    onFavoriteClick: () -> Unit,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color(0xFF1C1C1E))
+            .clickable(onClick = onClick)
+            .padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Line badge
+        SubwayLineBadge(lineId = train.lineId, size = 36.dp, fontSize = 18.sp)
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        // Direction and destination
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = train.destination,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium,
+                color = Color.White
+            )
+            Text(
+                text = train.directionText,
+                style = MaterialTheme.typography.bodySmall,
+                color = Color(0xFF8E8E93)
+            )
+        }
+
+        // Arrival time
+        Text(
+            text = train.timeText,
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            color = if (train.minutes <= 1) Color(0xFFFF9500) else Color.White
+        )
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        // Favorite button
+        IconButton(
+            onClick = onFavoriteClick,
+            modifier = Modifier.size(32.dp)
+        ) {
+            Icon(
+                imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
+                tint = if (isFavorite) Color(0xFFFF3B30) else Color(0xFF8E8E93)
+            )
+        }
+    }
+}
+
+@Composable
+fun NearbyStationHeader(
+    stationName: String,
+    distance: String,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 4.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stationName,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = Color.White
+        )
+        Text(
+            text = distance,
+            style = MaterialTheme.typography.bodySmall,
+            color = Color(0xFF8E8E93)
+        )
+    }
+}
