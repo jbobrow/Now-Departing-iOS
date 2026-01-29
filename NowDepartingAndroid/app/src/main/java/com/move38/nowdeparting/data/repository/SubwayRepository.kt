@@ -98,6 +98,8 @@ class SubwayRepository @Inject constructor(
 
                 // Process North-bound trains
                 for (trainData in stationData.N) {
+                    // Skip unknown routes (shuttles, express variants, etc.)
+                    if (!DirectionHelper.isValidRoute(trainData.route)) continue
                     val arrivalTime = parseTime(trainData.time) ?: continue
                     if (arrivalTime.isBefore(Instant.now().minusSeconds(120))) continue
 
@@ -118,6 +120,8 @@ class SubwayRepository @Inject constructor(
 
                 // Process South-bound trains
                 for (trainData in stationData.S) {
+                    // Skip unknown routes (shuttles, express variants, etc.)
+                    if (!DirectionHelper.isValidRoute(trainData.route)) continue
                     val arrivalTime = parseTime(trainData.time) ?: continue
                     if (arrivalTime.isBefore(Instant.now().minusSeconds(120))) continue
 
@@ -286,5 +290,9 @@ object DirectionHelper {
             "S" -> "Downtown"
             else -> direction
         }
+    }
+
+    fun isValidRoute(routeId: String): Boolean {
+        return northDestinations.containsKey(routeId)
     }
 }

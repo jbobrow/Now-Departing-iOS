@@ -60,7 +60,7 @@ fun TrainTimeRow(
             text = train.timeText,
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
-            color = if (train.minutes <= 1) Color(0xFFFF9500) else Color.White
+            color = Color.White
         )
 
         Spacer(modifier = Modifier.width(8.dp))
@@ -125,7 +125,7 @@ fun ConsolidatedTrainRow(
                 text = primaryTrain.preciseTimeText,
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
-                color = if (primaryTrain.minutes <= 1) Color(0xFFFF9500) else Color.White
+                color = Color.White
             )
 
             // Following times (smaller, comma-separated)
