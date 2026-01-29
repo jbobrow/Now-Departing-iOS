@@ -5,6 +5,8 @@ import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.glance.*
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.clickable
@@ -20,9 +22,12 @@ import androidx.glance.unit.ColorProvider
 import com.move38.nowdeparting.MainActivity
 import com.move38.nowdeparting.data.model.FavoriteItem
 import com.move38.nowdeparting.data.model.SubwayConfiguration
+import com.move38.nowdeparting.data.model.Train
 import com.move38.nowdeparting.data.repository.DirectionHelper
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -33,16 +38,35 @@ import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit
 import androidx.compose.ui.graphics.Color as ComposeColor
 
+// DataStore extension for reading favorites (matches FavoritesRepository)
+private val Context.favoritesDataStore by preferencesDataStore(name = "favorites")
+
+@Serializable
+private data class WidgetRouteStationData(
+    val name: String = "",
+    val N: List<Train> = emptyList(),
+    val S: List<Train> = emptyList()
+)
+
+@Serializable
+private data class WidgetRouteApiResponse(
+    val data: List<WidgetRouteStationData> = emptyList(),
+    val updated: String? = null
+)
+
 class NowDepartingWidget : GlanceAppWidget() {
 
     override val sizeMode = SizeMode.Exact
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        val prefs = context.getSharedPreferences("favorites", Context.MODE_PRIVATE)
-        val favoritesJson = prefs.getString("favorites_list", "[]") ?: "[]"
+        // Read from DataStore (same as FavoritesRepository)
+        val favoritesKey = stringPreferencesKey("favorites_list")
+        val preferences = context.favoritesDataStore.data.first()
+        val favoritesJson = preferences[favoritesKey] ?: "[]"
 
+        val json = Json { ignoreUnknownKeys = true }
         val favorites = try {
-            Json { ignoreUnknownKeys = true }.decodeFromString<List<FavoriteItem>>(favoritesJson)
+            json.decodeFromString<List<FavoriteItem>>(favoritesJson)
         } catch (e: Exception) {
             emptyList()
         }
@@ -85,20 +109,26 @@ class NowDepartingWidget : GlanceAppWidget() {
             val response = client.newCall(request).execute()
             val body = response.body?.string() ?: return@withContext null
 
-            // Parse JSON manually to find train times
+            // Parse JSON - API returns { "data": [ { "name": "...", "N": [...], "S": [...] }, ... ] }
             val json = Json { ignoreUnknownKeys = true }
-            val responseMap = json.decodeFromString<Map<String, Map<String, List<Map<String, String>>>>>(body)
-            val stationData = responseMap[stationName] ?: return@withContext null
-            val trains = stationData[direction] ?: return@withContext null
+            val apiResponse = json.decodeFromString<WidgetRouteApiResponse>(body)
+
+            // Find the station in the data list
+            val stationData = apiResponse.data.find { it.name == stationName } ?: return@withContext null
+
+            // Get trains for the direction
+            val trains = when (direction) {
+                "N" -> stationData.N
+                "S" -> stationData.S
+                else -> return@withContext null
+            }
 
             val now = Instant.now()
             for (train in trains) {
-                val timeStr = train["time"] ?: continue
-                val route = train["route"] ?: continue
-                if (route != lineId) continue
+                if (train.route != lineId) continue
 
                 val arrivalTime = try {
-                    ZonedDateTime.parse(timeStr, DateTimeFormatter.ISO_OFFSET_DATE_TIME).toInstant()
+                    ZonedDateTime.parse(train.time, DateTimeFormatter.ISO_OFFSET_DATE_TIME).toInstant()
                 } catch (e: Exception) {
                     continue
                 }
