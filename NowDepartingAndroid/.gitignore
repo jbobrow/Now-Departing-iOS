@@ -1,1 +1,91 @@
+# ----------- Android / Gradle build outputs -----------
+# Built application files
+*.apk
+*.ap_
+*.aab
+
+# ART/Dalvik VM files
+*.dex
+
+# Java class files
+*.class
+
+# Generated files
+bin/
+gen/
+out/
+build/
+
+# Local build cache
 .gradle/
+.gradle/
+gradle-app.setting
+
+# Local gradle wrapper caches
+# (keep gradle-wrapper.jar + wrapper properties, just ignore caches)
+.gradle/
+**/build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# ----------- Android Studio / IntelliJ -----------
+# User-specific and workspace files
+.idea/*
+!.idea/codeStyles/
+!.idea/inspectionProfiles/
+!.idea/runConfigurations/
+!.idea/misc.xml
+!.idea/modules.xml
+!.idea/vcs.xml
+
+# If you don’t want to track any .idea files at all, use:
+#.idea/
+
+# IntelliJ project files
+*.iml
+
+# Android Studio navigation editor temp files
+.navigation/
+
+# Captures
+captures/
+
+# ----------- OS / Editor junk -----------
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# VS Code
+.vscode/
+
+# ----------- Logs / misc -----------
+*.log
+
+# Crashlytics / Firebase
+crashlytics.properties
+crashlytics-build.properties
+fabric.properties
+
+# Keystores (IMPORTANT: keep secrets out of git)
+*.jks
+*.keystore
+*.pem
+*.p12
+*.key
+
+# Local environment or secret files
+local.properties
+*.env
+.env
+.env.*
+secrets/
+secret/
