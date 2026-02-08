@@ -59,20 +59,6 @@ fun TimesScreen(
                     containerColor = Color.Black
                 ),
                 actions = {
-                    IconButton(onClick = {
-                        val stationName = uiState.stationDisplay.ifEmpty { uiState.stationName }
-                        val searchQuery = "$stationName subway station NYC"
-                        val encodedQuery = Uri.encode(searchQuery)
-                        val geoUri = Uri.parse("geo:0,0?q=$encodedQuery")
-                        val mapIntent = Intent(Intent.ACTION_VIEW, geoUri)
-                        context.startActivity(mapIntent)
-                    }) {
-                        Icon(
-                            imageVector = Icons.Default.Place,
-                            contentDescription = "View on map",
-                            tint = Color.White
-                        )
-                    }
                     IconButton(onClick = { viewModel.toggleFavorite() }) {
                         Icon(
                             imageVector = if (uiState.isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
@@ -89,6 +75,45 @@ fun TimesScreen(
                     }
                 }
             )
+        },
+        bottomBar = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.Black)
+                    .padding(16.dp)
+            ) {
+                Button(
+                    onClick = {
+                        val stationName = uiState.stationDisplay.ifEmpty { uiState.stationName }
+                        val searchQuery = "$stationName subway station NYC"
+                        val encodedQuery = Uri.encode(searchQuery)
+                        val geoUri = Uri.parse("geo:0,0?q=$encodedQuery")
+                        val mapIntent = Intent(Intent.ACTION_VIEW, geoUri)
+                        context.startActivity(mapIntent)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF2C2C2E),
+                        contentColor = Color.White
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Place,
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "View on Map",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
         },
         containerColor = Color.Black
     ) { paddingValues ->
