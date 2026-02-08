@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
 import androidx.glance.*
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.clickable
@@ -21,6 +20,7 @@ import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import androidx.work.*
 import com.move38.nowdeparting.MainActivity
+import com.move38.nowdeparting.data.FavoritesDataStore
 import com.move38.nowdeparting.data.model.FavoriteItem
 import com.move38.nowdeparting.data.model.SubwayConfiguration
 import com.move38.nowdeparting.data.model.Train
@@ -38,9 +38,6 @@ import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit
 import androidx.compose.ui.graphics.Color as ComposeColor
-
-// DataStore extension for reading favorites (matches FavoritesRepository)
-private val Context.favoritesDataStore by preferencesDataStore(name = "favorites")
 
 @Serializable
 private data class WidgetRouteStationData(
@@ -60,9 +57,10 @@ class NowDepartingWidget : GlanceAppWidget() {
     override val sizeMode = SizeMode.Exact
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        // Read from DataStore (same as FavoritesRepository)
+        // Read from shared DataStore (same instance as FavoritesRepository)
         val favoritesKey = stringPreferencesKey("favorites_list")
-        val preferences = context.favoritesDataStore.data.first()
+        val dataStore = FavoritesDataStore.getInstance(context)
+        val preferences = dataStore.data.first()
         val favoritesJson = preferences[favoritesKey] ?: "[]"
 
         val json = Json { ignoreUnknownKeys = true }

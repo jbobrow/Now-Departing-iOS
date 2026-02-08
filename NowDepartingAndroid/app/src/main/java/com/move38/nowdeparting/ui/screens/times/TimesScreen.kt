@@ -1,5 +1,7 @@
 package com.move38.nowdeparting.ui.screens.times
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -8,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.*
@@ -16,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -32,6 +36,7 @@ fun TimesScreen(
     onBack: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         viewModel.startPeriodicRefresh()
@@ -54,6 +59,20 @@ fun TimesScreen(
                     containerColor = Color.Black
                 ),
                 actions = {
+                    IconButton(onClick = {
+                        val stationName = uiState.stationDisplay.ifEmpty { uiState.stationName }
+                        val searchQuery = "$stationName subway station NYC"
+                        val encodedQuery = Uri.encode(searchQuery)
+                        val geoUri = Uri.parse("geo:0,0?q=$encodedQuery")
+                        val mapIntent = Intent(Intent.ACTION_VIEW, geoUri)
+                        context.startActivity(mapIntent)
+                    }) {
+                        Icon(
+                            imageVector = Icons.Default.Place,
+                            contentDescription = "View on map",
+                            tint = Color.White
+                        )
+                    }
                     IconButton(onClick = { viewModel.toggleFavorite() }) {
                         Icon(
                             imageVector = if (uiState.isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,

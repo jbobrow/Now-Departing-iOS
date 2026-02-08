@@ -1,12 +1,10 @@
 package com.move38.nowdeparting.data.repository
 
 import android.content.Context
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
 import androidx.glance.appwidget.GlanceAppWidgetManager
+import com.move38.nowdeparting.data.FavoritesDataStore
 import com.move38.nowdeparting.data.model.FavoriteItem
 import com.move38.nowdeparting.widget.NowDepartingWidget
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -17,16 +15,15 @@ import kotlinx.serialization.json.Json
 import javax.inject.Inject
 import javax.inject.Singleton
 
-private val Context.favoritesDataStore: DataStore<Preferences> by preferencesDataStore(name = "favorites")
-
 @Singleton
 class FavoritesRepository @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
     private val json = Json { ignoreUnknownKeys = true }
     private val favoritesKey = stringPreferencesKey("favorites_list")
+    private val dataStore = FavoritesDataStore.getInstance(context)
 
-    val favorites: Flow<List<FavoriteItem>> = context.favoritesDataStore.data.map { preferences ->
+    val favorites: Flow<List<FavoriteItem>> = dataStore.data.map { preferences ->
         val jsonString = preferences[favoritesKey] ?: "[]"
         try {
             json.decodeFromString<List<FavoriteItem>>(jsonString)
@@ -36,7 +33,7 @@ class FavoritesRepository @Inject constructor(
     }
 
     suspend fun addFavorite(favorite: FavoriteItem) {
-        context.favoritesDataStore.edit { preferences ->
+        dataStore.edit { preferences ->
             val currentList = getCurrentFavorites(preferences)
 
             // Check for duplicates
@@ -55,7 +52,7 @@ class FavoritesRepository @Inject constructor(
     }
 
     suspend fun removeFavorite(favoriteId: String) {
-        context.favoritesDataStore.edit { preferences ->
+        dataStore.edit { preferences ->
             val currentList = getCurrentFavorites(preferences)
             val newList = currentList.filter { it.id != favoriteId }
             preferences[favoritesKey] = json.encodeToString(newList)
@@ -64,7 +61,7 @@ class FavoritesRepository @Inject constructor(
     }
 
     suspend fun reorderFavorites(newOrder: List<FavoriteItem>) {
-        context.favoritesDataStore.edit { preferences ->
+        dataStore.edit { preferences ->
             preferences[favoritesKey] = json.encodeToString(newOrder)
         }
         updateWidgets()
@@ -84,7 +81,7 @@ class FavoritesRepository @Inject constructor(
 
     suspend fun isFavorite(lineId: String, stationName: String, direction: String): Boolean {
         var result = false
-        context.favoritesDataStore.edit { preferences ->
+        dataStore.edit { preferences ->
             val currentList = getCurrentFavorites(preferences)
             result = currentList.any {
                 it.lineId == lineId &&
