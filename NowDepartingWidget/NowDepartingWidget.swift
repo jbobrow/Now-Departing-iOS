@@ -2,7 +2,7 @@
 //  NowDepartingWidget.swift
 //  NowDepartingWidget
 //
-//  Main widget implementation with timeline provider
+//  Main widget implementation with timeline provider.
 //
 
 import WidgetKit
@@ -41,13 +41,12 @@ struct TrainTimelineProvider: TimelineProvider {
     }
 
     func getSnapshot(in context: Context, completion: @escaping (TrainEntry) -> Void) {
-        // Get the first favorite or show placeholder
         let favorites = loadFavorites()
         let favorite = favorites.first
 
         if context.isPreview {
             let now = Date()
-            let entry = TrainEntry(
+            completion(TrainEntry(
                 date: now,
                 favoriteItem: favorite ?? FavoriteItem(
                     lineId: "1",
@@ -61,18 +60,16 @@ struct TrainTimelineProvider: TimelineProvider {
                 ],
                 lastUpdated: now,
                 errorMessage: ""
-            )
-            completion(entry)
+            ))
         } else if let favorite = favorite {
             fetchTrainTimes(for: favorite) { trains, error, fetchTime in
-                let entry = TrainEntry(
+                completion(TrainEntry(
                     date: Date(),
                     favoriteItem: favorite,
                     nextTrains: trains,
                     lastUpdated: fetchTime,
                     errorMessage: error
-                )
-                completion(entry)
+                ))
             }
         } else {
             completion(TrainEntry(
@@ -96,117 +93,77 @@ struct TrainTimelineProvider: TimelineProvider {
                 lastUpdated: Date(),
                 errorMessage: "No favorites set"
             )
-            let timeline = Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(300)))
-            completion(timeline)
+            completion(Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(300))))
             return
         }
 
         fetchTrainTimes(for: favorite) { trains, error, fetchTime in
             let currentDate = Date()
-
-            // Create multiple timeline entries (iOS prefers this and may refresh more often)
             var entries: [TrainEntry] = []
 
-            // Entry 1: Now
-            entries.append(TrainEntry(
-                date: currentDate,
-                favoriteItem: favorite,
-                nextTrains: trains,
-                lastUpdated: fetchTime,
-                errorMessage: error
-            ))
+            entries.append(TrainEntry(date: currentDate, favoriteItem: favorite, nextTrains: trains, lastUpdated: fetchTime, errorMessage: error))
 
-            // Entry 2: 30 seconds from now
             if let date30 = Calendar.current.date(byAdding: .second, value: 30, to: currentDate) {
-                entries.append(TrainEntry(
-                    date: date30,
-                    favoriteItem: favorite,
-                    nextTrains: trains,
-                    lastUpdated: fetchTime,
-                    errorMessage: error
-                ))
+                entries.append(TrainEntry(date: date30, favoriteItem: favorite, nextTrains: trains, lastUpdated: fetchTime, errorMessage: error))
             }
 
-            // Entry 3: 60 seconds from now
             if let date60 = Calendar.current.date(byAdding: .second, value: 60, to: currentDate) {
-                entries.append(TrainEntry(
-                    date: date60,
-                    favoriteItem: favorite,
-                    nextTrains: trains,
-                    lastUpdated: fetchTime,
-                    errorMessage: error
-                ))
+                entries.append(TrainEntry(date: date60, favoriteItem: favorite, nextTrains: trains, lastUpdated: fetchTime, errorMessage: error))
             }
 
-            // Use .atEnd policy to request immediate reload when timeline expires
-            // This signals to iOS that this is time-sensitive data
-            let timeline = Timeline(entries: entries, policy: .atEnd)
-            completion(timeline)
+            completion(Timeline(entries: entries, policy: .atEnd))
         }
     }
 
     // MARK: - Data Loading
 
     private func loadFavorites() -> [FavoriteItem] {
-        // Use App Group to share data between app and widget
-        guard let sharedDefaults = UserDefaults(suiteName: "group.com.move38.Now-Departing"),
-              let data = sharedDefaults.data(forKey: "savedFavorites"),
-              let favorites = try? JSONDecoder().decode([FavoriteItem].self, from: data) else {
-            // Fallback to standard UserDefaults for testing
-            if let data = UserDefaults.standard.data(forKey: "savedFavorites"),
-               let favorites = try? JSONDecoder().decode([FavoriteItem].self, from: data) {
-                return favorites
-            }
-            return []
+        if let sharedDefaults = UserDefaults(suiteName: "group.com.move38.Now-Departing"),
+           let data = sharedDefaults.data(forKey: "savedFavorites"),
+           let favorites = try? JSONDecoder().decode([FavoriteItem].self, from: data) {
+            return favorites
         }
-        return favorites
+        if let data = UserDefaults.standard.data(forKey: "savedFavorites"),
+           let favorites = try? JSONDecoder().decode([FavoriteItem].self, from: data) {
+            return favorites
+        }
+        return []
     }
 
-    private func fetchTrainTimes(for favorite: FavoriteItem, completion: @escaping ([Date], String, Date) -> Void) {
+    /// Fetches arrival times for a favorite station via the MTA GTFS-RT feed.
+    ///
+    /// The `FavoriteItem` must have been saved with a valid `stationGtfsStopId`.
+    /// If the stop ID is missing, the widget falls back to an empty result with
+    /// an explanatory error string.
+    private func fetchTrainTimes(
+        for favorite: FavoriteItem,
+        completion: @escaping (_ trains: [Date], _ errorMessage: String, _ fetchTime: Date) -> Void
+    ) {
         let fetchTime = Date()
-        let apiURL = "https://api.wheresthefuckingtrain.com/by-route/\(favorite.lineId)"
 
-        guard let url = URL(string: apiURL) else {
-            completion([], "Invalid URL", fetchTime)
-            return
-        }
+        // Build a Station from the FavoriteItem so we can call MTAFeedService.
+        let station = Station(
+            display: favorite.stationDisplay,
+            name: favorite.stationName,
+            gtfsStopId: favorite.stationGtfsStopId
+        )
 
-        URLSession.shared.dataTask(with: url) { data, response, error in
-            if error != nil {
-                completion([], "Network error", fetchTime)
-                return
-            }
-
-            guard let data = data else {
-                completion([], "No data", fetchTime)
-                return
-            }
-
-            do {
-                let apiResponse = try JSONDecoder().decode(APIResponse.self, from: data)
-                if let stationData = apiResponse.data.first(where: { $0.name == favorite.stationName }) {
-                    let trains = favorite.direction == "N" ? stationData.N : stationData.S
-                    let filteredTrains = trains.filter { $0.route == favorite.lineId }
-
-                    let formatter = ISO8601DateFormatter()
-                    let now = Date()
-                    let arrivalTimes = filteredTrains.compactMap { train -> Date? in
-                        formatter.date(from: train.time)
-                    }.filter { $0 > now }
-                    .sorted()
-
-                    if arrivalTimes.isEmpty {
-                        completion([], "No trains", fetchTime)
-                    } else {
-                        completion(arrivalTimes, "", fetchTime)
-                    }
+        MTAFeedService.shared.fetchArrivals(
+            routeId: favorite.lineId,
+            station: station,
+            direction: favorite.direction
+        ) { result in
+            switch result {
+            case .success(let arrivals):
+                if arrivals.isEmpty {
+                    completion([], "No trains", fetchTime)
                 } else {
-                    completion([], "Station not found", fetchTime)
+                    completion(arrivals, "", fetchTime)
                 }
-            } catch {
-                completion([], "Error loading data", fetchTime)
+            case .failure(let error):
+                completion([], error.localizedDescription, fetchTime)
             }
-        }.resume()
+        }
     }
 }
 

@@ -2,7 +2,7 @@
 //  SharedModels.swift
 //  Now Departing
 //
-//  Shared data models used across iOS, watchOS, and Widget targets
+//  Shared data models used across iOS, watchOS, and Widget targets.
 //
 
 import SwiftUI
@@ -30,55 +30,66 @@ struct Station: Identifiable, Codable, Equatable {
     let id: String
     let display: String
     let name: String
+    /// GTFS parent stop ID (without direction suffix), e.g. "127" for Times Square
+    /// on the 1/2/3 platforms.  Append "N" or "S" to get the directional stop ID
+    /// used in GTFS-RT feeds.
+    ///
+    /// Populate this field by running `scripts/generate_gtfs_mapping.py` against
+    /// the MTA's GTFS static data.  Stations without this value cannot be looked
+    /// up in the GTFS-RT feed.
+    var gtfsStopId: String?
+    /// WGS-84 latitude from MTA GTFS `stops.txt`.  Required for the nearby-trains feature.
+    var latitude: Double?
+    /// WGS-84 longitude from MTA GTFS `stops.txt`.  Required for the nearby-trains feature.
+    var longitude: Double?
     var hasAvailableTimes: Bool?
 
-    init(id: String = UUID().uuidString, display: String, name: String, hasAvailableTimes: Bool? = nil) {
+    init(
+        id: String = UUID().uuidString,
+        display: String,
+        name: String,
+        gtfsStopId: String? = nil,
+        latitude: Double? = nil,
+        longitude: Double? = nil,
+        hasAvailableTimes: Bool? = nil
+    ) {
         self.id = id
         self.display = display
         self.name = name
+        self.gtfsStopId = gtfsStopId
+        self.latitude = latitude
+        self.longitude = longitude
         self.hasAvailableTimes = hasAvailableTimes
     }
 
-    // Custom coding to handle missing "id" in JSON
     private enum CodingKeys: String, CodingKey {
         case display
         case name
+        case gtfsStopId
+        case latitude
+        case longitude
         case hasAvailableTimes
-        // Note: "id" is NOT in CodingKeys, so it won't be decoded from JSON
-        // It will be auto-generated via init() when decoding
+        // "id" is intentionally omitted — it is derived from `name` on decode.
     }
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.display = try container.decode(String.self, forKey: .display)
         self.name = try container.decode(String.self, forKey: .name)
+        self.gtfsStopId = try container.decodeIfPresent(String.self, forKey: .gtfsStopId)
+        self.latitude = try container.decodeIfPresent(Double.self, forKey: .latitude)
+        self.longitude = try container.decodeIfPresent(Double.self, forKey: .longitude)
         self.hasAvailableTimes = try container.decodeIfPresent(Bool.self, forKey: .hasAvailableTimes)
-        // Generate a stable ID based on the name to ensure consistency
-        self.id = name
+        self.id = name  // stable, name-based ID
     }
 
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(display, forKey: .display)
         try container.encode(name, forKey: .name)
+        try container.encodeIfPresent(gtfsStopId, forKey: .gtfsStopId)
+        try container.encodeIfPresent(latitude, forKey: .latitude)
+        try container.encodeIfPresent(longitude, forKey: .longitude)
         try container.encodeIfPresent(hasAvailableTimes, forKey: .hasAvailableTimes)
-        // Note: "id" is not encoded, as it's derived from "name"
     }
-}
-
-// MARK: - API Response Models
-
-struct APIResponse: Decodable {
-    let data: [StationData]
-}
-
-struct StationData: Decodable {
-    let name: String
-    let N: [Train]
-    let S: [Train]
-}
-
-struct Train: Decodable {
-    let route: String
-    let time: String
 }
