@@ -18,13 +18,18 @@ struct FavoriteItem: Codable, Identifiable, Equatable {
     let stationName: String
     let stationDisplay: String
     let direction: String
-    
-    init(lineId: String, stationName: String, stationDisplay: String, direction: String) {
+    /// GTFS parent stop ID (e.g. "127" for Times Square on the 1/2/3 platforms).
+    /// Stored here so the widget can query the MTA GTFS-RT feed without needing
+    /// access to the full stations dictionary.
+    let stationGtfsStopId: String?
+
+    init(lineId: String, stationName: String, stationDisplay: String, direction: String, stationGtfsStopId: String? = nil) {
         self.id = UUID().uuidString
         self.lineId = lineId
         self.stationName = stationName
         self.stationDisplay = stationDisplay
         self.direction = direction
+        self.stationGtfsStopId = stationGtfsStopId
     }
 }
 
@@ -73,8 +78,8 @@ class FavoritesManager: ObservableObject {
     }
     
     // Add a new favorite
-    func addFavorite(lineId: String, stationName: String, stationDisplay: String, direction: String) {
-        let favorite = FavoriteItem(lineId: lineId, stationName: stationName, stationDisplay: stationDisplay, direction: direction)
+    func addFavorite(lineId: String, stationName: String, stationDisplay: String, direction: String, gtfsStopId: String? = nil) {
+        let favorite = FavoriteItem(lineId: lineId, stationName: stationName, stationDisplay: stationDisplay, direction: direction, stationGtfsStopId: gtfsStopId)
         if !favorites.contains(where: { $0.stationName == stationName && $0.lineId == lineId && $0.direction == direction }) {
             favorites.append(favorite)
             saveFavorites()

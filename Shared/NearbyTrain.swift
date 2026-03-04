@@ -18,6 +18,9 @@ struct NearbyTrain: Identifiable, Equatable {
     let destination: String
     let arrivalTime: Date  // Store actual arrival time instead of minutes
     let distanceInMeters: Double
+    /// GTFS parent stop ID (e.g. "127").  Nil when stations.json has not yet
+    /// been updated with gtfsStopId values.
+    let gtfsStopId: String?
     
     // Helper computed properties
     var minutes: Int {

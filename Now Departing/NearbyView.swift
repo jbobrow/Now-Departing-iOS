@@ -717,7 +717,8 @@ struct NearbyView: View {
                 lineId: primaryTrain.lineId,
                 stationName: primaryTrain.stationName,
                 stationDisplay: primaryTrain.stationDisplay,
-                direction: primaryTrain.direction
+                direction: primaryTrain.direction,
+                gtfsStopId: primaryTrain.gtfsStopId
             )
         }
         

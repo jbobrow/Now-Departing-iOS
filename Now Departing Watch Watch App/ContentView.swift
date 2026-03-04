@@ -10,8 +10,8 @@ import Combine
 import WatchKit
 
 // MARK: - Models
-// Note: SubwayLine, Station, APIResponse, StationData, Train are now imported from SharedModels.swift
-// Note: NavigationState is now imported from NavigationModels.swift
+// Note: SubwayLine and Station are imported from SharedModels.swift
+// Note: NavigationState is imported from NavigationModels.swift
 
 struct TrainData: Decodable {
     let station: String
