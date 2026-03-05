@@ -77,8 +77,6 @@ class NearbyTrainsManager: ObservableObject {
                 // Translate MTAFeedError into the same user-facing strings the old
                 // code used so nothing in the UI layer needs to change.
                 switch error {
-                case .missingApiKey:
-                    self.errorMessage = "MTA API key not configured"
                 case .networkError(let underlying):
                     if let urlError = underlying as? URLError {
                         switch urlError.code {
