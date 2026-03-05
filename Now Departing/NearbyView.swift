@@ -800,6 +800,7 @@ struct NearbyView: View {
             
             return distance1 < distance2
         }
+        .filter { !$0.trainsByLineAndDirection.isEmpty }
     }
     
     func formatDistance(_ meters: Double) -> String {
