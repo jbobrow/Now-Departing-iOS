@@ -470,7 +470,7 @@ struct TimesView: View {
         .alert("Add Widget to Homescreen", isPresented: $showingWidgetInfo) {
             Button("Got It", role: .cancel) {}
         } message: {
-            Text("To add a widget to your homescreen:\n\n1. Long press on your homescreen\n2. Tap the + button\n3. Search for 'Now Departing'\n4. Select this train and direction")
+            Text("To add a widget to your homescreen:\n\n1. Long press on your homescreen\n2. Tap the + button\n3. Search for 'Now Departing'\n4. Your favorite will be selected by default.")
         }
         .alert("Live Activity for StandBy", isPresented: $showingLiveActivityInfo) {
             Button("Got It", role: .cancel) {}
