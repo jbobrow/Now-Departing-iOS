@@ -270,56 +270,22 @@ class TimesViewModeliOS: ObservableObject {
     }
 
     private func fetchArrivalTimes(for line: SubwayLine, station: Station, direction: String) {
-        let apiURL = "https://api.wheresthefuckingtrain.com/by-route/\(line.id)"
-
-        guard let url = URL(string: apiURL) else {
-            errorMessage = "Invalid URL"
-            loading = false
-            return
-        }
-
-        URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
-            DispatchQueue.main.async {
-                if let error = error {
-                    self?.errorMessage = "Network error: \(error.localizedDescription)"
-                    self?.loading = false
-                    return
-                }
-
-                guard let data = data else {
-                    self?.errorMessage = "No data received"
-                    self?.loading = false
-                    return
-                }
-
-                do {
-                    let response = try JSONDecoder().decode(APIResponse.self, from: data)
-                    if let stationData = response.data.first(where: { $0.name == station.name }) {
-                        let trains = direction == "N" ? stationData.N : stationData.S
-                        let filteredTrains = trains.filter { $0.route == line.id }
-
-                        let formatter = ISO8601DateFormatter()
-                        self?.arrivalTimes = filteredTrains.compactMap { train -> Date? in
-                            formatter.date(from: train.time)
-                        }.filter { $0 > Date() }
-                        .sorted()
-
-                        if self?.arrivalTimes.isEmpty == true {
-                            self?.errorMessage = "No trains scheduled"
-                        } else {
-                            self?.errorMessage = ""
-                        }
-                        self?.updateDisplayTimes()
-                    } else {
-                        self?.errorMessage = "Station not found"
-                    }
-                    self?.loading = false
-                } catch {
-                    self?.errorMessage = "Failed to decode data"
-                    self?.loading = false
-                }
+        MTAFeedService.shared.fetchArrivals(
+            routeId: line.id,
+            station: station,
+            direction: direction
+        ) { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .success(let arrivals):
+                self.arrivalTimes = arrivals
+                self.errorMessage = arrivals.isEmpty ? "No trains scheduled" : ""
+                self.updateDisplayTimes()
+            case .failure(let error):
+                self.errorMessage = error.localizedDescription
             }
-        }.resume()
+            self.loading = false
+        }
     }
 }
 
@@ -796,7 +762,8 @@ struct TimesView: View {
             lineId: line.id,
             stationName: station.name,
             stationDisplay: station.display,
-            direction: direction
+            direction: direction,
+            gtfsStopId: station.gtfsStopId
         )
     }
 

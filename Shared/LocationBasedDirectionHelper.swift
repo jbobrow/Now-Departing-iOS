@@ -187,9 +187,16 @@ struct LocationBasedDirectionHelper {
             return DirectionHelper.getDestination(for: lineId, direction: direction)
         }
         
+        // East-west lines don't have meaningful Uptown/Downtown/Northbound/Southbound context;
+        // always use the named directional labels from DirectionHelper.
+        let eastWestLines = ["L", "7", "7X", "G", "J", "Z"]
+        if eastWestLines.contains(lineId) {
+            return DirectionHelper.getDestination(for: lineId, direction: direction)
+        }
+
         let currentBorough = getBoroughForLocation(location)
         let destinations = DirectionHelper.getDestinations(for: lineId)
-        
+
         switch currentBorough {
         case .manhattan:
             // In Manhattan, use Uptown/Downtown for north-south lines
@@ -272,7 +279,7 @@ struct LocationBasedDirectionHelper {
             "F": (north: "Queens", south: "Brooklyn"),
             "G": (north: "Queens", south: "Brooklyn"),
             "J": (north: "Queens", south: nil),
-            "L": (north: "Brooklyn", south: nil),
+            "L": (north: nil, south: nil),
             "M": (north: "Queens", south: "Brooklyn"),
             "N": (north: "Queens", south: "Brooklyn"),
             "Q": (north: nil, south: "Brooklyn"),

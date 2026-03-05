@@ -129,8 +129,9 @@ struct FavoritesView: View {
         // Find the line
         let line = SubwayLineFactory.line(for: link.lineId)
 
-        // Create station
-        let station = Station(display: link.stationDisplay, name: link.stationName)
+        // Look up the full station (with gtfsStopId) from station data, falling back to a minimal Station
+        let station = stationDataManager.findStation(byName: link.stationName)
+            ?? Station(display: link.stationDisplay, name: link.stationName)
 
         // Show the times view
         deepLinkTimesView = (line: line, station: station, direction: link.direction)
@@ -199,7 +200,7 @@ struct FavoriteTrainRow: View {
             if let line = line {
                 NavigationLink(destination: TimesView(
                     line: line,
-                    station: Station(display: favorite.stationDisplay, name: favorite.stationName),
+                    station: Station(display: favorite.stationDisplay, name: favorite.stationName, gtfsStopId: favorite.stationGtfsStopId),
                     direction: favorite.direction
                 )) {
                     rowContent
@@ -382,60 +383,50 @@ class FavoriteTrainDataManager: ObservableObject {
     }
     
     private func fetchTrainDataFromAPI(for favorite: FavoriteItem, key: String) {
-        guard let url = URL(string: "https://api.wheresthefuckingtrain.com/by-route/\(favorite.lineId)") else {
-            return
+        let station = Station(
+            display: favorite.stationDisplay,
+            name: favorite.stationName,
+            gtfsStopId: favorite.stationGtfsStopId
+        )
+
+        MTAFeedService.shared.fetchArrivals(
+            routeId: favorite.lineId,
+            station: station,
+            direction: favorite.direction
+        ) { [weak self] result in
+            guard let self = self else { return }
+            if case .success(let arrivals) = result {
+                let trainArrivals = arrivals.map { TrainArrival(arrivalTime: $0, routeId: favorite.lineId) }
+                print("DEBUG: Processed \(trainArrivals.count) trains for favorite: \(favorite.stationDisplay) \(favorite.lineId) \(favorite.direction)")
+                self.trainDataCache[key] = trainArrivals
+                self.lastFetchTime[key] = Date()
+            }
         }
-        
-        URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
-            guard let data = data,
-                  let response = try? JSONDecoder().decode(APIResponse.self, from: data) else {
-                return
-            }
-            
-            DispatchQueue.main.async {
-                self?.processAPIResponse(response, for: favorite, key: key)
-            }
-        }.resume()
     }
-    
+
     @MainActor
     private func fetchTrainDataFromAPIAsync(for favorite: FavoriteItem, key: String) async {
-        guard let url = URL(string: "https://api.wheresthefuckingtrain.com/by-route/\(favorite.lineId)") else {
-            return
-        }
-        
-        do {
-            let (data, _) = try await URLSession.shared.data(from: url)
-            let response = try JSONDecoder().decode(APIResponse.self, from: data)
-            processAPIResponse(response, for: favorite, key: key)
-        } catch {
-            print("Error fetching train data: \(error)")
-        }
-    }
-    
-    private func processAPIResponse(_ response: APIResponse, for favorite: FavoriteItem, key: String) {
-        guard let stationData = response.data.first(where: { $0.name == favorite.stationName }) else {
-            return
-        }
-        
-        let trains = favorite.direction == "N" ? stationData.N : stationData.S
-        let filteredTrains = trains.filter { $0.route == favorite.lineId }
-        
-        let trainArrivals = filteredTrains.compactMap { train -> TrainArrival? in
-            // Convert time string to Date using ISO8601DateFormatter
-            let formatter = ISO8601DateFormatter()
-            guard let arrivalTime = formatter.date(from: train.time) else {
-                print("DEBUG: Failed to parse time: \(train.time)")
-                return nil
+        let station = Station(
+            display: favorite.stationDisplay,
+            name: favorite.stationName,
+            gtfsStopId: favorite.stationGtfsStopId
+        )
+
+        await withCheckedContinuation { continuation in
+            MTAFeedService.shared.fetchArrivals(
+                routeId: favorite.lineId,
+                station: station,
+                direction: favorite.direction
+            ) { [weak self] result in
+                guard let self = self else { continuation.resume(); return }
+                if case .success(let arrivals) = result {
+                    let trainArrivals = arrivals.map { TrainArrival(arrivalTime: $0, routeId: favorite.lineId) }
+                    self.trainDataCache[key] = trainArrivals
+                    self.lastFetchTime[key] = Date()
+                }
+                continuation.resume()
             }
-            return TrainArrival(arrivalTime: arrivalTime, routeId: train.route)
-        }.filter { $0.arrivalTime > Date() } // Only keep future times
-        .sorted { $0.arrivalTime < $1.arrivalTime }
-        
-        print("DEBUG: Processed \(trainArrivals.count) trains for favorite: \(favorite.stationDisplay) \(favorite.lineId) \(favorite.direction)")
-        
-        trainDataCache[key] = trainArrivals
-        lastFetchTime[key] = Date()
+        }
     }
 }
 

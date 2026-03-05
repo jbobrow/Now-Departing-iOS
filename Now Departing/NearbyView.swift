@@ -607,7 +607,7 @@ struct NearbyView: View {
         var body: some View {
             NavigationLink(destination: TimesView(
                 line: line,
-                station: Station(display: primaryTrain.stationDisplay, name: primaryTrain.stationName),
+                station: Station(display: primaryTrain.stationDisplay, name: primaryTrain.stationName, gtfsStopId: primaryTrain.gtfsStopId),
                 direction: primaryTrain.direction
             )) {
                 VStack(alignment: .leading, spacing: 8) {
@@ -717,7 +717,8 @@ struct NearbyView: View {
                 lineId: primaryTrain.lineId,
                 stationName: primaryTrain.stationName,
                 stationDisplay: primaryTrain.stationDisplay,
-                direction: primaryTrain.direction
+                direction: primaryTrain.direction,
+                gtfsStopId: primaryTrain.gtfsStopId
             )
         }
         
@@ -799,6 +800,7 @@ struct NearbyView: View {
             
             return distance1 < distance2
         }
+        .filter { !$0.trainsByLineAndDirection.isEmpty }
     }
     
     func formatDistance(_ meters: Double) -> String {
