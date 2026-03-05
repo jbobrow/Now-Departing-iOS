@@ -4,9 +4,8 @@
 //
 //  MTA GTFS-RT feed URL configuration and route-to-feed mapping.
 //
-//  The MTA publishes separate GTFS-RT feeds for each group of subway lines.
-//  No API key or authentication is required — feeds are freely accessible.
-//  Details: https://api.mta.info/#/subwayRealTimeFeeds
+//  A free API key is required. Register at https://api.mta.info/#/AccessKey
+//  then add your key to Secrets.xcconfig (see that file for instructions).
 //
 
 import Foundation
@@ -16,6 +15,15 @@ struct MTAFeedConfiguration {
     // MARK: - Base URL
 
     static let baseURL = "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct"
+
+    // MARK: - API Key
+    //
+    // The key is injected via Info.plist so it stays out of source control.
+    // Set MTA_API_KEY in Secrets.xcconfig — see that file for full instructions.
+    //
+    static var apiKey: String {
+        Bundle.main.infoDictionary?["MTA_API_KEY"] as? String ?? ""
+    }
 
     // MARK: - Feed Paths
     //
@@ -87,9 +95,10 @@ struct MTAFeedConfiguration {
 
     // MARK: - Request Builder
 
-    /// Returns a plain URLRequest for a feed URL.  No authentication headers needed.
+    /// Builds a URLRequest for a feed URL, injecting the MTA API key header.
     static func request(for url: URL) -> URLRequest {
         var req = URLRequest(url: url)
+        req.setValue(apiKey, forHTTPHeaderField: "x-api-key")
         req.timeoutInterval = 30
         return req
     }

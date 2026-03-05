@@ -55,6 +55,7 @@ struct MTANearbyArrival {
 
 
 enum MTAFeedError: Error, LocalizedError {
+    case missingApiKey
     case missingStopId(stationName: String)
     case networkError(Error)
     case httpError(Int)
@@ -63,6 +64,8 @@ enum MTAFeedError: Error, LocalizedError {
 
     var errorDescription: String? {
         switch self {
+        case .missingApiKey:
+            return "MTA API key not set. Add your key to Secrets.xcconfig."
         case .missingStopId(let name):
             return "No GTFS stop ID found for station \"\(name)\". Update stations.json."
         case .networkError(let e):
@@ -336,6 +339,11 @@ final class MTAFeedService {
         // Return cached result if fresh enough.
         if let cached = cache[url], Date().timeIntervalSince(cached.date) < cacheTTL {
             completion(.success(cached.updates))
+            return
+        }
+
+        guard !MTAFeedConfiguration.apiKey.isEmpty else {
+            completion(.failure(.missingApiKey))
             return
         }
 
