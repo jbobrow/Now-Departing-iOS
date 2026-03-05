@@ -3,9 +3,7 @@
 //  Now Departing
 //
 //  MTA GTFS-RT feed URL configuration and route-to-feed mapping.
-//
-//  A free API key is required. Register at https://api.mta.info/#/AccessKey
-//  then add your key to Secrets.xcconfig (see that file for instructions).
+//  No API key is required for subway realtime feeds.
 //
 
 import Foundation
@@ -16,29 +14,19 @@ struct MTAFeedConfiguration {
 
     static let baseURL = "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct"
 
-    // MARK: - API Key
-    //
-    // The key is injected via Info.plist so it stays out of source control.
-    // Set MTA_API_KEY in Secrets.xcconfig — see that file for full instructions.
-    //
-    static var apiKey: String {
-        Bundle.main.infoDictionary?["MTA_API_KEY"] as? String ?? ""
-    }
-
     // MARK: - Feed Paths
     //
     // Multiple routes share a single feed file; fetching any route from the
     // group retrieves real-time data for every route in that group.
     //
     // Feed groups:
-    //   gtfs      → 1 2 3 4 5 6 GS (42nd St Shuttle)
+    //   gtfs      → 1 2 3 4 5 6 7 S (numbered lines + 42nd St Shuttle)
     //   gtfs-ace  → A C E FS (Franklin Ave Shuttle) H (Rockaway Park)
     //   gtfs-bdfm → B D F M
     //   gtfs-g    → G
     //   gtfs-jz   → J Z
     //   gtfs-nqrw → N Q R W
     //   gtfs-l    → L
-    //   gtfs-7    → 7
     //   gtfs-si   → SIR (Staten Island Railway)
 
     static let feedPathByRoute: [String: String] = [
@@ -66,7 +54,7 @@ struct MTAFeedConfiguration {
         "R":  "gtfs-nqrw",
         "W":  "gtfs-nqrw",
         "L":  "gtfs-l",
-        "7":  "gtfs-7",
+        "7":  "gtfs",
         "SI": "gtfs-si",
     ]
 
@@ -95,10 +83,9 @@ struct MTAFeedConfiguration {
 
     // MARK: - Request Builder
 
-    /// Builds a URLRequest for a feed URL, injecting the MTA API key header.
+    /// Builds a URLRequest for a feed URL.
     static func request(for url: URL) -> URLRequest {
         var req = URLRequest(url: url)
-        req.setValue(apiKey, forHTTPHeaderField: "x-api-key")
         req.timeoutInterval = 30
         return req
     }

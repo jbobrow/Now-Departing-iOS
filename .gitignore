@@ -1,6 +1,3 @@
-# Secrets — never commit API keys
-Secrets.xcconfig
-
 # Xcode
 *.xcuserstate
 xcuserdata/
