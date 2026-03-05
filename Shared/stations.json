@@ -877,9 +877,9 @@
     {
       "display": "Kingsbridge Road",
       "name": "Kingsbridge Rd",
-      "gtfsStopId": "D04",
-      "latitude": 40.866978,
-      "longitude": -73.893509
+      "gtfsStopId": "406",
+      "latitude": 40.867760,
+      "longitude": -73.897174
     },
     {
       "display": "Fordham Road",
@@ -3701,21 +3701,21 @@
     {
       "display": "8th Avenue",
       "name": "14 St / 8 Av",
-      "gtfsStopId": "221",
-      "latitude": 40.816109,
-      "longitude": -73.917757
+      "gtfsStopId": "L01",
+      "latitude": 40.740322,
+      "longitude": -74.002906
     },
     {
       "display": "6th Avenue",
       "name": "14 St / 6 Av",
-      "gtfsStopId": "221",
-      "latitude": 40.816109,
-      "longitude": -73.917757
+      "gtfsStopId": "L02",
+      "latitude": 40.737826,
+      "longitude": -73.996209
     },
     {
       "display": "Union Square",
       "name": "14 St-Union Sq",
-      "gtfsStopId": "R20",
+      "gtfsStopId": "L03",
       "latitude": 40.735736,
       "longitude": -73.990568
     },
@@ -3785,14 +3785,14 @@
     {
       "display": "DeKalb Avenue",
       "name": "DeKalb Av",
-      "gtfsStopId": "R30",
-      "latitude": 40.690635,
-      "longitude": -73.981824
+      "gtfsStopId": "L16",
+      "latitude": 40.703811,
+      "longitude": -73.918425
     },
     {
       "display": "Myrtle-Wyckoff Avenues",
       "name": "Myrtle-Wyckoff Avs",
-      "gtfsStopId": "M08",
+      "gtfsStopId": "L17",
       "latitude": 40.69943,
       "longitude": -73.912385
     },
