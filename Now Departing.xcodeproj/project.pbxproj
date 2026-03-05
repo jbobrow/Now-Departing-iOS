@@ -83,7 +83,10 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				FavoriteItem.swift,
+				GTFSRTParser.swift,
 				LiveActivityAttributes.swift,
+				MTAFeedConfiguration.swift,
+				MTAFeedService.swift,
 				NavigationModels.swift,
 				SharedModels.swift,
 				SubwayConfiguration.swift,

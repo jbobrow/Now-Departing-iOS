@@ -54,7 +54,7 @@ enum MTAFeedError: Error, LocalizedError {
         case .missingApiKey:
             return "MTA API key not configured. Set MTA_API_KEY in Info.plist."
         case .missingStopId(let name):
-            return "No GTFS stop ID found for station "\(name)". Update stations.json."
+            return "No GTFS stop ID found for station \(name). Update stations.json."
         case .networkError(let e):
             return "Network error: \(e.localizedDescription)"
         case .httpError(let code):

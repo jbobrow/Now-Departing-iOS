@@ -58,6 +58,8 @@ import csv
 import json
 import sys
 from difflib import get_close_matches
+from typing import Optional
+
 
 try:
     from rapidfuzz import process as fuzz_process, fuzz
@@ -94,7 +96,7 @@ def load_gtfs_stops(stops_path: str) -> dict:
     return parents
 
 
-def find_match(station_name: str, gtfs_index: dict) -> dict | None:
+def find_match(station_name: str, gtfs_index: dict) -> Optional[dict]:
     """
     Attempts to find the best matching GTFS parent station for a given
     station name.  Returns the matching entry or None.
