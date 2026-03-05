@@ -39,7 +39,20 @@
 import Foundation
 import CoreLocation
 
-// MARK: - Errors
+// MARK: - Nearby Arrival (target-agnostic intermediate type)
+
+/// Raw result from `fetchNearbyArrivals`.  Converted to `NearbyTrain` by
+/// `NearbyTrainsManager`, which is the only target that needs the richer type.
+struct MTANearbyArrival {
+    let routeId: String
+    let gtfsStopId: String?
+    let stationName: String
+    let stationDisplay: String
+    let direction: String    // "N" or "S"
+    let arrivalTime: Date
+    let distanceInMeters: Double
+}
+
 
 enum MTAFeedError: Error, LocalizedError {
     case missingApiKey
@@ -138,19 +151,20 @@ final class MTAFeedService {
 
     // MARK: - By-Location Query (replaces /by-location?lat=…&lon=…)
 
-    /// Fetches all arrivals within `radiusMeters` of `location` across
-    /// every feed group, then maps them to `NearbyTrain` values.
+    /// Fetches all arrivals within `radiusMeters` of `location` across every
+    /// feed group and returns raw `MTANearbyArrival` values.
+    /// `NearbyTrainsManager` converts these to the richer `NearbyTrain` type.
     ///
     /// - Parameters:
-    ///   - location:      The user's current `CLLocation`.
-    ///   - radiusMeters:  Search radius (default 800 m ≈ 0.5 miles).
+    ///   - location:       The user's current `CLLocation`.
+    ///   - radiusMeters:   Search radius (default 800 m ≈ 0.5 miles).
     ///   - stationsByLine: The full station dictionary from `StationDataManager`.
-    ///   - completion:    Called on the main thread.
+    ///   - completion:     Called on the main thread.
     func fetchNearbyArrivals(
         location: CLLocation,
         radiusMeters: Double = 800,
         stationsByLine: [String: [Station]],
-        completion: @escaping (Result<[NearbyTrain], MTAFeedError>) -> Void
+        completion: @escaping (Result<[MTANearbyArrival], MTAFeedError>) -> Void
     ) {
         // Collect all unique stations that have a GTFS stop ID and a known location,
         // and are within the search radius.
@@ -180,7 +194,7 @@ final class MTAFeedService {
         }
 
         guard !nearbyStops.isEmpty else {
-            DispatchQueue.main.async { completion(.success([])) }
+            DispatchQueue.main.async { completion(.success([MTANearbyArrival]())) }
             return
         }
 
@@ -218,7 +232,7 @@ final class MTAFeedService {
             }
 
             let now = Date()
-            var trains: [NearbyTrain] = []
+            var results: [MTANearbyArrival] = []
 
             for stop in nearbyStops {
                 for direction in ["N", "S"] {
@@ -240,25 +254,22 @@ final class MTAFeedService {
                         let minutesAway = Int(arrivalTime.timeIntervalSinceNow / 60)
                         guard minutesAway >= 0, minutesAway <= 30 else { continue }
 
-                        let train = NearbyTrain(
-                            lineId: routeId,
-                            stationId: stop.station.gtfsStopId ?? stop.station.id,
+                        results.append(MTANearbyArrival(
+                            routeId: routeId,
+                            gtfsStopId: stop.station.gtfsStopId,
                             stationName: stop.station.name,
                             stationDisplay: stop.station.display,
                             direction: direction,
-                            destination: DirectionHelper.getDestination(for: routeId, direction: direction),
                             arrivalTime: arrivalTime,
-                            distanceInMeters: stop.distance,
-                            gtfsStopId: stop.station.gtfsStopId
-                        )
-                        trains.append(train)
+                            distanceInMeters: stop.distance
+                        ))
                     }
                 }
             }
 
             // Sort: primarily by arrival time; secondarily by distance when times
             // are within 1 minute of each other (matches previous WTFT behaviour).
-            let sorted = trains.sorted { a, b in
+            let sorted = results.sorted { a, b in
                 let tA = a.arrivalTime.timeIntervalSinceNow
                 let tB = b.arrivalTime.timeIntervalSinceNow
                 if abs(tA - tB) < 60 { return a.distanceInMeters < b.distanceInMeters }
