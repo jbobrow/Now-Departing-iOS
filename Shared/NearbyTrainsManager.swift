@@ -56,7 +56,20 @@ class NearbyTrainsManager: ObservableObject {
             guard let self = self else { return }
 
             switch result {
-            case .success(let trains):
+            case .success(let rawArrivals):
+                let trains: [NearbyTrain] = rawArrivals.map { a in
+                    NearbyTrain(
+                        lineId: a.routeId,
+                        stationId: a.gtfsStopId ?? a.stationName,
+                        stationName: a.stationName,
+                        stationDisplay: a.stationDisplay,
+                        direction: a.direction,
+                        destination: DirectionHelper.getDestination(for: a.routeId, direction: a.direction),
+                        arrivalTime: a.arrivalTime,
+                        distanceInMeters: a.distanceInMeters,
+                        gtfsStopId: a.gtfsStopId
+                    )
+                }
                 self.nearbyTrains = trains
                 self.errorMessage = trains.isEmpty ? "No trains found within 30 minutes" : ""
 
