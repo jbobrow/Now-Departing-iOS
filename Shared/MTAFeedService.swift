@@ -159,7 +159,7 @@ final class MTAFeedService {
     ///   - completion:     Called on the main thread.
     func fetchNearbyArrivals(
         location: CLLocation,
-        radiusMeters: Double = 800,
+    radiusMeters: Double = 1600,    // ~ 1 mile radius
         stationsByLine: [String: [Station]],
         completion: @escaping (Result<[MTANearbyArrival], MTAFeedError>) -> Void
     ) {
