@@ -20,7 +20,7 @@ struct TerminalStationsHelper {
         "6": (north: "Pelham Bay Park", south: "Brooklyn Bridge"),
         "7": (north: "Flushing", south: "Hudson Yards"),
         "A": (north: "Inwood", south: "Far Rockaway/Lefferts"),
-        "C": (north: "Washington Heights", south: "Euclid Av"),
+        "C": (north: "168th Street", south: "Euclid Av"),
         "E": (north: "Jamaica Center", south: "World Trade Center"),
         "G": (north: "Court Sq", south: "Church Av"),
         "B": (north: "Bedford Park", south: "Brighton Beach"),
