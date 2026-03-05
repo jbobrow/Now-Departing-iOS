@@ -87,7 +87,7 @@ struct FavoriteRowView: View {
                 // Trigger haptic feedback
                 WKInterfaceDevice.current().play(.start)
                 
-                let station = Station(display: favoriteWithTimes.favorite.stationDisplay, name: favoriteWithTimes.favorite.stationName)
+                let station = Station(display: favoriteWithTimes.favorite.stationDisplay, name: favoriteWithTimes.favorite.stationName, gtfsStopId: favoriteWithTimes.favorite.stationGtfsStopId)
                 onSelect(line, station, favoriteWithTimes.favorite.direction)
             }) {
                 HStack(spacing: 8) {
@@ -173,7 +173,7 @@ struct FavoritesView: View {
             
             // Start fetching times if we can find the line
             if let line = getLine(for: favorite.lineId) {
-                let station = Station(display: favorite.stationDisplay, name: favorite.stationName)
+                let station = Station(display: favorite.stationDisplay, name: favorite.stationName, gtfsStopId: favorite.stationGtfsStopId)
                 
                 // Add a small delay to stagger the API requests
                 let delay = Double(index) * 0.5 // space the requests half a second apart
@@ -208,7 +208,7 @@ struct FavoritesView: View {
         // print("DEBUG: Resuming all timers for favorites")
         favoritesWithTimes.enumerated().forEach { index, favoriteWithTimes in
             if let line = getLine(for: favoriteWithTimes.favorite.lineId) {
-                let station = Station(display: favoriteWithTimes.favorite.stationDisplay, name: favoriteWithTimes.favorite.stationName)
+                let station = Station(display: favoriteWithTimes.favorite.stationDisplay, name: favoriteWithTimes.favorite.stationName, gtfsStopId: favoriteWithTimes.favorite.stationGtfsStopId)
                 favoriteWithTimes.startFetching(with: line, station: station)
             }
         }

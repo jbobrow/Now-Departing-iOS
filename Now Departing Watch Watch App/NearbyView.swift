@@ -587,7 +587,7 @@ struct TrainRowView: View {
             // Trigger haptic feedback
             WKInterfaceDevice.current().play(.start)
             
-            let station = Station(display: trainWithState.train.stationDisplay, name: trainWithState.train.stationName)
+            let station = Station(display: trainWithState.train.stationDisplay, name: trainWithState.train.stationName, gtfsStopId: trainWithState.train.gtfsStopId)
             onSelect(line, station, trainWithState.train.direction)
         }) {
             HStack(spacing: 8) {

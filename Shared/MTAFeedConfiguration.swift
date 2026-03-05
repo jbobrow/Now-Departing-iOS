@@ -12,7 +12,7 @@ struct MTAFeedConfiguration {
 
     // MARK: - Base URL
 
-    static let baseURL = "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct"
+    static let baseURL = "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2F"
 
     // MARK: - Feed Paths
     //
@@ -63,7 +63,7 @@ struct MTAFeedConfiguration {
     /// Returns the GTFS-RT feed URL for a given route ID, or nil if unknown.
     static func feedURL(for routeId: String) -> URL? {
         guard let path = feedPathByRoute[routeId] else { return nil }
-        return URL(string: "\(baseURL)/\(path)")
+        return URL(string: "\(baseURL)\(path)")
     }
 
     /// Returns the deduplicated list of feed URLs for a set of route IDs.
@@ -74,7 +74,7 @@ struct MTAFeedConfiguration {
         for route in routeIds {
             guard let path = feedPathByRoute[route], !seenPaths.contains(path) else { continue }
             seenPaths.insert(path)
-            if let url = URL(string: "\(baseURL)/\(path)") {
+            if let url = URL(string: "\(baseURL)\(path)") {
                 urls.append(url)
             }
         }

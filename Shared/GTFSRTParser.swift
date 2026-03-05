@@ -100,8 +100,8 @@ final class GTFSRTParser {
             let (fieldNumber, wireType, afterTag) = try readTag(data, at: offset)
             offset = afterTag
 
-            // FeedEntity.trip_update is field 4.
-            if fieldNumber == 4, wireType == .lengthDelimited {
+            // FeedEntity.trip_update is field 3.
+            if fieldNumber == 3, wireType == .lengthDelimited {
                 let (tuData, afterTU) = try readBytes(data, at: offset)
                 offset = afterTU
                 result = try parseTripUpdate(tuData)
@@ -321,7 +321,9 @@ final class GTFSRTParser {
         let (length, afterLength) = try readVarint(data, at: offset)
         let end = afterLength + Int(length)
         guard end <= data.count else { throw ParseError.truncatedMessage }
-        return (data[afterLength..<end], end)
+        // Copy the slice so its indices always start at 0, avoiding Data slice
+        // index pitfalls where subscript uses absolute offsets from the original buffer.
+        return (Data(data[afterLength..<end]), end)
     }
 
     /// Skips a field whose content we do not need.
