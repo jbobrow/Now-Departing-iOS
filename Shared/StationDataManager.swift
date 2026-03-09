@@ -58,8 +58,11 @@ class StationDataManager: ObservableObject {
             return
         }
         loadStations()
-        if let stations = stationsByLine[lineId] {
-            checkStationAvailability(for: lineId, stations: stations)
+        // loadStations dispatches to main async; queue the availability check
+        // after that so stationsByLine is populated when this block runs.
+        DispatchQueue.main.async { [weak self] in
+            guard let self, let stations = self.stationsByLine[lineId] else { return }
+            self.checkStationAvailability(for: lineId, stations: stations)
         }
     }
 
