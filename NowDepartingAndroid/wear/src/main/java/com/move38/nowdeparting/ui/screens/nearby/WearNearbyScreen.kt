@@ -188,25 +188,35 @@ private fun WearLocationPermissionRequest(onRequestPermission: () -> Unit) {
 
 @Composable
 fun WearErrorContent(message: String, onRetry: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+    ScalingLazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = "Error",
-            style = MaterialTheme.typography.title3,
-            color = Color.White,
-            textAlign = TextAlign.Center
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Chip(
-            onClick = onRetry,
-            label = { Text("Try Again") },
-            colors = ChipDefaults.primaryChipColors()
-        )
+        item {
+            Text(
+                text = "Error",
+                style = MaterialTheme.typography.title3,
+                color = Color.White,
+                textAlign = TextAlign.Center
+            )
+        }
+        item {
+            Text(
+                text = message,
+                style = MaterialTheme.typography.caption2,
+                color = Color(0xFF8E8E93),
+                textAlign = TextAlign.Center
+            )
+        }
+        item {
+            Chip(
+                onClick = onRetry,
+                label = { Text("Try Again") },
+                colors = ChipDefaults.primaryChipColors()
+            )
+        }
     }
 }
 
