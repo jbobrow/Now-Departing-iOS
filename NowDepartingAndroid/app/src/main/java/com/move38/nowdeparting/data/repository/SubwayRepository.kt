@@ -2,21 +2,19 @@ package com.move38.nowdeparting.data.repository
 
 import android.content.Context
 import android.util.Log
-import com.move38.nowdeparting.data.api.MtaApiService
+import com.move38.nowdeparting.data.api.MTAFeedService
 import com.move38.nowdeparting.data.model.*
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.time.Instant
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class SubwayRepository @Inject constructor(
-    private val apiService: MtaApiService,
+    private val mtaFeedService: MTAFeedService,
     @ApplicationContext private val context: Context
 ) {
     private val json = Json { ignoreUnknownKeys = true }
@@ -28,11 +26,16 @@ class SubwayRepository @Inject constructor(
 
     private var cachedStations: Map<String, List<Station>>? = null
 
-    suspend fun getStationsForLine(lineId: String): List<Station> {
+    private suspend fun getAllStations(): Map<String, List<Station>> {
         if (cachedStations == null) {
             cachedStations = loadStationsData()
         }
-        return cachedStations?.get(lineId) ?: emptyList()
+        return cachedStations ?: emptyMap()
+    }
+
+    suspend fun getStationsForLine(lineId: String): List<Station> {
+        val stations = getAllStations()[lineId] ?: emptyList()
+        return mtaFeedService.checkAvailability(lineId, stations)
     }
 
     private suspend fun loadStationsData(): Map<String, List<Station>> = withContext(Dispatchers.IO) {
@@ -50,114 +53,38 @@ class SubwayRepository @Inject constructor(
         stationName: String,
         direction: String
     ): Result<List<Instant>> = withContext(Dispatchers.IO) {
-        try {
-            val response = apiService.getTrainsByRoute(lineId)
-            // Find the station by name in the list
-            val stationData = response.data.find { it.name == stationName }
+        val station = getAllStations()[lineId]?.find { it.name == stationName }
+            ?: return@withContext Result.failure(Exception("Station not found: $stationName"))
 
-            if (stationData == null) {
-                return@withContext Result.success(emptyList())
-            }
-
-            val trains = when (direction) {
-                "N" -> stationData.N
-                "S" -> stationData.S
-                else -> emptyList()
-            }
-
-            val times = trains
-                .filter { it.route == lineId }
-                .mapNotNull { it.arrivalTime }
-                .filter { it.isAfter(Instant.now().minusSeconds(120)) }
-                .sorted()
-
-            Result.success(times)
-        } catch (e: Exception) {
-            Log.e(TAG, "Error fetching train times", e)
-            Result.failure(e)
-        }
+        mtaFeedService.fetchArrivals(lineId, station, direction)
     }
 
     suspend fun getNearbyTrains(
         latitude: Double,
         longitude: Double
     ): Result<List<NearbyTrain>> = withContext(Dispatchers.IO) {
-        try {
-            val response = apiService.getTrainsByLocation(latitude, longitude)
-            val trains = mutableListOf<NearbyTrain>()
+        val allStations = getAllStations()
 
-            for (stationData in response.data) {
-                // Calculate distance from user location to station
-                val distanceResults = FloatArray(1)
-                android.location.Location.distanceBetween(
-                    latitude, longitude,
-                    stationData.latitude, stationData.longitude,
-                    distanceResults
-                )
-                val distanceInMeters = distanceResults[0].toDouble()
-
-                // Process North-bound trains
-                for (trainData in stationData.N) {
-                    // Skip unknown routes (shuttles, express variants, etc.)
-                    if (!DirectionHelper.isValidRoute(trainData.route)) continue
-                    val arrivalTime = parseTime(trainData.time) ?: continue
-                    if (arrivalTime.isBefore(Instant.now().minusSeconds(120))) continue
-
-                    trains.add(
-                        NearbyTrain(
-                            lineId = trainData.route,
-                            stationId = stationData.id.ifEmpty { stationData.name },
-                            stationName = stationData.name,
-                            stationDisplay = stationData.name,
-                            direction = "N",
-                            destination = DirectionHelper.getDestination(trainData.route, "N"),
-                            generalDirection = DirectionHelper.getGeneralDirection(trainData.route, "N"),
-                            arrivalTime = arrivalTime,
-                            distanceInMeters = distanceInMeters
-                        )
+        mtaFeedService.fetchNearbyArrivals(
+            latitude = latitude,
+            longitude = longitude,
+            stationsByLine = allStations
+        ).map { arrivals ->
+            arrivals
+                .filter { DirectionHelper.isValidRoute(it.routeId) }
+                .map { arrival ->
+                    NearbyTrain(
+                        lineId = arrival.routeId,
+                        stationId = arrival.gtfsStopId ?: arrival.stationName,
+                        stationName = arrival.stationName,
+                        stationDisplay = arrival.stationDisplay,
+                        direction = arrival.direction,
+                        destination = DirectionHelper.getDestination(arrival.routeId, arrival.direction),
+                        generalDirection = DirectionHelper.getGeneralDirection(arrival.routeId, arrival.direction),
+                        arrivalTime = arrival.arrivalTime,
+                        distanceInMeters = arrival.distanceInMeters
                     )
                 }
-
-                // Process South-bound trains
-                for (trainData in stationData.S) {
-                    // Skip unknown routes (shuttles, express variants, etc.)
-                    if (!DirectionHelper.isValidRoute(trainData.route)) continue
-                    val arrivalTime = parseTime(trainData.time) ?: continue
-                    if (arrivalTime.isBefore(Instant.now().minusSeconds(120))) continue
-
-                    trains.add(
-                        NearbyTrain(
-                            lineId = trainData.route,
-                            stationId = stationData.id.ifEmpty { stationData.name },
-                            stationName = stationData.name,
-                            stationDisplay = stationData.name,
-                            direction = "S",
-                            destination = DirectionHelper.getDestination(trainData.route, "S"),
-                            generalDirection = DirectionHelper.getGeneralDirection(trainData.route, "S"),
-                            arrivalTime = arrivalTime,
-                            distanceInMeters = distanceInMeters
-                        )
-                    )
-                }
-            }
-
-            // Sort by arrival time
-            Result.success(trains.sortedBy { it.arrivalTime })
-        } catch (e: Exception) {
-            Log.e(TAG, "Error fetching nearby trains", e)
-            Result.failure(e)
-        }
-    }
-
-    private fun parseTime(timeString: String): Instant? {
-        return try {
-            ZonedDateTime.parse(timeString, DateTimeFormatter.ISO_OFFSET_DATE_TIME).toInstant()
-        } catch (e: Exception) {
-            try {
-                Instant.parse(timeString)
-            } catch (e2: Exception) {
-                null
-            }
         }
     }
 }
@@ -215,7 +142,6 @@ object DirectionHelper {
         "S" to "Grand Central–42 St"
     )
 
-    // General direction by borough
     private val northBoroughs = mapOf(
         "1" to "Bronx",
         "2" to "Bronx",
