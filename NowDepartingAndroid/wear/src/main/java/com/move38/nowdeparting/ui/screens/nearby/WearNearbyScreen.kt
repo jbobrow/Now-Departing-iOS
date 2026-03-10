@@ -142,7 +142,7 @@ private fun WearNearbyTrainsList(
                             ) {
                                 WearSubwayLineBadge(lineId = lineGroup.lineId, size = 24.dp, fontSize = 14.sp)
                                 Text(
-                                    text = lineGroup.destination,
+                                    text = lineGroup.generalDirection.ifEmpty { lineGroup.destination },
                                     color = Color.White,
                                     fontSize = 13.sp,
                                     modifier = Modifier.weight(1f)
