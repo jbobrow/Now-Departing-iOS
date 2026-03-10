@@ -82,6 +82,8 @@
 		2B22E43E2F13654100000D5A /* Exceptions for "Shared" folder in "NowDepartingWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				DirectionHelper.swift,
+				NearbyTrainsManager.swift,
 				SettingsManager.swift,
 				StationDataManager.swift,
 				TimesViewModel.swift,
