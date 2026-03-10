@@ -6,6 +6,9 @@ import kotlinx.serialization.Serializable
 data class Station(
     val name: String,
     val display: String = "",
+    val gtfsStopId: String? = null,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
     val hasAvailableTimes: Boolean = true
 ) {
     val id: String get() = name
