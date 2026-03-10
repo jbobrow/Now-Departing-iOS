@@ -82,17 +82,7 @@
 		2B22E43E2F13654100000D5A /* Exceptions for "Shared" folder in "NowDepartingWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				FavoriteItem.swift,
-				GTFSRTParser.swift,
-				LiveActivityAttributes.swift,
-				MTAFeedConfiguration.swift,
-				MTAFeedService.swift,
-				NavigationModels.swift,
-				SharedModels.swift,
-				SubwayConfiguration.swift,
-				SubwayLineFactory.swift,
-				TerminalStationsHelper.swift,
-				TimeFormatter.swift,
+				TimesViewModel.swift,
 			);
 			target = 2B22E41A2F13641A00000D5A /* NowDepartingWidgetExtension */;
 		};
@@ -222,6 +212,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				2B22E4212F13641A00000D5A /* NowDepartingWidget */,
+				2B687C532DF68035007741D8 /* Shared */,
 			);
 			name = NowDepartingWidgetExtension;
 			packageProductDependencies = (
