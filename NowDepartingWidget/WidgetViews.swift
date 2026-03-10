@@ -382,30 +382,29 @@ func getSubwayLine(for lineId: String) -> SubwayLine {
 
 // MARK: - Dynamic Time Views
 
-/// View that displays train arrival time with automatic countdown using native SwiftUI dynamic text
+/// View that displays train arrival time with automatic countdown using native SwiftUI dynamic text.
+///
+/// Expired trains are handled at the timeline level: getTimeline() creates an entry at each
+/// train's departure time with that train removed, so this view should never receive a past
+/// date as the primary time. The `secondsUntil <= 0` branch is a safety net only.
 struct DynamicTrainTimeView: View {
     let arrivalDate: Date
     let fullText: Bool
 
     var body: some View {
-        let minutesUntil = Int(arrivalDate.timeIntervalSince(Date()) / 60)
+        let secondsUntil = arrivalDate.timeIntervalSince(Date())
 
-        // LIMITATION: We cannot prevent .relative from showing "X ago" for past dates
-        // in home screen widgets. TimelineView doesn't work here - only Live Activities.
-        //
-        // The only truly dynamic element is the native Text date style itself.
-        // Best we can do is aggressively filter departed trains at the timeline
-        // provider level, but between widget refreshes (5-15 min), trains may
-        // briefly show "X minutes ago" after they depart.
-        if minutesUntil < 1 {
+        if secondsUntil <= 0 {
+            // Safety net: train has already departed. Timeline entries should prevent this
+            // from being seen for the primary slot, but guard against edge cases.
+            Text("Departed")
+        } else if secondsUntil < 60 {
             Text("Now")
         } else if fullText {
-            // For full text, use .relative which shows "in 5 minutes"
             Text(arrivalDate, style: .relative)
                 .lineLimit(1)
                 .truncationMode(.tail)
         } else {
-            // For compact text, try .offset which might show "+5 min"
             Text(arrivalDate, style: .relative)
                 .monospacedDigit()
                 .lineLimit(1)
