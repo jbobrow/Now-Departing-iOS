@@ -15,3 +15,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "NowDeparting"
 include(":app")
+include(":wear")
