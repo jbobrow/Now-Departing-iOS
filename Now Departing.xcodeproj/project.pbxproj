@@ -83,6 +83,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				DirectionHelper.swift,
+				LocationBasedDirectionHelper.swift,
 				NearbyTrainsManager.swift,
 				SettingsManager.swift,
 				StationDataManager.swift,
