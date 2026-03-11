@@ -300,6 +300,7 @@ struct TimesView: View {
     @EnvironmentObject var stationDataManager: StationDataManager
     @StateObject private var viewModel = TimesViewModeliOS()
     @State private var showingFavoriteAlert = false
+    @State private var showingDirectionsDialog = false
     @State private var showingLiveActivityInfo = false
     @State private var liveActivityStarted = false
     @State private var currentTime = Date()
@@ -397,7 +398,7 @@ struct TimesView: View {
                     
                     // Get Directions button
                     Button(action: {
-                        openDirectionsToStation()
+                        showingDirectionsDialog = true
                     }) {
                         HStack(spacing: 8) {
                             Image(systemName: "map.fill")
@@ -466,6 +467,11 @@ struct TimesView: View {
                 }
             }
         }
+        .confirmationDialog("Get Directions to \(station.name)", isPresented: $showingDirectionsDialog, titleVisibility: .visible) {
+            Button("Apple Maps") { openInAppleMaps() }
+            Button("Google Maps") { openInGoogleMaps() }
+            Button("Cancel", role: .cancel) {}
+        }
         .alert("Live Activity for StandBy", isPresented: $showingLiveActivityInfo) {
             Button("Got It", role: .cancel) {}
         } message: {
@@ -486,15 +492,26 @@ struct TimesView: View {
         }
     }
 
-    private func openDirectionsToStation() {
+    private func openInAppleMaps() {
+        let url: URL
         if let lat = station.latitude, let lon = station.longitude {
-            let url = URL(string: "maps://?daddr=\(lat),\(lon)&dirflg=w")!
-            UIApplication.shared.open(url)
+            url = URL(string: "maps://?daddr=\(lat),\(lon)&dirflg=w")!
         } else {
             let encoded = station.name.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-            let url = URL(string: "maps://?q=\(encoded)")!
-            UIApplication.shared.open(url)
+            url = URL(string: "maps://?daddr=\(encoded)&dirflg=w")!
         }
+        UIApplication.shared.open(url)
+    }
+
+    private func openInGoogleMaps() {
+        let url: URL
+        if let lat = station.latitude, let lon = station.longitude {
+            url = URL(string: "https://www.google.com/maps/dir/?api=1&destination=\(lat),\(lon)&travelmode=walking")!
+        } else {
+            let encoded = station.name.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+            url = URL(string: "https://www.google.com/maps/search/\(encoded)")!
+        }
+        UIApplication.shared.open(url)
     }
 
     @available(iOS 16.2, *)
