@@ -300,7 +300,6 @@ struct TimesView: View {
     @EnvironmentObject var stationDataManager: StationDataManager
     @StateObject private var viewModel = TimesViewModeliOS()
     @State private var showingFavoriteAlert = false
-    @State private var showingWidgetInfo = false
     @State private var showingLiveActivityInfo = false
     @State private var liveActivityStarted = false
     @State private var currentTime = Date()
@@ -396,13 +395,13 @@ struct TimesView: View {
                         .cornerRadius(14)
                     }
                     
-                    // Add Widget to Homescreen button
+                    // Get Directions button
                     Button(action: {
-                        showingWidgetInfo = true
+                        openDirectionsToStation()
                     }) {
                         HStack(spacing: 8) {
-                            Image(systemName: "plus.app.fill")
-                            Text("Add to Homescreen")
+                            Image(systemName: "map.fill")
+                            Text("Get Directions")
                         }
                         .font(.custom("HelveticaNeue-Bold", size: 18))
                         .foregroundColor(.white)
@@ -467,11 +466,6 @@ struct TimesView: View {
                 }
             }
         }
-        .alert("Add Widget to Homescreen", isPresented: $showingWidgetInfo) {
-            Button("Got It", role: .cancel) {}
-        } message: {
-            Text("To add a widget to your homescreen:\n\n1. Long press on your homescreen\n2. Tap the + button\n3. Search for 'Now Departing'\n4. Your favorite will be selected by default.")
-        }
         .alert("Live Activity for StandBy", isPresented: $showingLiveActivityInfo) {
             Button("Got It", role: .cancel) {}
         } message: {
@@ -489,6 +483,17 @@ struct TimesView: View {
             liveActivityStarted = false
         } else {
             startLiveActivity()
+        }
+    }
+
+    private func openDirectionsToStation() {
+        if let lat = station.latitude, let lon = station.longitude {
+            let url = URL(string: "maps://?daddr=\(lat),\(lon)&dirflg=w")!
+            UIApplication.shared.open(url)
+        } else {
+            let encoded = station.name.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+            let url = URL(string: "maps://?q=\(encoded)")!
+            UIApplication.shared.open(url)
         }
     }
 
