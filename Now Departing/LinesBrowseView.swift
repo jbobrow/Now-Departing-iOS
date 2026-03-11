@@ -7,6 +7,7 @@
 
 import SwiftUI
 import ActivityKit
+import MapKit
 
 // MARK: - Main Browse View
 
@@ -488,14 +489,11 @@ struct TimesView: View {
 
     private func openDirectionsToStation() {
         guard let lat = station.latitude, let lon = station.longitude else { return }
-        // Try Google Maps first (comgooglemaps:// only opens if installed)
-        let googleURL = URL(string: "comgooglemaps://?daddr=\(lat),\(lon)&directionsmode=walking")!
-        UIApplication.shared.open(googleURL) { success in
-            if !success {
-                let appleURL = URL(string: "maps://?daddr=\(lat),\(lon)&dirflg=w")!
-                UIApplication.shared.open(appleURL)
-            }
-        }
+        let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: lon)
+        let placemark = MKPlacemark(coordinate: coordinate)
+        let mapItem = MKMapItem(placemark: placemark)
+        mapItem.name = station.display ?? station.name
+        mapItem.openInMaps(launchOptions: [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeWalking])
     }
 
     @available(iOS 16.2, *)

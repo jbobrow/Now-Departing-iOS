@@ -607,7 +607,7 @@ struct NearbyView: View {
         var body: some View {
             NavigationLink(destination: TimesView(
                 line: line,
-                station: Station(display: primaryTrain.stationDisplay, name: primaryTrain.stationName, gtfsStopId: primaryTrain.gtfsStopId),
+                station: Station(display: primaryTrain.stationDisplay, name: primaryTrain.stationName, gtfsStopId: primaryTrain.gtfsStopId, latitude: primaryTrain.latitude, longitude: primaryTrain.longitude),
                 direction: primaryTrain.direction
             )) {
                 VStack(alignment: .leading, spacing: 8) {

@@ -21,6 +21,8 @@ struct NearbyTrain: Identifiable, Equatable {
     /// GTFS parent stop ID (e.g. "127").  Nil when stations.json has not yet
     /// been updated with gtfsStopId values.
     let gtfsStopId: String?
+    let latitude: Double?
+    let longitude: Double?
     
     // Helper computed properties
     var minutes: Int {
