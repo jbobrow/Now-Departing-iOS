@@ -26,8 +26,10 @@ struct TimeFormatter {
 
         let minutes = max(0, totalSeconds) / 60
 
-        if totalSeconds < 60 {
+        if totalSeconds <= 30 {
             return "Now"
+        } else if totalSeconds < 60 {
+            return fullText ? "Arriving" : "Soon"
         } else {
             return fullText ? "\(minutes) min" : "\(minutes)m"
         }
