@@ -288,10 +288,16 @@ struct FavoriteTrainRow: View {
                         }
                     }
                 }
-                .onChange(of: trainData) { oldData, newData in  // ← NEW: Reset timeout when data arrives
-                    // Reset timeout when new data arrives
+                .onChange(of: trainData) { oldData, newData in
                     if newData != nil && !newData!.isEmpty {
                         hasTimedOut = false
+                    } else {
+                        // Data became empty (trains expired or fetch failed) — restart timeout
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) {
+                            if trainData?.isEmpty ?? true {
+                                hasTimedOut = true
+                            }
+                        }
                     }
                 }
             }

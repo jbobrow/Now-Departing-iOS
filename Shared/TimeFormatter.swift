@@ -58,9 +58,13 @@ struct TimeFormatter {
     /// - Returns: Formatted time string (e.g., "5m", "12m")
     static func formatAdditionalTime(_ arrivalTime: Date, currentTime: Date = Date()) -> String {
         let interval = arrivalTime.timeIntervalSince(currentTime)
-        let totalSeconds = max(0, Int(interval))
-        let minutes = max(1, totalSeconds / 60) // Minimum 1 minute
+        let totalSeconds = Int(interval)
 
+        if totalSeconds < -60 {
+            return "—"
+        }
+
+        let minutes = max(1, totalSeconds / 60)
         return "\(minutes)m"
     }
 
