@@ -18,8 +18,13 @@ struct TimeFormatter {
     /// - Returns: Formatted time string
     static func formatArrivalTime(_ arrivalTime: Date, currentTime: Date = Date(), fullText: Bool = false) -> String {
         let interval = arrivalTime.timeIntervalSince(currentTime)
-        let totalSeconds = max(0, Int(interval))
-        let minutes = totalSeconds / 60
+        let totalSeconds = Int(interval)
+
+        if totalSeconds < -60 {
+            return "—"
+        }
+
+        let minutes = max(0, totalSeconds) / 60
 
         if totalSeconds < 60 {
             return "Now"
