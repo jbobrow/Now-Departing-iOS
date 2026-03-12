@@ -18,11 +18,18 @@ struct TimeFormatter {
     /// - Returns: Formatted time string
     static func formatArrivalTime(_ arrivalTime: Date, currentTime: Date = Date(), fullText: Bool = false) -> String {
         let interval = arrivalTime.timeIntervalSince(currentTime)
-        let totalSeconds = max(0, Int(interval))
-        let minutes = totalSeconds / 60
+        let totalSeconds = Int(interval)
 
-        if totalSeconds < 60 {
+        if totalSeconds < -60 {
+            return "—"
+        }
+
+        let minutes = max(0, totalSeconds) / 60
+
+        if totalSeconds <= 30 {
             return "Now"
+        } else if totalSeconds < 60 {
+            return fullText ? "Arriving" : "Soon"
         } else {
             return fullText ? "\(minutes) min" : "\(minutes)m"
         }
@@ -53,9 +60,13 @@ struct TimeFormatter {
     /// - Returns: Formatted time string (e.g., "5m", "12m")
     static func formatAdditionalTime(_ arrivalTime: Date, currentTime: Date = Date()) -> String {
         let interval = arrivalTime.timeIntervalSince(currentTime)
-        let totalSeconds = max(0, Int(interval))
-        let minutes = max(1, totalSeconds / 60) // Minimum 1 minute
+        let totalSeconds = Int(interval)
 
+        if totalSeconds < -60 {
+            return "—"
+        }
+
+        let minutes = max(1, totalSeconds / 60)
         return "\(minutes)m"
     }
 

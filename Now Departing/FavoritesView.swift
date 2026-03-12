@@ -200,7 +200,8 @@ struct FavoriteTrainRow: View {
             if let line = line {
                 NavigationLink(destination: TimesView(
                     line: line,
-                    station: Station(display: favorite.stationDisplay, name: favorite.stationName, gtfsStopId: favorite.stationGtfsStopId),
+                    station: stationDataManager.findStation(byName: favorite.stationName)
+                        ?? Station(display: favorite.stationDisplay, name: favorite.stationName, gtfsStopId: favorite.stationGtfsStopId),
                     direction: favorite.direction
                 )) {
                     rowContent
@@ -288,10 +289,16 @@ struct FavoriteTrainRow: View {
                         }
                     }
                 }
-                .onChange(of: trainData) { oldData, newData in  // ← NEW: Reset timeout when data arrives
-                    // Reset timeout when new data arrives
+                .onChange(of: trainData) { oldData, newData in
                     if newData != nil && !newData!.isEmpty {
                         hasTimedOut = false
+                    } else {
+                        // Data became empty (trains expired or fetch failed) — restart timeout
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) {
+                            if trainData?.isEmpty ?? true {
+                                hasTimedOut = true
+                            }
+                        }
                     }
                 }
             }
@@ -305,14 +312,7 @@ struct FavoriteTrainRow: View {
     }
 
     private func getAdditionalTimeText(for train: TrainArrival) -> String {
-        let interval = train.arrivalTime.timeIntervalSince(currentTime)
-        let minutes = max(0, Int(interval / 60))
-        
-        if minutes == 0 {
-            return "Now"
-        } else {
-            return "\(minutes)m"
-        }
+        return TimeFormatter.formatArrivalTime(train.arrivalTime, currentTime: currentTime)
     }
 }
 
@@ -360,7 +360,10 @@ class FavoriteTrainDataManager: ObservableObject {
     
     func getTrainData(for favorite: FavoriteItem) -> [TrainArrival]? {
         let key = "\(favorite.lineId)-\(favorite.stationName)-\(favorite.direction)"
-        return trainDataCache[key]
+        guard let data = trainDataCache[key] else { return nil }
+        let now = Date()
+        let fresh = data.filter { $0.arrivalTime.timeIntervalSince(now) > -60 }
+        return fresh.isEmpty ? nil : fresh
     }
     
     func fetchTrainData(for favorite: FavoriteItem) {

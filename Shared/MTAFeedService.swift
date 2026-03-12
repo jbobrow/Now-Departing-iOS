@@ -51,6 +51,8 @@ struct MTANearbyArrival {
     let direction: String    // "N" or "S"
     let arrivalTime: Date
     let distanceInMeters: Double
+    let latitude: Double?
+    let longitude: Double?
 }
 
 
@@ -258,7 +260,9 @@ final class MTAFeedService {
                             stationDisplay: stop.station.display,
                             direction: direction,
                             arrivalTime: arrivalTime,
-                            distanceInMeters: stop.distance
+                            distanceInMeters: stop.distance,
+                            latitude: stop.station.latitude,
+                            longitude: stop.station.longitude
                         ))
                     }
                 }

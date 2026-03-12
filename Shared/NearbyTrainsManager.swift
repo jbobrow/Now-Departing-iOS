@@ -67,7 +67,9 @@ class NearbyTrainsManager: ObservableObject {
                         destination: DirectionHelper.getDestination(for: a.routeId, direction: a.direction),
                         arrivalTime: a.arrivalTime,
                         distanceInMeters: a.distanceInMeters,
-                        gtfsStopId: a.gtfsStopId
+                        gtfsStopId: a.gtfsStopId,
+                        latitude: a.latitude,
+                        longitude: a.longitude
                     )
                 }
                 self.nearbyTrains = trains

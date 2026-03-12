@@ -7,6 +7,7 @@
 
 import SwiftUI
 import ActivityKit
+import MapKit
 
 // MARK: - Main Browse View
 
@@ -300,7 +301,6 @@ struct TimesView: View {
     @EnvironmentObject var stationDataManager: StationDataManager
     @StateObject private var viewModel = TimesViewModeliOS()
     @State private var showingFavoriteAlert = false
-    @State private var showingWidgetInfo = false
     @State private var showingLiveActivityInfo = false
     @State private var liveActivityStarted = false
     @State private var currentTime = Date()
@@ -372,6 +372,26 @@ struct TimesView: View {
                 // Action buttons with glass effect
                 VStack(spacing: 12) {
 
+                    // Get Directions button
+                    Button(action: {
+                        openDirectionsToStation()
+                    }) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "map.fill")
+                            Text("Get Directions")
+                        }
+                        .font(.custom("HelveticaNeue-Bold", size: 18))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(.ultraThinMaterial)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14)
+                                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                        )
+                        .cornerRadius(14)
+                    }
+
                     // Favorite button
                     Button(action: {
                         if isFavorited {
@@ -393,25 +413,6 @@ struct TimesView: View {
                             RoundedRectangle(cornerRadius: 14)
                                 .stroke(isFavorited ? Color.red.opacity(0.5) : Color.white.opacity(0.2), lineWidth: 1)
                         )
-                        .cornerRadius(14)
-                    }
-                    
-                    // Add Widget to Homescreen button
-                    Button(action: {
-                        showingWidgetInfo = true
-                    }) {
-                        HStack(spacing: 8) {
-                            Image(systemName: "plus.app.fill")
-                            Text("Add to Homescreen")
-                        }
-                        .font(.custom("HelveticaNeue-Bold", size: 18))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(.ultraThinMaterial)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 14)
-                                .stroke(Color.white.opacity(0.2), lineWidth: 1)                        )
                         .cornerRadius(14)
                     }
 
@@ -467,11 +468,6 @@ struct TimesView: View {
                 }
             }
         }
-        .alert("Add Widget to Homescreen", isPresented: $showingWidgetInfo) {
-            Button("Got It", role: .cancel) {}
-        } message: {
-            Text("To add a widget to your homescreen:\n\n1. Long press on your homescreen\n2. Tap the + button\n3. Search for 'Now Departing'\n4. Your favorite will be selected by default.")
-        }
         .alert("Live Activity for StandBy", isPresented: $showingLiveActivityInfo) {
             Button("Got It", role: .cancel) {}
         } message: {
@@ -490,6 +486,15 @@ struct TimesView: View {
         } else {
             startLiveActivity()
         }
+    }
+
+    private func openDirectionsToStation() {
+        guard let lat = station.latitude, let lon = station.longitude else { return }
+        let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: lon)
+        let placemark = MKPlacemark(coordinate: coordinate)
+        let mapItem = MKMapItem(placemark: placemark)
+        mapItem.name = station.display ?? station.name
+        mapItem.openInMaps(launchOptions: [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeWalking])
     }
 
     @available(iOS 16.2, *)

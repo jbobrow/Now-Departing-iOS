@@ -101,17 +101,21 @@ struct TrainTimelineProvider: TimelineProvider {
             let currentDate = Date()
             var entries: [TrainEntry] = []
 
+            // Initial entry with all upcoming trains
             entries.append(TrainEntry(date: currentDate, favoriteItem: favorite, nextTrains: trains, lastUpdated: fetchTime, errorMessage: error))
 
-            if let date30 = Calendar.current.date(byAdding: .second, value: 30, to: currentDate) {
-                entries.append(TrainEntry(date: date30, favoriteItem: favorite, nextTrains: trains, lastUpdated: fetchTime, errorMessage: error))
+            // Create an entry at each train's departure time with that train removed.
+            // This causes WidgetKit to automatically advance to the next train when each
+            // one departs, preventing expired trains from showing "X ago" in the widget.
+            for (index, trainDate) in trains.enumerated() {
+                guard trainDate > currentDate else { continue }
+                let remainingTrains = Array(trains.dropFirst(index + 1))
+                entries.append(TrainEntry(date: trainDate, favoriteItem: favorite, nextTrains: remainingTrains, lastUpdated: fetchTime, errorMessage: error))
             }
 
-            if let date60 = Calendar.current.date(byAdding: .second, value: 60, to: currentDate) {
-                entries.append(TrainEntry(date: date60, favoriteItem: favorite, nextTrains: trains, lastUpdated: fetchTime, errorMessage: error))
-            }
-
-            completion(Timeline(entries: entries, policy: .atEnd))
+            // Refresh with fresh MTA data every 5 minutes
+            let refreshDate = currentDate.addingTimeInterval(5 * 60)
+            completion(Timeline(entries: entries, policy: .after(refreshDate)))
         }
     }
 
