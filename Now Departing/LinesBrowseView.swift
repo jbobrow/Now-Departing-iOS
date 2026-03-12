@@ -372,6 +372,26 @@ struct TimesView: View {
                 // Action buttons with glass effect
                 VStack(spacing: 12) {
 
+                    // Get Directions button
+                    Button(action: {
+                        openDirectionsToStation()
+                    }) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "map.fill")
+                            Text("Get Directions")
+                        }
+                        .font(.custom("HelveticaNeue-Bold", size: 18))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(.ultraThinMaterial)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14)
+                                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                        )
+                        .cornerRadius(14)
+                    }
+
                     // Favorite button
                     Button(action: {
                         if isFavorited {
@@ -393,25 +413,6 @@ struct TimesView: View {
                             RoundedRectangle(cornerRadius: 14)
                                 .stroke(isFavorited ? Color.red.opacity(0.5) : Color.white.opacity(0.2), lineWidth: 1)
                         )
-                        .cornerRadius(14)
-                    }
-                    
-                    // Get Directions button
-                    Button(action: {
-                        openDirectionsToStation()
-                    }) {
-                        HStack(spacing: 8) {
-                            Image(systemName: "map.fill")
-                            Text("Get Directions")
-                        }
-                        .font(.custom("HelveticaNeue-Bold", size: 18))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(.ultraThinMaterial)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 14)
-                                .stroke(Color.white.opacity(0.2), lineWidth: 1)                        )
                         .cornerRadius(14)
                     }
 
