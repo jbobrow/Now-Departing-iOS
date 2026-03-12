@@ -200,7 +200,8 @@ struct FavoriteTrainRow: View {
             if let line = line {
                 NavigationLink(destination: TimesView(
                     line: line,
-                    station: Station(display: favorite.stationDisplay, name: favorite.stationName, gtfsStopId: favorite.stationGtfsStopId),
+                    station: stationDataManager.findStation(byName: favorite.stationName)
+                        ?? Station(display: favorite.stationDisplay, name: favorite.stationName, gtfsStopId: favorite.stationGtfsStopId),
                     direction: favorite.direction
                 )) {
                     rowContent
