@@ -38,7 +38,7 @@ struct NowDepartingWidgetEntryView: View {
     }
 
     private func makeWidgetURL() -> URL? {
-        guard let favorite = entry.favoriteItem else { return nil }
+        guard let favorite = entry.favorites.first?.favoriteItem else { return nil }
         var components = URLComponents()
         components.scheme = "nowdeparting"
         components.host = "train"
@@ -58,7 +58,8 @@ struct SmallWidgetView: View {
     var entry: TrainEntry
 
     var body: some View {
-        if let favorite = entry.favoriteItem {
+        if let data = entry.favorites.first {
+            let favorite = data.favoriteItem
             let line = getSubwayLine(for: favorite.lineId)
 
             VStack(spacing: 0) {
@@ -93,16 +94,16 @@ struct SmallWidgetView: View {
                         Text("--")
                             .font(.custom("HelveticaNeue-Bold", size: 32))
                             .foregroundColor(.white)
-                    } else if !entry.nextTrains.isEmpty {
-                        DynamicTrainTimeView(arrivalDate: entry.nextTrains[0], fullText: true)
+                    } else if !data.nextTrains.isEmpty {
+                        DynamicTrainTimeView(arrivalDate: data.nextTrains[0], fullText: true)
                             .font(.custom("HelveticaNeue-Bold", size: 32))
                             .foregroundColor(.white)
 
-                        if entry.nextTrains.count > 1 {
+                        if data.nextTrains.count > 1 {
                             HStack(spacing: 4) {
-                                ForEach(Array(entry.nextTrains.dropFirst().prefix(2).enumerated()), id: \.offset) { _, trainDate in
+                                ForEach(Array(data.nextTrains.dropFirst().prefix(2).enumerated()), id: \.offset) { _, trainDate in
                                     DynamicTrainTimeView(arrivalDate: trainDate, fullText: false)
-                                    if trainDate != entry.nextTrains.dropFirst().prefix(2).last {
+                                    if trainDate != data.nextTrains.dropFirst().prefix(2).last {
                                         Text(",")
                                     }
                                 }
@@ -120,13 +121,21 @@ struct SmallWidgetView: View {
 
                 Spacer(minLength: 0)
 
-                // Bottom: Station name
-                Text(favorite.stationDisplay)
-                    .font(.custom("HelveticaNeue-Bold", size: 13))
-                    .foregroundColor(.white)
-                    .lineLimit(2)
-                    .multilineTextAlignment(.center)
-                    .frame(maxWidth: .infinity)
+                // Bottom: Station name and destination
+                VStack(spacing: 2) {
+                    Text(favorite.stationDisplay)
+                        .font(.custom("HelveticaNeue-Bold", size: 13))
+                        .foregroundColor(.white)
+                        .lineLimit(1)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity)
+                    Text(TerminalStationsHelper.getToTerminalStation(for: favorite.lineId, direction: favorite.direction))
+                        .font(.custom("HelveticaNeue", size: 11))
+                        .foregroundColor(.white.opacity(0.6))
+                        .lineLimit(1)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity)
+                }
             }
         } else {
             VStack(spacing: 8) {
@@ -149,7 +158,8 @@ struct MediumWidgetView: View {
     var entry: TrainEntry
 
     var body: some View {
-        if let favorite = entry.favoriteItem {
+        if let data = entry.favorites.first {
+            let favorite = data.favoriteItem
             let line = getSubwayLine(for: favorite.lineId)
 
             VStack(spacing: 8) {
@@ -192,16 +202,16 @@ struct MediumWidgetView: View {
                         Text("--")
                             .font(.custom("HelveticaNeue-Bold", size: 28))
                             .foregroundColor(.white.opacity(0.6))
-                    } else if !entry.nextTrains.isEmpty {
-                        DynamicTrainTimeView(arrivalDate: entry.nextTrains[0], fullText: true)
+                    } else if !data.nextTrains.isEmpty {
+                        DynamicTrainTimeView(arrivalDate: data.nextTrains[0], fullText: true)
                             .font(.custom("HelveticaNeue-Bold", size: 28))
                             .foregroundColor(.white)
 
-                        if entry.nextTrains.count > 1 {
+                        if data.nextTrains.count > 1 {
                             HStack(spacing: 4) {
-                                ForEach(Array(entry.nextTrains.dropFirst().prefix(2).enumerated()), id: \.offset) { _, trainDate in
+                                ForEach(Array(data.nextTrains.dropFirst().prefix(2).enumerated()), id: \.offset) { _, trainDate in
                                     DynamicTrainTimeView(arrivalDate: trainDate, fullText: false)
-                                    if trainDate != entry.nextTrains.dropFirst().prefix(2).last {
+                                    if trainDate != data.nextTrains.dropFirst().prefix(2).last {
                                         Text(",")
                                     }
                                 }
@@ -237,85 +247,12 @@ struct LargeWidgetView: View {
     var entry: TrainEntry
 
     var body: some View {
-        if let favorite = entry.favoriteItem {
-            let line = getSubwayLine(for: favorite.lineId)
-
-            VStack(spacing: 16) {
-                // Header
-                HStack(alignment: .top, spacing: 12) {
-                    Text(line.label)
-                        .font(.custom("HelveticaNeue-Bold", size: 50))
-                        .foregroundColor(line.fg_color)
-                        .frame(width: 72, height: 72)
-                        .background(Circle().fill(line.bg_color))
-
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(favorite.stationDisplay)
-                            .font(.custom("HelveticaNeue-Bold", size: 24))
-                            .foregroundColor(.white)
-                        Text(TerminalStationsHelper.getToTerminalStation(for: favorite.lineId, direction: favorite.direction))
-                            .font(.custom("HelveticaNeue", size: 16))
-                            .foregroundColor(.white.opacity(0.6))
-                    }
-                    Spacer()
-                }
-
-                // Update time
-                HStack {
-                    RelativeTimeView(date: entry.lastUpdated)
-                        .font(.custom("HelveticaNeue", size: 11))
-                        .foregroundColor(.white.opacity(0.5))
-                    Spacer()
-                }
-
-                Divider()
-                    .background(Color.white.opacity(0.3))
-
-                // Train times
-                if !entry.errorMessage.isEmpty {
-                    Spacer()
-                    VStack(spacing: 8) {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .font(.system(size: 40))
-                            .foregroundColor(.orange)
-                        Text(entry.errorMessage)
-                            .font(.custom("HelveticaNeue", size: 14))
-                            .foregroundColor(.white.opacity(0.6))
-                            .multilineTextAlignment(.center)
-                    }
-                    Spacer()
-                } else if !entry.nextTrains.isEmpty {
-                    VStack(spacing: 12) {
-                        // Primary time
-                        DynamicTrainTimeView(arrivalDate: entry.nextTrains[0], fullText: true)
-                            .font(.custom("HelveticaNeue-Bold", size: 72))
-                            .foregroundColor(.white)
-
-                        // Additional times
-                        if entry.nextTrains.count > 1 {
-                            HStack(spacing: 4) {
-                                ForEach(Array(entry.nextTrains.dropFirst().prefix(5).enumerated()), id: \.offset) { _, trainDate in
-                                    DynamicTrainTimeView(arrivalDate: trainDate, fullText: false)
-                                    if trainDate != entry.nextTrains.dropFirst().prefix(5).last {
-                                        Text(",")
-                                    }
-                                }
-                            }
-                            .font(.custom("HelveticaNeue", size: 20))
-                            .foregroundColor(.white.opacity(0.6))
-                        }
-                    }
-
-                    Spacer()
-                } else {
-                    Spacer()
-                    Text("No trains")
-                        .font(.custom("HelveticaNeue", size: 18))
-                        .foregroundColor(.white.opacity(0.6))
-                    Spacer()
-                }
-            }
-            .padding(24)
+        if entry.favorites.count >= 2 {
+            // Dual-favorite layout
+            DualFavoriteLargeView(entry: entry)
+        } else if let data = entry.favorites.first {
+            // Single-favorite layout
+            SingleFavoriteLargeView(data: data, entry: entry)
         } else {
             VStack(spacing: 12) {
                 Image(systemName: "star.fill")
@@ -332,6 +269,190 @@ struct LargeWidgetView: View {
             }
             .padding()
         }
+    }
+}
+
+// MARK: - Single Favorite Large View
+
+struct SingleFavoriteLargeView: View {
+    let data: FavoriteTrainData
+    let entry: TrainEntry
+
+    var body: some View {
+        let favorite = data.favoriteItem
+        let line = getSubwayLine(for: favorite.lineId)
+
+        VStack(spacing: 16) {
+            // Header
+            HStack(alignment: .top, spacing: 12) {
+                Text(line.label)
+                    .font(.custom("HelveticaNeue-Bold", size: 50))
+                    .foregroundColor(line.fg_color)
+                    .frame(width: 72, height: 72)
+                    .background(Circle().fill(line.bg_color))
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(favorite.stationDisplay)
+                        .font(.custom("HelveticaNeue-Bold", size: 24))
+                        .foregroundColor(.white)
+                    Text(TerminalStationsHelper.getToTerminalStation(for: favorite.lineId, direction: favorite.direction))
+                        .font(.custom("HelveticaNeue", size: 16))
+                        .foregroundColor(.white.opacity(0.6))
+                }
+                Spacer()
+            }
+
+            // Update time
+            HStack {
+                RelativeTimeView(date: entry.lastUpdated)
+                    .font(.custom("HelveticaNeue", size: 11))
+                    .foregroundColor(.white.opacity(0.5))
+                Spacer()
+            }
+
+            Divider()
+                .background(Color.white.opacity(0.3))
+
+            // Train times
+            if !entry.errorMessage.isEmpty {
+                Spacer()
+                VStack(spacing: 8) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .font(.system(size: 40))
+                        .foregroundColor(.orange)
+                    Text(entry.errorMessage)
+                        .font(.custom("HelveticaNeue", size: 14))
+                        .foregroundColor(.white.opacity(0.6))
+                        .multilineTextAlignment(.center)
+                }
+                Spacer()
+            } else if !data.nextTrains.isEmpty {
+                VStack(spacing: 12) {
+                    // Primary time
+                    DynamicTrainTimeView(arrivalDate: data.nextTrains[0], fullText: true)
+                        .font(.custom("HelveticaNeue-Bold", size: 72))
+                        .foregroundColor(.white)
+
+                    // Additional times
+                    if data.nextTrains.count > 1 {
+                        HStack(spacing: 4) {
+                            ForEach(Array(data.nextTrains.dropFirst().prefix(5).enumerated()), id: \.offset) { _, trainDate in
+                                DynamicTrainTimeView(arrivalDate: trainDate, fullText: false)
+                                if trainDate != data.nextTrains.dropFirst().prefix(5).last {
+                                    Text(",")
+                                }
+                            }
+                        }
+                        .font(.custom("HelveticaNeue", size: 20))
+                        .foregroundColor(.white.opacity(0.6))
+                    }
+                }
+
+                Spacer()
+            } else {
+                Spacer()
+                Text("No trains")
+                    .font(.custom("HelveticaNeue", size: 18))
+                    .foregroundColor(.white.opacity(0.6))
+                Spacer()
+            }
+        }
+        .padding(24)
+    }
+}
+
+// MARK: - Dual Favorite Large View
+
+struct DualFavoriteLargeView: View {
+    let entry: TrainEntry
+
+    var body: some View {
+        VStack(spacing: 0) {
+            // Update time at top
+            HStack {
+                RelativeTimeView(date: entry.lastUpdated)
+                    .font(.custom("HelveticaNeue", size: 9))
+                    .foregroundColor(.white.opacity(0.5))
+                Spacer()
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 12)
+
+            // Two favorite rows
+            FavoriteRowView(data: entry.favorites[0])
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
+
+            Divider()
+                .background(Color.white.opacity(0.2))
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+
+            FavoriteRowView(data: entry.favorites[1])
+                .padding(.horizontal, 16)
+                .padding(.bottom, 12)
+        }
+    }
+}
+
+/// A compact row showing a single favorite's line, station, destination, and next trains.
+/// Used within the dual-favorite large widget layout.
+struct FavoriteRowView: View {
+    let data: FavoriteTrainData
+
+    var body: some View {
+        let favorite = data.favoriteItem
+        let line = getSubwayLine(for: favorite.lineId)
+
+        HStack(spacing: 12) {
+            // Line badge
+            Text(line.label)
+                .font(.custom("HelveticaNeue-Bold", size: 28))
+                .foregroundColor(line.fg_color)
+                .frame(width: 44, height: 44)
+                .background(Circle().fill(line.bg_color))
+
+            // Station info
+            VStack(alignment: .leading, spacing: 2) {
+                Text(favorite.stationDisplay)
+                    .font(.custom("HelveticaNeue-Bold", size: 15))
+                    .foregroundColor(.white)
+                    .lineLimit(1)
+                Text(TerminalStationsHelper.getToTerminalStation(for: favorite.lineId, direction: favorite.direction))
+                    .font(.custom("HelveticaNeue", size: 12))
+                    .foregroundColor(.white.opacity(0.6))
+                    .lineLimit(1)
+            }
+
+            Spacer()
+
+            // Train times
+            VStack(alignment: .trailing, spacing: 4) {
+                if !data.nextTrains.isEmpty {
+                    DynamicTrainTimeView(arrivalDate: data.nextTrains[0], fullText: true)
+                        .font(.custom("HelveticaNeue-Bold", size: 28))
+                        .foregroundColor(.white)
+
+                    if data.nextTrains.count > 1 {
+                        HStack(spacing: 4) {
+                            ForEach(Array(data.nextTrains.dropFirst().prefix(2).enumerated()), id: \.offset) { _, trainDate in
+                                DynamicTrainTimeView(arrivalDate: trainDate, fullText: false)
+                                if trainDate != data.nextTrains.dropFirst().prefix(2).last {
+                                    Text(",")
+                                }
+                            }
+                        }
+                        .font(.custom("HelveticaNeue", size: 13))
+                        .foregroundColor(.white.opacity(0.6))
+                    }
+                } else {
+                    Text("--")
+                        .font(.custom("HelveticaNeue-Bold", size: 28))
+                        .foregroundColor(.white.opacity(0.6))
+                }
+            }
+        }
+        .frame(maxHeight: .infinity)
     }
 }
 
