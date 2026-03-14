@@ -97,8 +97,14 @@ struct SelectFavoriteIntent: WidgetConfigurationIntent {
     @Parameter(title: "Station")
     var favorite: FavoriteAppEntity?
 
-    @Parameter(title: "Second Station (Large Widget)")
+    @Parameter(title: "Second Station")
     var secondFavorite: FavoriteAppEntity?
+
+    @Parameter(title: "Third Station (Large Widget)")
+    var thirdFavorite: FavoriteAppEntity?
+
+    @Parameter(title: "Fourth Station (Large Widget)")
+    var fourthFavorite: FavoriteAppEntity?
 }
 
 // MARK: - Widget Entry
@@ -203,11 +209,25 @@ struct TrainTimelineProvider: AppIntentTimelineProvider {
         // Fetch train times for primary favorite
         let (primaryTrains, primaryError, fetchTime) = await fetchTrainTimesAsync(for: primary)
 
-        // Fetch train times for second favorite if configured
+        // Fetch train times for additional favorites if configured
         var secondData: FavoriteTrainData?
         if let second = secondFavorite {
             let (secondTrains, _, _) = await fetchTrainTimesAsync(for: second)
             secondData = FavoriteTrainData(favoriteItem: second, nextTrains: secondTrains)
+        }
+
+        let thirdFavorite = resolveThirdFavorite(from: configuration, allFavorites: allFavorites)
+        var thirdData: FavoriteTrainData?
+        if let third = thirdFavorite {
+            let (thirdTrains, _, _) = await fetchTrainTimesAsync(for: third)
+            thirdData = FavoriteTrainData(favoriteItem: third, nextTrains: thirdTrains)
+        }
+
+        let fourthFavorite = resolveFourthFavorite(from: configuration, allFavorites: allFavorites)
+        var fourthData: FavoriteTrainData?
+        if let fourth = fourthFavorite {
+            let (fourthTrains, _, _) = await fetchTrainTimesAsync(for: fourth)
+            fourthData = FavoriteTrainData(favoriteItem: fourth, nextTrains: fourthTrains)
         }
 
         let currentDate = Date()
@@ -216,10 +236,9 @@ struct TrainTimelineProvider: AppIntentTimelineProvider {
         // Build favorites array
         func makeFavorites(primaryTrains: [Date]) -> [FavoriteTrainData] {
             var favs = [FavoriteTrainData(favoriteItem: primary, nextTrains: primaryTrains)]
-            if let second = secondData {
-                // Filter second favorite's trains to only include future ones relative to the entry date
-                favs.append(second)
-            }
+            if let second = secondData { favs.append(second) }
+            if let third = thirdData { favs.append(third) }
+            if let fourth = fourthData { favs.append(fourth) }
             return favs
         }
 
@@ -267,6 +286,22 @@ struct TrainTimelineProvider: AppIntentTimelineProvider {
 
     private func resolveSecondFavorite(from configuration: SelectFavoriteIntent, allFavorites: [FavoriteItem]) -> FavoriteItem? {
         guard let selected = configuration.secondFavorite else { return nil }
+        if let match = allFavorites.first(where: { $0.id == selected.id }) {
+            return match
+        }
+        return selected.toFavoriteItem()
+    }
+
+    private func resolveThirdFavorite(from configuration: SelectFavoriteIntent, allFavorites: [FavoriteItem]) -> FavoriteItem? {
+        guard let selected = configuration.thirdFavorite else { return nil }
+        if let match = allFavorites.first(where: { $0.id == selected.id }) {
+            return match
+        }
+        return selected.toFavoriteItem()
+    }
+
+    private func resolveFourthFavorite(from configuration: SelectFavoriteIntent, allFavorites: [FavoriteItem]) -> FavoriteItem? {
+        guard let selected = configuration.fourthFavorite else { return nil }
         if let match = allFavorites.first(where: { $0.id == selected.id }) {
             return match
         }

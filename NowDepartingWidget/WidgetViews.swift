@@ -158,7 +158,9 @@ struct MediumWidgetView: View {
     var entry: TrainEntry
 
     var body: some View {
-        if let data = entry.favorites.first {
+        if entry.favorites.count >= 2 {
+            DualFavoriteCompactView(entry: entry)
+        } else if let data = entry.favorites.first {
             let favorite = data.favoriteItem
             let line = getSubwayLine(for: favorite.lineId)
 
@@ -248,8 +250,8 @@ struct LargeWidgetView: View {
 
     var body: some View {
         if entry.favorites.count >= 2 {
-            // Dual-favorite layout
-            DualFavoriteLargeView(entry: entry)
+            // Multi-favorite layout (2–4 favorites)
+            MultiFavoriteView(entry: entry, maxFavorites: 4)
         } else if let data = entry.favorites.first {
             // Single-favorite layout
             SingleFavoriteLargeView(data: data, entry: entry)
@@ -361,12 +363,15 @@ struct SingleFavoriteLargeView: View {
     }
 }
 
-// MARK: - Dual Favorite Large View
+// MARK: - Multi Favorite View (Large: 2–4 favorites)
 
-struct DualFavoriteLargeView: View {
+struct MultiFavoriteView: View {
     let entry: TrainEntry
+    let maxFavorites: Int
 
     var body: some View {
+        let favorites = Array(entry.favorites.prefix(maxFavorites))
+
         VStack(spacing: 0) {
             // Update time at top
             HStack {
@@ -378,20 +383,30 @@ struct DualFavoriteLargeView: View {
             .padding(.horizontal, 16)
             .padding(.top, 12)
 
-            // Two favorite rows
-            FavoriteRowView(data: entry.favorites[0])
-                .padding(.horizontal, 16)
-                .padding(.top, 8)
+            ForEach(Array(favorites.enumerated()), id: \.offset) { index, data in
+                FavoriteRowView(data: data)
+                    .padding(.horizontal, 16)
+                    .padding(.top, index == 0 ? 8 : 0)
+                    .padding(.bottom, index == favorites.count - 1 ? 12 : 0)
 
-            Divider()
-                .background(Color.white.opacity(0.2))
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-
-            FavoriteRowView(data: entry.favorites[1])
-                .padding(.horizontal, 16)
-                .padding(.bottom, 12)
+                if index < favorites.count - 1 {
+                    Divider()
+                        .background(Color.white.opacity(0.2))
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                }
+            }
         }
+    }
+}
+
+// MARK: - Dual Favorite Compact View (Medium: 2 favorites)
+
+struct DualFavoriteCompactView: View {
+    let entry: TrainEntry
+
+    var body: some View {
+        MultiFavoriteView(entry: entry, maxFavorites: 2)
     }
 }
 
