@@ -299,10 +299,12 @@ struct TimesView: View {
 
     @EnvironmentObject var favoritesManager: FavoritesManager
     @EnvironmentObject var stationDataManager: StationDataManager
+    @EnvironmentObject var serviceAlertsManager: ServiceAlertsManager
     @StateObject private var viewModel = TimesViewModeliOS()
     @State private var showingFavoriteAlert = false
     @State private var showingLiveActivityInfo = false
     @State private var liveActivityStarted = false
+    @State private var showingServiceAlerts = false
     @State private var currentTime = Date()
     @State private var widgetSize: WidgetSize = .large
 
@@ -341,6 +343,32 @@ struct TimesView: View {
                 .pickerStyle(.segmented)
                 .padding(.horizontal, 24)
                 .padding(.top, 20)
+
+                // Service alert banner (shown only when there are active alerts)
+                if serviceAlertsManager.hasAlerts(for: line.id) {
+                    Button(action: { showingServiceAlerts = true }) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundColor(.yellow)
+                            Text("Service Change")
+                                .font(.custom("HelveticaNeue-Bold", size: 15))
+                                .foregroundColor(.yellow)
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundColor(.yellow.opacity(0.7))
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 12)
+                        .background(Color.yellow.opacity(0.15))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.yellow.opacity(0.4), lineWidth: 1)
+                        )
+                        .cornerRadius(12)
+                    }
+                    .padding(.horizontal, 24)
+                }
 
                 // Widget preview container with centered content
                 ZStack {
@@ -446,6 +474,10 @@ struct TimesView: View {
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             viewModel.startFetchingTimes(for: line, station: station, direction: direction)
+            serviceAlertsManager.fetchAlerts()
+        }
+        .sheet(isPresented: $showingServiceAlerts) {
+            ServiceAlertsSheet(alerts: serviceAlertsManager.alerts(for: line.id), line: line)
         }
         .onDisappear {
             viewModel.stopFetchingTimes()
@@ -783,5 +815,71 @@ struct TimesView: View {
         }) {
             favoritesManager.removeFavorite(favorite: favorite)
         }
+    }
+}
+
+// MARK: - Service Alerts Sheet
+
+struct ServiceAlertsSheet: View {
+    let alerts: [ServiceAlert]
+    let line: SubwayLine
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    ForEach(alerts) { alert in
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack(spacing: 8) {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .foregroundColor(.yellow)
+                                Text(alert.effect.displayText)
+                                    .font(.custom("HelveticaNeue-Bold", size: 13))
+                                    .foregroundColor(.yellow)
+                            }
+                            Text(alert.headerText)
+                                .font(.custom("HelveticaNeue-Bold", size: 17))
+                                .foregroundColor(.primary)
+                            if !alert.descriptionText.isEmpty {
+                                Text(alert.descriptionText)
+                                    .font(.custom("HelveticaNeue", size: 15))
+                                    .foregroundColor(.secondary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                        }
+                        .padding(16)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color.yellow.opacity(0.08))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.yellow.opacity(0.3), lineWidth: 1)
+                        )
+                        .cornerRadius(12)
+                    }
+                }
+                .padding(20)
+            }
+            .navigationTitle("Service Changes")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    HStack(spacing: 8) {
+                        Text(line.label)
+                            .font(.custom("HelveticaNeue-Bold", size: 24))
+                            .foregroundColor(line.fg_color)
+                            .frame(width: 36, height: 36)
+                            .background(Circle().fill(line.bg_color))
+                        Text("Service Changes")
+                            .font(.custom("HelveticaNeue-Bold", size: 17))
+                    }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") { dismiss() }
+                        .font(.custom("HelveticaNeue-Bold", size: 17))
+                }
+            }
+        }
+        .preferredColorScheme(.dark)
     }
 }

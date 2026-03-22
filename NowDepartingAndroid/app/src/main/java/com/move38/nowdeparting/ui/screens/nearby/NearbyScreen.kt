@@ -105,6 +105,7 @@ fun NearbyScreen(
                         stationGroups = uiState.groupedTrains,
                         onTrainClick = onTrainClick,
                         isFavorite = { viewModel.isFavorite(it) },
+                        hasAlert = { viewModel.hasAlert(it) },
                         onFavoriteClick = { viewModel.toggleFavorite(it) }
                     )
                 }
@@ -118,6 +119,7 @@ private fun NearbyTrainsList(
     stationGroups: List<StationGroup>,
     onTrainClick: (NearbyTrain) -> Unit,
     isFavorite: (NearbyTrain) -> Boolean,
+    hasAlert: (String) -> Boolean,
     onFavoriteClick: (NearbyTrain) -> Unit
 ) {
     LazyColumn(
@@ -143,6 +145,7 @@ private fun NearbyTrainsList(
                         primaryTrain = primaryTrain,
                         additionalTrains = additionalTrains,
                         isFavorite = isFavorite(primaryTrain),
+                        hasAlert = hasAlert(lineGroup.lineId),
                         onFavoriteClick = { onFavoriteClick(primaryTrain) },
                         onClick = { onTrainClick(primaryTrain) }
                     )

@@ -58,6 +58,13 @@ struct MTAFeedConfiguration {
         "SI": "gtfs-si",
     ]
 
+    // MARK: - Alerts Feed
+
+    /// GTFS-RT service alerts feed (all subway lines).
+    static var alertsFeedURL: URL? {
+        URL(string: "\(baseURL)gtfs-alerts")
+    }
+
     // MARK: - URL Helpers
 
     /// Returns the GTFS-RT feed URL for a given route ID, or nil if unknown.

@@ -6,11 +6,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -94,6 +96,7 @@ fun FavoritesScreen(
 
                             FavoriteCard(
                                 favoriteWithTimes = favoriteWithTimes,
+                                hasAlert = viewModel.hasAlert(favoriteWithTimes.favorite.lineId),
                                 onClick = { onFavoriteClick(favoriteWithTimes.favorite) },
                                 onDelete = { viewModel.removeFavorite(favoriteWithTimes.favorite.id) },
                                 modifier = Modifier
@@ -111,6 +114,7 @@ fun FavoritesScreen(
 @Composable
 private fun FavoriteCard(
     favoriteWithTimes: FavoriteWithTimes,
+    hasAlert: Boolean = false,
     onClick: () -> Unit,
     onDelete: () -> Unit,
     modifier: Modifier = Modifier
@@ -136,7 +140,22 @@ private fun FavoriteCard(
 
         Spacer(modifier = Modifier.width(12.dp))
 
-        SubwayLineBadge(lineId = favorite.lineId, size = 48.dp, fontSize = 32.sp)
+        Box {
+            SubwayLineBadge(lineId = favorite.lineId, size = 48.dp, fontSize = 32.sp)
+            if (hasAlert) {
+                Icon(
+                    imageVector = Icons.Default.Warning,
+                    contentDescription = "Service alert",
+                    tint = Color(0xFFFFCC00),
+                    modifier = Modifier
+                        .size(16.dp)
+                        .align(Alignment.TopEnd)
+                        .offset(x = 4.dp, y = (-4).dp)
+                        .background(Color.Black, CircleShape)
+                        .padding(1.dp)
+                )
+            }
+        }
 
         Spacer(modifier = Modifier.width(12.dp))
 

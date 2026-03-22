@@ -31,6 +31,7 @@ struct ContentView: View {
     @StateObject private var navigationState = NavigationState()
     @StateObject private var favoritesManager = FavoritesManager()
     @StateObject private var locationManager = LocationManager()
+    @StateObject private var serviceAlertsManager = ServiceAlertsManager()
     @State private var showSettings = false
     @State private var selectedTab = 0
 
@@ -173,6 +174,7 @@ struct ContentView: View {
         }
         .environmentObject(navigationState)
         .environmentObject(favoritesManager)
+        .environmentObject(serviceAlertsManager)
         .onChange(of: selectedTab) { oldTab, newTab in
             if newTab == 0 { // Nearby tab
                 // User swiped to location tab - request fresh location and start updates
@@ -188,6 +190,7 @@ struct ContentView: View {
             case .active:
                 stationDataManager.refreshStations()
                 scheduleNextBackgroundRefresh()
+                serviceAlertsManager.fetchAlerts()
                 // If on nearby tab, restart location updates with a small delay to ensure proper state
                 if selectedTab == 0 {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -693,8 +696,10 @@ struct TimesView: View {
     @EnvironmentObject var favoritesManager: FavoritesManager
     @EnvironmentObject var navigationState: NavigationState
     @EnvironmentObject var settingsManager: SettingsManager
+    @EnvironmentObject var serviceAlertsManager: ServiceAlertsManager
     @StateObject private var viewModel: TimesViewModel = TimesViewModel()
     @State private var showingFavoriteAlert = false
+    @State private var showingServiceAlerts = false
     let line: SubwayLine
     let station: Station
     let direction: String
@@ -719,7 +724,7 @@ struct TimesView: View {
                 VStack(alignment: .center, spacing: 0) {
                     // Line circle
                     LineCircleView(line: line, isSmallScreen: isSmallScreen)
-                    
+
                     // Train times container
                     TrainTimesContainerView(
                         trains: trainTimes,
@@ -731,9 +736,29 @@ struct TimesView: View {
                     )
                     .animation(.easeInOut(duration: 0.3), value: viewModel.nextTrains.isEmpty)
                     .animation(.easeInOut(duration: 0.3), value: viewModel.errorMessage)
-                    
+
                     // Station name
                     StationNameView(stationName: station.display, isSmallScreen: isSmallScreen)
+
+                    // Service alert indicator
+                    if serviceAlertsManager.hasAlerts(for: line.id) {
+                        Button(action: { showingServiceAlerts = true }) {
+                            HStack(spacing: 4) {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .font(.system(size: 11))
+                                    .foregroundColor(.yellow)
+                                Text("Service Change")
+                                    .font(.custom("HelveticaNeue-Bold", size: 11))
+                                    .foregroundColor(.yellow)
+                            }
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.yellow.opacity(0.15))
+                            .cornerRadius(8)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .padding(.top, 4)
+                    }
                 }
                 .frame(
                     minWidth: geometry.size.width,
@@ -763,9 +788,13 @@ struct TimesView: View {
         }
         .onAppear {
             viewModel.startFetchingTimes(for: line, station: station, direction: direction)
+            serviceAlertsManager.fetchAlerts()
         }
         .onDisappear {
             viewModel.stopFetchingTimes()
+        }
+        .sheet(isPresented: $showingServiceAlerts) {
+            WatchServiceAlertsView(alerts: serviceAlertsManager.alerts(for: line.id), line: line)
         }
         .onChange(of: scenePhase) { oldPhase, newPhase in
             switch newPhase {
@@ -832,6 +861,59 @@ struct FavoritesButtons: View {
                 }
             }
             Button("Cancel", role: .cancel) {}
+        }
+    }
+}
+
+// MARK: - Watch Service Alerts View
+
+struct WatchServiceAlertsView: View {
+    let alerts: [ServiceAlert]
+    let line: SubwayLine
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 6) {
+                    Text(line.label)
+                        .font(.custom("HelveticaNeue-Bold", size: 18))
+                        .foregroundColor(line.fg_color)
+                        .frame(width: 28, height: 28)
+                        .background(Circle().fill(line.bg_color))
+                    Text("Service Changes")
+                        .font(.custom("HelveticaNeue-Bold", size: 14))
+                        .foregroundColor(.white)
+                }
+                .padding(.bottom, 4)
+
+                ForEach(alerts) { alert in
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .font(.system(size: 10))
+                                .foregroundColor(.yellow)
+                            Text(alert.effect.displayText)
+                                .font(.custom("HelveticaNeue-Bold", size: 11))
+                                .foregroundColor(.yellow)
+                        }
+                        Text(alert.headerText)
+                            .font(.custom("HelveticaNeue-Bold", size: 13))
+                            .foregroundColor(.white)
+                            .fixedSize(horizontal: false, vertical: true)
+                        if !alert.descriptionText.isEmpty {
+                            Text(alert.descriptionText)
+                                .font(.custom("HelveticaNeue", size: 12))
+                                .foregroundColor(.gray)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                    }
+                    .padding(10)
+                    .background(Color.yellow.opacity(0.1))
+                    .cornerRadius(8)
+                }
+            }
+            .padding()
         }
     }
 }

@@ -46,6 +46,9 @@ object MTAFeedConfiguration {
         "SI" to "gtfs-si"
     )
 
+    /** GTFS-RT service alerts feed URL (all subway lines). */
+    val alertsFeedUrl: String = "${BASE_URL}gtfs-alerts"
+
     /** Returns the GTFS-RT feed URL for a given route ID, or null if unknown. */
     fun feedUrl(routeId: String): String? {
         val path = feedPathByRoute[routeId] ?: return null

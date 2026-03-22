@@ -80,23 +80,33 @@ struct FavoriteRowView: View {
     let line: SubwayLine?
     let onSelect: (SubwayLine, Station, String) -> Void
     let onDelete: () -> Void
-    
+    @EnvironmentObject var serviceAlertsManager: ServiceAlertsManager
+
     var body: some View {
         if let line = line {
             Button(action: {
                 // Trigger haptic feedback
                 WKInterfaceDevice.current().play(.start)
-                
+
                 let station = Station(display: favoriteWithTimes.favorite.stationDisplay, name: favoriteWithTimes.favorite.stationName, gtfsStopId: favoriteWithTimes.favorite.stationGtfsStopId)
                 onSelect(line, station, favoriteWithTimes.favorite.direction)
             }) {
                 HStack(spacing: 8) {
-                    // Train line circle - same as NearbyView
-                    Text(line.label)
-                        .font(.custom("HelveticaNeue-Bold", size: 20))
-                        .foregroundColor(line.fg_color)
-                        .frame(width: 30, height: 30)
-                        .background(Circle().fill(line.bg_color))
+                    // Train line circle with optional alert indicator
+                    ZStack(alignment: .topTrailing) {
+                        Text(line.label)
+                            .font(.custom("HelveticaNeue-Bold", size: 20))
+                            .foregroundColor(line.fg_color)
+                            .frame(width: 30, height: 30)
+                            .background(Circle().fill(line.bg_color))
+                        if serviceAlertsManager.hasAlerts(for: favoriteWithTimes.favorite.lineId) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .font(.system(size: 9))
+                                .foregroundColor(.yellow)
+                                .background(Color.black.clipShape(Circle()).padding(-1))
+                                .offset(x: 3, y: -3)
+                        }
+                    }
                     
                     // Station and destination info - same layout as NearbyView
                     VStack(alignment: .leading, spacing: 2) {

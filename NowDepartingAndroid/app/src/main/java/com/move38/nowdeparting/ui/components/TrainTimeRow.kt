@@ -3,9 +3,11 @@ package com.move38.nowdeparting.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -85,6 +87,7 @@ fun ConsolidatedTrainRow(
     primaryTrain: NearbyTrain,
     additionalTrains: List<NearbyTrain>,
     isFavorite: Boolean,
+    hasAlert: Boolean = false,
     onFavoriteClick: () -> Unit,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -98,8 +101,23 @@ fun ConsolidatedTrainRow(
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Line badge
-        SubwayLineBadge(lineId = primaryTrain.lineId, size = 48.dp, fontSize = 32.sp)
+        // Line badge with optional alert indicator
+        Box {
+            SubwayLineBadge(lineId = primaryTrain.lineId, size = 48.dp, fontSize = 32.sp)
+            if (hasAlert) {
+                Icon(
+                    imageVector = Icons.Default.Warning,
+                    contentDescription = "Service alert",
+                    tint = Color(0xFFFFCC00),
+                    modifier = Modifier
+                        .size(16.dp)
+                        .align(Alignment.TopEnd)
+                        .offset(x = 4.dp, y = (-4).dp)
+                        .background(Color.Black, CircleShape)
+                        .padding(1.dp)
+                )
+            }
+        }
 
         Spacer(modifier = Modifier.width(12.dp))
 

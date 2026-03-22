@@ -186,11 +186,12 @@ struct FavoriteTrainRow: View {
     let favorite: FavoriteItem
     let trainData: [TrainArrival]?
     let stationDataManager: StationDataManager
+    @EnvironmentObject var serviceAlertsManager: ServiceAlertsManager
     @State private var currentTime = Date()
     @State private var hasTimedOut = false
-    
+
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-    
+
     private var line: SubwayLine? {
         SubwayLinesData.allLines.first(where: { $0.id == favorite.lineId })
     }
@@ -220,13 +221,22 @@ struct FavoriteTrainRow: View {
         VStack(alignment: .leading, spacing: 12) {
                 // Station and Line Info
                 HStack(alignment: .top, spacing: 12) {
-                    // Line badge
+                    // Line badge with optional alert indicator
                     if let line = line {
-                        Text(line.label)
-                            .font(.custom("HelveticaNeue-Bold", size: 32))
-                            .foregroundColor(line.fg_color)
-                            .frame(width: 48, height: 48)
-                            .background(Circle().fill(line.bg_color))
+                        ZStack(alignment: .topTrailing) {
+                            Text(line.label)
+                                .font(.custom("HelveticaNeue-Bold", size: 32))
+                                .foregroundColor(line.fg_color)
+                                .frame(width: 48, height: 48)
+                                .background(Circle().fill(line.bg_color))
+                            if serviceAlertsManager.hasAlerts(for: favorite.lineId) {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.yellow)
+                                    .background(Color.black.clipShape(Circle()).padding(-2))
+                                    .offset(x: 4, y: -4)
+                            }
+                        }
                     }
                 
                 VStack(alignment: .leading, spacing: 2) {

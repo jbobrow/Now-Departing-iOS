@@ -38,6 +38,18 @@ data class GTFSStopTimeUpdate(
     val departureTime: Instant?
 )
 
+/** A parsed GTFS-RT Alert entity. */
+data class GTFSAlert(
+    /** Route IDs this alert applies to (from informed_entity[].route_id). */
+    val routeIds: List<String>,
+    /** Short summary of the alert (TranslatedString, field 12). */
+    val headerText: String,
+    /** Detailed description of the alert (TranslatedString, field 13). */
+    val descriptionText: String,
+    /** Raw GTFS-RT Effect enum value (field 10). */
+    val effect: Int
+)
+
 class GTFSRTParser {
 
     sealed class ParseError : Exception() {
@@ -76,6 +88,184 @@ class GTFSRTParser {
 
         return updates
     }
+
+    // MARK: - Alert Parsing
+
+    /** Parses a GTFS-RT Alerts feed binary blob, returning all alert entities. */
+    fun parseAlerts(data: ByteArray): List<GTFSAlert> {
+        val alerts = mutableListOf<GTFSAlert>()
+        var offset = 0
+
+        while (offset < data.size) {
+            val (fieldNumber, wireType, afterTag) = readTag(data, offset)
+            offset = afterTag
+
+            if (fieldNumber == 2 && wireType == WireType.LENGTH_DELIMITED) {
+                val (entityData, afterEntity) = readBytes(data, offset)
+                offset = afterEntity
+                parseFeedEntityForAlert(entityData)?.let { alerts.add(it) }
+            } else {
+                offset = skip(data, offset, wireType)
+            }
+        }
+
+        return alerts
+    }
+
+    private fun parseFeedEntityForAlert(data: ByteArray): GTFSAlert? {
+        var offset = 0
+
+        while (offset < data.size) {
+            val (fieldNumber, wireType, afterTag) = readTag(data, offset)
+            offset = afterTag
+
+            // FeedEntity.alert is field 5.
+            if (fieldNumber == 5 && wireType == WireType.LENGTH_DELIMITED) {
+                val (alertData, afterAlert) = readBytes(data, offset)
+                offset = afterAlert
+                return parseAlert(alertData)
+            } else {
+                offset = skip(data, offset, wireType)
+            }
+        }
+
+        return null
+    }
+
+    private fun parseAlert(data: ByteArray): GTFSAlert {
+        var offset = 0
+        val routeIds = mutableListOf<String>()
+        var headerText = ""
+        var descriptionText = ""
+        var effect = 0
+
+        while (offset < data.size) {
+            val (fieldNumber, wireType, afterTag) = readTag(data, offset)
+            offset = afterTag
+
+            when (fieldNumber) {
+                5 -> { // informed_entity (repeated EntitySelector)
+                    if (wireType == WireType.LENGTH_DELIMITED) {
+                        val (selectorData, after) = readBytes(data, offset)
+                        offset = after
+                        parseEntitySelectorRouteId(selectorData)?.let { routeIds.add(it) }
+                    } else {
+                        offset = skip(data, offset, wireType)
+                    }
+                }
+                10 -> { // effect (uint32 varint)
+                    if (wireType == WireType.VARINT) {
+                        val (value, after) = readVarint(data, offset)
+                        offset = after
+                        effect = value.toInt()
+                    } else {
+                        offset = skip(data, offset, wireType)
+                    }
+                }
+                12 -> { // header_text (TranslatedString)
+                    if (wireType == WireType.LENGTH_DELIMITED) {
+                        val (tsData, after) = readBytes(data, offset)
+                        offset = after
+                        headerText = parseTranslatedString(tsData)
+                    } else {
+                        offset = skip(data, offset, wireType)
+                    }
+                }
+                13 -> { // description_text (TranslatedString)
+                    if (wireType == WireType.LENGTH_DELIMITED) {
+                        val (tsData, after) = readBytes(data, offset)
+                        offset = after
+                        descriptionText = parseTranslatedString(tsData)
+                    } else {
+                        offset = skip(data, offset, wireType)
+                    }
+                }
+                else -> offset = skip(data, offset, wireType)
+            }
+        }
+
+        return GTFSAlert(routeIds = routeIds, headerText = headerText, descriptionText = descriptionText, effect = effect)
+    }
+
+    private fun parseEntitySelectorRouteId(data: ByteArray): String? {
+        var offset = 0
+        var routeId: String? = null
+
+        while (offset < data.size) {
+            val (fieldNumber, wireType, afterTag) = readTag(data, offset)
+            offset = afterTag
+
+            if (fieldNumber == 5 && wireType == WireType.LENGTH_DELIMITED) { // route_id
+                val (bytes, after) = readBytes(data, offset)
+                offset = after
+                routeId = String(bytes, Charsets.UTF_8)
+            } else {
+                offset = skip(data, offset, wireType)
+            }
+        }
+
+        return routeId
+    }
+
+    private fun parseTranslatedString(data: ByteArray): String {
+        var offset = 0
+        var englishText = ""
+        var firstText = ""
+
+        while (offset < data.size) {
+            val (fieldNumber, wireType, afterTag) = readTag(data, offset)
+            offset = afterTag
+
+            if (fieldNumber == 1 && wireType == WireType.LENGTH_DELIMITED) { // translation (repeated)
+                val (translationData, after) = readBytes(data, offset)
+                offset = after
+                val (text, language) = parseTranslation(translationData)
+                if (firstText.isEmpty()) firstText = text
+                if (language == "en" || language.isEmpty()) englishText = text
+            } else {
+                offset = skip(data, offset, wireType)
+            }
+        }
+
+        return if (englishText.isNotEmpty()) englishText else firstText
+    }
+
+    private fun parseTranslation(data: ByteArray): Pair<String, String> {
+        var offset = 0
+        var text = ""
+        var language = ""
+
+        while (offset < data.size) {
+            val (fieldNumber, wireType, afterTag) = readTag(data, offset)
+            offset = afterTag
+
+            when (fieldNumber) {
+                1 -> { // text
+                    if (wireType == WireType.LENGTH_DELIMITED) {
+                        val (bytes, after) = readBytes(data, offset)
+                        offset = after
+                        text = String(bytes, Charsets.UTF_8)
+                    } else {
+                        offset = skip(data, offset, wireType)
+                    }
+                }
+                2 -> { // language
+                    if (wireType == WireType.LENGTH_DELIMITED) {
+                        val (bytes, after) = readBytes(data, offset)
+                        offset = after
+                        language = String(bytes, Charsets.UTF_8)
+                    } else {
+                        offset = skip(data, offset, wireType)
+                    }
+                }
+                else -> offset = skip(data, offset, wireType)
+            }
+        }
+
+        return Pair(text, language)
+    }
+
+    // MARK: - Trip Update Parsing
 
     private fun parseFeedEntity(data: ByteArray): GTFSTripUpdate? {
         var offset = 0

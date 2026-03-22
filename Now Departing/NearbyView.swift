@@ -584,15 +584,16 @@ struct NearbyView: View {
         let line: SubwayLine
         let stationDataManager: StationDataManager
         let favoritesManager: FavoritesManager
-        
+
         // Add location manager to get current location
         @EnvironmentObject var locationManager: LocationManager
+        @EnvironmentObject var serviceAlertsManager: ServiceAlertsManager
         @State private var currentTime = Date()
-        
+
         // Location update tracking
         @State private var lastLocationUpdate: Date?
         @State private var locationUpdateCount = 0
-        
+
         private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
         
         // Check if this train/station/direction combination is already favorited
@@ -613,12 +614,21 @@ struct NearbyView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     // Main row
                     HStack(spacing: 12) {
-                        // Line badge
-                        Text(line.label)
-                            .font(.custom("HelveticaNeue-Bold", size: 32))
-                            .foregroundColor(line.fg_color)
-                            .frame(width: 48, height: 48)
-                            .background(Circle().fill(line.bg_color))
+                        // Line badge with optional alert indicator
+                        ZStack(alignment: .topTrailing) {
+                            Text(line.label)
+                                .font(.custom("HelveticaNeue-Bold", size: 32))
+                                .foregroundColor(line.fg_color)
+                                .frame(width: 48, height: 48)
+                                .background(Circle().fill(line.bg_color))
+                            if serviceAlertsManager.hasAlerts(for: line.id) {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.yellow)
+                                    .background(Color.black.clipShape(Circle()).padding(-2))
+                                    .offset(x: 4, y: -4)
+                            }
+                        }
 
                         // Direction - Updated to use location-based helper
                         VStack(alignment: .leading, spacing: 2) {
@@ -638,15 +648,15 @@ struct NearbyView: View {
                             .font(.custom("HelveticaNeue", size: 14))
                             .foregroundColor(.secondary)
                     }
-                    
+
                     Spacer()
-                    
+
                     VStack(alignment: .trailing, spacing: 2) {
                         // Primary time
                         Text(primaryTrain.getLiveTimeText(currentTime: currentTime, fullText: true))
                             .font(.custom("HelveticaNeue-Bold", size: 26))
                             .foregroundColor(.primary)
-                        
+
                         // Additional times (if any)
                         if !additionalTrains.isEmpty {
                             HStack {
