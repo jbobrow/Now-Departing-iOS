@@ -826,6 +826,7 @@ struct ServiceAlertsSheet: View {
     let line: SubwayLine
     @Environment(\.dismiss) private var dismiss
     @State private var upcomingExpanded = false
+    @State private var visibleUpcomingCount = 0
 
     private var activeAlerts: [ServiceAlert]   { alerts.filter { $0.isCurrentlyActive } }
     private var upcomingAlerts: [ServiceAlert] { alerts.filter { !$0.isCurrentlyActive } }
@@ -839,9 +840,9 @@ struct ServiceAlertsSheet: View {
                         alertCard(alert)
                     }
 
-                    // Upcoming alerts — collapsible
+                    // Upcoming alerts — collapsible with staggered reveal
                     if !upcomingAlerts.isEmpty {
-                        Button(action: { withAnimation(.easeInOut(duration: 0.2)) { upcomingExpanded.toggle() } }) {
+                        Button(action: toggleUpcoming) {
                             HStack(spacing: 6) {
                                 Text("Upcoming")
                                     .font(.custom("HelveticaNeue-Bold", size: 14))
@@ -858,9 +859,9 @@ struct ServiceAlertsSheet: View {
                         }
 
                         if upcomingExpanded {
-                            ForEach(upcomingAlerts) { alert in
+                            ForEach(Array(upcomingAlerts.enumerated()), id: \.element.id) { index, alert in
                                 alertCard(alert)
-                                    .transition(.opacity.combined(with: .move(edge: .top)))
+                                    .opacity(index < visibleUpcomingCount ? 1 : 0)
                             }
                         }
                     }
@@ -890,6 +891,24 @@ struct ServiceAlertsSheet: View {
         .preferredColorScheme(.dark)
     }
 
+    private func toggleUpcoming() {
+        if upcomingExpanded {
+            withAnimation(.easeIn(duration: 0.15)) {
+                upcomingExpanded = false
+                visibleUpcomingCount = 0
+            }
+        } else {
+            upcomingExpanded = true
+            for i in 0..<upcomingAlerts.count {
+                DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * 0.07) {
+                    withAnimation(.easeOut(duration: 0.22)) {
+                        visibleUpcomingCount = i + 1
+                    }
+                }
+            }
+        }
+    }
+
     @ViewBuilder
     private func alertCard(_ alert: ServiceAlert) -> some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -912,11 +931,12 @@ struct ServiceAlertsSheet: View {
                     }
                 }
             }
-            Text(alert.headerText)
+            alertInlineText(alert.headerText)
                 .font(.custom("HelveticaNeue-Bold", size: 17))
                 .foregroundColor(.primary)
+                .fixedSize(horizontal: false, vertical: true)
             if !alert.descriptionText.isEmpty {
-                Text(alert.descriptionText)
+                alertInlineText(alert.descriptionText)
                     .font(.custom("HelveticaNeue", size: 15))
                     .foregroundColor(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
