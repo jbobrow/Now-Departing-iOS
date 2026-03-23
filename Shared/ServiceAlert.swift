@@ -103,19 +103,15 @@ final class ServiceAlertsManager: ObservableObject {
         if let lastFetch = lastFetchTime, Date().timeIntervalSince(lastFetch) < cacheTTL {
             return
         }
-        print("[ServiceAlerts] starting network fetch…")
-
         MTAFeedService.shared.fetchServiceAlerts { [weak self] result in
             guard let self = self else { return }
             switch result {
-            case .failure(let error):
-                print("[ServiceAlerts] Fetch failed: \(error)")
+            case .failure:
+                break
             case .success(let gtfsAlerts):
-                print("[ServiceAlerts] Fetched \(gtfsAlerts.count) raw alerts from feed")
                 // Process and deduplicate on a background thread.
                 DispatchQueue.global(qos: .userInitiated).async {
                     let byRoute = Self.buildAlertsByRoute(gtfsAlerts)
-                    print("[ServiceAlerts] Deduplicated alertsByRoute keys: \(byRoute.keys.sorted())")
                     DispatchQueue.main.async {
                         self.alertsByRoute = byRoute
                         self.lastFetchTime = Date()
