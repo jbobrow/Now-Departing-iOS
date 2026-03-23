@@ -362,7 +362,10 @@ final class MTAFeedService {
                 return
             }
 
-            print("[MTAFeed] Alerts: received \(data.count) bytes, parsing…")
+            let prefix = data.prefix(16).map { String(format: "%02x", $0) }.joined(separator: " ")
+            let asText = String(data: data.prefix(64), encoding: .utf8) ?? "(not utf8)"
+            print("[MTAFeed] Alerts: received \(data.count) bytes, first 16 bytes hex: \(prefix)")
+            print("[MTAFeed] Alerts: first 64 bytes as text: \(asText)")
             do {
                 let alerts = try self.parser.parseAlerts(data)
                 print("[MTAFeed] Alerts: parsed \(alerts.count) alerts")
