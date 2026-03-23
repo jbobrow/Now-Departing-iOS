@@ -148,7 +148,7 @@ final class GTFSRTParser {
                     offset = try skip(data, at: offset, wireType: wireType)
                 }
 
-            case 10: // effect (uint32 varint)
+            case 7: // effect (uint32 varint)
                 if wireType == .varint {
                     let (value, after) = try readVarint(data, at: offset)
                     offset = after
@@ -157,7 +157,7 @@ final class GTFSRTParser {
                     offset = try skip(data, at: offset, wireType: wireType)
                 }
 
-            case 12: // header_text (TranslatedString)
+            case 10: // header_text (TranslatedString)
                 if wireType == .lengthDelimited {
                     let (tsData, after) = try readBytes(data, at: offset)
                     offset = after
@@ -166,7 +166,7 @@ final class GTFSRTParser {
                     offset = try skip(data, at: offset, wireType: wireType)
                 }
 
-            case 13: // description_text (TranslatedString)
+            case 11: // description_text (TranslatedString)
                 if wireType == .lengthDelimited {
                     let (tsData, after) = try readBytes(data, at: offset)
                     offset = after
@@ -192,7 +192,7 @@ final class GTFSRTParser {
             let (fieldNumber, wireType, afterTag) = try readTag(data, at: offset)
             offset = afterTag
 
-            if fieldNumber == 5, wireType == .lengthDelimited { // route_id
+            if fieldNumber == 2, wireType == .lengthDelimited { // route_id
                 let (bytes, after) = try readBytes(data, at: offset)
                 offset = after
                 routeId = String(data: bytes, encoding: .utf8)

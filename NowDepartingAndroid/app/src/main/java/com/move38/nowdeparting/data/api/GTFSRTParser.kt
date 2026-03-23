@@ -42,11 +42,11 @@ data class GTFSStopTimeUpdate(
 data class GTFSAlert(
     /** Route IDs this alert applies to (from informed_entity[].route_id). */
     val routeIds: List<String>,
-    /** Short summary of the alert (TranslatedString, field 12). */
+    /** Short summary of the alert (TranslatedString, field 10). */
     val headerText: String,
     /** Detailed description of the alert (TranslatedString, field 13). */
     val descriptionText: String,
-    /** Raw GTFS-RT Effect enum value (field 10). */
+    /** Raw GTFS-RT Effect enum value (field 7). */
     val effect: Int
 )
 
@@ -153,7 +153,7 @@ class GTFSRTParser {
                         offset = skip(data, offset, wireType)
                     }
                 }
-                10 -> { // effect (uint32 varint)
+                7 -> { // effect (uint32 varint)
                     if (wireType == WireType.VARINT) {
                         val (value, after) = readVarint(data, offset)
                         offset = after
@@ -162,7 +162,7 @@ class GTFSRTParser {
                         offset = skip(data, offset, wireType)
                     }
                 }
-                12 -> { // header_text (TranslatedString)
+                10 -> { // header_text (TranslatedString)
                     if (wireType == WireType.LENGTH_DELIMITED) {
                         val (tsData, after) = readBytes(data, offset)
                         offset = after
@@ -171,7 +171,7 @@ class GTFSRTParser {
                         offset = skip(data, offset, wireType)
                     }
                 }
-                13 -> { // description_text (TranslatedString)
+                11 -> { // description_text (TranslatedString)
                     if (wireType == WireType.LENGTH_DELIMITED) {
                         val (tsData, after) = readBytes(data, offset)
                         offset = after
@@ -195,7 +195,7 @@ class GTFSRTParser {
             val (fieldNumber, wireType, afterTag) = readTag(data, offset)
             offset = afterTag
 
-            if (fieldNumber == 5 && wireType == WireType.LENGTH_DELIMITED) { // route_id
+            if (fieldNumber == 2 && wireType == WireType.LENGTH_DELIMITED) { // route_id
                 val (bytes, after) = readBytes(data, offset)
                 offset = after
                 routeId = String(bytes, Charsets.UTF_8)
