@@ -8,7 +8,8 @@
 //    [A], [1], [G]       → filled circle badge, Helvetica Bold — matches the app's line icons
 //    [6X], [7X]          → filled diamond (45° rotated square) — matches MTA express signage
 //    [airplane icon]     → airplane SF symbol
-//    [accessible icon]   → ISA-style accessibility icon (blue circle, white figure)
+//    [accessibility icon] → ISA-style accessibility icon (blue circle, white figure)
+//    [shuttle bus icon]  → grey bus SF symbol
 //
 //  Text(Image(...)) renders a UIImage at its natural POINT SIZE, not auto-scaled to
 //  the font. So badges are rendered at exactly `fontSize` pt via ImageRenderer and
@@ -41,6 +42,13 @@ func alertInlineText(_ raw: String, fontSize: CGFloat = 17) -> Text {
             } else {
                 return acc + Text(Image(systemName: "figure.roll.runningpace.circle.fill"))
                     .foregroundColor(.blue)
+            }
+
+        case .shuttleBus:
+            if let img = RouteBadgeCache.shared.shuttleBusBadge(size: fontSize) {
+                return acc + Text(img)
+            } else {
+                return acc + Text(Image(systemName: "bus.fill")).foregroundColor(.gray)
             }
 
         case .route(let id):
@@ -112,6 +120,18 @@ private struct ADABadgeView: View {
     }
 }
 
+/// Renders a grey bus icon for shuttle bus service.
+private struct ShuttleBusIconView: View {
+    let size: CGFloat
+
+    var body: some View {
+        Image(systemName: "bus.fill")
+            .font(.system(size: size * 0.9))
+            .foregroundColor(Color(red: 0.50, green: 0.51, blue: 0.52))
+            .frame(width: size, height: size)
+    }
+}
+
 // MARK: - Badge image cache
 
 @MainActor
@@ -153,6 +173,19 @@ private final class RouteBadgeCache {
         cache[key] = image
         return image
     }
+
+    func shuttleBusBadge(size: CGFloat) -> Image? {
+        let key = "shuttlebus@\(Int(size * 10))"
+        if let cached = cache[key] { return cached }
+
+        let renderer = ImageRenderer(content: ShuttleBusIconView(size: size))
+        renderer.scale = 3.0
+
+        guard let uiImage = renderer.uiImage else { return nil }
+        let image = Image(uiImage: uiImage)
+        cache[key] = image
+        return image
+    }
 }
 
 // MARK: - Token
@@ -162,6 +195,7 @@ private enum AlertToken {
     case route(String)
     case airplane
     case ada
+    case shuttleBus
 }
 
 // MARK: - Parser
@@ -189,10 +223,11 @@ private func tokenize(_ raw: String) -> [AlertToken] {
         switch content.lowercased() {
         case "airplane icon":
             tokens.append(.airplane)
-        case "accessible icon", "ada icon", "ada", "wheelchair icon", "wheelchair":
+        case "accessibility icon", "accessible icon", "ada icon", "ada", "wheelchair icon", "wheelchair":
             tokens.append(.ada)
+        case "shuttle bus icon", "shuttle bus":
+            tokens.append(.shuttleBus)
         default:
-            print("[AlertTokenizer] unknown bracket token: \"\(content)\"")
             tokens.append(.route(content))
         }
     }
