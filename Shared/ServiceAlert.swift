@@ -5,6 +5,7 @@
 //  Model and manager for MTA service alerts (service changes).
 //
 
+import Combine
 import Foundation
 
 // MARK: - Model
