@@ -57,10 +57,18 @@ final class ServiceAlertsManager: ObservableObject {
 
         MTAFeedService.shared.fetchServiceAlerts { [weak self] result in
             guard let self = self else { return }
-            if case .success(let gtfsAlerts) = result {
+            switch result {
+            case .failure(let error):
+                print("[ServiceAlerts] Fetch failed: \(error)")
+            case .success(let gtfsAlerts):
+                print("[ServiceAlerts] Fetched \(gtfsAlerts.count) raw alerts from feed")
                 var byRoute: [String: [ServiceAlert]] = [:]
                 for (index, gtfsAlert) in gtfsAlerts.enumerated() {
-                    guard !gtfsAlert.headerText.isEmpty else { continue }
+                    print("[ServiceAlerts] Alert \(index): routeIds=\(gtfsAlert.routeIds) effect=\(gtfsAlert.effect) header='\(gtfsAlert.headerText.prefix(60))'")
+                    guard !gtfsAlert.headerText.isEmpty else {
+                        print("[ServiceAlerts]   → SKIPPED (empty headerText)")
+                        continue
+                    }
                     let alert = ServiceAlert(
                         id: "\(index)-\(gtfsAlert.headerText.hashValue)",
                         routeIds: gtfsAlert.routeIds,
@@ -72,6 +80,7 @@ final class ServiceAlertsManager: ObservableObject {
                         byRoute[routeId, default: []].append(alert)
                     }
                 }
+                print("[ServiceAlerts] alertsByRoute keys: \(byRoute.keys.sorted())")
                 self.alertsByRoute = byRoute
                 self.lastFetchTime = Date()
             }
