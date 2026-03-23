@@ -9,9 +9,9 @@
 //    [6X], [7X]      → filled diamond (45° rotated square) — matches MTA express signage
 //    [airplane icon] → airplane SF symbol
 //
-//  Badges are rendered via ImageRenderer (iOS 16+/watchOS 9+) at a fixed internal
-//  size and cached by route ID. SwiftUI's Text(Image) scales them to the surrounding
-//  font's line height automatically.
+//  Text(Image(...)) renders a UIImage at its natural POINT SIZE, not auto-scaled to
+//  the font. So badges are rendered at exactly `fontSize` pt via ImageRenderer and
+//  cached per (routeId, size). At scale 3.0 this gives crisp @3x pixels.
 //
 //  Usage:
 //    alertInlineText("No [G] between Bedford-Nostrand Avs and Court Sq", fontSize: 17)
@@ -22,6 +22,7 @@ import SwiftUI
 // MARK: - Public entry point
 
 /// Returns a SwiftUI `Text` with route badges and airplane icons rendered inline.
+/// Pass `fontSize` matching the surrounding font so badges are sized correctly.
 /// Apply font and base foreground color at the call site; badge colors are baked in.
 @MainActor
 func alertInlineText(_ raw: String, fontSize: CGFloat = 17) -> Text {
@@ -34,7 +35,7 @@ func alertInlineText(_ raw: String, fontSize: CGFloat = 17) -> Text {
             return acc + Text(Image(systemName: "airplane"))
 
         case .route(let id):
-            if let img = RouteBadgeCache.shared.badge(for: id) {
+            if let img = RouteBadgeCache.shared.badge(for: id, size: fontSize) {
                 return acc + Text(img)
             } else {
                 // Fallback if rendering fails
@@ -46,20 +47,19 @@ func alertInlineText(_ raw: String, fontSize: CGFloat = 17) -> Text {
 
 // MARK: - Badge view
 
-/// Renders a single route badge: circle for regular routes, diamond for express (xX).
+/// Renders a single route badge at the given `size` (in points).
+/// Circle for regular routes, 45°-rotated square (diamond) for express variants (6X, 7X).
 private struct RouteBadgeView: View {
     let routeId: String
     let bgColor: Color
     let fgColor: Color
+    let size: CGFloat
 
-    /// Express routes (6X, 7X) use a diamond; everything else uses a circle.
     private var isExpress: Bool { routeId.count == 2 && routeId.hasSuffix("X") }
-    /// Show just the base number inside the diamond (MTA convention: "6" not "6X").
     private var displayLabel: String { isExpress ? String(routeId.dropLast()) : routeId }
 
-    private static let size: CGFloat = 48
     private var fontRatio: CGFloat {
-        if isExpress    { return 0.52 }  // slightly smaller to clear diamond corners
+        if isExpress         { return 0.52 }  // slightly smaller to clear diamond corners
         if routeId.count == 1 { return 0.65 }
         return 0.52  // two-char non-express (GS, SI, etc.)
     }
@@ -67,9 +67,8 @@ private struct RouteBadgeView: View {
     var body: some View {
         ZStack {
             if isExpress {
-                // Diamond: a square rotated 45°, sized so its corners reach ~96% of the frame.
-                // Side = size / √2  ×  0.96  ≈  size × 0.679
-                let side = Self.size * 0.679
+                // Side = size/√2 × 0.96 ≈ size × 0.679 so corners reach ~96% of the frame
+                let side = size * 0.679
                 Rectangle()
                     .fill(bgColor)
                     .frame(width: side, height: side)
@@ -78,10 +77,10 @@ private struct RouteBadgeView: View {
                 Circle().fill(bgColor)
             }
             Text(displayLabel)
-                .font(.custom("HelveticaNeue-Bold", size: Self.size * fontRatio))
+                .font(.custom("HelveticaNeue-Bold", size: size * fontRatio))
                 .foregroundColor(fgColor)
         }
-        .frame(width: Self.size, height: Self.size)
+        .frame(width: size, height: size)
     }
 }
 
@@ -92,19 +91,25 @@ private final class RouteBadgeCache {
     static let shared = RouteBadgeCache()
     private var cache: [String: Image] = [:]
 
-    func badge(for routeId: String) -> Image? {
-        if let cached = cache[routeId] { return cached }
+    /// Returns a UIImage-backed SwiftUI Image with point dimensions `size × size`.
+    /// Text(Image(...)) renders at those point dimensions, so pass the surrounding fontSize.
+    func badge(for routeId: String, size: CGFloat) -> Image? {
+        let key = "\(routeId)@\(Int(size * 10))"
+        if let cached = cache[key] { return cached }
 
-        let bgColor = routeBgColor(for: routeId)
-        let fgColor = routeFgColor(for: routeId)
+        let view = RouteBadgeView(
+            routeId: routeId,
+            bgColor: routeBgColor(for: routeId),
+            fgColor: routeFgColor(for: routeId),
+            size: size
+        )
 
-        let view = RouteBadgeView(routeId: routeId, bgColor: bgColor, fgColor: fgColor)
         let renderer = ImageRenderer(content: view)
-        renderer.scale = 3.0
+        renderer.scale = 3.0   // @3x quality; UIImage.size = size × size points
 
         guard let uiImage = renderer.uiImage else { return nil }
         let image = Image(uiImage: uiImage)
-        cache[routeId] = image
+        cache[key] = image
         return image
     }
 }
@@ -156,8 +161,7 @@ private func routeBgColor(for routeId: String) -> Color {
         let base = String(routeId.dropLast())
         if let c = SubwayConfiguration.lineColors[base] { return c.background }
     }
-    // Gray for unknown/shuttle lines (S, H, GS, SIR, SI, FS, etc.)
-    return Color(red: 0.50, green: 0.51, blue: 0.52)
+    return Color(red: 0.50, green: 0.51, blue: 0.52)  // gray for unknowns (S, H, GS, SIR…)
 }
 
 private func routeFgColor(for routeId: String) -> Color {
