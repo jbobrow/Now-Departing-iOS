@@ -61,8 +61,9 @@ struct MTAFeedConfiguration {
     // MARK: - Alerts Feed
 
     /// GTFS-RT service alerts feed (all subway lines).
+    /// Note: alerts use the camsys namespace, not nyct.
     static var alertsFeedURL: URL? {
-        URL(string: "\(baseURL)gtfs-alerts")
+        URL(string: "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Fsubway-alerts")
     }
 
     // MARK: - URL Helpers

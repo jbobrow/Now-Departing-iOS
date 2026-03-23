@@ -742,18 +742,19 @@ struct TimesView: View {
 
                     // Service alert indicator
                     if serviceAlertsManager.hasAlerts(for: line.id) {
+                        let isActive = serviceAlertsManager.hasActiveAlerts(for: line.id)
                         Button(action: { showingServiceAlerts = true }) {
                             HStack(spacing: 4) {
                                 Image(systemName: "exclamationmark.triangle.fill")
                                     .font(.system(size: 11))
-                                    .foregroundColor(.yellow)
-                                Text("Service Change")
+                                    .foregroundColor(isActive ? .yellow : .secondary)
+                                Text(isActive ? "Service Change" : "Planned Service Changes")
                                     .font(.custom("HelveticaNeue-Bold", size: 11))
-                                    .foregroundColor(.yellow)
+                                    .foregroundColor(isActive ? .yellow : .secondary)
                             }
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
-                            .background(Color.yellow.opacity(0.15))
+                            .background(isActive ? Color.yellow.opacity(0.15) : Color.secondary.opacity(0.1))
                             .cornerRadius(8)
                         }
                         .buttonStyle(PlainButtonStyle())
@@ -897,15 +898,25 @@ struct WatchServiceAlertsView: View {
                                 .font(.custom("HelveticaNeue-Bold", size: 11))
                                 .foregroundColor(.yellow)
                         }
-                        Text(alert.headerText)
+                        alertInlineText(alert.headerText, fontSize: 13)
                             .font(.custom("HelveticaNeue-Bold", size: 13))
                             .foregroundColor(.white)
                             .fixedSize(horizontal: false, vertical: true)
                         if !alert.descriptionText.isEmpty {
-                            Text(alert.descriptionText)
+                            alertInlineText(alert.descriptionText, fontSize: 12)
                                 .font(.custom("HelveticaNeue", size: 12))
                                 .foregroundColor(.gray)
                                 .fixedSize(horizontal: false, vertical: true)
+                        }
+                        if let timing = alert.activePeriodSummary {
+                            HStack(spacing: 3) {
+                                Image(systemName: "clock")
+                                    .font(.system(size: 10))
+                                    .foregroundColor(.gray)
+                                Text(timing)
+                                    .font(.custom("HelveticaNeue", size: 11))
+                                    .foregroundColor(.gray)
+                            }
                         }
                     }
                     .padding(10)

@@ -621,12 +621,16 @@ struct NearbyView: View {
                                 .foregroundColor(line.fg_color)
                                 .frame(width: 48, height: 48)
                                 .background(Circle().fill(line.bg_color))
-                            if serviceAlertsManager.hasAlerts(for: line.id) {
-                                Image(systemName: "exclamationmark.triangle.fill")
-                                    .font(.system(size: 14))
-                                    .foregroundColor(.yellow)
-                                    .background(Color.black.clipShape(Circle()).padding(-2))
-                                    .offset(x: 4, y: -4)
+                            if serviceAlertsManager.hasActiveAlerts(for: line.id) {
+                                ZStack {
+                                    Image(systemName: "exclamationmark.triangle.fill")
+                                        .font(.system(size: 18))
+                                        .foregroundColor(.black)
+                                    Image(systemName: "exclamationmark.triangle.fill")
+                                        .font(.system(size: 14))
+                                        .foregroundColor(.yellow)
+                                }
+                                .offset(x: 4, y: -4)
                             }
                         }
 
