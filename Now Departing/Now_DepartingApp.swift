@@ -13,6 +13,7 @@ struct Now_DepartingApp: App {
     @StateObject private var favoritesManager = FavoritesManager()
     @StateObject private var stationDataManager = StationDataManager()
     @StateObject private var locationManager = LocationManager()
+    @StateObject private var serviceAlertsManager = ServiceAlertsManager()
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some Scene {
@@ -21,12 +22,15 @@ struct Now_DepartingApp: App {
                 .environmentObject(favoritesManager)
                 .environmentObject(stationDataManager)
                 .environmentObject(locationManager)
+                .environmentObject(serviceAlertsManager)
                 .preferredColorScheme(.dark) // Your dark mode preference
         }
         .onChange(of: scenePhase) { oldPhase, newPhase in
             if newPhase == .active {
                 // Reload widgets when app becomes active to ensure fresh data
                 WidgetCenter.shared.reloadAllTimelines()
+                // Refresh service alerts
+                serviceAlertsManager.fetchAlerts()
             }
         }
     }

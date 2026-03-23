@@ -28,7 +28,8 @@ data class TimesUiState(
     val isLoading: Boolean = false,
     val error: String? = null,
     val isFavorite: Boolean = false,
-    val currentTimeMillis: Long = System.currentTimeMillis() // For triggering recomposition
+    val currentTimeMillis: Long = System.currentTimeMillis(), // For triggering recomposition
+    val serviceAlerts: List<com.move38.nowdeparting.data.api.GTFSAlert> = emptyList()
 )
 
 @HiltViewModel
@@ -72,6 +73,7 @@ class TimesViewModel @Inject constructor(
 
         observeFavorites()
         fetchTimes()
+        fetchAlerts()
         startCountdownTimer()
     }
 
@@ -113,6 +115,15 @@ class TimesViewModel @Inject constructor(
                         error = exception.message ?: "Failed to fetch train times"
                     )
                 }
+            }
+        }
+    }
+
+    private fun fetchAlerts() {
+        viewModelScope.launch {
+            subwayRepository.getServiceAlerts().onSuccess { alertsByRoute ->
+                val lineAlerts = alertsByRoute[_uiState.value.lineId] ?: emptyList()
+                _uiState.update { it.copy(serviceAlerts = lineAlerts) }
             }
         }
     }

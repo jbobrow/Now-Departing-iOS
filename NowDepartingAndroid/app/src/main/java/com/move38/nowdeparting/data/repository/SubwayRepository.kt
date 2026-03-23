@@ -2,6 +2,7 @@ package com.move38.nowdeparting.data.repository
 
 import android.content.Context
 import android.util.Log
+import com.move38.nowdeparting.data.api.GTFSAlert
 import com.move38.nowdeparting.data.api.MTAFeedService
 import com.move38.nowdeparting.data.model.*
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -57,6 +58,20 @@ class SubwayRepository @Inject constructor(
             ?: return@withContext Result.failure(Exception("Station not found: $stationName"))
 
         mtaFeedService.fetchArrivals(lineId, station, direction)
+    }
+
+    /** Fetches service alerts grouped by route ID. */
+    suspend fun getServiceAlerts(): Result<Map<String, List<GTFSAlert>>> = withContext(Dispatchers.IO) {
+        mtaFeedService.fetchServiceAlerts().map { alerts ->
+            val byRoute = mutableMapOf<String, MutableList<GTFSAlert>>()
+            for (alert in alerts) {
+                if (alert.headerText.isBlank()) continue
+                for (routeId in alert.routeIds) {
+                    byRoute.getOrPut(routeId) { mutableListOf() }.add(alert)
+                }
+            }
+            byRoute
+        }
     }
 
     suspend fun getNearbyTrains(

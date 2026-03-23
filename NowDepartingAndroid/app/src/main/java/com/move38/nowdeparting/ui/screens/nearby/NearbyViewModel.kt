@@ -23,7 +23,8 @@ data class NearbyUiState(
     val error: String? = null,
     val hasLocationPermission: Boolean = false,
     val currentLocation: Location? = null,
-    val favorites: Set<String> = emptySet() // Set of "lineId|stationName|direction"
+    val favorites: Set<String> = emptySet(), // Set of "lineId|stationName|direction"
+    val alertedRoutes: Set<String> = emptySet() // Set of routeIds with active alerts
 )
 
 // Group of trains for a single line/direction at a station
@@ -59,6 +60,15 @@ class NearbyViewModel @Inject constructor(
     init {
         checkLocationPermission()
         observeFavorites()
+        fetchAlerts()
+    }
+
+    private fun fetchAlerts() {
+        viewModelScope.launch {
+            subwayRepository.getServiceAlerts().onSuccess { alertsByRoute ->
+                _uiState.update { it.copy(alertedRoutes = alertsByRoute.keys) }
+            }
+        }
     }
 
     private fun observeFavorites() {
@@ -221,6 +231,10 @@ class NearbyViewModel @Inject constructor(
     fun isFavorite(train: NearbyTrain): Boolean {
         val key = "${train.lineId}|${train.stationName}|${train.direction}"
         return _uiState.value.favorites.contains(key)
+    }
+
+    fun hasAlert(lineId: String): Boolean {
+        return _uiState.value.alertedRoutes.contains(lineId)
     }
 
     override fun onCleared() {

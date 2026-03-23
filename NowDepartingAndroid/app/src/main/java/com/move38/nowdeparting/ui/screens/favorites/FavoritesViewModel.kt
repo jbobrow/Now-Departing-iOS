@@ -20,7 +20,8 @@ data class FavoriteWithTimes(
 data class FavoritesUiState(
     val favorites: List<FavoriteWithTimes> = emptyList(),
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val alertedRoutes: Set<String> = emptySet()
 )
 
 @HiltViewModel
@@ -34,6 +35,7 @@ class FavoritesViewModel @Inject constructor(
 
     init {
         observeFavorites()
+        fetchAlerts()
     }
 
     private fun observeFavorites() {
@@ -95,6 +97,16 @@ class FavoritesViewModel @Inject constructor(
             favoritesRepository.removeFavorite(favoriteId)
         }
     }
+
+    private fun fetchAlerts() {
+        viewModelScope.launch {
+            subwayRepository.getServiceAlerts().onSuccess { alertsByRoute ->
+                _uiState.update { it.copy(alertedRoutes = alertsByRoute.keys) }
+            }
+        }
+    }
+
+    fun hasAlert(lineId: String): Boolean = _uiState.value.alertedRoutes.contains(lineId)
 
     fun reorderFavorites(fromIndex: Int, toIndex: Int) {
         viewModelScope.launch {

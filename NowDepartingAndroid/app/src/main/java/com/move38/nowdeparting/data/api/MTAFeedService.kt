@@ -44,6 +44,7 @@ class MTAFeedService @Inject constructor(
     private val parser = GTFSRTParser()
     // Cache: feed URL → (fetchTimeMs, parsedUpdates)
     private val cache = ConcurrentHashMap<String, Pair<Long, List<GTFSTripUpdate>>>()
+    private val alertCache = ConcurrentHashMap<String, Pair<Long, List<GTFSAlert>>>()
 
     // MARK: - By-Station Query
 
@@ -197,6 +198,40 @@ class MTAFeedService @Inject constructor(
                 false
             }
             station.copy(hasAvailableTimes = hasData)
+        }
+    }
+
+    // MARK: - Service Alerts
+
+    /** Fetches and parses the MTA GTFS-RT Alerts feed. Results are cached for CACHE_TTL_MS. */
+    suspend fun fetchServiceAlerts(): Result<List<GTFSAlert>> = withContext(Dispatchers.IO) {
+        val url = MTAFeedConfiguration.alertsFeedUrl
+        val cached = alertCache[url]
+        if (cached != null && System.currentTimeMillis() - cached.first < CACHE_TTL_MS) {
+            return@withContext Result.success(cached.second)
+        }
+
+        return@withContext try {
+            val request = Request.Builder().url(url).build()
+            val response = okHttpClient.newCall(request).execute()
+
+            if (!response.isSuccessful) {
+                return@withContext Result.failure(MTAFeedError.HttpError(response.code))
+            }
+
+            val bytes = response.body?.bytes()
+            if (bytes == null || bytes.isEmpty()) {
+                return@withContext Result.failure(MTAFeedError.NoData)
+            }
+
+            val alerts = parser.parseAlerts(bytes)
+            alertCache[url] = Pair(System.currentTimeMillis(), alerts)
+            Result.success(alerts)
+        } catch (e: GTFSRTParser.ParseError) {
+            Result.failure(MTAFeedError.ParseError(e))
+        } catch (e: Exception) {
+            Log.e(TAG, "Error fetching alerts feed", e)
+            Result.failure(MTAFeedError.NetworkError(e))
         }
     }
 

@@ -32,6 +32,18 @@ import Foundation
 
 // MARK: - Output Types
 
+/// A parsed GTFS-RT Alert message.
+struct GTFSAlert {
+    /// Route IDs this alert applies to (from informed_entity[].route_id).
+    let routeIds: [String]
+    /// Short summary of the alert (TranslatedString, field 12).
+    let headerText: String
+    /// Detailed description of the alert (TranslatedString, field 13).
+    let descriptionText: String
+    /// Raw GTFS-RT Effect enum value (field 10). See ServiceAlert.AlertEffect for values.
+    let effect: Int
+}
+
 /// A parsed GTFS-RT TripUpdate message.
 struct GTFSTripUpdate {
     let routeId: String
@@ -66,6 +78,192 @@ final class GTFSRTParser {
         case invalidData
         case truncatedMessage
     }
+
+    // MARK: - Alert Parsing
+
+    /// Parses the binary GTFS-RT Alerts feed and returns an array of `GTFSAlert` values.
+    /// Skips entities that do not contain an alert (e.g. trip_update entities).
+    func parseAlerts(_ data: Data) throws -> [GTFSAlert] {
+        var alerts: [GTFSAlert] = []
+        var offset = 0
+
+        while offset < data.count {
+            let (fieldNumber, wireType, afterTag) = try readTag(data, at: offset)
+            offset = afterTag
+
+            if fieldNumber == 2, wireType == .lengthDelimited {
+                let (entityData, afterEntity) = try readBytes(data, at: offset)
+                offset = afterEntity
+                if let alert = try parseFeedEntityForAlert(entityData) {
+                    alerts.append(alert)
+                }
+            } else {
+                offset = try skip(data, at: offset, wireType: wireType)
+            }
+        }
+
+        return alerts
+    }
+
+    private func parseFeedEntityForAlert(_ data: Data) throws -> GTFSAlert? {
+        var offset = 0
+
+        while offset < data.count {
+            let (fieldNumber, wireType, afterTag) = try readTag(data, at: offset)
+            offset = afterTag
+
+            // FeedEntity.alert is field 5.
+            if fieldNumber == 5, wireType == .lengthDelimited {
+                let (alertData, afterAlert) = try readBytes(data, at: offset)
+                offset = afterAlert
+                return try parseAlert(alertData)
+            } else {
+                offset = try skip(data, at: offset, wireType: wireType)
+            }
+        }
+
+        return nil
+    }
+
+    private func parseAlert(_ data: Data) throws -> GTFSAlert {
+        var offset = 0
+        var routeIds: [String] = []
+        var headerText = ""
+        var descriptionText = ""
+        var effect = 0
+
+        while offset < data.count {
+            let (fieldNumber, wireType, afterTag) = try readTag(data, at: offset)
+            offset = afterTag
+
+            switch fieldNumber {
+            case 5: // informed_entity (repeated EntitySelector)
+                if wireType == .lengthDelimited {
+                    let (selectorData, after) = try readBytes(data, at: offset)
+                    offset = after
+                    if let routeId = try parseEntitySelectorRouteId(selectorData) {
+                        routeIds.append(routeId)
+                    }
+                } else {
+                    offset = try skip(data, at: offset, wireType: wireType)
+                }
+
+            case 10: // effect (uint32 varint)
+                if wireType == .varint {
+                    let (value, after) = try readVarint(data, at: offset)
+                    offset = after
+                    effect = Int(value)
+                } else {
+                    offset = try skip(data, at: offset, wireType: wireType)
+                }
+
+            case 12: // header_text (TranslatedString)
+                if wireType == .lengthDelimited {
+                    let (tsData, after) = try readBytes(data, at: offset)
+                    offset = after
+                    headerText = try parseTranslatedString(tsData)
+                } else {
+                    offset = try skip(data, at: offset, wireType: wireType)
+                }
+
+            case 13: // description_text (TranslatedString)
+                if wireType == .lengthDelimited {
+                    let (tsData, after) = try readBytes(data, at: offset)
+                    offset = after
+                    descriptionText = try parseTranslatedString(tsData)
+                } else {
+                    offset = try skip(data, at: offset, wireType: wireType)
+                }
+
+            default:
+                offset = try skip(data, at: offset, wireType: wireType)
+            }
+        }
+
+        return GTFSAlert(routeIds: routeIds, headerText: headerText, descriptionText: descriptionText, effect: effect)
+    }
+
+    /// Reads the route_id (field 5) from an EntitySelector message.
+    private func parseEntitySelectorRouteId(_ data: Data) throws -> String? {
+        var offset = 0
+        var routeId: String?
+
+        while offset < data.count {
+            let (fieldNumber, wireType, afterTag) = try readTag(data, at: offset)
+            offset = afterTag
+
+            if fieldNumber == 5, wireType == .lengthDelimited { // route_id
+                let (bytes, after) = try readBytes(data, at: offset)
+                offset = after
+                routeId = String(data: bytes, encoding: .utf8)
+            } else {
+                offset = try skip(data, at: offset, wireType: wireType)
+            }
+        }
+
+        return routeId
+    }
+
+    /// Reads the English (or first available) text from a TranslatedString message.
+    private func parseTranslatedString(_ data: Data) throws -> String {
+        var offset = 0
+        var englishText = ""
+        var firstText = ""
+
+        while offset < data.count {
+            let (fieldNumber, wireType, afterTag) = try readTag(data, at: offset)
+            offset = afterTag
+
+            if fieldNumber == 1, wireType == .lengthDelimited { // translation (repeated)
+                let (translationData, after) = try readBytes(data, at: offset)
+                offset = after
+                let (text, language) = try parseTranslation(translationData)
+                if firstText.isEmpty { firstText = text }
+                if language == "en" || language.isEmpty { englishText = text }
+            } else {
+                offset = try skip(data, at: offset, wireType: wireType)
+            }
+        }
+
+        return englishText.isEmpty ? firstText : englishText
+    }
+
+    /// Reads (text, language) from a Translation message.
+    private func parseTranslation(_ data: Data) throws -> (text: String, language: String) {
+        var offset = 0
+        var text = ""
+        var language = ""
+
+        while offset < data.count {
+            let (fieldNumber, wireType, afterTag) = try readTag(data, at: offset)
+            offset = afterTag
+
+            switch fieldNumber {
+            case 1: // text
+                if wireType == .lengthDelimited {
+                    let (bytes, after) = try readBytes(data, at: offset)
+                    offset = after
+                    text = String(data: bytes, encoding: .utf8) ?? ""
+                } else {
+                    offset = try skip(data, at: offset, wireType: wireType)
+                }
+            case 2: // language
+                if wireType == .lengthDelimited {
+                    let (bytes, after) = try readBytes(data, at: offset)
+                    offset = after
+                    language = String(data: bytes, encoding: .utf8) ?? ""
+                } else {
+                    offset = try skip(data, at: offset, wireType: wireType)
+                }
+            default:
+                offset = try skip(data, at: offset, wireType: wireType)
+            }
+        }
+
+        return (text, language)
+    }
+
+    // MARK: - Trip Update Parsing
 
     func parse(_ data: Data) throws -> [GTFSTripUpdate] {
         var updates: [GTFSTripUpdate] = []

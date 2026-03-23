@@ -92,6 +92,7 @@ final class MTAFeedService {
 
     // Simple in-memory cache: feed URL → (fetchDate, parsedUpdates)
     private var cache: [URL: (date: Date, updates: [GTFSTripUpdate])] = [:]
+    private var alertCache: [URL: (date: Date, alerts: [GTFSAlert])] = [:]
     private let cacheTTL: TimeInterval = 30  // seconds; GTFS-RT feeds refresh ~every 30s
 
     private init() {
@@ -316,6 +317,53 @@ final class MTAFeedService {
 
             DispatchQueue.main.async { completion(updated) }
         }
+    }
+
+    // MARK: - Service Alerts
+
+    /// Fetches and parses the MTA GTFS-RT Alerts feed, returning all active service alerts.
+    /// Results are cached for `cacheTTL` seconds.
+    func fetchServiceAlerts(
+        completion: @escaping (Result<[GTFSAlert], MTAFeedError>) -> Void
+    ) {
+        guard let url = MTAFeedConfiguration.alertsFeedURL else {
+            completion(.failure(.networkError(URLError(.badURL))))
+            return
+        }
+
+        // Return cached alerts if still fresh.
+        if let cached = alertCache[url], Date().timeIntervalSince(cached.date) < cacheTTL {
+            DispatchQueue.main.async { completion(.success(cached.alerts)) }
+            return
+        }
+
+        let request = MTAFeedConfiguration.request(for: url)
+        session.dataTask(with: request) { [weak self] data, response, error in
+            guard let self = self else { return }
+
+            if let error = error {
+                DispatchQueue.main.async { completion(.failure(.networkError(error))) }
+                return
+            }
+
+            if let http = response as? HTTPURLResponse, !(200...299).contains(http.statusCode) {
+                DispatchQueue.main.async { completion(.failure(.httpError(http.statusCode))) }
+                return
+            }
+
+            guard let data = data, !data.isEmpty else {
+                DispatchQueue.main.async { completion(.failure(.noData)) }
+                return
+            }
+
+            do {
+                let alerts = try self.parser.parseAlerts(data)
+                self.alertCache[url] = (date: Date(), alerts: alerts)
+                DispatchQueue.main.async { completion(.success(alerts)) }
+            } catch {
+                DispatchQueue.main.async { completion(.failure(.parseError(error))) }
+            }
+        }.resume()
     }
 
     // MARK: - Feed Fetch + Cache
