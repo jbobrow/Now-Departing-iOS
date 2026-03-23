@@ -192,6 +192,7 @@ private func tokenize(_ raw: String) -> [AlertToken] {
         case "accessible icon", "ada icon", "ada", "wheelchair icon", "wheelchair":
             tokens.append(.ada)
         default:
+            print("[AlertTokenizer] unknown bracket token: \"\(content)\"")
             tokens.append(.route(content))
         }
     }
