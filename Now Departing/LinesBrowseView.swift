@@ -847,6 +847,16 @@ struct ServiceAlertsSheet: View {
                                     .foregroundColor(.secondary)
                                     .fixedSize(horizontal: false, vertical: true)
                             }
+                            if let timing = alert.activePeriodSummary {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "clock")
+                                        .font(.system(size: 12))
+                                        .foregroundColor(.secondary)
+                                    Text(timing)
+                                        .font(.custom("HelveticaNeue", size: 13))
+                                        .foregroundColor(.secondary)
+                                }
+                            }
                         }
                         .padding(16)
                         .frame(maxWidth: .infinity, alignment: .leading)

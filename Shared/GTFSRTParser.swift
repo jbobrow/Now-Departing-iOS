@@ -36,12 +36,15 @@ import Foundation
 struct GTFSAlert {
     /// Route IDs this alert applies to (from informed_entity[].route_id).
     let routeIds: [String]
-    /// Short summary of the alert (TranslatedString, field 12).
+    /// Short summary of the alert (TranslatedString, field 10).
     let headerText: String
-    /// Detailed description of the alert (TranslatedString, field 13).
+    /// Detailed description of the alert (TranslatedString, field 11).
     let descriptionText: String
-    /// Raw GTFS-RT Effect enum value (field 10). See ServiceAlert.AlertEffect for values.
+    /// Raw GTFS-RT Effect enum value (field 7). See ServiceAlert.AlertEffect for values.
     let effect: Int
+    /// Time windows during which this alert is active (field 1, repeated TimeRange).
+    /// Empty means the alert is always active.
+    let activePeriods: [(start: Date?, end: Date?)]
 }
 
 /// A parsed GTFS-RT TripUpdate message.
@@ -131,12 +134,22 @@ final class GTFSRTParser {
         var headerText = ""
         var descriptionText = ""
         var effect = 0
+        var activePeriods: [(start: Date?, end: Date?)] = []
 
         while offset < data.count {
             let (fieldNumber, wireType, afterTag) = try readTag(data, at: offset)
             offset = afterTag
 
             switch fieldNumber {
+            case 1: // active_period (repeated TimeRange)
+                if wireType == .lengthDelimited {
+                    let (trData, after) = try readBytes(data, at: offset)
+                    offset = after
+                    activePeriods.append(try parseTimeRange(trData))
+                } else {
+                    offset = try skip(data, at: offset, wireType: wireType)
+                }
+
             case 5: // informed_entity (repeated EntitySelector)
                 if wireType == .lengthDelimited {
                     let (selectorData, after) = try readBytes(data, at: offset)
@@ -180,7 +193,48 @@ final class GTFSRTParser {
             }
         }
 
-        return GTFSAlert(routeIds: routeIds, headerText: headerText, descriptionText: descriptionText, effect: effect)
+        return GTFSAlert(
+            routeIds: routeIds,
+            headerText: headerText,
+            descriptionText: descriptionText,
+            effect: effect,
+            activePeriods: activePeriods
+        )
+    }
+
+    /// Parses a GTFS-RT TimeRange message (start=field1, end=field2, both uint64 Unix timestamps).
+    private func parseTimeRange(_ data: Data) throws -> (start: Date?, end: Date?) {
+        var offset = 0
+        var start: Date?
+        var end: Date?
+
+        while offset < data.count {
+            let (fieldNumber, wireType, afterTag) = try readTag(data, at: offset)
+            offset = afterTag
+
+            switch fieldNumber {
+            case 1: // start (uint64)
+                if wireType == .varint {
+                    let (value, after) = try readVarint(data, at: offset)
+                    offset = after
+                    start = Date(timeIntervalSince1970: TimeInterval(value))
+                } else {
+                    offset = try skip(data, at: offset, wireType: wireType)
+                }
+            case 2: // end (uint64)
+                if wireType == .varint {
+                    let (value, after) = try readVarint(data, at: offset)
+                    offset = after
+                    end = Date(timeIntervalSince1970: TimeInterval(value))
+                } else {
+                    offset = try skip(data, at: offset, wireType: wireType)
+                }
+            default:
+                offset = try skip(data, at: offset, wireType: wireType)
+            }
+        }
+
+        return (start, end)
     }
 
     /// Reads the route_id (field 5) from an EntitySelector message.

@@ -907,6 +907,16 @@ struct WatchServiceAlertsView: View {
                                 .foregroundColor(.gray)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
+                        if let timing = alert.activePeriodSummary {
+                            HStack(spacing: 3) {
+                                Image(systemName: "clock")
+                                    .font(.system(size: 10))
+                                    .foregroundColor(.gray)
+                                Text(timing)
+                                    .font(.custom("HelveticaNeue", size: 11))
+                                    .foregroundColor(.gray)
+                            }
+                        }
                     }
                     .padding(10)
                     .background(Color.yellow.opacity(0.1))
