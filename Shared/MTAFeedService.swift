@@ -338,29 +338,38 @@ final class MTAFeedService {
         }
 
         let request = MTAFeedConfiguration.request(for: url)
+        print("[MTAFeed] Requesting alerts URL: \(url)")
         session.dataTask(with: request) { [weak self] data, response, error in
             guard let self = self else { return }
 
             if let error = error {
+                print("[MTAFeed] Alerts network error: \(error)")
                 DispatchQueue.main.async { completion(.failure(.networkError(error))) }
                 return
             }
 
-            if let http = response as? HTTPURLResponse, !(200...299).contains(http.statusCode) {
-                DispatchQueue.main.async { completion(.failure(.httpError(http.statusCode))) }
-                return
+            if let http = response as? HTTPURLResponse {
+                print("[MTAFeed] Alerts HTTP status: \(http.statusCode)")
+                if !(200...299).contains(http.statusCode) {
+                    DispatchQueue.main.async { completion(.failure(.httpError(http.statusCode))) }
+                    return
+                }
             }
 
             guard let data = data, !data.isEmpty else {
+                print("[MTAFeed] Alerts: no data received")
                 DispatchQueue.main.async { completion(.failure(.noData)) }
                 return
             }
 
+            print("[MTAFeed] Alerts: received \(data.count) bytes, parsing…")
             do {
                 let alerts = try self.parser.parseAlerts(data)
+                print("[MTAFeed] Alerts: parsed \(alerts.count) alerts")
                 self.alertCache[url] = (date: Date(), alerts: alerts)
                 DispatchQueue.main.async { completion(.success(alerts)) }
             } catch {
+                print("[MTAFeed] Alerts parse error: \(error)")
                 DispatchQueue.main.async { completion(.failure(.parseError(error))) }
             }
         }.resume()

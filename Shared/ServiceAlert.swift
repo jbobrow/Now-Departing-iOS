@@ -50,10 +50,13 @@ final class ServiceAlertsManager: ObservableObject {
     private let cacheTTL: TimeInterval = 60  // 1 minute
 
     func fetchAlerts() {
+        print("[ServiceAlerts] fetchAlerts() called, lastFetchTime=\(String(describing: lastFetchTime))")
         // Don't refetch if cache is still fresh
         if let lastFetch = lastFetchTime, Date().timeIntervalSince(lastFetch) < cacheTTL {
+            print("[ServiceAlerts] returning early – cache still fresh")
             return
         }
+        print("[ServiceAlerts] starting network fetch…")
 
         MTAFeedService.shared.fetchServiceAlerts { [weak self] result in
             guard let self = self else { return }
