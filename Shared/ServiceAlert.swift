@@ -133,6 +133,11 @@ final class ServiceAlertsManager: ObservableObject {
         return !(alertsByRoute[routeId]?.isEmpty ?? true)
     }
 
+    /// True only when at least one alert for the route is *currently* active (not just upcoming).
+    func hasActiveAlerts(for routeId: String) -> Bool {
+        return alertsByRoute[routeId]?.contains { $0.isCurrentlyActive } ?? false
+    }
+
     // MARK: - Private processing
 
     /// Converts raw GTFSAlerts into ServiceAlerts grouped by route ID.

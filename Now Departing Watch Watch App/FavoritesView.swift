@@ -99,7 +99,7 @@ struct FavoriteRowView: View {
                             .foregroundColor(line.fg_color)
                             .frame(width: 30, height: 30)
                             .background(Circle().fill(line.bg_color))
-                        if serviceAlertsManager.hasAlerts(for: favoriteWithTimes.favorite.lineId) {
+                        if serviceAlertsManager.hasActiveAlerts(for: favoriteWithTimes.favorite.lineId) {
                             Image(systemName: "exclamationmark.triangle.fill")
                                 .font(.system(size: 9))
                                 .foregroundColor(.yellow)

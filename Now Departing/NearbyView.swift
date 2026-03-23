@@ -621,7 +621,7 @@ struct NearbyView: View {
                                 .foregroundColor(line.fg_color)
                                 .frame(width: 48, height: 48)
                                 .background(Circle().fill(line.bg_color))
-                            if serviceAlertsManager.hasAlerts(for: line.id) {
+                            if serviceAlertsManager.hasActiveAlerts(for: line.id) {
                                 Image(systemName: "exclamationmark.triangle.fill")
                                     .font(.system(size: 14))
                                     .foregroundColor(.yellow)

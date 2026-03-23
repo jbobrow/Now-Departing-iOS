@@ -229,7 +229,7 @@ struct FavoriteTrainRow: View {
                                 .foregroundColor(line.fg_color)
                                 .frame(width: 48, height: 48)
                                 .background(Circle().fill(line.bg_color))
-                            if serviceAlertsManager.hasAlerts(for: favorite.lineId) {
+                            if serviceAlertsManager.hasActiveAlerts(for: favorite.lineId) {
                                 Image(systemName: "exclamationmark.triangle.fill")
                                     .font(.system(size: 14))
                                     .foregroundColor(.yellow)

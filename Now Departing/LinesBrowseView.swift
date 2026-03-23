@@ -344,26 +344,27 @@ struct TimesView: View {
                 .padding(.horizontal, 24)
                 .padding(.top, 20)
 
-                // Service alert banner (shown only when there are active alerts)
+                // Service alert banner — yellow if active now, grey if only upcoming
                 if serviceAlertsManager.hasAlerts(for: line.id) {
+                    let isActive = serviceAlertsManager.hasActiveAlerts(for: line.id)
                     Button(action: { showingServiceAlerts = true }) {
                         HStack(spacing: 8) {
                             Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundColor(.yellow)
-                            Text("Service Change")
+                                .foregroundColor(isActive ? .yellow : .secondary)
+                            Text(isActive ? "Service Change" : "Planned Service Changes")
                                 .font(.custom("HelveticaNeue-Bold", size: 15))
-                                .foregroundColor(.yellow)
+                                .foregroundColor(isActive ? .yellow : .secondary)
                             Spacer()
                             Image(systemName: "chevron.right")
                                 .font(.system(size: 13, weight: .semibold))
-                                .foregroundColor(.yellow.opacity(0.7))
+                                .foregroundColor(isActive ? .yellow.opacity(0.7) : .secondary.opacity(0.7))
                         }
                         .padding(.horizontal, 16)
                         .padding(.vertical, 12)
-                        .background(Color.yellow.opacity(0.15))
+                        .background(isActive ? Color.yellow.opacity(0.15) : Color.secondary.opacity(0.1))
                         .overlay(
                             RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.yellow.opacity(0.4), lineWidth: 1)
+                                .stroke(isActive ? Color.yellow.opacity(0.4) : Color.secondary.opacity(0.25), lineWidth: 1)
                         )
                         .cornerRadius(12)
                     }
@@ -824,48 +825,44 @@ struct ServiceAlertsSheet: View {
     let alerts: [ServiceAlert]
     let line: SubwayLine
     @Environment(\.dismiss) private var dismiss
+    @State private var upcomingExpanded = false
+
+    private var activeAlerts: [ServiceAlert]   { alerts.filter { $0.isCurrentlyActive } }
+    private var upcomingAlerts: [ServiceAlert] { alerts.filter { !$0.isCurrentlyActive } }
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
-                    ForEach(alerts) { alert in
-                        VStack(alignment: .leading, spacing: 8) {
-                            HStack(spacing: 8) {
-                                Image(systemName: "exclamationmark.triangle.fill")
-                                    .foregroundColor(.yellow)
-                                Text(alert.effect.displayText)
-                                    .font(.custom("HelveticaNeue-Bold", size: 13))
-                                    .foregroundColor(.yellow)
-                            }
-                            Text(alert.headerText)
-                                .font(.custom("HelveticaNeue-Bold", size: 17))
-                                .foregroundColor(.primary)
-                            if !alert.descriptionText.isEmpty {
-                                Text(alert.descriptionText)
-                                    .font(.custom("HelveticaNeue", size: 15))
+                    // Active alerts
+                    ForEach(activeAlerts) { alert in
+                        alertCard(alert)
+                    }
+
+                    // Upcoming alerts — collapsible
+                    if !upcomingAlerts.isEmpty {
+                        Button(action: { withAnimation(.easeInOut(duration: 0.2)) { upcomingExpanded.toggle() } }) {
+                            HStack(spacing: 6) {
+                                Text("Upcoming")
+                                    .font(.custom("HelveticaNeue-Bold", size: 14))
                                     .foregroundColor(.secondary)
-                                    .fixedSize(horizontal: false, vertical: true)
+                                Text("(\(upcomingAlerts.count))")
+                                    .font(.custom("HelveticaNeue", size: 14))
+                                    .foregroundColor(.secondary)
+                                Spacer()
+                                Image(systemName: upcomingExpanded ? "chevron.up" : "chevron.down")
+                                    .font(.system(size: 12, weight: .semibold))
+                                    .foregroundColor(.secondary)
                             }
-                            if let timing = alert.activePeriodSummary {
-                                HStack(spacing: 4) {
-                                    Image(systemName: "clock")
-                                        .font(.system(size: 12))
-                                        .foregroundColor(.secondary)
-                                    Text(timing)
-                                        .font(.custom("HelveticaNeue", size: 13))
-                                        .foregroundColor(.secondary)
-                                }
+                            .padding(.horizontal, 4)
+                        }
+
+                        if upcomingExpanded {
+                            ForEach(upcomingAlerts) { alert in
+                                alertCard(alert)
+                                    .transition(.opacity.combined(with: .move(edge: .top)))
                             }
                         }
-                        .padding(16)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.yellow.opacity(0.08))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.yellow.opacity(0.3), lineWidth: 1)
-                        )
-                        .cornerRadius(12)
                     }
                 }
                 .padding(20)
@@ -891,5 +888,47 @@ struct ServiceAlertsSheet: View {
             }
         }
         .preferredColorScheme(.dark)
+    }
+
+    @ViewBuilder
+    private func alertCard(_ alert: ServiceAlert) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            // Top row: effect badge left, timing right
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .foregroundColor(.yellow)
+                Text(alert.effect.displayText)
+                    .font(.custom("HelveticaNeue-Bold", size: 13))
+                    .foregroundColor(.yellow)
+                Spacer()
+                if let timing = alert.activePeriodSummary {
+                    HStack(spacing: 4) {
+                        Image(systemName: "clock")
+                            .font(.system(size: 12))
+                            .foregroundColor(.secondary)
+                        Text(timing)
+                            .font(.custom("HelveticaNeue", size: 13))
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+            Text(alert.headerText)
+                .font(.custom("HelveticaNeue-Bold", size: 17))
+                .foregroundColor(.primary)
+            if !alert.descriptionText.isEmpty {
+                Text(alert.descriptionText)
+                    .font(.custom("HelveticaNeue", size: 15))
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.yellow.opacity(0.08))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.yellow.opacity(0.3), lineWidth: 1)
+        )
+        .cornerRadius(12)
     }
 }
