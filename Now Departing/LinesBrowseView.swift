@@ -844,11 +844,10 @@ struct ServiceAlertsSheet: View {
                     if !upcomingAlerts.isEmpty {
                         Button(action: toggleUpcoming) {
                             HStack(spacing: 6) {
-                                Text("Upcoming")
+                                Text(upcomingExpanded
+                                     ? "Hide upcoming (\(upcomingAlerts.count))"
+                                     : "Show upcoming (\(upcomingAlerts.count))")
                                     .font(.custom("HelveticaNeue-Bold", size: 14))
-                                    .foregroundColor(.secondary)
-                                Text("(\(upcomingAlerts.count))")
-                                    .font(.custom("HelveticaNeue", size: 14))
                                     .foregroundColor(.secondary)
                                 Spacer()
                                 Image(systemName: upcomingExpanded ? "chevron.up" : "chevron.down")
@@ -931,12 +930,12 @@ struct ServiceAlertsSheet: View {
                     }
                 }
             }
-            alertInlineText(alert.headerText)
+            alertInlineText(alert.headerText, fontSize: 17)
                 .font(.custom("HelveticaNeue-Bold", size: 17))
                 .foregroundColor(.primary)
                 .fixedSize(horizontal: false, vertical: true)
             if !alert.descriptionText.isEmpty {
-                alertInlineText(alert.descriptionText)
+                alertInlineText(alert.descriptionText, fontSize: 15)
                     .font(.custom("HelveticaNeue", size: 15))
                     .foregroundColor(.secondary)
                     .fixedSize(horizontal: false, vertical: true)

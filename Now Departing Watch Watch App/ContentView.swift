@@ -898,12 +898,12 @@ struct WatchServiceAlertsView: View {
                                 .font(.custom("HelveticaNeue-Bold", size: 11))
                                 .foregroundColor(.yellow)
                         }
-                        alertInlineText(alert.headerText)
+                        alertInlineText(alert.headerText, fontSize: 13)
                             .font(.custom("HelveticaNeue-Bold", size: 13))
                             .foregroundColor(.white)
                             .fixedSize(horizontal: false, vertical: true)
                         if !alert.descriptionText.isEmpty {
-                            alertInlineText(alert.descriptionText)
+                            alertInlineText(alert.descriptionText, fontSize: 12)
                                 .font(.custom("HelveticaNeue", size: 12))
                                 .foregroundColor(.gray)
                                 .fixedSize(horizontal: false, vertical: true)

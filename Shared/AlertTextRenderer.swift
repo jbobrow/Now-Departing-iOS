@@ -5,22 +5,25 @@
 //  Parses MTA alert text and renders subway line badges and symbols inline.
 //
 //  The MTA GTFS-RT alerts feed uses:
-//    [A], [1], [G]  → colored circle icons for each subway route
+//    [A], [1], [G]  → colored circle badge, Helvetica Bold, matching the app's line icons
 //    [airplane icon] → white airplane SF symbol
 //
+//  Badge images are rendered via ImageRenderer (iOS 16+/watchOS 9+) at a fixed internal
+//  size and cached; SwiftUI's Text(Image) scales them to match the surrounding font's
+//  line height automatically.
+//
 //  Usage:
-//    alertInlineText("No [G] between Bedford-Nostrand Avs and Court Sq")
-//    // Returns a Text with a green G-circle replacing [G]
+//    alertInlineText("No [G] between Bedford-Nostrand Avs and Court Sq", fontSize: 17)
 //
 
 import SwiftUI
 
 // MARK: - Public entry point
 
-/// Parses MTA alert text and returns a SwiftUI `Text` with route circles and
-/// airplane icons substituted in place. Font and base foreground color should
-/// be applied at the call site; per-token colors (route badges) are preserved.
-func alertInlineText(_ raw: String) -> Text {
+/// Returns a SwiftUI `Text` with route circle badges and airplane icons rendered inline.
+/// Apply font and base foreground color at the call site; badge colors are baked in.
+@MainActor
+func alertInlineText(_ raw: String, fontSize: CGFloat = 17) -> Text {
     tokenize(raw).reduce(Text("")) { acc, token in
         switch token {
         case .text(let s):
@@ -30,15 +33,49 @@ func alertInlineText(_ raw: String) -> Text {
             return acc + Text(Image(systemName: "airplane"))
 
         case .route(let id):
-            let color = routeColor(for: id)
-            if let symbol = circleSymbol(for: id) {
-                // Single-char route: use an SF Symbol filled circle (e.g. "g.circle.fill")
-                return acc + Text(Image(systemName: symbol)).foregroundColor(color)
+            if let img = RouteBadgeCache.shared.badge(for: id) {
+                return acc + Text(img)
             } else {
-                // Multi-char route (GS, SIR, 6X…): bold colored text, no circle available
+                // Fallback if rendering fails (multi-char like GS, SIR)
+                let color = routeBgColor(for: id)
                 return acc + Text(id).foregroundColor(color).bold()
             }
         }
+    }
+}
+
+// MARK: - Badge image cache
+
+@MainActor
+private final class RouteBadgeCache {
+    static let shared = RouteBadgeCache()
+    private var cache: [String: Image] = [:]
+
+    func badge(for routeId: String) -> Image? {
+        if let cached = cache[routeId] { return cached }
+
+        let bgColor = routeBgColor(for: routeId)
+        let fgColor = routeFgColor(for: routeId)
+        // Slightly smaller font for two-char labels (GS, SI) to fit inside the circle
+        let internalSize: CGFloat = 48
+        let fontRatio: CGFloat = routeId.count == 1 ? 0.65 : 0.52
+
+        let badgeView = ZStack {
+            Circle().fill(bgColor)
+            Text(routeId)
+                .font(.custom("HelveticaNeue-Bold", size: internalSize * fontRatio))
+                .foregroundColor(fgColor)
+        }
+        .frame(width: internalSize, height: internalSize)
+
+        let renderer = ImageRenderer(content: badgeView)
+        renderer.scale = 3.0
+
+        // uiImage is available on iOS, tvOS, and watchOS
+        guard let uiImage = renderer.uiImage else { return nil }
+        let image = Image(uiImage: uiImage)
+        cache[routeId] = image
+        return image
     }
 }
 
@@ -66,7 +103,6 @@ private func tokenize(_ raw: String) -> [AlertToken] {
         }
         let afterOpen = rest.index(after: open)
         guard let close = rest[afterOpen...].firstIndex(of: "]") else {
-            // No matching ']' — treat the rest as plain text
             tokens.append(.text(String(rest[open...])))
             break
         }
@@ -82,27 +118,23 @@ private func tokenize(_ raw: String) -> [AlertToken] {
     return tokens
 }
 
-// MARK: - Helpers
+// MARK: - Color helpers
 
-/// Returns the SF Symbol name for a single-character route ID, or nil for multi-char IDs.
-/// Example: "G" → "g.circle.fill", "1" → "1.circle.fill", "GS" → nil
-private func circleSymbol(for routeId: String) -> String? {
-    guard routeId.count == 1, let char = routeId.first,
-          char.isLetter || char.isNumber else { return nil }
-    return "\(char.lowercased()).circle.fill"
-}
-
-/// Returns the MTA brand background color for a given route ID.
-/// Falls back to stripping a trailing "X" (express variants like 6X, 7X),
-/// then to gray for unknown/shuttle lines (S, H, GS, SI, SIR, etc.).
-/// Single-char unknowns like S and H still render as a gray circle.
-private func routeColor(for routeId: String) -> Color {
+private func routeBgColor(for routeId: String) -> Color {
     if let c = SubwayConfiguration.lineColors[routeId] { return c.background }
-    // Express variants share their base line's color (e.g. 6X → 6)
     if routeId.hasSuffix("X") {
         let base = String(routeId.dropLast())
         if let c = SubwayConfiguration.lineColors[base] { return c.background }
     }
     // Gray for unknown/shuttle lines (S, H, GS, SIR, SI, FS, etc.)
     return Color(red: 0.50, green: 0.51, blue: 0.52)
+}
+
+private func routeFgColor(for routeId: String) -> Color {
+    if let c = SubwayConfiguration.lineColors[routeId] { return c.foreground }
+    if routeId.hasSuffix("X") {
+        let base = String(routeId.dropLast())
+        if let c = SubwayConfiguration.lineColors[base] { return c.foreground }
+    }
+    return .white
 }
