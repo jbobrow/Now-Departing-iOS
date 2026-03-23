@@ -2,121 +2,310 @@
 //  NowDepartingWidget.swift
 //  NowDepartingWidget
 //
-//  Main widget implementation with timeline provider.
+//  Main widget implementation with configurable timeline provider.
+//  Users can select which favorite station appears in each widget instance.
 //
 
 import WidgetKit
 import SwiftUI
+import AppIntents
+
+// MARK: - Favorite App Entity
+
+struct FavoriteAppEntity: AppEntity {
+    static var typeDisplayRepresentation = TypeDisplayRepresentation(name: "Favorite Station")
+    static var defaultQuery = FavoriteEntityQuery()
+
+    var id: String
+    var lineId: String
+    var stationName: String
+    var stationDisplay: String
+    var direction: String
+    var stationGtfsStopId: String?
+
+    var displayRepresentation: DisplayRepresentation {
+        let line = SubwayLineFactory.line(for: lineId)
+        let terminal = TerminalStationsHelper.getToTerminalStation(for: lineId, direction: direction)
+        return DisplayRepresentation(
+            title: "\(line.label) \(stationDisplay)",
+            subtitle: "\(terminal)"
+        )
+    }
+}
+
+struct FavoriteEntityQuery: EntityQuery {
+    func entities(for identifiers: [String]) async throws -> [FavoriteAppEntity] {
+        let favorites = loadFavorites()
+        return identifiers.compactMap { id in
+            favorites.first(where: { $0.id == id })?.toAppEntity()
+        }
+    }
+
+    func suggestedEntities() async throws -> [FavoriteAppEntity] {
+        return loadFavorites().map { $0.toAppEntity() }
+    }
+
+    func defaultResult() async -> FavoriteAppEntity? {
+        return loadFavorites().first?.toAppEntity()
+    }
+
+    private func loadFavorites() -> [FavoriteItem] {
+        if let sharedDefaults = UserDefaults(suiteName: "group.com.move38.Now-Departing"),
+           let data = sharedDefaults.data(forKey: "savedFavorites"),
+           let favorites = try? JSONDecoder().decode([FavoriteItem].self, from: data) {
+            return favorites
+        }
+        if let data = UserDefaults.standard.data(forKey: "savedFavorites"),
+           let favorites = try? JSONDecoder().decode([FavoriteItem].self, from: data) {
+            return favorites
+        }
+        return []
+    }
+}
+
+extension FavoriteItem {
+    func toAppEntity() -> FavoriteAppEntity {
+        FavoriteAppEntity(
+            id: id,
+            lineId: lineId,
+            stationName: stationName,
+            stationDisplay: stationDisplay,
+            direction: direction,
+            stationGtfsStopId: stationGtfsStopId
+        )
+    }
+}
+
+extension FavoriteAppEntity {
+    func toFavoriteItem() -> FavoriteItem {
+        FavoriteItem(
+            lineId: lineId,
+            stationName: stationName,
+            stationDisplay: stationDisplay,
+            direction: direction,
+            stationGtfsStopId: stationGtfsStopId
+        )
+    }
+}
+
+// MARK: - Widget Configuration Intent
+
+struct SelectFavoriteIntent: WidgetConfigurationIntent {
+    static var title: LocalizedStringResource = "Select Favorite"
+    static var description = IntentDescription("Choose which favorite station to display in this widget")
+
+    @Parameter(title: "Station")
+    var favorite: FavoriteAppEntity?
+
+    @Parameter(title: "Second Station")
+    var secondFavorite: FavoriteAppEntity?
+
+    @Parameter(title: "Third Station (Large Widget)")
+    var thirdFavorite: FavoriteAppEntity?
+
+    @Parameter(title: "Fourth Station (Large Widget)")
+    var fourthFavorite: FavoriteAppEntity?
+}
 
 // MARK: - Widget Entry
 
+struct FavoriteTrainData {
+    let favoriteItem: FavoriteItem
+    let nextTrains: [Date]
+}
+
 struct TrainEntry: TimelineEntry {
     let date: Date
-    let favoriteItem: FavoriteItem?
-    let nextTrains: [Date]
+    let favorites: [FavoriteTrainData]
     let lastUpdated: Date
     let errorMessage: String
 }
 
 // MARK: - Timeline Provider
 
-struct TrainTimelineProvider: TimelineProvider {
+struct TrainTimelineProvider: AppIntentTimelineProvider {
     func placeholder(in context: Context) -> TrainEntry {
         let now = Date()
         return TrainEntry(
             date: now,
-            favoriteItem: FavoriteItem(
-                lineId: "1",
-                stationName: "Times Sq-42 St",
-                stationDisplay: "Times Sq-42 St",
-                direction: "N"
-            ),
-            nextTrains: [
-                now.addingTimeInterval(5 * 60),
-                now.addingTimeInterval(12 * 60)
+            favorites: [
+                FavoriteTrainData(
+                    favoriteItem: FavoriteItem(
+                        lineId: "1",
+                        stationName: "Times Sq-42 St",
+                        stationDisplay: "Times Sq-42 St",
+                        direction: "N"
+                    ),
+                    nextTrains: [
+                        now.addingTimeInterval(5 * 60),
+                        now.addingTimeInterval(12 * 60)
+                    ]
+                )
             ],
             lastUpdated: now,
             errorMessage: ""
         )
     }
 
-    func getSnapshot(in context: Context, completion: @escaping (TrainEntry) -> Void) {
+    func snapshot(for configuration: SelectFavoriteIntent, in context: Context) async -> TrainEntry {
         let favorites = loadFavorites()
-        let favorite = favorites.first
+        let selectedFavorite = resolveSelectedFavorite(from: configuration, allFavorites: favorites)
 
         if context.isPreview {
             let now = Date()
-            completion(TrainEntry(
+            let favorite = selectedFavorite ?? FavoriteItem(
+                lineId: "1",
+                stationName: "Times Sq-42 St",
+                stationDisplay: "Times Sq-42 St",
+                direction: "N"
+            )
+            return TrainEntry(
                 date: now,
-                favoriteItem: favorite ?? FavoriteItem(
-                    lineId: "1",
-                    stationName: "Times Sq-42 St",
-                    stationDisplay: "Times Sq-42 St",
-                    direction: "N"
-                ),
-                nextTrains: [
-                    now.addingTimeInterval(5 * 60),
-                    now.addingTimeInterval(12 * 60)
+                favorites: [
+                    FavoriteTrainData(
+                        favoriteItem: favorite,
+                        nextTrains: [
+                            now.addingTimeInterval(5 * 60),
+                            now.addingTimeInterval(12 * 60)
+                        ]
+                    )
                 ],
                 lastUpdated: now,
                 errorMessage: ""
-            ))
-        } else if let favorite = favorite {
-            fetchTrainTimes(for: favorite) { trains, error, fetchTime in
-                completion(TrainEntry(
-                    date: Date(),
-                    favoriteItem: favorite,
-                    nextTrains: trains,
-                    lastUpdated: fetchTime,
-                    errorMessage: error
-                ))
-            }
+            )
+        } else if let favorite = selectedFavorite {
+            let (trains, error, fetchTime) = await fetchTrainTimesAsync(for: favorite)
+            return TrainEntry(
+                date: Date(),
+                favorites: [FavoriteTrainData(favoriteItem: favorite, nextTrains: trains)],
+                lastUpdated: fetchTime,
+                errorMessage: error
+            )
         } else {
-            completion(TrainEntry(
+            return TrainEntry(
                 date: Date(),
-                favoriteItem: nil,
-                nextTrains: [],
-                lastUpdated: Date(),
-                errorMessage: "No favorites set"
-            ))
-        }
-    }
-
-    func getTimeline(in context: Context, completion: @escaping (Timeline<TrainEntry>) -> Void) {
-        let favorites = loadFavorites()
-
-        guard let favorite = favorites.first else {
-            let entry = TrainEntry(
-                date: Date(),
-                favoriteItem: nil,
-                nextTrains: [],
+                favorites: [],
                 lastUpdated: Date(),
                 errorMessage: "No favorites set"
             )
-            completion(Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(300))))
-            return
+        }
+    }
+
+    func timeline(for configuration: SelectFavoriteIntent, in context: Context) async -> Timeline<TrainEntry> {
+        let allFavorites = loadFavorites()
+        let primaryFavorite = resolveSelectedFavorite(from: configuration, allFavorites: allFavorites)
+        let secondFavorite = resolveSecondFavorite(from: configuration, allFavorites: allFavorites)
+
+        guard let primary = primaryFavorite else {
+            let entry = TrainEntry(
+                date: Date(),
+                favorites: [],
+                lastUpdated: Date(),
+                errorMessage: "No favorites set"
+            )
+            return Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(300)))
         }
 
-        fetchTrainTimes(for: favorite) { trains, error, fetchTime in
-            let currentDate = Date()
-            var entries: [TrainEntry] = []
+        // Fetch train times for primary favorite
+        let (primaryTrains, primaryError, fetchTime) = await fetchTrainTimesAsync(for: primary)
 
-            // Initial entry with all upcoming trains
-            entries.append(TrainEntry(date: currentDate, favoriteItem: favorite, nextTrains: trains, lastUpdated: fetchTime, errorMessage: error))
+        // Fetch train times for additional favorites if configured
+        var secondData: FavoriteTrainData?
+        if let second = secondFavorite {
+            let (secondTrains, _, _) = await fetchTrainTimesAsync(for: second)
+            secondData = FavoriteTrainData(favoriteItem: second, nextTrains: secondTrains)
+        }
 
-            // Create an entry at each train's departure time with that train removed.
-            // This causes WidgetKit to automatically advance to the next train when each
-            // one departs, preventing expired trains from showing "X ago" in the widget.
-            for (index, trainDate) in trains.enumerated() {
-                guard trainDate > currentDate else { continue }
-                let remainingTrains = Array(trains.dropFirst(index + 1))
-                entries.append(TrainEntry(date: trainDate, favoriteItem: favorite, nextTrains: remainingTrains, lastUpdated: fetchTime, errorMessage: error))
+        let thirdFavorite = resolveThirdFavorite(from: configuration, allFavorites: allFavorites)
+        var thirdData: FavoriteTrainData?
+        if let third = thirdFavorite {
+            let (thirdTrains, _, _) = await fetchTrainTimesAsync(for: third)
+            thirdData = FavoriteTrainData(favoriteItem: third, nextTrains: thirdTrains)
+        }
+
+        let fourthFavorite = resolveFourthFavorite(from: configuration, allFavorites: allFavorites)
+        var fourthData: FavoriteTrainData?
+        if let fourth = fourthFavorite {
+            let (fourthTrains, _, _) = await fetchTrainTimesAsync(for: fourth)
+            fourthData = FavoriteTrainData(favoriteItem: fourth, nextTrains: fourthTrains)
+        }
+
+        let currentDate = Date()
+        var entries: [TrainEntry] = []
+
+        // Build favorites array
+        func makeFavorites(primaryTrains: [Date]) -> [FavoriteTrainData] {
+            var favs = [FavoriteTrainData(favoriteItem: primary, nextTrains: primaryTrains)]
+            if let second = secondData { favs.append(second) }
+            if let third = thirdData { favs.append(third) }
+            if let fourth = fourthData { favs.append(fourth) }
+            return favs
+        }
+
+        // Initial entry with all upcoming trains
+        entries.append(TrainEntry(
+            date: currentDate,
+            favorites: makeFavorites(primaryTrains: primaryTrains),
+            lastUpdated: fetchTime,
+            errorMessage: primaryError
+        ))
+
+        // Create an entry at each train's departure time with that train removed.
+        // This causes WidgetKit to automatically advance to the next train when each
+        // one departs, preventing expired trains from showing "X ago" in the widget.
+        for (index, trainDate) in primaryTrains.enumerated() {
+            guard trainDate > currentDate else { continue }
+            let remainingTrains = Array(primaryTrains.dropFirst(index + 1))
+            entries.append(TrainEntry(
+                date: trainDate,
+                favorites: makeFavorites(primaryTrains: remainingTrains),
+                lastUpdated: fetchTime,
+                errorMessage: primaryError
+            ))
+        }
+
+        // Refresh with fresh MTA data every 5 minutes
+        let refreshDate = currentDate.addingTimeInterval(5 * 60)
+        return Timeline(entries: entries, policy: .after(refreshDate))
+    }
+
+    // MARK: - Favorite Resolution
+
+    private func resolveSelectedFavorite(from configuration: SelectFavoriteIntent, allFavorites: [FavoriteItem]) -> FavoriteItem? {
+        if let selected = configuration.favorite {
+            // Try to find the matching favorite in the current list (in case it was updated)
+            if let match = allFavorites.first(where: { $0.id == selected.id }) {
+                return match
             }
-
-            // Refresh with fresh MTA data every 5 minutes
-            let refreshDate = currentDate.addingTimeInterval(5 * 60)
-            completion(Timeline(entries: entries, policy: .after(refreshDate)))
+            // Fall back to the entity data
+            return selected.toFavoriteItem()
         }
+        // Default to first favorite
+        return allFavorites.first
+    }
+
+    private func resolveSecondFavorite(from configuration: SelectFavoriteIntent, allFavorites: [FavoriteItem]) -> FavoriteItem? {
+        guard let selected = configuration.secondFavorite else { return nil }
+        if let match = allFavorites.first(where: { $0.id == selected.id }) {
+            return match
+        }
+        return selected.toFavoriteItem()
+    }
+
+    private func resolveThirdFavorite(from configuration: SelectFavoriteIntent, allFavorites: [FavoriteItem]) -> FavoriteItem? {
+        guard let selected = configuration.thirdFavorite else { return nil }
+        if let match = allFavorites.first(where: { $0.id == selected.id }) {
+            return match
+        }
+        return selected.toFavoriteItem()
+    }
+
+    private func resolveFourthFavorite(from configuration: SelectFavoriteIntent, allFavorites: [FavoriteItem]) -> FavoriteItem? {
+        guard let selected = configuration.fourthFavorite else { return nil }
+        if let match = allFavorites.first(where: { $0.id == selected.id }) {
+            return match
+        }
+        return selected.toFavoriteItem()
     }
 
     // MARK: - Data Loading
@@ -134,38 +323,31 @@ struct TrainTimelineProvider: TimelineProvider {
         return []
     }
 
-    /// Fetches arrival times for a favorite station via the MTA GTFS-RT feed.
-    ///
-    /// The `FavoriteItem` must have been saved with a valid `stationGtfsStopId`.
-    /// If the stop ID is missing, the widget falls back to an empty result with
-    /// an explanatory error string.
-    private func fetchTrainTimes(
-        for favorite: FavoriteItem,
-        completion: @escaping (_ trains: [Date], _ errorMessage: String, _ fetchTime: Date) -> Void
-    ) {
-        let fetchTime = Date()
+    /// Fetches arrival times for a favorite station via the MTA GTFS-RT feed (async wrapper).
+    private func fetchTrainTimesAsync(for favorite: FavoriteItem) async -> (trains: [Date], errorMessage: String, fetchTime: Date) {
+        await withCheckedContinuation { continuation in
+            let fetchTime = Date()
+            let station = Station(
+                display: favorite.stationDisplay,
+                name: favorite.stationName,
+                gtfsStopId: favorite.stationGtfsStopId
+            )
 
-        // Build a Station from the FavoriteItem so we can call MTAFeedService.
-        let station = Station(
-            display: favorite.stationDisplay,
-            name: favorite.stationName,
-            gtfsStopId: favorite.stationGtfsStopId
-        )
-
-        MTAFeedService.shared.fetchArrivals(
-            routeId: favorite.lineId,
-            station: station,
-            direction: favorite.direction
-        ) { result in
-            switch result {
-            case .success(let arrivals):
-                if arrivals.isEmpty {
-                    completion([], "No trains", fetchTime)
-                } else {
-                    completion(arrivals, "", fetchTime)
+            MTAFeedService.shared.fetchArrivals(
+                routeId: favorite.lineId,
+                station: station,
+                direction: favorite.direction
+            ) { result in
+                switch result {
+                case .success(let arrivals):
+                    if arrivals.isEmpty {
+                        continuation.resume(returning: ([], "No trains", fetchTime))
+                    } else {
+                        continuation.resume(returning: (arrivals, "", fetchTime))
+                    }
+                case .failure(let error):
+                    continuation.resume(returning: ([], error.localizedDescription, fetchTime))
                 }
-            case .failure(let error):
-                completion([], error.localizedDescription, fetchTime)
             }
         }
     }
@@ -177,7 +359,7 @@ struct NowDepartingWidget: Widget {
     let kind: String = "NowDepartingWidget"
 
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: TrainTimelineProvider()) { entry in
+        AppIntentConfiguration(kind: kind, intent: SelectFavoriteIntent.self, provider: TrainTimelineProvider()) { entry in
             NowDepartingWidgetEntryView(entry: entry)
         }
         .configurationDisplayName("Now Departing")
