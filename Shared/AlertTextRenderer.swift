@@ -5,12 +5,13 @@
 //  Parses MTA alert text and renders subway line badges and symbols inline.
 //
 //  The MTA GTFS-RT alerts feed uses:
-//    [A], [1], [G]  → colored circle badge, Helvetica Bold, matching the app's line icons
-//    [airplane icon] → white airplane SF symbol
+//    [A], [1], [G]   → filled circle badge, Helvetica Bold — matches the app's line icons
+//    [6X], [7X]      → filled diamond (45° rotated square) — matches MTA express signage
+//    [airplane icon] → airplane SF symbol
 //
-//  Badge images are rendered via ImageRenderer (iOS 16+/watchOS 9+) at a fixed internal
-//  size and cached; SwiftUI's Text(Image) scales them to match the surrounding font's
-//  line height automatically.
+//  Badges are rendered via ImageRenderer (iOS 16+/watchOS 9+) at a fixed internal
+//  size and cached by route ID. SwiftUI's Text(Image) scales them to the surrounding
+//  font's line height automatically.
 //
 //  Usage:
 //    alertInlineText("No [G] between Bedford-Nostrand Avs and Court Sq", fontSize: 17)
@@ -20,7 +21,7 @@ import SwiftUI
 
 // MARK: - Public entry point
 
-/// Returns a SwiftUI `Text` with route circle badges and airplane icons rendered inline.
+/// Returns a SwiftUI `Text` with route badges and airplane icons rendered inline.
 /// Apply font and base foreground color at the call site; badge colors are baked in.
 @MainActor
 func alertInlineText(_ raw: String, fontSize: CGFloat = 17) -> Text {
@@ -36,11 +37,51 @@ func alertInlineText(_ raw: String, fontSize: CGFloat = 17) -> Text {
             if let img = RouteBadgeCache.shared.badge(for: id) {
                 return acc + Text(img)
             } else {
-                // Fallback if rendering fails (multi-char like GS, SIR)
-                let color = routeBgColor(for: id)
-                return acc + Text(id).foregroundColor(color).bold()
+                // Fallback if rendering fails
+                return acc + Text(id).foregroundColor(routeBgColor(for: id)).bold()
             }
         }
+    }
+}
+
+// MARK: - Badge view
+
+/// Renders a single route badge: circle for regular routes, diamond for express (xX).
+private struct RouteBadgeView: View {
+    let routeId: String
+    let bgColor: Color
+    let fgColor: Color
+
+    /// Express routes (6X, 7X) use a diamond; everything else uses a circle.
+    private var isExpress: Bool { routeId.count == 2 && routeId.hasSuffix("X") }
+    /// Show just the base number inside the diamond (MTA convention: "6" not "6X").
+    private var displayLabel: String { isExpress ? String(routeId.dropLast()) : routeId }
+
+    private static let size: CGFloat = 48
+    private var fontRatio: CGFloat {
+        if isExpress    { return 0.52 }  // slightly smaller to clear diamond corners
+        if routeId.count == 1 { return 0.65 }
+        return 0.52  // two-char non-express (GS, SI, etc.)
+    }
+
+    var body: some View {
+        ZStack {
+            if isExpress {
+                // Diamond: a square rotated 45°, sized so its corners reach ~96% of the frame.
+                // Side = size / √2  ×  0.96  ≈  size × 0.679
+                let side = Self.size * 0.679
+                Rectangle()
+                    .fill(bgColor)
+                    .frame(width: side, height: side)
+                    .rotationEffect(.degrees(45))
+            } else {
+                Circle().fill(bgColor)
+            }
+            Text(displayLabel)
+                .font(.custom("HelveticaNeue-Bold", size: Self.size * fontRatio))
+                .foregroundColor(fgColor)
+        }
+        .frame(width: Self.size, height: Self.size)
     }
 }
 
@@ -56,22 +97,11 @@ private final class RouteBadgeCache {
 
         let bgColor = routeBgColor(for: routeId)
         let fgColor = routeFgColor(for: routeId)
-        // Slightly smaller font for two-char labels (GS, SI) to fit inside the circle
-        let internalSize: CGFloat = 48
-        let fontRatio: CGFloat = routeId.count == 1 ? 0.65 : 0.52
 
-        let badgeView = ZStack {
-            Circle().fill(bgColor)
-            Text(routeId)
-                .font(.custom("HelveticaNeue-Bold", size: internalSize * fontRatio))
-                .foregroundColor(fgColor)
-        }
-        .frame(width: internalSize, height: internalSize)
-
-        let renderer = ImageRenderer(content: badgeView)
+        let view = RouteBadgeView(routeId: routeId, bgColor: bgColor, fgColor: fgColor)
+        let renderer = ImageRenderer(content: view)
         renderer.scale = 3.0
 
-        // uiImage is available on iOS, tvOS, and watchOS
         guard let uiImage = renderer.uiImage else { return nil }
         let image = Image(uiImage: uiImage)
         cache[routeId] = image
