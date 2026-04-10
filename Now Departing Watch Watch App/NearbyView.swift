@@ -7,6 +7,7 @@
 
 import SwiftUI
 import WatchKit
+import CoreLocation
 
 // New data structures for organized display
 struct StationGroup: Identifiable {
@@ -210,6 +211,20 @@ struct NearbyView: View {
         } else {
             return ("", "", false)
         }
+    }
+
+    // Distance to nearest station from all station data (used when no trains are found)
+    private var nearestStationDistanceMeters: Double? {
+        guard let location = locationManager.location else { return nil }
+        var minDistance = Double.infinity
+        for stations in stationDataManager.stationsByLine.values {
+            for station in stations {
+                guard let lat = station.latitude, let lon = station.longitude else { continue }
+                let d = location.distance(from: CLLocation(latitude: lat, longitude: lon))
+                if d < minDistance { minDistance = d }
+            }
+        }
+        return minDistance.isFinite ? minDistance : nil
     }
     
     private var stationGroups: [StationGroup] {
@@ -470,20 +485,50 @@ struct NearbyView: View {
         .padding()
     }
     
+    @ViewBuilder
     private var noTrainsView: some View {
-        VStack(spacing: 8) {
-            Image(systemName: "tram")
-                .foregroundColor(.gray)
-                .font(.title2)
-            Text("No Nearby Trains")
-                .font(.headline)
-                .foregroundColor(.white)
-            Text("No trains found in your area")
-                .font(.caption)
-                .foregroundColor(.gray)
-                .multilineTextAlignment(.center)
+        if let distMeters = nearestStationDistanceMeters, distMeters * 0.000621371 > 3 {
+            outOfTownView(miles: distMeters * 0.000621371)
+        } else {
+            VStack(spacing: 8) {
+                Image(systemName: "tram")
+                    .foregroundColor(.gray)
+                    .font(.title2)
+                Text("No Nearby Trains")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                Text("No trains found in your area")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+                    .multilineTextAlignment(.center)
+            }
+            .padding()
         }
-        .padding()
+    }
+
+    @ViewBuilder
+    private func outOfTownView(miles: Double) -> some View {
+        VStack(spacing: 8) {
+            HStack(alignment: .center, spacing: 8) {
+                Image(systemName: miles > 100 ? "airplane" : miles > 20 ? "car" : "bicycle")
+                    .foregroundColor(.yellow)
+                    .font(.title)
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(String(format: "%.0f miles away", miles))
+                        .font(.custom("HelveticaNeue-Bold", size: 16))
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.leading)
+
+                    Text("Consider \(miles > 100 ? "flying" : miles > 20 ? "driving" : "biking") to NYC")
+                        .font(.custom("HelveticaNeue", size: 14))
+                        .foregroundColor(.gray)
+                        .multilineTextAlignment(.leading)
+                }
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+        }
     }
     
     private var trainsListView: some View {

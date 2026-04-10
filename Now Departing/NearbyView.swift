@@ -258,30 +258,34 @@ struct NearbyView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if nearbyTrainsManager.nearbyTrains.isEmpty && !nearbyTrainsManager.isLoading && !locationManager.isSearchingForLocation {
-            // Empty state - but this should be rare with cached data
-            VStack {
-                // Time since updated indicator for empty state
-                if lastDataUpdated != nil {
-                    TimeIndicatorView(
-                        timeSinceUpdated: getTimeSinceLastUpdated(),
-                        lastLocationUpdate: lastLocationUpdate,
-                        locationUpdateCount: locationUpdateCount
-                    )
-                }
-                
-                List {
-                    Section {
-                        EmptyStateContent()
-                            .listRowSeparator(.hidden)
-                            .listRowBackground(Color.clear)
+            if let distMeters = distanceToNearestStationMeters, distMeters * 0.000621371 > 3 {
+                OutOfTownView(distanceInMeters: distMeters)
+            } else {
+                // Empty state - but this should be rare with cached data
+                VStack {
+                    // Time since updated indicator for empty state
+                    if lastDataUpdated != nil {
+                        TimeIndicatorView(
+                            timeSinceUpdated: getTimeSinceLastUpdated(),
+                            lastLocationUpdate: lastLocationUpdate,
+                            locationUpdateCount: locationUpdateCount
+                        )
                     }
-                }
-                .listStyle(.plain)
-                .refreshable {
-                    await performRefreshWithText()
-                }
-                .safeAreaInset(edge: .bottom) {
-                    Color.clear.frame(height: 20)
+
+                    List {
+                        Section {
+                            EmptyStateContent()
+                                .listRowSeparator(.hidden)
+                                .listRowBackground(Color.clear)
+                        }
+                    }
+                    .listStyle(.plain)
+                    .refreshable {
+                        await performRefreshWithText()
+                    }
+                    .safeAreaInset(edge: .bottom) {
+                        Color.clear.frame(height: 20)
+                    }
                 }
             }
         } else if let error = locationManager.locationError {
@@ -826,6 +830,22 @@ struct NearbyView: View {
             return String(format: "%.1fmi", miles)
         }
     }
+
+    // MARK: - Out of Town
+
+    private var distanceToNearestStationMeters: Double? {
+        guard let location = locationManager.location else { return nil }
+        var minDistance = Double.infinity
+        for stations in stationDataManager.stationsByLine.values {
+            for station in stations {
+                guard let lat = station.latitude, let lon = station.longitude else { continue }
+                let d = location.distance(from: CLLocation(latitude: lat, longitude: lon))
+                if d < minDistance { minDistance = d }
+            }
+        }
+        return minDistance.isFinite ? minDistance : nil
+    }
+
 }
 
 // MARK: - Location Permission Views
@@ -1052,6 +1072,57 @@ struct EmptyStateContent: View {
                 .frame(height: 60)
         }
         .frame(maxWidth: .infinity)
+    }
+}
+
+struct OutOfTownView: View {
+    let distanceInMeters: Double
+
+    private var miles: Double { distanceInMeters * 0.000621371 }
+
+    private var icon: String {
+        if miles > 100 { return "airplane" }
+        else if miles > 20 { return "car" }
+        else { return "bicycle" }
+    }
+
+    private var transportText: String {
+        if miles > 100 { return "flying" }
+        else if miles > 20 { return "driving" }
+        else { return "biking" }
+    }
+
+    var body: some View {
+        VStack(spacing: 24) {
+            Spacer()
+
+            ZStack {
+                Circle()
+                    .fill(Color.yellow.opacity(0.1))
+                    .frame(width: 120, height: 120)
+
+                Image(systemName: icon)
+                    .font(.system(size: 60))
+                    .foregroundColor(.yellow)
+                    .symbolRenderingMode(.hierarchical)
+            }
+
+            VStack(spacing: 12) {
+                Text(String(format: "%.0f miles from NYC", miles))
+                    .font(.custom("HelveticaNeue-Bold", size: 32))
+
+                Text("You're too far for nearby trains. Consider \(transportText) to New York City.")
+                    .font(.custom("HelveticaNeue", size: 17))
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(.secondary)
+                    .lineSpacing(4)
+                    .padding(.horizontal, 8)
+            }
+
+            Spacer()
+        }
+        .padding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
