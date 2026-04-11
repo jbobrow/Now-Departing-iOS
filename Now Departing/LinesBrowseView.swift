@@ -485,26 +485,20 @@ struct TimesView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: { showingServiceAlerts = true }) {
                         if serviceAlertsManager.hasActiveAlerts(for: line.id) {
-                            // Active disruption: icon + label in a yellow glass pill
+                            // Active disruption: icon + label
                             HStack(spacing: 5) {
                                 Image(systemName: "exclamationmark.triangle.fill")
                                     .font(.system(size: 12, weight: .semibold))
                                 Text("Service Change")
                                     .font(.custom("HelveticaNeue-Bold", size: 13))
                             }
-                            .foregroundColor(.yellow)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 6)
-                            .background(.ultraThinMaterial)
-                            .overlay(Capsule().stroke(Color.yellow.opacity(0.5), lineWidth: 1))
-                            .clipShape(Capsule())
                         } else {
                             // Upcoming only: bare icon
                             Image(systemName: "exclamationmark.triangle.fill")
                                 .foregroundColor(.secondary)
                         }
                     }
-                    .buttonStyle(PlainButtonStyle())
+                    .tint(.yellow)
                 }
             }
         }
