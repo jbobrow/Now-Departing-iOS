@@ -482,6 +482,17 @@ struct TimesView: View {
         .toolbarBackground(Color.black, for: .navigationBar)
         .toolbarColorScheme(.dark, for: .navigationBar)
         .toolbar {
+            // Principal: "Service Change" title when there is an active disruption
+            if serviceAlertsManager.hasActiveAlerts(for: line.id) {
+                ToolbarItem(placement: .principal) {
+                    Button(action: { showingServiceAlerts = true }) {
+                        Text("Service Change")
+                            .font(.custom("HelveticaNeue-Bold", size: 15))
+                            .foregroundColor(.yellow)
+                    }
+                }
+            }
+            // Trailing icon for any alert (active = yellow, upcoming = secondary)
             if serviceAlertsManager.hasAlerts(for: line.id) {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: { showingServiceAlerts = true }) {
