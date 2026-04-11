@@ -412,10 +412,11 @@ struct NearbyView: View {
             } else if isShowingStaleData && hasLocationChangedSignificantly {
                 // Location changed significantly while data is stale - show finding trains
                 loadingTrainsView
-            } else if !nearbyTrainsManager.errorMessage.isEmpty && nearbyTrainsManager.nearbyTrains.isEmpty {
-                trainsErrorView
             } else if stationGroups.isEmpty {
+                // Handles no-trains and out-of-town cases (mirrors iOS AuthorizedView ordering)
                 noTrainsView
+            } else if !nearbyTrainsManager.errorMessage.isEmpty {
+                trainsErrorView
             } else {
                 trainsListView
             }
