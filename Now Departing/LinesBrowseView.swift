@@ -400,14 +400,13 @@ struct TimesView: View {
                                 .scaleEffect(1.5)
                                 .padding(.vertical, 48)
                         } else if !viewModel.errorMessage.isEmpty {
-                            VStack(spacing: 8) {
-                                Image(systemName: "exclamationmark.triangle.fill")
-                                    .font(.system(size: 40))
-                                    .foregroundColor(.orange)
-                                Text(viewModel.errorMessage)
-                                    .font(.custom("HelveticaNeue", size: 14))
+                            VStack(spacing: 12) {
+                                Text("--")
+                                    .font(.custom("HelveticaNeue-Bold", size: 80))
+                                    .foregroundColor(.white)
+                                Text("No trains")
+                                    .font(.custom("HelveticaNeue-Bold", size: 20))
                                     .foregroundColor(.secondary)
-                                    .multilineTextAlignment(.center)
                             }
                             .padding(.vertical, 48)
                         } else if !viewModel.nextTrains.isEmpty {
