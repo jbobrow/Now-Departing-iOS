@@ -526,7 +526,7 @@ struct TimesView: View {
         let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: lon)
         let placemark = MKPlacemark(coordinate: coordinate)
         let mapItem = MKMapItem(placemark: placemark)
-        mapItem.name = station.display ?? station.name
+        mapItem.name = station.display
         mapItem.openInMaps(launchOptions: [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeWalking])
     }
 

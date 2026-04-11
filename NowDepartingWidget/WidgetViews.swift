@@ -61,6 +61,7 @@ struct SmallWidgetView: View {
         if let data = entry.favorites.first {
             let favorite = data.favoriteItem
             let line = getSubwayLine(for: favorite.lineId)
+            let outOfTownMiles = entry.outOfTownDistanceMeters.map { $0 * 0.000621371 }
 
             VStack(spacing: 0) {
                 // Top row: Line badge and update time
@@ -88,9 +89,19 @@ struct SmallWidgetView: View {
 
                 Spacer(minLength: 0)
 
-                // Center: Train time
+                // Center: Out-of-town distance or train time
                 VStack(spacing: 2) {
-                    if !entry.errorMessage.isEmpty {
+                    if let miles = outOfTownMiles {
+                        Image(systemName: miles > 100 ? "airplane" : miles > 20 ? "car" : "bicycle")
+                            .font(.system(size: 28))
+                            .foregroundColor(.yellow)
+                        Text(miles >= 1000 ? String(format: "%.0fmi", miles) : String(format: "%.1fmi", miles))
+                            .font(.custom("HelveticaNeue-Bold", size: 22))
+                            .foregroundColor(.yellow)
+                        Text("from NYC")
+                            .font(.custom("HelveticaNeue", size: 10))
+                            .foregroundColor(.yellow.opacity(0.7))
+                    } else if !entry.errorMessage.isEmpty {
                         Text("--")
                             .font(.custom("HelveticaNeue-Bold", size: 32))
                             .foregroundColor(.white)
@@ -163,6 +174,7 @@ struct MediumWidgetView: View {
         } else if let data = entry.favorites.first {
             let favorite = data.favoriteItem
             let line = getSubwayLine(for: favorite.lineId)
+            let outOfTownMiles = entry.outOfTownDistanceMeters.map { $0 * 0.000621371 }
 
             VStack(spacing: 8) {
                 // Update time at top
@@ -198,9 +210,19 @@ struct MediumWidgetView: View {
 
                     Spacer()
 
-                // Right side - Train times
+                // Right side - Out-of-town distance or train times
                 VStack(spacing: 4) {
-                    if !entry.errorMessage.isEmpty {
+                    if let miles = outOfTownMiles {
+                        Image(systemName: miles > 100 ? "airplane" : miles > 20 ? "car" : "bicycle")
+                            .font(.system(size: 24))
+                            .foregroundColor(.yellow)
+                        Text(miles >= 1000 ? String(format: "%.0fmi", miles) : String(format: "%.1fmi", miles))
+                            .font(.custom("HelveticaNeue-Bold", size: 24))
+                            .foregroundColor(.yellow)
+                        Text("from NYC")
+                            .font(.custom("HelveticaNeue", size: 10))
+                            .foregroundColor(.yellow.opacity(0.7))
+                    } else if !entry.errorMessage.isEmpty {
                         Text("--")
                             .font(.custom("HelveticaNeue-Bold", size: 28))
                             .foregroundColor(.white.opacity(0.6))
@@ -283,6 +305,7 @@ struct SingleFavoriteLargeView: View {
     var body: some View {
         let favorite = data.favoriteItem
         let line = getSubwayLine(for: favorite.lineId)
+        let outOfTownMiles = entry.outOfTownDistanceMeters.map { $0 * 0.000621371 }
 
         VStack(spacing: 16) {
             // Header
@@ -315,8 +338,24 @@ struct SingleFavoriteLargeView: View {
             Divider()
                 .background(Color.white.opacity(0.3))
 
-            // Train times
-            if !entry.errorMessage.isEmpty {
+            // Out-of-town distance or train times
+            if let miles = outOfTownMiles {
+                Spacer()
+                VStack(spacing: 12) {
+                    Image(systemName: miles > 100 ? "airplane" : miles > 20 ? "car" : "bicycle")
+                        .font(.system(size: 60))
+                        .foregroundColor(.yellow)
+                    Text(miles >= 1000 ? String(format: "%.0f miles from NYC", miles) : String(format: "%.1f miles from NYC", miles))
+                        .font(.custom("HelveticaNeue-Bold", size: 32))
+                        .foregroundColor(.yellow)
+                        .multilineTextAlignment(.center)
+                    Text("Consider \(miles > 100 ? "flying" : miles > 20 ? "driving" : "biking") to New York City")
+                        .font(.custom("HelveticaNeue", size: 16))
+                        .foregroundColor(.white.opacity(0.6))
+                        .multilineTextAlignment(.center)
+                }
+                Spacer()
+            } else if !entry.errorMessage.isEmpty {
                 Spacer()
                 VStack(spacing: 8) {
                     Image(systemName: "exclamationmark.triangle.fill")
@@ -384,7 +423,7 @@ struct MultiFavoriteView: View {
             .padding(.top, 12)
 
             ForEach(Array(favorites.enumerated()), id: \.offset) { index, data in
-                FavoriteRowView(data: data)
+                FavoriteRowView(data: data, outOfTownDistanceMeters: entry.outOfTownDistanceMeters)
                     .padding(.horizontal, 16)
                     .padding(.top, index == 0 ? 8 : 0)
                     .padding(.bottom, index == favorites.count - 1 ? 12 : 0)
@@ -414,10 +453,12 @@ struct DualFavoriteCompactView: View {
 /// Used within the dual-favorite large widget layout.
 struct FavoriteRowView: View {
     let data: FavoriteTrainData
+    let outOfTownDistanceMeters: Double?
 
     var body: some View {
         let favorite = data.favoriteItem
         let line = getSubwayLine(for: favorite.lineId)
+        let outOfTownMiles = outOfTownDistanceMeters.map { $0 * 0.000621371 }
 
         HStack(spacing: 12) {
             // Line badge
@@ -441,9 +482,16 @@ struct FavoriteRowView: View {
 
             Spacer()
 
-            // Train times
+            // Out-of-town distance or train times
             VStack(alignment: .trailing, spacing: 4) {
-                if !data.nextTrains.isEmpty {
+                if let miles = outOfTownMiles {
+                    Image(systemName: miles > 100 ? "airplane" : miles > 20 ? "car" : "bicycle")
+                        .font(.system(size: 20))
+                        .foregroundColor(.yellow)
+                    Text(miles >= 1000 ? String(format: "%.0fmi", miles) : String(format: "%.1fmi", miles))
+                        .font(.custom("HelveticaNeue-Bold", size: 20))
+                        .foregroundColor(.yellow)
+                } else if !data.nextTrains.isEmpty {
                     DynamicTrainTimeView(arrivalDate: data.nextTrains[0], fullText: true)
                         .font(.custom("HelveticaNeue-Bold", size: 28))
                         .foregroundColor(.white)
