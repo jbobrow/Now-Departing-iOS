@@ -45,7 +45,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         get {
             #if os(iOS)
             guard let data = UserDefaults.standard.data(forKey: "cachedLocation_iOS"),
-                  let location = try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as? CLLocation else {
+                  let location = try? NSKeyedUnarchiver.unarchivedObject(ofClass: CLLocation.self, from: data) else {
                 return nil
             }
             // Only use cached location if it's less than 1 hour old

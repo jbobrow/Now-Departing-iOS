@@ -119,7 +119,15 @@ struct TrainEntry: TimelineEntry {
     let favorites: [FavoriteTrainData]
     let lastUpdated: Date
     let errorMessage: String
-    let outOfTownDistanceMeters: Double? = nil
+    let outOfTownDistanceMeters: Double?
+
+    init(date: Date, favorites: [FavoriteTrainData], lastUpdated: Date, errorMessage: String, outOfTownDistanceMeters: Double? = nil) {
+        self.date = date
+        self.favorites = favorites
+        self.lastUpdated = lastUpdated
+        self.errorMessage = errorMessage
+        self.outOfTownDistanceMeters = outOfTownDistanceMeters
+    }
 }
 
 // MARK: - Timeline Provider
