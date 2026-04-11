@@ -74,6 +74,7 @@ struct FavoritesView: View {
                     FavoriteTrainRow(
                         favorite: favorite,
                         trainData: trainDataManager.getTrainData(for: favorite),
+                        isLoaded: trainDataManager.isLoaded(for: favorite),
                         stationDataManager: stationDataManager
                     )
                 }
@@ -185,10 +186,10 @@ struct EmptyFavoritesView: View {
 struct FavoriteTrainRow: View {
     let favorite: FavoriteItem
     let trainData: [TrainArrival]?
+    let isLoaded: Bool
     let stationDataManager: StationDataManager
     @EnvironmentObject var serviceAlertsManager: ServiceAlertsManager
     @State private var currentTime = Date()
-    @State private var hasTimedOut = false
 
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
@@ -277,7 +278,8 @@ struct FavoriteTrainRow: View {
                                 .foregroundColor(.secondary)
                             }
                         }
-                    } else if hasTimedOut {  // ← NEW: Show "--" after timeout
+                    } else if isLoaded {
+                        // Fetch completed but no upcoming trains
                         Text("--")
                             .font(.custom("HelveticaNeue-Bold", size: 26))
                             .foregroundColor(.primary)
@@ -286,33 +288,9 @@ struct FavoriteTrainRow: View {
                             .font(.custom("HelveticaNeue", size: 14))
                             .foregroundColor(.secondary)
                     } else {
-                        // Loading state
-                        VStack(alignment: .center) {
-                            Spacer()
-                            ProgressView()
-                                .scaleEffect(1.5)
-                            Spacer()
-                        }
-                    }
-                }
-                .onAppear {  // ← NEW: Added timeout logic
-                    // Set timeout for loading state
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) {
-                        if trainData?.isEmpty ?? true {
-                            hasTimedOut = true
-                        }
-                    }
-                }
-                .onChange(of: trainData) { oldData, newData in
-                    if newData != nil && !newData!.isEmpty {
-                        hasTimedOut = false
-                    } else {
-                        // Data became empty (trains expired or fetch failed) — restart timeout
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) {
-                            if trainData?.isEmpty ?? true {
-                                hasTimedOut = true
-                            }
-                        }
+                        // First fetch still in progress
+                        ProgressView()
+                            .scaleEffect(1.5)
                     }
                 }
             }
@@ -378,6 +356,11 @@ class FavoriteTrainDataManager: ObservableObject {
         let now = Date()
         let fresh = data.filter { $0.arrivalTime.timeIntervalSince(now) > -60 }
         return fresh.isEmpty ? nil : fresh
+    }
+
+    func isLoaded(for favorite: FavoriteItem) -> Bool {
+        let key = "\(favorite.lineId)-\(favorite.stationName)-\(favorite.direction)"
+        return lastFetchTime[key] != nil
     }
     
     func fetchTrainData(for favorite: FavoriteItem) {
