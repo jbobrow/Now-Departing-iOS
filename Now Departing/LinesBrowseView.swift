@@ -302,6 +302,7 @@ class TimesViewModeliOS: ObservableObject {
 struct TimesView: View {
     let line: SubwayLine
     let station: Station
+    let initialDirection: String
 
     @EnvironmentObject var favoritesManager: FavoritesManager
     @EnvironmentObject var stationDataManager: StationDataManager
@@ -309,17 +310,24 @@ struct TimesView: View {
     @StateObject private var viewModel = TimesViewModeliOS()
     @State private var direction: String
     @State private var showingServiceAlerts = false
+    @State private var arrowsVisible: Bool = false
 
     @Environment(\.dismiss) private var dismiss
 
     init(line: SubwayLine, station: Station, direction: String) {
         self.line = line
         self.station = station
+        self.initialDirection = direction
         self._direction = State(initialValue: direction)
     }
 
     private var oppositeDirection: String {
         direction == "N" ? "S" : "N"
+    }
+
+    // True once the user has toggled away from the original direction
+    private var isReversed: Bool {
+        direction != initialDirection
     }
 
     private var isFavorited: Bool {
@@ -376,9 +384,9 @@ struct TimesView: View {
                                 .font(.custom("HelveticaNeue-Bold", size: 24))
                                 .foregroundColor(.white)
 
-                            // Terminal station + reverse icon — entire row is tappable
+                            // Terminal station + direction arrows — entire row is tappable
                             Button(action: toggleDirection) {
-                                HStack(spacing: 5) {
+                                HStack(spacing: 6) {
                                     Text(DirectionHelper.getToTerminalStation(for: line.id, direction: direction, stationDataManager: stationDataManager))
                                         .font(.custom("HelveticaNeue", size: 16))
                                         .foregroundColor(.secondary)
@@ -387,9 +395,22 @@ struct TimesView: View {
                                             insertion: .opacity.combined(with: .offset(x: 0, y: 8)),
                                             removal: .opacity.combined(with: .offset(x: 0, y: -8))
                                         ))
-                                    Image(systemName: "arrow.triangle.2.circlepath")
-                                        .font(.system(size: 12, weight: .medium))
-                                        .foregroundColor(.secondary)
+                                    // ← → arrows: the active direction's arrow is white, the other dimmed
+                                    HStack(spacing: 1) {
+                                        Image(systemName: "arrow.left")
+                                            .font(.system(size: 12, weight: .semibold))
+                                            .foregroundColor(isReversed ? .white : Color(white: 1, opacity: 0.25))
+                                        Image(systemName: "arrow.right")
+                                            .font(.system(size: 12, weight: .semibold))
+                                            .foregroundColor(isReversed ? Color(white: 1, opacity: 0.25) : .white)
+                                    }
+                                    .opacity(arrowsVisible ? 1 : 0)
+                                    .scaleEffect(arrowsVisible ? 1 : 0.5, anchor: .leading)
+                                    .onAppear {
+                                        withAnimation(.spring(response: 0.4, dampingFraction: 0.65).delay(0.2)) {
+                                            arrowsVisible = true
+                                        }
+                                    }
                                 }
                             }
                             .buttonStyle(PlainButtonStyle())
@@ -491,6 +512,7 @@ struct TimesView: View {
             viewModel.startFetchingTimes(for: line, station: station, direction: direction)
             serviceAlertsManager.fetchAlerts()
             if #available(iOS 16.2, *), LiveActivityManager.isSupported() {
+                LiveActivityManager.shared.endActivity() // ensure only one activity at a time
                 startLiveActivity()
             }
         }
