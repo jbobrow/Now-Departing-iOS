@@ -481,23 +481,30 @@ struct TimesView: View {
         .toolbarBackground(Color.black, for: .navigationBar)
         .toolbarColorScheme(.dark, for: .navigationBar)
         .toolbar {
-            // Principal: "Service Change" title when there is an active disruption
-            if serviceAlertsManager.hasActiveAlerts(for: line.id) {
-                ToolbarItem(placement: .principal) {
-                    Button(action: { showingServiceAlerts = true }) {
-                        Text("Service Change")
-                            .font(.custom("HelveticaNeue-Bold", size: 15))
-                            .foregroundColor(.yellow)
-                    }
-                }
-            }
-            // Trailing icon for any alert (active = yellow, upcoming = secondary)
             if serviceAlertsManager.hasAlerts(for: line.id) {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: { showingServiceAlerts = true }) {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundColor(serviceAlertsManager.hasActiveAlerts(for: line.id) ? .yellow : .secondary)
+                        if serviceAlertsManager.hasActiveAlerts(for: line.id) {
+                            // Active disruption: icon + label in a yellow glass pill
+                            HStack(spacing: 5) {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .font(.system(size: 12, weight: .semibold))
+                                Text("Service Change")
+                                    .font(.custom("HelveticaNeue-Bold", size: 13))
+                            }
+                            .foregroundColor(.yellow)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(.ultraThinMaterial)
+                            .overlay(Capsule().stroke(Color.yellow.opacity(0.5), lineWidth: 1))
+                            .clipShape(Capsule())
+                        } else {
+                            // Upcoming only: bare icon
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundColor(.secondary)
+                        }
                     }
+                    .buttonStyle(PlainButtonStyle())
                 }
             }
         }
