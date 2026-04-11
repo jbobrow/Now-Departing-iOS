@@ -391,7 +391,7 @@ struct TimesView: View {
                         Spacer()
                     }
                     .padding(.horizontal, 24)
-                    .padding(.top, 8)
+                    .padding(.top, 20)
 
                     // Train times — re-keyed on direction so the whole block transitions on toggle
                     VStack(spacing: 12) {
@@ -417,12 +417,9 @@ struct TimesView: View {
                                     .foregroundColor(.white)
 
                                 if viewModel.nextTrains.count > 1 {
-                                    HStack(spacing: 6) {
-                                        Text("next trains")
-                                        Text(viewModel.nextTrains.dropFirst().prefix(5).map { train in
-                                            getAdditionalTimeText(for: train)
-                                        }.joined(separator: ", "))
-                                    }
+                                    Text(viewModel.nextTrains.dropFirst().prefix(5).map { train in
+                                        getAdditionalTimeText(for: train)
+                                    }.joined(separator: ", "))
                                     .font(.custom("HelveticaNeue", size: 20))
                                     .foregroundColor(.secondary)
                                 }
@@ -437,33 +434,6 @@ struct TimesView: View {
                     .padding(.horizontal, 24)
 
                     Spacer(minLength: 40)
-
-                    // Service alert banner — yellow if active now, grey if only upcoming
-                    if serviceAlertsManager.hasAlerts(for: line.id) {
-                        let isActive = serviceAlertsManager.hasActiveAlerts(for: line.id)
-                        Button(action: { showingServiceAlerts = true }) {
-                            HStack(spacing: 8) {
-                                Image(systemName: "exclamationmark.triangle.fill")
-                                    .foregroundColor(isActive ? .yellow : .secondary)
-                                Text(isActive ? "Service Change" : "Planned Service Changes")
-                                    .font(.custom("HelveticaNeue-Bold", size: 15))
-                                    .foregroundColor(isActive ? .yellow : .secondary)
-                                Spacer()
-                                Image(systemName: "chevron.right")
-                                    .font(.system(size: 13, weight: .semibold))
-                                    .foregroundColor(isActive ? .yellow.opacity(0.7) : .secondary.opacity(0.7))
-                            }
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 12)
-                            .background(isActive ? Color.yellow.opacity(0.15) : Color.secondary.opacity(0.1))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(isActive ? Color.yellow.opacity(0.4) : Color.secondary.opacity(0.25), lineWidth: 1)
-                            )
-                            .cornerRadius(12)
-                        }
-                        .padding(.horizontal, 24)
-                    }
 
                     // Action buttons
                     VStack(spacing: 12) {
@@ -511,6 +481,16 @@ struct TimesView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(Color.black, for: .navigationBar)
         .toolbarColorScheme(.dark, for: .navigationBar)
+        .toolbar {
+            if serviceAlertsManager.hasAlerts(for: line.id) {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: { showingServiceAlerts = true }) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundColor(serviceAlertsManager.hasActiveAlerts(for: line.id) ? .yellow : .secondary)
+                    }
+                }
+            }
+        }
         .onAppear {
             viewModel.startFetchingTimes(for: line, station: station, direction: direction)
             serviceAlertsManager.fetchAlerts()
