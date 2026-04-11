@@ -230,6 +230,7 @@ class TimesViewModeliOS: ObservableObject {
     private var apiTimer: Timer?
     private var displayTimer: Timer?
     private var arrivalTimes: [Date] = []
+    private var fetchGeneration: Int = 0
 
     func startFetchingTimes(for line: SubwayLine, station: Station, direction: String) {
         loading = true
@@ -254,6 +255,7 @@ class TimesViewModeliOS: ObservableObject {
     }
 
     func clearTimes() {
+        fetchGeneration += 1  // invalidate any in-flight fetch
         arrivalTimes = []
         nextTrains = []
         errorMessage = ""
@@ -278,12 +280,13 @@ class TimesViewModeliOS: ObservableObject {
     }
 
     private func fetchArrivalTimes(for line: SubwayLine, station: Station, direction: String) {
+        let generation = fetchGeneration
         MTAFeedService.shared.fetchArrivals(
             routeId: line.id,
             station: station,
             direction: direction
         ) { [weak self] result in
-            guard let self = self else { return }
+            guard let self = self, self.fetchGeneration == generation else { return }
             switch result {
             case .success(let arrivals):
                 self.arrivalTimes = arrivals
