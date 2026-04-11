@@ -344,33 +344,6 @@ struct TimesView: View {
 
             ScrollView {
                 VStack(spacing: 24) {
-                    // Service alert banner — yellow if active now, grey if only upcoming
-                    if serviceAlertsManager.hasAlerts(for: line.id) {
-                        let isActive = serviceAlertsManager.hasActiveAlerts(for: line.id)
-                        Button(action: { showingServiceAlerts = true }) {
-                            HStack(spacing: 8) {
-                                Image(systemName: "exclamationmark.triangle.fill")
-                                    .foregroundColor(isActive ? .yellow : .secondary)
-                                Text(isActive ? "Service Change" : "Planned Service Changes")
-                                    .font(.custom("HelveticaNeue-Bold", size: 15))
-                                    .foregroundColor(isActive ? .yellow : .secondary)
-                                Spacer()
-                                Image(systemName: "chevron.right")
-                                    .font(.system(size: 13, weight: .semibold))
-                                    .foregroundColor(isActive ? .yellow.opacity(0.7) : .secondary.opacity(0.7))
-                            }
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 12)
-                            .background(isActive ? Color.yellow.opacity(0.15) : Color.secondary.opacity(0.1))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(isActive ? Color.yellow.opacity(0.4) : Color.secondary.opacity(0.25), lineWidth: 1)
-                            )
-                            .cornerRadius(12)
-                        }
-                        .padding(.horizontal, 24)
-                    }
-
                     // Header: line badge + station name + inline direction button
                     HStack(alignment: .top, spacing: 12) {
                         Text(line.label)
@@ -381,7 +354,7 @@ struct TimesView: View {
 
                         VStack(alignment: .leading, spacing: 4) {
                             Text(station.display)
-                                .font(.custom("HelveticaNeue-Bold", size: 24))
+                                .font(.custom("HelveticaNeue-Bold", size: 28))
                                 .foregroundColor(.white)
 
                             // Terminal station + direction arrows — entire row is tappable
@@ -444,9 +417,12 @@ struct TimesView: View {
                                     .foregroundColor(.white)
 
                                 if viewModel.nextTrains.count > 1 {
-                                    Text(viewModel.nextTrains.dropFirst().prefix(5).map { train in
-                                        getAdditionalTimeText(for: train)
-                                    }.joined(separator: ", "))
+                                    HStack(spacing: 6) {
+                                        Text("next trains")
+                                        Text(viewModel.nextTrains.dropFirst().prefix(5).map { train in
+                                            getAdditionalTimeText(for: train)
+                                        }.joined(separator: ", "))
+                                    }
                                     .font(.custom("HelveticaNeue", size: 20))
                                     .foregroundColor(.secondary)
                                 }
@@ -461,6 +437,33 @@ struct TimesView: View {
                     .padding(.horizontal, 24)
 
                     Spacer(minLength: 40)
+
+                    // Service alert banner — yellow if active now, grey if only upcoming
+                    if serviceAlertsManager.hasAlerts(for: line.id) {
+                        let isActive = serviceAlertsManager.hasActiveAlerts(for: line.id)
+                        Button(action: { showingServiceAlerts = true }) {
+                            HStack(spacing: 8) {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .foregroundColor(isActive ? .yellow : .secondary)
+                                Text(isActive ? "Service Change" : "Planned Service Changes")
+                                    .font(.custom("HelveticaNeue-Bold", size: 15))
+                                    .foregroundColor(isActive ? .yellow : .secondary)
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 13, weight: .semibold))
+                                    .foregroundColor(isActive ? .yellow.opacity(0.7) : .secondary.opacity(0.7))
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 12)
+                            .background(isActive ? Color.yellow.opacity(0.15) : Color.secondary.opacity(0.1))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(isActive ? Color.yellow.opacity(0.4) : Color.secondary.opacity(0.25), lineWidth: 1)
+                            )
+                            .cornerRadius(12)
+                        }
+                        .padding(.horizontal, 24)
+                    }
 
                     // Action buttons
                     VStack(spacing: 12) {
