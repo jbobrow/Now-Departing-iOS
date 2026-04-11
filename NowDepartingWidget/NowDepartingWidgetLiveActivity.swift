@@ -24,14 +24,14 @@ struct NowDepartingWidgetLiveActivity: Widget {
                         .frame(width: 64, height: 64)
                         .background(Circle().fill(context.attributes.lineBgColor))
 
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: 0) {
                         Text(context.attributes.stationName)
                             .font(.system(size: 36, weight: .bold))
                             .foregroundColor(.white)
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
                         Text(context.attributes.destinationStation)
-                            .font(.system(size: 20, weight: .regular))
+                            .font(.system(size: 18, weight: .regular))
                             .foregroundColor(.white.opacity(0.7))
                             .lineLimit(1)
                             .minimumScaleFactor(0.8)
@@ -55,7 +55,7 @@ struct NowDepartingWidgetLiveActivity: Widget {
                             
                             if context.state.nextTrains.count > 1 {
                                 Text("next train \(getAdditionalTimeText(for: context.state.nextTrains[1]))")
-                                    .font(.system(size: 20, weight: .regular))
+                                    .font(.system(size: 12, weight: .regular))
                                     .foregroundColor(.white.opacity(0.7))
                                     .lineLimit(1)
                             }
