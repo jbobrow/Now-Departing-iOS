@@ -391,7 +391,7 @@ struct TimesView: View {
                         Spacer()
                     }
                     .padding(.horizontal, 24)
-                    .padding(.top, 20)
+                    .padding(.top, 48)
 
                     // Train times — re-keyed on direction so the whole block transitions on toggle
                     VStack(spacing: 12) {
