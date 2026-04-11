@@ -295,31 +295,28 @@ class TimesViewModeliOS: ObservableObject {
 struct TimesView: View {
     let line: SubwayLine
     let station: Station
-    let direction: String
 
     @EnvironmentObject var favoritesManager: FavoritesManager
     @EnvironmentObject var stationDataManager: StationDataManager
     @EnvironmentObject var serviceAlertsManager: ServiceAlertsManager
     @StateObject private var viewModel = TimesViewModeliOS()
-    @State private var showingFavoriteAlert = false
+    @State private var direction: String
     @State private var showingLiveActivityInfo = false
     @State private var liveActivityStarted = false
     @State private var showingServiceAlerts = false
-    @State private var currentTime = Date()
-    @State private var widgetSize: WidgetSize = .large
 
-    // Make navigationState optional - only exists when navigating from LinesBrowseView
     @Environment(\.dismiss) private var dismiss
 
-    private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-
-    enum WidgetSize: String, CaseIterable {
-        case small = "Small"
-        case medium = "Medium"
-        case large = "Large"
+    init(line: SubwayLine, station: Station, direction: String) {
+        self.line = line
+        self.station = station
+        self._direction = State(initialValue: direction)
     }
 
-    // Check if this is already favorited
+    private var oppositeDirection: String {
+        direction == "N" ? "S" : "N"
+    }
+
     private var isFavorited: Bool {
         favoritesManager.isFavorite(
             lineId: line.id,
@@ -329,130 +326,98 @@ struct TimesView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 24) {
-                // Widget size picker with SF Symbols
-                Picker("Widget Size", selection: $widgetSize) {
-                    Image(systemName: "widget.small")
-                        .tag(WidgetSize.small)
-                    Image(systemName: "widget.medium")
-                        .tag(WidgetSize.medium)
-                    Image(systemName: "widget.large")
-                        .tag(WidgetSize.large)
-                }
-                .pickerStyle(.segmented)
-                .padding(.horizontal, 24)
-                .padding(.top, 20)
+        ZStack {
+            Color.black.ignoresSafeArea()
 
-                // Service alert banner — yellow if active now, grey if only upcoming
-                if serviceAlertsManager.hasAlerts(for: line.id) {
-                    let isActive = serviceAlertsManager.hasActiveAlerts(for: line.id)
-                    Button(action: { showingServiceAlerts = true }) {
-                        HStack(spacing: 8) {
-                            Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundColor(isActive ? .yellow : .secondary)
-                            Text(isActive ? "Service Change" : "Planned Service Changes")
-                                .font(.custom("HelveticaNeue-Bold", size: 15))
-                                .foregroundColor(isActive ? .yellow : .secondary)
-                            Spacer()
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 13, weight: .semibold))
-                                .foregroundColor(isActive ? .yellow.opacity(0.7) : .secondary.opacity(0.7))
+            ScrollView {
+                VStack(spacing: 24) {
+                    // Service alert banner — yellow if active now, grey if only upcoming
+                    if serviceAlertsManager.hasAlerts(for: line.id) {
+                        let isActive = serviceAlertsManager.hasActiveAlerts(for: line.id)
+                        Button(action: { showingServiceAlerts = true }) {
+                            HStack(spacing: 8) {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .foregroundColor(isActive ? .yellow : .secondary)
+                                Text(isActive ? "Service Change" : "Planned Service Changes")
+                                    .font(.custom("HelveticaNeue-Bold", size: 15))
+                                    .foregroundColor(isActive ? .yellow : .secondary)
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 13, weight: .semibold))
+                                    .foregroundColor(isActive ? .yellow.opacity(0.7) : .secondary.opacity(0.7))
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 12)
+                            .background(isActive ? Color.yellow.opacity(0.15) : Color.secondary.opacity(0.1))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(isActive ? Color.yellow.opacity(0.4) : Color.secondary.opacity(0.25), lineWidth: 1)
+                            )
+                            .cornerRadius(12)
                         }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 12)
-                        .background(isActive ? Color.yellow.opacity(0.15) : Color.secondary.opacity(0.1))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(isActive ? Color.yellow.opacity(0.4) : Color.secondary.opacity(0.25), lineWidth: 1)
-                        )
-                        .cornerRadius(12)
+                        .padding(.horizontal, 24)
+                    }
+
+                    // Header: line badge + station + direction terminal
+                    HStack(alignment: .top, spacing: 12) {
+                        Text(line.label)
+                            .font(.custom("HelveticaNeue-Bold", size: 50))
+                            .foregroundColor(line.fg_color)
+                            .frame(width: 72, height: 72)
+                            .background(Circle().fill(line.bg_color))
+
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(station.display)
+                                .font(.custom("HelveticaNeue-Bold", size: 24))
+                                .foregroundColor(.white)
+                            Text(DirectionHelper.getToTerminalStation(for: line.id, direction: direction, stationDataManager: stationDataManager))
+                                .font(.custom("HelveticaNeue", size: 16))
+                                .foregroundColor(.secondary)
+                        }
+                        Spacer()
                     }
                     .padding(.horizontal, 24)
-                }
+                    .padding(.top, 8)
 
-                // Widget preview container with centered content
-                ZStack {
-                    // Glass/frosted background
-                    RoundedRectangle(cornerRadius: widgetCornerRadius)
-                        .fill(.ultraThinMaterial)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: widgetCornerRadius)
-                                .stroke(Color.white.opacity(0.2), lineWidth: 1)
-                        )
-                        .shadow(color: Color.black.opacity(0.2), radius: 12, x: 0, y: 6)
-
-                    // Widget content
-                    switch widgetSize {
-                    case .small:
-                        smallWidgetContent
-                    case .medium:
-                        mediumWidgetContent
-                    case .large:
-                        largeWidgetContent
-                    }
-                }
-                .frame(width: widgetWidth, height: widgetHeight)
-                .aspectRatio(widgetSize == .small ? 1 : nil, contentMode: .fit)
-                .animation(.easeInOut(duration: 0.3), value: widgetSize)
-                .frame(maxWidth: .infinity) // Center the widget
-                .padding(.horizontal, 24)
-
-                // Action buttons with glass effect
-                VStack(spacing: 12) {
-
-                    // Get Directions button
-                    Button(action: {
-                        openDirectionsToStation()
-                    }) {
-                        HStack(spacing: 8) {
-                            Image(systemName: "map.fill")
-                            Text("Get Directions")
+                    // Train times
+                    if viewModel.loading && viewModel.nextTrains.isEmpty {
+                        ProgressView()
+                            .scaleEffect(1.5)
+                            .padding(.vertical, 48)
+                    } else if !viewModel.errorMessage.isEmpty {
+                        VStack(spacing: 8) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .font(.system(size: 40))
+                                .foregroundColor(.orange)
+                            Text(viewModel.errorMessage)
+                                .font(.custom("HelveticaNeue", size: 14))
+                                .foregroundColor(.secondary)
+                                .multilineTextAlignment(.center)
                         }
-                        .font(.custom("HelveticaNeue-Bold", size: 18))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(.ultraThinMaterial)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 14)
-                                .stroke(Color.white.opacity(0.2), lineWidth: 1)
-                        )
-                        .cornerRadius(14)
+                        .padding(.vertical, 48)
+                    } else if !viewModel.nextTrains.isEmpty {
+                        VStack(spacing: 12) {
+                            Text(getTimeText(for: viewModel.nextTrains[0]))
+                                .font(.custom("HelveticaNeue-Bold", size: 80))
+                                .foregroundColor(.white)
+
+                            if viewModel.nextTrains.count > 1 {
+                                Text(viewModel.nextTrains.dropFirst().prefix(5).map { train in
+                                    getAdditionalTimeText(for: train)
+                                }.joined(separator: ", "))
+                                .font(.custom("HelveticaNeue", size: 20))
+                                .foregroundColor(.secondary)
+                            }
+                        }
+                        .padding(.horizontal, 24)
                     }
 
-                    // Favorite button
-                    Button(action: {
-                        if isFavorited {
-                            removeFavorite()
-                        } else {
-                            addToFavorites()
-                        }
-                    }) {
-                        HStack(spacing: 8) {
-                            Image(systemName: isFavorited ? "heart.fill" : "heart")
-                            Text(isFavorited ? "Remove from Favorites" : "Add to Favorites")
-                        }
-                        .font(.custom("HelveticaNeue-Bold", size: 18))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(.ultraThinMaterial)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 14)
-                                .stroke(isFavorited ? Color.red.opacity(0.5) : Color.white.opacity(0.2), lineWidth: 1)
-                        )
-                        .cornerRadius(14)
-                    }
-
-                    // Live Activity for StandBy mode button
-                    if #available(iOS 16.2, *), LiveActivityManager.isSupported() {
-                        Button(action: {
-                            toggleLiveActivity()
-                        }) {
+                    // Action buttons
+                    VStack(spacing: 12) {
+                        Button(action: { openDirectionsToStation() }) {
                             HStack(spacing: 8) {
-                                Image(systemName: liveActivityStarted ? "iphone.gen3.radiowaves.left.and.right" : "iphone.gen3")
-                                Text(liveActivityStarted ? "Stop Live Activity" : "Start Live Activity")
+                                Image(systemName: "map.fill")
+                                Text("Get Directions")
                             }
                             .font(.custom("HelveticaNeue-Bold", size: 18))
                             .foregroundColor(.white)
@@ -461,28 +426,86 @@ struct TimesView: View {
                             .background(.ultraThinMaterial)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 14)
-                                    .stroke(liveActivityStarted ? Color.red.opacity(0.5) : Color.white.opacity(0.2), lineWidth: 1)
+                                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
                             )
                             .cornerRadius(14)
                         }
+
+                        Button(action: {
+                            if isFavorited { removeFavorite() } else { addToFavorites() }
+                        }) {
+                            HStack(spacing: 8) {
+                                Image(systemName: isFavorited ? "heart.fill" : "heart")
+                                Text(isFavorited ? "Remove from Favorites" : "Add to Favorites")
+                            }
+                            .font(.custom("HelveticaNeue-Bold", size: 18))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(.ultraThinMaterial)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 14)
+                                    .stroke(isFavorited ? Color.red.opacity(0.5) : Color.white.opacity(0.2), lineWidth: 1)
+                            )
+                            .cornerRadius(14)
+                        }
+
+                        if #available(iOS 16.2, *), LiveActivityManager.isSupported() {
+                            Button(action: { toggleLiveActivity() }) {
+                                HStack(spacing: 8) {
+                                    Image(systemName: liveActivityStarted ? "iphone.gen3.radiowaves.left.and.right" : "iphone.gen3")
+                                    Text(liveActivityStarted ? "Stop Live Activity" : "Start Live Activity")
+                                }
+                                .font(.custom("HelveticaNeue-Bold", size: 18))
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 16)
+                                .background(.ultraThinMaterial)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 14)
+                                        .stroke(liveActivityStarted ? Color.red.opacity(0.5) : Color.white.opacity(0.2), lineWidth: 1)
+                                )
+                                .cornerRadius(14)
+                            }
+                        }
                     }
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 40)
                 }
-                .padding(.horizontal, 24)
-                .padding(.bottom, 40)
             }
         }
-        .background(Color(UIColor.systemGroupedBackground))
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(Color.black, for: .navigationBar)
+        .toolbarColorScheme(.dark, for: .navigationBar)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                HStack(spacing: 8) {
+                    Text(line.label)
+                        .font(.custom("HelveticaNeue-Bold", size: 22))
+                        .foregroundColor(line.fg_color)
+                        .frame(width: 34, height: 34)
+                        .background(Circle().fill(line.bg_color))
+                    Text(station.display)
+                        .font(.custom("HelveticaNeue-Bold", size: 16))
+                        .foregroundColor(.white)
+                        .lineLimit(1)
+                }
+            }
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: toggleDirection) {
+                    Image(systemName: "arrow.triangle.2.circlepath")
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundColor(.white)
+                }
+            }
+        }
         .onAppear {
             viewModel.startFetchingTimes(for: line, station: station, direction: direction)
             serviceAlertsManager.fetchAlerts()
         }
-        .sheet(isPresented: $showingServiceAlerts) {
-            ServiceAlertsSheet(alerts: serviceAlertsManager.alerts(for: line.id), line: line)
-        }
-        .onDisappear {
+        .onChange(of: direction) { newDirection in
             viewModel.stopFetchingTimes()
-            // Stop Live Activity when leaving the view
+            viewModel.startFetchingTimes(for: line, station: station, direction: newDirection)
             if liveActivityStarted {
                 if #available(iOS 16.2, *) {
                     LiveActivityManager.shared.endActivity()
@@ -490,11 +513,19 @@ struct TimesView: View {
                 liveActivityStarted = false
             }
         }
-        .onReceive(timer) { time in
-            currentTime = time
+        .sheet(isPresented: $showingServiceAlerts) {
+            ServiceAlertsSheet(alerts: serviceAlertsManager.alerts(for: line.id), line: line)
+        }
+        .onDisappear {
+            viewModel.stopFetchingTimes()
+            if liveActivityStarted {
+                if #available(iOS 16.2, *) {
+                    LiveActivityManager.shared.endActivity()
+                }
+                liveActivityStarted = false
+            }
         }
         .onReceive(viewModel.$nextTrains) { trains in
-            // Update Live Activity when train times change
             if liveActivityStarted && !trains.isEmpty {
                 if #available(iOS 16.2, *) {
                     LiveActivityManager.shared.updateActivity(nextTrains: trains)
@@ -506,10 +537,13 @@ struct TimesView: View {
         } message: {
             Text("Live Activity started! Place your iPhone horizontally on a charger to see it in StandBy mode.\n\nThe display will show real-time train arrivals and automatically update.")
         }
-        // Removed confirmation dialog - favorites now work with single tap
     }
 
-    // MARK: - Live Activity Functions
+    private func toggleDirection() {
+        let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
+        impactFeedback.impactOccurred()
+        direction = oppositeDirection
+    }
 
     @available(iOS 16.2, *)
     private func toggleLiveActivity() {
@@ -555,233 +589,6 @@ struct TimesView: View {
 
         let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
         impactFeedback.impactOccurred()
-    }
-
-    private var widgetCornerRadius: CGFloat {
-        switch widgetSize {
-        case .small: return 20
-        case .medium: return 20
-        case .large: return 24
-        }
-    }
-
-    private var widgetWidth: CGFloat {
-        switch widgetSize {
-        case .small: return 160
-        case .medium: return 338
-        case .large: return 338
-        }
-    }
-
-    private var widgetHeight: CGFloat {
-        switch widgetSize {
-        case .small: return 160
-        case .medium: return 160
-        case .large: return 340
-        }
-    }
-
-    // Small widget - compact view with directional background
-    private var smallWidgetContent: some View {
-        ZStack {
-            // Directional background shape
-            DirectionalBackground(direction: direction, lineColor: line.bg_color)
-
-            VStack(spacing: 4) {
-                // Top row: Line badge and updated time
-                HStack {
-                    Text(line.label)
-                        .font(.custom("HelveticaNeue-Bold", size: 28))
-                        .foregroundColor(line.fg_color)
-                        .frame(width: 44, height: 44)
-                        .background(Circle().fill(line.bg_color))
-
-                    Spacer()
-                }
-
-                // Center: Train time
-                if viewModel.loading && viewModel.nextTrains.isEmpty {
-                    ProgressView()
-                } else if !viewModel.errorMessage.isEmpty {
-                    Text("--")
-                        .font(.custom("HelveticaNeue-Bold", size: 28))
-                        .foregroundColor(.primary)
-                } else if !viewModel.nextTrains.isEmpty {
-                    Text(getTimeText(for: viewModel.nextTrains[0]))
-                        .font(.custom("HelveticaNeue-Bold", size: 28))
-                        .foregroundColor(.primary)
-                    
-                    if viewModel.nextTrains.count > 1 {
-                        Text(viewModel.nextTrains.dropFirst().prefix(2).map { train in
-                            getAdditionalTimeText(for: train)
-                        }.joined(separator: ", "))
-                        .font(.custom("HelveticaNeue", size: 14))
-                        .foregroundColor(.secondary)
-                    }
-                }
-
-                // Bottom: Station name
-                Text(station.display)
-                    .font(.custom("HelveticaNeue-Bold", size: 14))
-                    .foregroundColor(.primary)
-                    .lineLimit(2)
-                    .multilineTextAlignment(.center)
-                    .frame(maxWidth: .infinity)
-            }
-            .padding(16)
-        }
-    }
-
-    // Directional background shape for small widget
-    private struct DirectionalBackground: View {
-        let direction: String
-        let lineColor: Color
-
-        var body: some View {
-            GeometryReader { geometry in
-                Path { path in
-                    let width = geometry.size.width
-                    let height = geometry.size.height
-
-                    if direction == "N" {
-                        // Northbound - curve at top
-                        path.move(to: CGPoint(x: 0, y: height * 0.3))
-                        path.addQuadCurve(
-                            to: CGPoint(x: width, y: height * 0.3),
-                            control: CGPoint(x: width / 2, y: 0)
-                        )
-                        path.addLine(to: CGPoint(x: width, y: height))
-                        path.addLine(to: CGPoint(x: 0, y: height))
-                        path.closeSubpath()
-                    } else {
-                        // Southbound - curve at bottom
-                        path.move(to: CGPoint(x: 0, y: 0))
-                        path.addLine(to: CGPoint(x: width, y: 0))
-                        path.addLine(to: CGPoint(x: width, y: height * 0.7))
-                        path.addQuadCurve(
-                            to: CGPoint(x: 0, y: height * 0.7),
-                            control: CGPoint(x: width / 2, y: height)
-                        )
-                        path.closeSubpath()
-                    }
-                }
-                .fill(lineColor.opacity(0.15))
-            }
-        }
-    }
-
-    // Medium widget - horizontal layout
-    private var mediumWidgetContent: some View {
-        HStack(spacing: 16) {
-            // Left side - Line and station info
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(spacing: 8) {
-                    Text(line.label)
-                        .font(.custom("HelveticaNeue-Bold", size: 32))
-                        .foregroundColor(line.fg_color)
-                        .frame(width: 48, height: 48)
-                        .background(Circle().fill(line.bg_color))
-
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(station.display)
-                            .font(.custom("HelveticaNeue-Bold", size: 16))
-                            .lineLimit(2)
-                        Text(DirectionHelper.getToTerminalStation(for: line.id, direction: direction, stationDataManager: stationDataManager))
-                            .font(.custom("HelveticaNeue", size: 12))
-                            .foregroundColor(.secondary)
-                            .lineLimit(1)
-                    }
-                }
-            }
-
-            // Right side - Train times
-            VStack(spacing: 4) {
-                if viewModel.loading && viewModel.nextTrains.isEmpty {
-                    ProgressView()
-                } else if !viewModel.errorMessage.isEmpty {
-                    Text("--")
-                        .font(.custom("HelveticaNeue-Bold", size: 28))
-                        .foregroundColor(.secondary)
-                } else if !viewModel.nextTrains.isEmpty {
-                    Text(getTimeText(for: viewModel.nextTrains[0]))
-                        .font(.custom("HelveticaNeue-Bold", size: 28))
-                        .foregroundColor(.primary)
-
-                    if viewModel.nextTrains.count > 1 {
-                        Text(viewModel.nextTrains.dropFirst().prefix(2).map { train in
-                            getAdditionalTimeText(for: train)
-                        }.joined(separator: ", "))
-                        .font(.custom("HelveticaNeue", size: 14))
-                        .foregroundColor(.secondary)
-                    }
-                }
-            }
-        }
-        .padding(20)
-    }
-
-    // Large widget - vertical layout with more info
-    private var largeWidgetContent: some View {
-        VStack(spacing: 16) {
-            // Header
-            HStack(alignment: .top, spacing: 12) {
-                Text(line.label)
-                    .font(.custom("HelveticaNeue-Bold", size: 50))
-                    .foregroundColor(line.fg_color)
-                    .frame(width: 72, height: 72)
-                    .background(Circle().fill(line.bg_color))
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(station.display)
-                        .font(.custom("HelveticaNeue-Bold", size: 24))
-                    Text(DirectionHelper.getToTerminalStation(for: line.id, direction: direction, stationDataManager: stationDataManager))
-                        .font(.custom("HelveticaNeue", size: 16))
-                        .foregroundColor(.secondary)
-                }
-                Spacer()
-            }
-
-            Divider()
-
-            // Train times
-            if viewModel.loading && viewModel.nextTrains.isEmpty {
-                Spacer()
-                ProgressView()
-                    .scaleEffect(1.5)
-                Spacer()
-            } else if !viewModel.errorMessage.isEmpty {
-                Spacer()
-                VStack(spacing: 8) {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .font(.system(size: 40))
-                        .foregroundColor(.orange)
-                    Text(viewModel.errorMessage)
-                        .font(.custom("HelveticaNeue", size: 14))
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
-                }
-                Spacer()
-            } else if !viewModel.nextTrains.isEmpty {
-                VStack(spacing: 12) {
-                    // Primary time
-                    Text(getTimeText(for: viewModel.nextTrains[0]))
-                        .font(.custom("HelveticaNeue-Bold", size: 72))
-                        .foregroundColor(.primary)
-
-                    // Additional times
-                    if viewModel.nextTrains.count > 1 {
-                        Text(viewModel.nextTrains.dropFirst().prefix(5).map { train in
-                            getAdditionalTimeText(for: train)
-                        }.joined(separator: ", "))
-                        .font(.custom("HelveticaNeue", size: 20))
-                        .foregroundColor(.secondary)
-                    }
-                }
-
-                Spacer()
-            }
-        }
-        .padding(24)
     }
 
     private func getTimeText(for train: (minutes: Int, seconds: Int)) -> String {
