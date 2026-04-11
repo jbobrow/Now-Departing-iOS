@@ -94,10 +94,9 @@ class LiveActivityManager {
     // End the current Live Activity
     func endActivity() {
         guard let activity = currentActivity else { return }
-
+        currentActivity = nil  // nil synchronously so rapid re-calls and new starts are safe
         Task {
             await activity.end(nil, dismissalPolicy: .immediate)
-            currentActivity = nil
             print("✅ Live Activity ended")
         }
     }
