@@ -30,7 +30,7 @@ struct NowDepartingWidgetLiveActivity: Widget {
                             .foregroundColor(.white)
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
-                        Text("to \(context.attributes.destinationStation)")
+                        Text(context.attributes.destinationStation)
                             .font(.system(size: 20, weight: .regular))
                             .foregroundColor(.white.opacity(0.7))
                             .lineLimit(1)
@@ -54,11 +54,8 @@ struct NowDepartingWidgetLiveActivity: Widget {
                                 .minimumScaleFactor(0.8)
                             
                             if context.state.nextTrains.count > 1 {
-                                let additionalTimes = context.state.nextTrains.dropFirst().prefix(2).map { train in
-                                    getAdditionalTimeText(for: train)
-                                }.joined(separator: ", ")
-                                Text(additionalTimes)
-                                    .font(.system(size: 24, weight: .regular))
+                                Text("next train \(getAdditionalTimeText(for: context.state.nextTrains[1]))")
+                                    .font(.system(size: 20, weight: .regular))
                                     .foregroundColor(.white.opacity(0.7))
                                     .lineLimit(1)
                             }
@@ -115,7 +112,7 @@ struct NowDepartingWidgetLiveActivity: Widget {
                 }
                 DynamicIslandExpandedRegion(.bottom) {
                     HStack {
-                        Text("to \(context.attributes.destinationStation)")
+                        Text(context.attributes.destinationStation)
                             .font(.system(size: 13, weight: .regular))
                             .foregroundColor(.white.opacity(0.7))
                             .lineLimit(1)
