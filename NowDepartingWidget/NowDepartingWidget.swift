@@ -119,6 +119,7 @@ struct TrainEntry: TimelineEntry {
     let favorites: [FavoriteTrainData]
     let lastUpdated: Date
     let errorMessage: String
+    let outOfTownDistanceMeters: Double? = nil
 }
 
 // MARK: - Timeline Provider
@@ -195,6 +196,26 @@ struct TrainTimelineProvider: AppIntentTimelineProvider {
         let allFavorites = loadFavorites()
         let primaryFavorite = resolveSelectedFavorite(from: configuration, allFavorites: allFavorites)
         let secondFavorite = resolveSecondFavorite(from: configuration, allFavorites: allFavorites)
+
+        // Check if user is out of town — skip MTA fetches and show distance instead
+        if let outOfTown = loadOutOfTownData(), outOfTown.distanceMeters * 0.000621371 > 3 {
+            let favoritesData: [FavoriteTrainData] = [
+                primaryFavorite,
+                secondFavorite,
+                resolveThirdFavorite(from: configuration, allFavorites: allFavorites),
+                resolveFourthFavorite(from: configuration, allFavorites: allFavorites)
+            ].compactMap { $0 }.map { FavoriteTrainData(favoriteItem: $0, nextTrains: []) }
+
+            let entry = TrainEntry(
+                date: Date(),
+                favorites: favoritesData.isEmpty ? allFavorites.prefix(4).map { FavoriteTrainData(favoriteItem: $0, nextTrains: []) } : favoritesData,
+                lastUpdated: outOfTown.storedAt,
+                errorMessage: "",
+                outOfTownDistanceMeters: outOfTown.distanceMeters
+            )
+            // Refresh every 30 minutes when out of town (no MTA data needed)
+            return Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(30 * 60)))
+        }
 
         guard let primary = primaryFavorite else {
             let entry = TrainEntry(
@@ -309,6 +330,17 @@ struct TrainTimelineProvider: AppIntentTimelineProvider {
     }
 
     // MARK: - Data Loading
+
+    /// Returns stored out-of-town distance and when it was set, or nil if not available / stale.
+    private func loadOutOfTownData() -> (distanceMeters: Double, storedAt: Date)? {
+        let defaults = UserDefaults(suiteName: "group.com.move38.Now-Departing") ?? UserDefaults.standard
+        guard let distMeters = defaults.value(forKey: "outOfTownDistanceMeters") as? Double,
+              let rawTimestamp = defaults.value(forKey: "outOfTownTimestamp") as? Double else { return nil }
+        let storedAt = Date(timeIntervalSinceReferenceDate: rawTimestamp)
+        // Discard if data is more than 4 hours old
+        guard Date().timeIntervalSince(storedAt) < 4 * 3600 else { return nil }
+        return (distanceMeters: distMeters, storedAt: storedAt)
+    }
 
     private func loadFavorites() -> [FavoriteItem] {
         if let sharedDefaults = UserDefaults(suiteName: "group.com.move38.Now-Departing"),
