@@ -253,6 +253,13 @@ class TimesViewModeliOS: ObservableObject {
         displayTimer = nil
     }
 
+    func clearTimes() {
+        arrivalTimes = []
+        nextTrains = []
+        errorMessage = ""
+        loading = true
+    }
+
     private func updateDisplayTimes() {
         let now = Date()
         nextTrains = arrivalTimes.compactMap { arrivalTime in
@@ -301,8 +308,6 @@ struct TimesView: View {
     @EnvironmentObject var serviceAlertsManager: ServiceAlertsManager
     @StateObject private var viewModel = TimesViewModeliOS()
     @State private var direction: String
-    @State private var showingLiveActivityInfo = false
-    @State private var liveActivityStarted = false
     @State private var showingServiceAlerts = false
 
     @Environment(\.dismiss) private var dismiss
@@ -358,7 +363,7 @@ struct TimesView: View {
                         .padding(.horizontal, 24)
                     }
 
-                    // Header: line badge + station + direction terminal
+                    // Header: line badge + station name + inline direction button
                     HStack(alignment: .top, spacing: 12) {
                         Text(line.label)
                             .font(.custom("HelveticaNeue-Bold", size: 50))
@@ -370,47 +375,71 @@ struct TimesView: View {
                             Text(station.display)
                                 .font(.custom("HelveticaNeue-Bold", size: 24))
                                 .foregroundColor(.white)
-                            Text(DirectionHelper.getToTerminalStation(for: line.id, direction: direction, stationDataManager: stationDataManager))
-                                .font(.custom("HelveticaNeue", size: 16))
-                                .foregroundColor(.secondary)
+
+                            // Terminal station + reverse icon — entire row is tappable
+                            Button(action: toggleDirection) {
+                                HStack(spacing: 5) {
+                                    Text(DirectionHelper.getToTerminalStation(for: line.id, direction: direction, stationDataManager: stationDataManager))
+                                        .font(.custom("HelveticaNeue", size: 16))
+                                        .foregroundColor(.secondary)
+                                        .id("terminal-\(direction)")
+                                        .transition(.asymmetric(
+                                            insertion: .opacity.combined(with: .offset(x: 0, y: 8)),
+                                            removal: .opacity.combined(with: .offset(x: 0, y: -8))
+                                        ))
+                                    Image(systemName: "arrow.triangle.2.circlepath")
+                                        .font(.system(size: 12, weight: .medium))
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                            .buttonStyle(PlainButtonStyle())
                         }
                         Spacer()
                     }
                     .padding(.horizontal, 24)
                     .padding(.top, 8)
 
-                    // Train times
-                    if viewModel.loading && viewModel.nextTrains.isEmpty {
-                        ProgressView()
-                            .scaleEffect(1.5)
+                    // Train times — re-keyed on direction so the whole block transitions on toggle
+                    VStack(spacing: 12) {
+                        if viewModel.loading && viewModel.nextTrains.isEmpty {
+                            ProgressView()
+                                .scaleEffect(1.5)
+                                .padding(.vertical, 48)
+                        } else if !viewModel.errorMessage.isEmpty {
+                            VStack(spacing: 8) {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .font(.system(size: 40))
+                                    .foregroundColor(.orange)
+                                Text(viewModel.errorMessage)
+                                    .font(.custom("HelveticaNeue", size: 14))
+                                    .foregroundColor(.secondary)
+                                    .multilineTextAlignment(.center)
+                            }
                             .padding(.vertical, 48)
-                    } else if !viewModel.errorMessage.isEmpty {
-                        VStack(spacing: 8) {
-                            Image(systemName: "exclamationmark.triangle.fill")
-                                .font(.system(size: 40))
-                                .foregroundColor(.orange)
-                            Text(viewModel.errorMessage)
-                                .font(.custom("HelveticaNeue", size: 14))
-                                .foregroundColor(.secondary)
-                                .multilineTextAlignment(.center)
-                        }
-                        .padding(.vertical, 48)
-                    } else if !viewModel.nextTrains.isEmpty {
-                        VStack(spacing: 12) {
-                            Text(getTimeText(for: viewModel.nextTrains[0]))
-                                .font(.custom("HelveticaNeue-Bold", size: 80))
-                                .foregroundColor(.white)
+                        } else if !viewModel.nextTrains.isEmpty {
+                            VStack(spacing: 12) {
+                                Text(getTimeText(for: viewModel.nextTrains[0]))
+                                    .font(.custom("HelveticaNeue-Bold", size: 80))
+                                    .foregroundColor(.white)
 
-                            if viewModel.nextTrains.count > 1 {
-                                Text(viewModel.nextTrains.dropFirst().prefix(5).map { train in
-                                    getAdditionalTimeText(for: train)
-                                }.joined(separator: ", "))
-                                .font(.custom("HelveticaNeue", size: 20))
-                                .foregroundColor(.secondary)
+                                if viewModel.nextTrains.count > 1 {
+                                    Text(viewModel.nextTrains.dropFirst().prefix(5).map { train in
+                                        getAdditionalTimeText(for: train)
+                                    }.joined(separator: ", "))
+                                    .font(.custom("HelveticaNeue", size: 20))
+                                    .foregroundColor(.secondary)
+                                }
                             }
                         }
-                        .padding(.horizontal, 24)
                     }
+                    .id("times-\(direction)")
+                    .transition(.asymmetric(
+                        insertion: .opacity.combined(with: .offset(x: 0, y: 20)),
+                        removal: .opacity.combined(with: .offset(x: 0, y: -20))
+                    ))
+                    .padding(.horizontal, 24)
+
+                    Spacer(minLength: 40)
 
                     // Action buttons
                     VStack(spacing: 12) {
@@ -449,25 +478,6 @@ struct TimesView: View {
                             )
                             .cornerRadius(14)
                         }
-
-                        if #available(iOS 16.2, *), LiveActivityManager.isSupported() {
-                            Button(action: { toggleLiveActivity() }) {
-                                HStack(spacing: 8) {
-                                    Image(systemName: liveActivityStarted ? "iphone.gen3.radiowaves.left.and.right" : "iphone.gen3")
-                                    Text(liveActivityStarted ? "Stop Live Activity" : "Start Live Activity")
-                                }
-                                .font(.custom("HelveticaNeue-Bold", size: 18))
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 16)
-                                .background(.ultraThinMaterial)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 14)
-                                        .stroke(liveActivityStarted ? Color.red.opacity(0.5) : Color.white.opacity(0.2), lineWidth: 1)
-                                )
-                                .cornerRadius(14)
-                            }
-                        }
                     }
                     .padding(.horizontal, 24)
                     .padding(.bottom, 40)
@@ -477,40 +487,19 @@ struct TimesView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(Color.black, for: .navigationBar)
         .toolbarColorScheme(.dark, for: .navigationBar)
-        .toolbar {
-            ToolbarItem(placement: .principal) {
-                HStack(spacing: 8) {
-                    Text(line.label)
-                        .font(.custom("HelveticaNeue-Bold", size: 22))
-                        .foregroundColor(line.fg_color)
-                        .frame(width: 34, height: 34)
-                        .background(Circle().fill(line.bg_color))
-                    Text(station.display)
-                        .font(.custom("HelveticaNeue-Bold", size: 16))
-                        .foregroundColor(.white)
-                        .lineLimit(1)
-                }
-            }
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: toggleDirection) {
-                    Image(systemName: "arrow.triangle.2.circlepath")
-                        .font(.system(size: 17, weight: .semibold))
-                        .foregroundColor(.white)
-                }
-            }
-        }
         .onAppear {
             viewModel.startFetchingTimes(for: line, station: station, direction: direction)
             serviceAlertsManager.fetchAlerts()
+            if #available(iOS 16.2, *), LiveActivityManager.isSupported() {
+                startLiveActivity()
+            }
         }
         .onChange(of: direction) { newDirection in
             viewModel.stopFetchingTimes()
             viewModel.startFetchingTimes(for: line, station: station, direction: newDirection)
-            if liveActivityStarted {
-                if #available(iOS 16.2, *) {
-                    LiveActivityManager.shared.endActivity()
-                }
-                liveActivityStarted = false
+            if #available(iOS 16.2, *), LiveActivityManager.isSupported() {
+                LiveActivityManager.shared.endActivity()
+                startLiveActivity()
             }
         }
         .sheet(isPresented: $showingServiceAlerts) {
@@ -518,40 +507,25 @@ struct TimesView: View {
         }
         .onDisappear {
             viewModel.stopFetchingTimes()
-            if liveActivityStarted {
-                if #available(iOS 16.2, *) {
-                    LiveActivityManager.shared.endActivity()
-                }
-                liveActivityStarted = false
+            if #available(iOS 16.2, *) {
+                LiveActivityManager.shared.endActivity()
             }
         }
         .onReceive(viewModel.$nextTrains) { trains in
-            if liveActivityStarted && !trains.isEmpty {
-                if #available(iOS 16.2, *) {
+            if !trains.isEmpty {
+                if #available(iOS 16.2, *), LiveActivityManager.isSupported() {
                     LiveActivityManager.shared.updateActivity(nextTrains: trains)
                 }
             }
-        }
-        .alert("Live Activity for StandBy", isPresented: $showingLiveActivityInfo) {
-            Button("Got It", role: .cancel) {}
-        } message: {
-            Text("Live Activity started! Place your iPhone horizontally on a charger to see it in StandBy mode.\n\nThe display will show real-time train arrivals and automatically update.")
         }
     }
 
     private func toggleDirection() {
         let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
         impactFeedback.impactOccurred()
-        direction = oppositeDirection
-    }
-
-    @available(iOS 16.2, *)
-    private func toggleLiveActivity() {
-        if liveActivityStarted {
-            LiveActivityManager.shared.endActivity()
-            liveActivityStarted = false
-        } else {
-            startLiveActivity()
+        withAnimation(.easeInOut(duration: 0.3)) {
+            viewModel.clearTimes()
+            direction = oppositeDirection
         }
     }
 
@@ -583,12 +557,6 @@ struct TimesView: View {
             destinationStation: destinationStation,
             nextTrains: viewModel.nextTrains
         )
-
-        liveActivityStarted = true
-        showingLiveActivityInfo = true
-
-        let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
-        impactFeedback.impactOccurred()
     }
 
     private func getTimeText(for train: (minutes: Int, seconds: Int)) -> String {
