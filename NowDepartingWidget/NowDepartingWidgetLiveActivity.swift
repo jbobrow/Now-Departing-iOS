@@ -42,17 +42,26 @@ struct NowDepartingWidgetLiveActivity: Widget {
 
                 // Right side - Train times
                 HStack(alignment:.bottom) {
-                    
+
                     Spacer()
-                    
+
                     VStack(alignment: .trailing, spacing: 0) {
                         if let primaryTrain = context.state.nextTrains.first {
-                            Text(getTimeText(for: primaryTrain))
-                                .font(.system(size: 48, weight: .bold))
-                                .foregroundColor(.white)
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.8)
-                            
+                            if primaryTrain.arrivalDate <= Date() {
+                                Text("Now")
+                                    .font(.system(size: 48, weight: .bold))
+                                    .foregroundColor(.white)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.8)
+                            } else {
+                                Text(primaryTrain.arrivalDate, style: .timer)
+                                    .font(.system(size: 48, weight: .bold))
+                                    .foregroundColor(.white)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.8)
+                                    .monospacedDigit()
+                            }
+
                             if context.state.nextTrains.count > 1 {
                                 Text("next train \(getAdditionalTimeText(for: context.state.nextTrains[1]))")
                                     .font(.system(size: 12, weight: .regular))
@@ -98,9 +107,16 @@ struct NowDepartingWidgetLiveActivity: Widget {
                 DynamicIslandExpandedRegion(.trailing) {
                     VStack(alignment: .trailing, spacing: 2) {
                         if let primaryTrain = context.state.nextTrains.first {
-                            Text(getTimeText(for: primaryTrain))
-                                .font(.system(size: 28, weight: .bold))
-                                .foregroundColor(.white)
+                            if primaryTrain.arrivalDate <= Date() {
+                                Text("Now")
+                                    .font(.system(size: 28, weight: .bold))
+                                    .foregroundColor(.white)
+                            } else {
+                                Text(primaryTrain.arrivalDate, style: .timer)
+                                    .font(.system(size: 28, weight: .bold))
+                                    .foregroundColor(.white)
+                                    .monospacedDigit()
+                            }
                             if context.state.nextTrains.count > 1 {
                                 let additionalTime = getAdditionalTimeText(for: context.state.nextTrains[1])
                                 Text(additionalTime)
@@ -142,9 +158,16 @@ struct NowDepartingWidgetLiveActivity: Widget {
                 }
             } compactTrailing: {
                 if let primaryTrain = context.state.nextTrains.first {
-                    Text(getCompactTimeText(for: primaryTrain))
-                        .font(.system(size: 15, weight: .bold))
-                        .foregroundColor(.white)
+                    if primaryTrain.arrivalDate <= Date() {
+                        Text("Now")
+                            .font(.system(size: 15, weight: .bold))
+                            .foregroundColor(.white)
+                    } else {
+                        Text(primaryTrain.arrivalDate, style: .timer)
+                            .font(.system(size: 15, weight: .bold))
+                            .foregroundColor(.white)
+                            .monospacedDigit()
+                    }
                 }
             } minimal: {
                 Text(context.attributes.lineLabel)
@@ -157,17 +180,8 @@ struct NowDepartingWidgetLiveActivity: Widget {
         }
     }
 
-    // Helper functions for time display
-    private func getTimeText(for train: NowDepartingWidgetAttributes.ContentState.TrainTime) -> String {
-        return TimeFormatter.formatArrivalTime(minutes: train.minutes, seconds: train.seconds, fullText: true)
-    }
-
     private func getAdditionalTimeText(for train: NowDepartingWidgetAttributes.ContentState.TrainTime) -> String {
-        return TimeFormatter.formatAdditionalTime(minutes: train.minutes, seconds: train.seconds)
-    }
-
-    private func getCompactTimeText(for train: NowDepartingWidgetAttributes.ContentState.TrainTime) -> String {
-        return TimeFormatter.formatCompactTime(minutes: train.minutes, seconds: train.seconds)
+        return TimeFormatter.formatAdditionalTime(train.arrivalDate)
     }
 }
 
@@ -194,9 +208,9 @@ extension NowDepartingWidgetAttributes.ContentState {
     fileprivate static var arriving: NowDepartingWidgetAttributes.ContentState {
         NowDepartingWidgetAttributes.ContentState(
             nextTrains: [
-                .init(minutes: 0, seconds: 45),
-                .init(minutes: 12, seconds: 0),
-                .init(minutes: 19, seconds: 0)
+                .init(arrivalDate: Date().addingTimeInterval(45)),
+                .init(arrivalDate: Date().addingTimeInterval(12 * 60)),
+                .init(arrivalDate: Date().addingTimeInterval(19 * 60))
             ],
             lastUpdated: Date()
         )
@@ -205,10 +219,10 @@ extension NowDepartingWidgetAttributes.ContentState {
     fileprivate static var upcoming: NowDepartingWidgetAttributes.ContentState {
         NowDepartingWidgetAttributes.ContentState(
             nextTrains: [
-                .init(minutes: 8, seconds: 30),
-                .init(minutes: 12, seconds: 0),
-                .init(minutes: 19, seconds: 0),
-                .init(minutes: 28, seconds: 0)
+                .init(arrivalDate: Date().addingTimeInterval(8 * 60 + 30)),
+                .init(arrivalDate: Date().addingTimeInterval(12 * 60)),
+                .init(arrivalDate: Date().addingTimeInterval(19 * 60)),
+                .init(arrivalDate: Date().addingTimeInterval(28 * 60))
             ],
             lastUpdated: Date()
         )

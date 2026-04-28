@@ -224,6 +224,7 @@ struct TerminalSelectionView: View {
 
 class TimesViewModeliOS: ObservableObject {
     @Published var nextTrains: [(minutes: Int, seconds: Int)] = []
+    @Published var arrivalDates: [Date] = []
     @Published var loading: Bool = false
     @Published var errorMessage: String = ""
 
@@ -258,25 +259,26 @@ class TimesViewModeliOS: ObservableObject {
         fetchGeneration += 1  // invalidate any in-flight fetch
         arrivalTimes = []
         nextTrains = []
+        arrivalDates = []
         errorMessage = ""
         loading = true
     }
 
     private func updateDisplayTimes() {
         let now = Date()
-        nextTrains = arrivalTimes.compactMap { arrivalTime in
-            let interval = arrivalTime.timeIntervalSince(now)
-            if interval < 0 { return nil }
+        let futureTimes = arrivalTimes.filter { $0 > now }.sorted()
 
+        arrivalDates = futureTimes
+
+        nextTrains = futureTimes.map { arrivalTime in
+            let interval = arrivalTime.timeIntervalSince(now)
             let totalSeconds = Int(interval)
             let minutes = totalSeconds / 60
             let seconds = totalSeconds % 60
-
             return (minutes: minutes, seconds: seconds)
-        }.sorted { $0.minutes * 60 + $0.seconds < $1.minutes * 60 + $1.seconds }
+        }
 
-        // Clean up past arrival times
-        arrivalTimes = arrivalTimes.filter { $0 > now }
+        arrivalTimes = futureTimes
     }
 
     private func fetchArrivalTimes(for line: SubwayLine, station: Station, direction: String) {
@@ -530,10 +532,10 @@ struct TimesView: View {
                 LiveActivityManager.shared.endActivity()
             }
         }
-        .onReceive(viewModel.$nextTrains) { trains in
-            if !trains.isEmpty {
+        .onReceive(viewModel.$arrivalDates) { dates in
+            if !dates.isEmpty {
                 if #available(iOS 16.2, *), LiveActivityManager.isSupported() {
-                    LiveActivityManager.shared.updateActivity(nextTrains: trains)
+                    LiveActivityManager.shared.updateActivity(arrivalDates: dates)
                 }
             }
         }
@@ -574,7 +576,7 @@ struct TimesView: View {
             stationDisplay: station.display,
             direction: direction,
             destinationStation: destinationStation,
-            nextTrains: viewModel.nextTrains
+            arrivalDates: viewModel.arrivalDates
         )
     }
 
