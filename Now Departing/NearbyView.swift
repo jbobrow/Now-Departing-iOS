@@ -778,7 +778,7 @@ struct NearbyView: View {
             print("DEBUG: Filtered out \(nearbyTrainsManager.nearbyTrains.count - freshTrains.count) stale trains")
         }
         
-        let grouped = Dictionary(grouping: freshTrains) { $0.stationId }
+        let grouped = Dictionary(grouping: freshTrains) { $0.stationDisplay }
         
         return grouped.map { (stationId, trains) in
             let firstTrain = trains.first!
@@ -810,7 +810,7 @@ struct NearbyView: View {
             }
             
             return (
-                stationId: stationId,
+                stationId: firstTrain.stationDisplay,
                 stationDisplay: firstTrain.stationDisplay,
                 distanceText: distanceText,
                 trainsByLineAndDirection: trainsByLineAndDirection
