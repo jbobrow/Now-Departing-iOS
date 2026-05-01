@@ -66,17 +66,20 @@ struct NearbyView: View {
         .preferredColorScheme(.dark)
         .onAppear {
             print("DEBUG: NearbyView onAppear - hasAppeared: \(hasAppeared)")
-            
+
+            // Always sync station data first so any subsequent fetch has valid data
+            nearbyTrainsManager.updateStationDataManager(stationDataManager)
+
             if !hasAppeared {
                 hasAppeared = true
                 setupInitialState()
                 startTimeUpdateTimer()
                 startLiveTimeTimer()
             }
-            
+
             // ALWAYS start auto-refresh when the nearby tab is opened
             startAutoRefresh()
-            
+
             // ALWAYS trigger a data update when the nearby tab is opened
             triggerDataUpdateOnTabOpen()
         }
@@ -133,40 +136,10 @@ struct NearbyView: View {
     }
     
     private func setupInitialState() {
-        // Small delay to avoid initialization issues
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            nearbyTrainsManager.updateStationDataManager(stationDataManager)
-            
-            print("DEBUG: Location enabled: \(locationManager.isLocationEnabled)")
-            print("DEBUG: Authorization status: \(locationManager.authorizationStatus.rawValue)")
-            print("DEBUG: Current location: \(locationManager.location?.description ?? "nil")")
-            print("DEBUG: Has user enabled location: \(locationManager.hasUserEnabledLocation)")
-            
-            // Handle different authorization states
-            switch locationManager.authorizationStatus {
-            case .notDetermined:
-                // Check if user previously enabled location
-                if locationManager.hasUserEnabledLocation {
-                    print("DEBUG: User previously enabled location but permission needs refresh")
-                    // Could show different prompt here if needed
-                } else {
-                    print("DEBUG: Location permission not determined - waiting for user action")
-                }
-                
-            case .authorizedWhenInUse, .authorizedAlways:
-                if let location = locationManager.location {
-                    print("DEBUG: Starting initial fetch with existing location (possibly cached)")
-                    startFetchingWithLocation(location)
-                } else {
-                    print("DEBUG: Permission granted but no location, requesting update")
-                    locationManager.requestOneTimeUpdate()
-                }
-                
-            default:
-                print("DEBUG: Location access denied or restricted")
-                break
-            }
-        }
+        print("DEBUG: Location enabled: \(locationManager.isLocationEnabled)")
+        print("DEBUG: Authorization status: \(locationManager.authorizationStatus.rawValue)")
+        print("DEBUG: Current location: \(locationManager.location?.description ?? "nil")")
+        print("DEBUG: Has user enabled location: \(locationManager.hasUserEnabledLocation)")
     }
     
     private func startFetchingWithLocation(_ location: CLLocation) {
