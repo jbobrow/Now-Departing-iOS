@@ -175,12 +175,12 @@ final class MTAFeedService {
         }
 
         var nearbyStops: [NearbyStop] = []
-        var seenStationNames = Set<String>()
+        var seenStopIds = Set<String>()
 
         for stations in stationsByLine.values {
             for station in stations {
-                guard !seenStationNames.contains(station.name),
-                      station.gtfsStopId != nil,
+                guard let stopId = station.gtfsStopId,
+                      !seenStopIds.contains(stopId),
                       let lat = station.latitude,
                       let lon = station.longitude else { continue }
 
@@ -188,7 +188,7 @@ final class MTAFeedService {
                 let distance = location.distance(from: stationLocation)
                 if distance <= radiusMeters {
                     nearbyStops.append(NearbyStop(station: station, distance: distance, stationLocation: stationLocation))
-                    seenStationNames.insert(station.name)
+                    seenStopIds.insert(stopId)
                 }
             }
         }
