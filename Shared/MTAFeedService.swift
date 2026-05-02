@@ -46,6 +46,7 @@ import CoreLocation
 struct MTANearbyArrival {
     let routeId: String
     let gtfsStopId: String?
+    let complexId: String?
     let stationName: String
     let stationDisplay: String
     let direction: String    // "N" or "S"
@@ -257,6 +258,7 @@ final class MTAFeedService {
                         results.append(MTANearbyArrival(
                             routeId: routeId,
                             gtfsStopId: stop.station.gtfsStopId,
+                            complexId: stop.station.complexId,
                             stationName: stop.station.name,
                             stationDisplay: stop.station.display,
                             direction: direction,

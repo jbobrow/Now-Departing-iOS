@@ -751,9 +751,15 @@ struct NearbyView: View {
             print("DEBUG: Filtered out \(nearbyTrainsManager.nearbyTrains.count - freshTrains.count) stale trains")
         }
         
-        let grouped = Dictionary(grouping: freshTrains) { $0.stationDisplay }
-        
-        return grouped.map { (stationId, trains) in
+        // Group by MTA complex ID so platforms that share an underground connection
+        // (e.g. West 4th St ACE + BDFM, Times Sq all lines) appear as one section,
+        // while same-name stops that don't connect (e.g. Clinton-Washington C vs G)
+        // stay separate. Falls back to gtfsStopId for stations without a complexId.
+        let grouped = Dictionary(grouping: freshTrains) { train -> String in
+            train.complexId ?? train.gtfsStopId ?? train.stationDisplay
+        }
+
+        return grouped.map { (groupKey, trains) in
             let firstTrain = trains.first!
             let distanceText = formatDistance(firstTrain.distanceInMeters)
             
@@ -783,7 +789,7 @@ struct NearbyView: View {
             }
             
             return (
-                stationId: firstTrain.stationDisplay,
+                stationId: groupKey,
                 stationDisplay: firstTrain.stationDisplay,
                 distanceText: distanceText,
                 trainsByLineAndDirection: trainsByLineAndDirection

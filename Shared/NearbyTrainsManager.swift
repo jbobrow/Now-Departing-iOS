@@ -68,6 +68,7 @@ class NearbyTrainsManager: ObservableObject {
                         arrivalTime: a.arrivalTime,
                         distanceInMeters: a.distanceInMeters,
                         gtfsStopId: a.gtfsStopId,
+                        complexId: a.complexId,
                         latitude: a.latitude,
                         longitude: a.longitude
                     )

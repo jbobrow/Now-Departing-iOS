@@ -42,6 +42,10 @@ struct Station: Identifiable, Codable, Equatable {
     var latitude: Double?
     /// WGS-84 longitude from MTA GTFS `stops.txt`.  Required for the nearby-trains feature.
     var longitude: Double?
+    /// MTA complex ID grouping platforms that share an underground connection.
+    /// Derived from the MTA's Stations.csv open data file via generate_gtfs_mapping.py.
+    /// Used by the nearby view to merge same-complex platforms into one section.
+    var complexId: String?
     var hasAvailableTimes: Bool?
 
     init(
@@ -51,6 +55,7 @@ struct Station: Identifiable, Codable, Equatable {
         gtfsStopId: String? = nil,
         latitude: Double? = nil,
         longitude: Double? = nil,
+        complexId: String? = nil,
         hasAvailableTimes: Bool? = nil
     ) {
         self.id = id
@@ -59,6 +64,7 @@ struct Station: Identifiable, Codable, Equatable {
         self.gtfsStopId = gtfsStopId
         self.latitude = latitude
         self.longitude = longitude
+        self.complexId = complexId
         self.hasAvailableTimes = hasAvailableTimes
     }
 
@@ -68,6 +74,7 @@ struct Station: Identifiable, Codable, Equatable {
         case gtfsStopId
         case latitude
         case longitude
+        case complexId
         case hasAvailableTimes
         // "id" is intentionally omitted — it is derived from `name` on decode.
     }
@@ -79,6 +86,7 @@ struct Station: Identifiable, Codable, Equatable {
         self.gtfsStopId = try container.decodeIfPresent(String.self, forKey: .gtfsStopId)
         self.latitude = try container.decodeIfPresent(Double.self, forKey: .latitude)
         self.longitude = try container.decodeIfPresent(Double.self, forKey: .longitude)
+        self.complexId = try container.decodeIfPresent(String.self, forKey: .complexId)
         self.hasAvailableTimes = try container.decodeIfPresent(Bool.self, forKey: .hasAvailableTimes)
         self.id = name  // stable, name-based ID
     }
@@ -90,6 +98,7 @@ struct Station: Identifiable, Codable, Equatable {
         try container.encodeIfPresent(gtfsStopId, forKey: .gtfsStopId)
         try container.encodeIfPresent(latitude, forKey: .latitude)
         try container.encodeIfPresent(longitude, forKey: .longitude)
+        try container.encodeIfPresent(complexId, forKey: .complexId)
         try container.encodeIfPresent(hasAvailableTimes, forKey: .hasAvailableTimes)
     }
 }

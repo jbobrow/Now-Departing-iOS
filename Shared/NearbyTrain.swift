@@ -21,6 +21,8 @@ struct NearbyTrain: Identifiable, Equatable {
     /// GTFS parent stop ID (e.g. "127").  Nil when stations.json has not yet
     /// been updated with gtfsStopId values.
     let gtfsStopId: String?
+    /// MTA complex ID grouping platforms that share an underground connection.
+    let complexId: String?
     let latitude: Double?
     let longitude: Double?
     

@@ -96,6 +96,27 @@ def load_gtfs_stops(stops_path: str) -> dict:
     return parents
 
 
+def load_complex_ids(stations_csv_path: str) -> dict:
+    """
+    Returns a dict:  gtfs_stop_id -> complex_id (string)
+    Derived from the MTA's Stations.csv (open data), which has a 'Complex ID'
+    column that groups platforms sharing an underground complex.
+    Download: http://web.mta.info/developers/data/nyct/subway/Stations.csv
+    """
+    mapping = {}
+    try:
+        with open(stations_csv_path, newline="", encoding="utf-8-sig") as f:
+            for row in csv.DictReader(f):
+                stop_id = row.get("GTFS Stop ID", "").strip()
+                complex_id = row.get("Complex ID", "").strip()
+                if stop_id and complex_id:
+                    mapping[stop_id] = complex_id
+    except FileNotFoundError:
+        print(f"⚠  Stations.csv not found at {stations_csv_path} – complexId will not be set.")
+        print("   Download from: http://web.mta.info/developers/data/nyct/subway/Stations.csv\n")
+    return mapping
+
+
 def find_match(station_name: str, gtfs_index: dict) -> Optional[dict]:
     """
     Attempts to find the best matching GTFS parent station for a given
@@ -126,11 +147,21 @@ def main():
     parser.add_argument("--stops", required=True, help="Path to GTFS stops.txt")
     parser.add_argument("--stations", required=True, help="Path to stations.json (input)")
     parser.add_argument("--output", required=True, help="Path to write updated stations.json")
+    parser.add_argument("--stations-csv", default=None,
+                        help="Path to MTA Stations.csv for complex ID mapping "
+                             "(download from http://web.mta.info/developers/data/nyct/subway/Stations.csv)")
     args = parser.parse_args()
 
     print(f"Loading GTFS stops from {args.stops} …")
     gtfs_index = load_gtfs_stops(args.stops)
     print(f"  {len(gtfs_index)} parent stations loaded.\n")
+
+    stations_csv = args.stations_csv or str(
+        __import__("pathlib").Path(args.stops).parent / "Stations.csv"
+    )
+    print(f"Loading complex IDs from {stations_csv} …")
+    complex_map = load_complex_ids(stations_csv)
+    print(f"  {len(complex_map)} stop→complex mappings loaded.\n")
 
     print(f"Loading stations from {args.stations} …")
     with open(args.stations, encoding="utf-8") as f:
@@ -145,9 +176,12 @@ def main():
             name = station["name"]
             hit = find_match(name, gtfs_index)
             if hit:
-                station["gtfsStopId"] = hit["stop_id"]
+                stop_id = hit["stop_id"]
+                station["gtfsStopId"] = stop_id
                 station["latitude"]   = hit["lat"]
                 station["longitude"]  = hit["lon"]
+                if stop_id in complex_map:
+                    station["complexId"] = complex_map[stop_id]
                 matched += 1
             else:
                 unmatched_names.add(name)
