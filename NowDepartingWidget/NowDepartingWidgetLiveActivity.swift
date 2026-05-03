@@ -42,22 +42,30 @@ struct NowDepartingWidgetLiveActivity: Widget {
 
                 // Right side - Train times
                 HStack(alignment:.bottom) {
-                    
+
                     Spacer()
-                    
+
                     VStack(alignment: .trailing, spacing: 0) {
                         if let primaryTrain = context.state.nextTrains.first {
-                            Text(getTimeText(for: primaryTrain))
-                                .font(.system(size: 48, weight: .bold))
-                                .foregroundColor(.white)
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.8)
-                            
-                            if context.state.nextTrains.count > 1 {
-                                Text("next train \(getAdditionalTimeText(for: context.state.nextTrains[1]))")
-                                    .font(.system(size: 12, weight: .regular))
-                                    .foregroundColor(.white.opacity(0.7))
+                            TimelineView(.periodic(from: .now, by: 60)) { tl in
+                                let secs = primaryTrain.departureDate.timeIntervalSince(tl.date)
+                                Text(secs < 60 ? "Now" : "\(Int(secs) / 60) min")
+                                    .font(.system(size: 48, weight: .bold))
+                                    .foregroundColor(.white)
                                     .lineLimit(1)
+                                    .minimumScaleFactor(0.8)
+                            }
+
+                            if context.state.nextTrains.count > 1 {
+                                let nextTrain = context.state.nextTrains[1]
+                                TimelineView(.periodic(from: .now, by: 60)) { tl in
+                                    let secs = nextTrain.departureDate.timeIntervalSince(tl.date)
+                                    let timeStr = secs < 60 ? "Now" : "\(Int(secs) / 60)m"
+                                    Text("next train \(timeStr)")
+                                        .font(.system(size: 12, weight: .regular))
+                                        .foregroundColor(.white.opacity(0.7))
+                                        .lineLimit(1)
+                                }
                             }
                         } else {
                             Text("--")
@@ -98,14 +106,20 @@ struct NowDepartingWidgetLiveActivity: Widget {
                 DynamicIslandExpandedRegion(.trailing) {
                     VStack(alignment: .trailing, spacing: 2) {
                         if let primaryTrain = context.state.nextTrains.first {
-                            Text(getTimeText(for: primaryTrain))
-                                .font(.system(size: 28, weight: .bold))
-                                .foregroundColor(.white)
+                            TimelineView(.periodic(from: .now, by: 60)) { tl in
+                                let secs = primaryTrain.departureDate.timeIntervalSince(tl.date)
+                                Text(secs < 60 ? "Now" : "\(Int(secs) / 60) min")
+                                    .font(.system(size: 28, weight: .bold))
+                                    .foregroundColor(.white)
+                            }
                             if context.state.nextTrains.count > 1 {
-                                let additionalTime = getAdditionalTimeText(for: context.state.nextTrains[1])
-                                Text(additionalTime)
-                                    .font(.system(size: 12, weight: .regular))
-                                    .foregroundColor(.white.opacity(0.7))
+                                let nextTrain = context.state.nextTrains[1]
+                                TimelineView(.periodic(from: .now, by: 60)) { tl in
+                                    let secs = nextTrain.departureDate.timeIntervalSince(tl.date)
+                                    Text(secs < 60 ? "Now" : "\(Int(secs) / 60)m")
+                                        .font(.system(size: 12, weight: .regular))
+                                        .foregroundColor(.white.opacity(0.7))
+                                }
                             }
                         }
                     }
@@ -118,12 +132,16 @@ struct NowDepartingWidgetLiveActivity: Widget {
                             .lineLimit(1)
                         Spacer()
                         if context.state.nextTrains.count > 2 {
-                            let moreTimes = context.state.nextTrains.dropFirst(2).prefix(2).map { train in
-                                getAdditionalTimeText(for: train)
-                            }.joined(separator: ", ")
-                            Text(moreTimes)
-                                .font(.system(size: 13, weight: .regular))
-                                .foregroundColor(.white.opacity(0.6))
+                            let additionalTrains = Array(context.state.nextTrains.dropFirst(2).prefix(2))
+                            TimelineView(.periodic(from: .now, by: 60)) { tl in
+                                let moreTimes = additionalTrains.map { train in
+                                    let secs = train.departureDate.timeIntervalSince(tl.date)
+                                    return secs < 60 ? "Now" : "\(Int(secs) / 60)m"
+                                }.joined(separator: ", ")
+                                Text(moreTimes)
+                                    .font(.system(size: 13, weight: .regular))
+                                    .foregroundColor(.white.opacity(0.6))
+                            }
                         }
                     }
                     .padding(.horizontal, 4)
@@ -142,9 +160,12 @@ struct NowDepartingWidgetLiveActivity: Widget {
                 }
             } compactTrailing: {
                 if let primaryTrain = context.state.nextTrains.first {
-                    Text(getCompactTimeText(for: primaryTrain))
-                        .font(.system(size: 15, weight: .bold))
-                        .foregroundColor(.white)
+                    TimelineView(.periodic(from: .now, by: 60)) { tl in
+                        let secs = primaryTrain.departureDate.timeIntervalSince(tl.date)
+                        Text(secs < 60 ? "Now" : "\(Int(secs) / 60)m")
+                            .font(.system(size: 15, weight: .bold))
+                            .foregroundColor(.white)
+                    }
                 }
             } minimal: {
                 Text(context.attributes.lineLabel)
@@ -157,18 +178,6 @@ struct NowDepartingWidgetLiveActivity: Widget {
         }
     }
 
-    // Helper functions for time display
-    private func getTimeText(for train: NowDepartingWidgetAttributes.ContentState.TrainTime) -> String {
-        return TimeFormatter.formatArrivalTime(train.departureDate, fullText: true)
-    }
-
-    private func getAdditionalTimeText(for train: NowDepartingWidgetAttributes.ContentState.TrainTime) -> String {
-        return TimeFormatter.formatAdditionalTime(train.departureDate)
-    }
-
-    private func getCompactTimeText(for train: NowDepartingWidgetAttributes.ContentState.TrainTime) -> String {
-        return TimeFormatter.formatArrivalTime(train.departureDate)
-    }
 }
 
 extension NowDepartingWidgetAttributes {
