@@ -106,14 +106,14 @@ struct SmallWidgetView: View {
                             .font(.custom("HelveticaNeue-Bold", size: 32))
                             .foregroundColor(.white)
                     } else if !data.nextTrains.isEmpty {
-                        DynamicTrainTimeView(arrivalDate: data.nextTrains[0], fullText: true)
+                        DynamicTrainTimeView(arrivalDate: data.nextTrains[0], entryDate: entry.date, fullText: true)
                             .font(.custom("HelveticaNeue-Bold", size: 32))
                             .foregroundColor(.white)
 
                         if data.nextTrains.count > 1 {
                             HStack(spacing: 4) {
                                 ForEach(Array(data.nextTrains.dropFirst().prefix(2).enumerated()), id: \.offset) { _, trainDate in
-                                    DynamicTrainTimeView(arrivalDate: trainDate, fullText: false)
+                                    DynamicTrainTimeView(arrivalDate: trainDate, entryDate: entry.date, fullText: false)
                                     if trainDate != data.nextTrains.dropFirst().prefix(2).last {
                                         Text(",")
                                     }
@@ -227,14 +227,14 @@ struct MediumWidgetView: View {
                             .font(.custom("HelveticaNeue-Bold", size: 28))
                             .foregroundColor(.white.opacity(0.6))
                     } else if !data.nextTrains.isEmpty {
-                        DynamicTrainTimeView(arrivalDate: data.nextTrains[0], fullText: true)
+                        DynamicTrainTimeView(arrivalDate: data.nextTrains[0], entryDate: entry.date, fullText: true)
                             .font(.custom("HelveticaNeue-Bold", size: 28))
                             .foregroundColor(.white)
 
                         if data.nextTrains.count > 1 {
                             HStack(spacing: 4) {
                                 ForEach(Array(data.nextTrains.dropFirst().prefix(2).enumerated()), id: \.offset) { _, trainDate in
-                                    DynamicTrainTimeView(arrivalDate: trainDate, fullText: false)
+                                    DynamicTrainTimeView(arrivalDate: trainDate, entryDate: entry.date, fullText: false)
                                     if trainDate != data.nextTrains.dropFirst().prefix(2).last {
                                         Text(",")
                                     }
@@ -370,7 +370,7 @@ struct SingleFavoriteLargeView: View {
             } else if !data.nextTrains.isEmpty {
                 VStack(spacing: 12) {
                     // Primary time
-                    DynamicTrainTimeView(arrivalDate: data.nextTrains[0], fullText: true)
+                    DynamicTrainTimeView(arrivalDate: data.nextTrains[0], entryDate: entry.date, fullText: true)
                         .font(.custom("HelveticaNeue-Bold", size: 72))
                         .foregroundColor(.white)
 
@@ -378,7 +378,7 @@ struct SingleFavoriteLargeView: View {
                     if data.nextTrains.count > 1 {
                         HStack(spacing: 4) {
                             ForEach(Array(data.nextTrains.dropFirst().prefix(5).enumerated()), id: \.offset) { _, trainDate in
-                                DynamicTrainTimeView(arrivalDate: trainDate, fullText: false)
+                                DynamicTrainTimeView(arrivalDate: trainDate, entryDate: entry.date, fullText: false)
                                 if trainDate != data.nextTrains.dropFirst().prefix(5).last {
                                     Text(",")
                                 }
@@ -423,7 +423,7 @@ struct MultiFavoriteView: View {
             .padding(.top, 12)
 
             ForEach(Array(favorites.enumerated()), id: \.offset) { index, data in
-                FavoriteRowView(data: data, outOfTownDistanceMeters: entry.outOfTownDistanceMeters)
+                FavoriteRowView(data: data, entryDate: entry.date, outOfTownDistanceMeters: entry.outOfTownDistanceMeters)
                     .padding(.horizontal, 16)
                     .padding(.top, index == 0 ? 8 : 0)
                     .padding(.bottom, index == favorites.count - 1 ? 12 : 0)
@@ -453,6 +453,7 @@ struct DualFavoriteCompactView: View {
 /// Used within the dual-favorite large widget layout.
 struct FavoriteRowView: View {
     let data: FavoriteTrainData
+    let entryDate: Date
     let outOfTownDistanceMeters: Double?
 
     var body: some View {
@@ -492,14 +493,14 @@ struct FavoriteRowView: View {
                         .font(.custom("HelveticaNeue-Bold", size: 20))
                         .foregroundColor(.yellow)
                 } else if !data.nextTrains.isEmpty {
-                    DynamicTrainTimeView(arrivalDate: data.nextTrains[0], fullText: true)
+                    DynamicTrainTimeView(arrivalDate: data.nextTrains[0], entryDate: entryDate, fullText: true)
                         .font(.custom("HelveticaNeue-Bold", size: 28))
                         .foregroundColor(.white)
 
                     if data.nextTrains.count > 1 {
                         HStack(spacing: 4) {
                             ForEach(Array(data.nextTrains.dropFirst().prefix(2).enumerated()), id: \.offset) { _, trainDate in
-                                DynamicTrainTimeView(arrivalDate: trainDate, fullText: false)
+                                DynamicTrainTimeView(arrivalDate: trainDate, entryDate: entryDate, fullText: false)
                                 if trainDate != data.nextTrains.dropFirst().prefix(2).last {
                                     Text(",")
                                 }
@@ -573,26 +574,30 @@ func getSubwayLine(for lineId: String) -> SubwayLine {
 /// date as the primary time. The `secondsUntil <= 0` branch is a safety net only.
 struct DynamicTrainTimeView: View {
     let arrivalDate: Date
+    let entryDate: Date
     let fullText: Bool
 
     var body: some View {
-        let secondsUntil = arrivalDate.timeIntervalSince(Date())
+        // Use entryDate (the timeline entry's scheduled display time) rather than Date()
+        // so pre-rendered snapshots bake in the correct minute count for when they'll be shown.
+        let secondsUntil = arrivalDate.timeIntervalSince(entryDate)
 
         if secondsUntil <= 0 {
-            // Safety net: train has already departed. Timeline entries should prevent this
-            // from being seen for the primary slot, but guard against edge cases.
             Text("Departed")
         } else if secondsUntil < 60 {
             Text("Now")
-        } else if fullText {
-            Text(arrivalDate, style: .relative)
-                .lineLimit(1)
-                .truncationMode(.tail)
         } else {
-            Text(arrivalDate, style: .relative)
-                .monospacedDigit()
-                .lineLimit(1)
-                .truncationMode(.tail)
+            let minutes = Int(secondsUntil) / 60
+            if fullText {
+                Text("\(minutes) min")
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+            } else {
+                Text("\(minutes)m")
+                    .monospacedDigit()
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+            }
         }
     }
 }

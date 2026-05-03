@@ -17,8 +17,7 @@ struct NowDepartingWidgetAttributes: ActivityAttributes {
         var lastUpdated: Date
 
         struct TrainTime: Codable, Hashable {
-            var minutes: Int
-            var seconds: Int
+            var departureDate: Date
         }
     }
 

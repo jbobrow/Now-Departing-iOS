@@ -159,15 +159,15 @@ struct NowDepartingWidgetLiveActivity: Widget {
 
     // Helper functions for time display
     private func getTimeText(for train: NowDepartingWidgetAttributes.ContentState.TrainTime) -> String {
-        return TimeFormatter.formatArrivalTime(minutes: train.minutes, seconds: train.seconds, fullText: true)
+        return TimeFormatter.formatArrivalTime(train.departureDate, fullText: true)
     }
 
     private func getAdditionalTimeText(for train: NowDepartingWidgetAttributes.ContentState.TrainTime) -> String {
-        return TimeFormatter.formatAdditionalTime(minutes: train.minutes, seconds: train.seconds)
+        return TimeFormatter.formatAdditionalTime(train.departureDate)
     }
 
     private func getCompactTimeText(for train: NowDepartingWidgetAttributes.ContentState.TrainTime) -> String {
-        return TimeFormatter.formatCompactTime(minutes: train.minutes, seconds: train.seconds)
+        return TimeFormatter.formatArrivalTime(train.departureDate)
     }
 }
 
@@ -192,25 +192,27 @@ extension NowDepartingWidgetAttributes {
 
 extension NowDepartingWidgetAttributes.ContentState {
     fileprivate static var arriving: NowDepartingWidgetAttributes.ContentState {
-        NowDepartingWidgetAttributes.ContentState(
+        let now = Date()
+        return NowDepartingWidgetAttributes.ContentState(
             nextTrains: [
-                .init(minutes: 0, seconds: 45),
-                .init(minutes: 12, seconds: 0),
-                .init(minutes: 19, seconds: 0)
+                .init(departureDate: now.addingTimeInterval(45)),
+                .init(departureDate: now.addingTimeInterval(12 * 60)),
+                .init(departureDate: now.addingTimeInterval(19 * 60))
             ],
-            lastUpdated: Date()
+            lastUpdated: now
         )
     }
 
     fileprivate static var upcoming: NowDepartingWidgetAttributes.ContentState {
-        NowDepartingWidgetAttributes.ContentState(
+        let now = Date()
+        return NowDepartingWidgetAttributes.ContentState(
             nextTrains: [
-                .init(minutes: 8, seconds: 30),
-                .init(minutes: 12, seconds: 0),
-                .init(minutes: 19, seconds: 0),
-                .init(minutes: 28, seconds: 0)
+                .init(departureDate: now.addingTimeInterval(8 * 60 + 30)),
+                .init(departureDate: now.addingTimeInterval(12 * 60)),
+                .init(departureDate: now.addingTimeInterval(19 * 60)),
+                .init(departureDate: now.addingTimeInterval(28 * 60))
             ],
-            lastUpdated: Date()
+            lastUpdated: now
         )
     }
 }

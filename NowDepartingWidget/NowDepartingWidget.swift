@@ -293,6 +293,30 @@ struct TrainTimelineProvider: AppIntentTimelineProvider {
             ))
         }
 
+        // Create entries at each minute boundary so each pre-rendered snapshot bakes in
+        // the correct "X min" value for its scheduled display time (entry.date).
+        // Since DynamicTrainTimeView computes relative to entry.date rather than Date(),
+        // each snapshot shows the right minute count without needing live re-renders.
+        for trainDate in primaryTrains {
+            guard trainDate > currentDate else { continue }
+            let secondsAway = trainDate.timeIntervalSince(currentDate)
+            let minutesAway = min(Int(secondsAway / 60), 90)
+            guard minutesAway > 0 else { continue }
+            for minute in 1...minutesAway {
+                let entryDate = trainDate.addingTimeInterval(-Double(minute) * 60)
+                guard entryDate > currentDate else { continue }
+                entries.append(TrainEntry(
+                    date: entryDate,
+                    favorites: makeFavorites(primaryTrains: primaryTrains),
+                    lastUpdated: fetchTime,
+                    errorMessage: primaryError
+                ))
+            }
+        }
+
+        // WidgetKit requires entries in ascending chronological order.
+        entries.sort { $0.date < $1.date }
+
         // Refresh with fresh MTA data every 5 minutes
         let refreshDate = currentDate.addingTimeInterval(5 * 60)
         return Timeline(entries: entries, policy: .after(refreshDate))
