@@ -567,11 +567,8 @@ func getSubwayLine(for lineId: String) -> SubwayLine {
 
 // MARK: - Dynamic Time Views
 
-/// View that displays train arrival time with automatic countdown using native SwiftUI dynamic text.
-///
-/// Expired trains are handled at the timeline level: getTimeline() creates an entry at each
-/// train's departure time with that train removed, so this view should never receive a past
-/// date as the primary time. The `secondsUntil <= 0` branch is a safety net only.
+/// Displays a train's remaining time as "X min" or "Now", computed against the entry's
+/// scheduled display date so pre-rendered snapshots show the correct minute count.
 struct DynamicTrainTimeView: View {
     let arrivalDate: Date
     let entryDate: Date
@@ -583,7 +580,7 @@ struct DynamicTrainTimeView: View {
         let secondsUntil = arrivalDate.timeIntervalSince(entryDate)
 
         if secondsUntil <= 0 {
-            Text("Departed")
+            EmptyView()
         } else if secondsUntil < 60 {
             Text("Now")
         } else {

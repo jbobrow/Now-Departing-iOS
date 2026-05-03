@@ -305,9 +305,12 @@ struct TrainTimelineProvider: AppIntentTimelineProvider {
             for minute in 1...minutesAway {
                 let entryDate = trainDate.addingTimeInterval(-Double(minute) * 60)
                 guard entryDate > currentDate else { continue }
+                // Only include trains still in the future at this entry's display time
+                // so earlier trains don't linger as "Departed" in later snapshots.
+                let activeTrains = primaryTrains.filter { $0 > entryDate }
                 entries.append(TrainEntry(
                     date: entryDate,
-                    favorites: makeFavorites(primaryTrains: primaryTrains),
+                    favorites: makeFavorites(primaryTrains: activeTrains),
                     lastUpdated: fetchTime,
                     errorMessage: primaryError
                 ))
