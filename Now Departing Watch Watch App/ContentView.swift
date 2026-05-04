@@ -847,7 +847,8 @@ struct FavoritesButtons: View {
                         lineId: line.id,
                         stationName: station.name,
                         stationDisplay: station.display,
-                        direction: direction
+                        direction: direction,
+                        gtfsStopId: station.gtfsStopId
                     )
                 }
             } else {

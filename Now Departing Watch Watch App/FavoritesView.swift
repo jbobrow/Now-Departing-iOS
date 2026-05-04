@@ -158,6 +158,7 @@ struct FavoriteRowView: View {
 
 struct FavoritesView: View {
     @EnvironmentObject var favoritesManager: FavoritesManager
+    @EnvironmentObject var stationDataManager: StationDataManager
     @Environment(\.scenePhase) private var scenePhase
     @State private var favoritesWithTimes: [FavoriteWithTimes] = []
     @State private var isViewActive = false
@@ -183,7 +184,12 @@ struct FavoritesView: View {
             
             // Start fetching times if we can find the line
             if let line = getLine(for: favorite.lineId) {
-                let station = Station(display: favorite.stationDisplay, name: favorite.stationName, gtfsStopId: favorite.stationGtfsStopId)
+                // Fall back to StationDataManager lookup for favorites saved before
+                // gtfsStopId was included in the watchOS addFavorite call.
+                let stopId = favorite.stationGtfsStopId
+                    ?? stationDataManager.stations(for: favorite.lineId)?
+                        .first(where: { $0.name == favorite.stationName })?.gtfsStopId
+                let station = Station(display: favorite.stationDisplay, name: favorite.stationName, gtfsStopId: stopId)
                 
                 // Add a small delay to stagger the API requests
                 let delay = Double(index) * 0.5 // space the requests half a second apart
