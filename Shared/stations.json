@@ -4561,14 +4561,6 @@
       "complexId": "223"
     },
     {
-      "display": "5th Avenue-53rd Street",
-      "name": "5 Av/53 St",
-      "gtfsStopId": "F12",
-      "latitude": 40.760167,
-      "longitude": -73.975224,
-      "complexId": "276"
-    },
-    {
       "display": "47th-50th Streets-Rockefeller Center",
       "name": "47-50 Sts-Rockefeller Ctr",
       "gtfsStopId": "D15",
@@ -5779,14 +5771,6 @@
       "complexId": "80"
     },
     {
-      "display": "111th Street",
-      "name": "111 St",
-      "gtfsStopId": "J13",
-      "latitude": 40.697418,
-      "longitude": -73.836345,
-      "complexId": "81"
-    },
-    {
       "display": "104th Street",
       "name": "104 St",
       "gtfsStopId": "J14",
@@ -5803,28 +5787,12 @@
       "complexId": "83"
     },
     {
-      "display": "85th Street-Forest Parkway",
-      "name": "85 St-Forest Pkwy",
-      "gtfsStopId": "J16",
-      "latitude": 40.692435,
-      "longitude": -73.86001,
-      "complexId": "84"
-    },
-    {
       "display": "75th Street-Elderts Lane",
       "name": "75 St-Elderts Ln",
       "gtfsStopId": "J17",
       "latitude": 40.691324,
       "longitude": -73.867139,
       "complexId": "85"
-    },
-    {
-      "display": "Cypress Hills",
-      "name": "Cypress Hills",
-      "gtfsStopId": "J19",
-      "latitude": 40.689941,
-      "longitude": -73.87255,
-      "complexId": "86"
     },
     {
       "display": "Crescent Street",
@@ -5841,14 +5809,6 @@
       "latitude": 40.68141,
       "longitude": -73.880039,
       "complexId": "88"
-    },
-    {
-      "display": "Cleveland Street",
-      "name": "Cleveland St",
-      "gtfsStopId": "J22",
-      "latitude": 40.679947,
-      "longitude": -73.884639,
-      "complexId": "89"
     },
     {
       "display": "Van Siclen Avenue",
@@ -5883,28 +5843,12 @@
       "complexId": "93"
     },
     {
-      "display": "Halsey Street",
-      "name": "Halsey St",
-      "gtfsStopId": "J29",
-      "latitude": 40.68637,
-      "longitude": -73.916559,
-      "complexId": "94"
-    },
-    {
       "display": "Gates Avenue",
       "name": "Gates Av",
       "gtfsStopId": "J30",
       "latitude": 40.68963,
       "longitude": -73.92227,
       "complexId": "95"
-    },
-    {
-      "display": "Kosciuszko Street",
-      "name": "Kosciuszko St",
-      "gtfsStopId": "J31",
-      "latitude": 40.693342,
-      "longitude": -73.928814,
-      "complexId": "96"
     },
     {
       "display": "Myrtle Avenue",
