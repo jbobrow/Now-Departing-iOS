@@ -7,10 +7,12 @@
 
 import SwiftUI
 import WidgetKit
+import WatchConnectivity
 
 @main
 struct Now_DepartingApp: App {
     @StateObject private var favoritesManager = FavoritesManager()
+    private let watchSync = WatchSyncManager.shared
     @StateObject private var stationDataManager = StationDataManager()
     @StateObject private var locationManager = LocationManager()
     @StateObject private var serviceAlertsManager = ServiceAlertsManager()
@@ -19,6 +21,7 @@ struct Now_DepartingApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .onAppear { watchSync.activate() }
                 .environmentObject(favoritesManager)
                 .environmentObject(stationDataManager)
                 .environmentObject(locationManager)

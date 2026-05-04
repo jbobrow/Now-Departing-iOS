@@ -41,6 +41,11 @@ class FavoritesManager: ObservableObject {
 
     init() {
         loadFavorites()
+        #if canImport(WatchConnectivity)
+        WatchSyncManager.shared.onFavoritesReceived = { [weak self] remoteFavorites in
+            self?.applyRemoteFavorites(remoteFavorites)
+        }
+        #endif
     }
 
     // Load favorites from UserDefaults (with App Group support for widgets)
@@ -65,14 +70,27 @@ class FavoritesManager: ObservableObject {
     // Save favorites to UserDefaults (with App Group support for widgets)
     private func saveFavorites() {
         if let encoded = try? JSONEncoder().encode(favorites) {
-            // Save to App Group for widget access
             if let sharedDefaults = UserDefaults(suiteName: appGroupId) {
                 sharedDefaults.set(encoded, forKey: favoritesKey)
             }
-            // Also save to standard UserDefaults for backwards compatibility
             UserDefaults.standard.set(encoded, forKey: favoritesKey)
+            WidgetCenter.shared.reloadAllTimelines()
+        }
+        #if canImport(WatchConnectivity)
+        WatchSyncManager.shared.send(favorites: favorites)
+        #endif
+    }
 
-            // Force widget to reload immediately when favorites change
+    // Apply favorites received from the other device without triggering
+    // another sync push (avoids a ping-pong loop).
+    private func applyRemoteFavorites(_ remoteFavorites: [FavoriteItem]) {
+        guard remoteFavorites != favorites else { return }
+        favorites = remoteFavorites
+        if let encoded = try? JSONEncoder().encode(favorites) {
+            if let sharedDefaults = UserDefaults(suiteName: appGroupId) {
+                sharedDefaults.set(encoded, forKey: favoritesKey)
+            }
+            UserDefaults.standard.set(encoded, forKey: favoritesKey)
             WidgetCenter.shared.reloadAllTimelines()
         }
     }

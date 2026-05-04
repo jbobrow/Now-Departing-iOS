@@ -6,17 +6,20 @@
 //
 
 import SwiftUI
+import WatchConnectivity
 
 @main
 struct NowDepartingWatchApp: App {
     @StateObject private var stationDataManager = StationDataManager()
     @StateObject private var favoritesManager = FavoritesManager()
+    private let watchSync = WatchSyncManager.shared
     @StateObject private var settingsManager = SettingsManager()
     @StateObject private var locationManager = LocationManager()
     
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .onAppear { watchSync.activate() }
                 .environmentObject(stationDataManager)
                 .environmentObject(favoritesManager)
                 .environmentObject(settingsManager)
