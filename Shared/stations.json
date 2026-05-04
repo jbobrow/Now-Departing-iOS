@@ -581,7 +581,7 @@
     {
       "display": "Court St-Borough Hall",
       "name": "Court St",
-      "gtfsStopId": "R28",
+      "gtfsStopId": "232",
       "latitude": 40.6941,
       "longitude": -73.991777,
       "complexId": "620"
@@ -831,7 +831,7 @@
     {
       "display": "Court St-Borough Hall",
       "name": "Court St",
-      "gtfsStopId": "R28",
+      "gtfsStopId": "232",
       "latitude": 40.6941,
       "longitude": -73.991777,
       "complexId": "620"
@@ -939,14 +939,6 @@
       "latitude": 40.662549,
       "longitude": -73.908946,
       "complexId": "348"
-    },
-    {
-      "display": "Livonia Avenue",
-      "name": "Livonia Av",
-      "gtfsStopId": "L26",
-      "latitude": 40.664038,
-      "longitude": -73.900571,
-      "complexId": "135"
     },
     {
       "display": "Pennsylvania Avenue",
@@ -1105,7 +1097,7 @@
     {
       "display": "59th Street",
       "name": "Lexington Av/59 St",
-      "gtfsStopId": "R11",
+      "gtfsStopId": "629",
       "latitude": 40.76266,
       "longitude": -73.967258,
       "complexId": "613"
@@ -1161,7 +1153,7 @@
     {
       "display": "Court St-Borough Hall",
       "name": "Court St",
-      "gtfsStopId": "R28",
+      "gtfsStopId": "423",
       "latitude": 40.6941,
       "longitude": -73.991777,
       "complexId": "620"
@@ -1347,7 +1339,7 @@
     {
       "display": "59th Street",
       "name": "Lexington Av/59 St",
-      "gtfsStopId": "R11",
+      "gtfsStopId": "629",
       "latitude": 40.76266,
       "longitude": -73.967258,
       "complexId": "613"
@@ -1403,7 +1395,7 @@
     {
       "display": "Court St-Borough Hall",
       "name": "Court St",
-      "gtfsStopId": "R28",
+      "gtfsStopId": "423",
       "latitude": 40.6941,
       "longitude": -73.991777,
       "complexId": "620"
@@ -1709,7 +1701,7 @@
     {
       "display": "59th Street",
       "name": "Lexington Av/59 St",
-      "gtfsStopId": "R11",
+      "gtfsStopId": "629",
       "latitude": 40.76266,
       "longitude": -73.967258,
       "complexId": "613"
@@ -2025,7 +2017,7 @@
     {
       "display": "168th Street",
       "name": "168 St-Washington Hts",
-      "gtfsStopId": "112",
+      "gtfsStopId": "A09",
       "latitude": 40.840556,
       "longitude": -73.940133,
       "complexId": "605"
@@ -3189,28 +3181,12 @@
       "complexId": "617"
     },
     {
-      "display": "Prospect Park",
-      "name": "15 St-Prospect Park",
-      "gtfsStopId": "F25",
-      "latitude": 40.660365,
-      "longitude": -73.979493,
-      "complexId": "241"
-    },
-    {
       "display": "36th Street",
       "name": "36 St",
       "gtfsStopId": "R36",
       "latitude": 40.655144,
       "longitude": -74.003549,
       "complexId": "32"
-    },
-    {
-      "display": "Church Avenue",
-      "name": "Church Av",
-      "gtfsStopId": "D28",
-      "latitude": 40.650527,
-      "longitude": -73.962982,
-      "complexId": "44"
     },
     {
       "display": "9th Avenue",
@@ -5937,30 +5913,6 @@
       "latitude": 40.697207,
       "longitude": -73.935657,
       "complexId": "97"
-    },
-    {
-      "display": "Flushing Avenue",
-      "name": "Flushing Av",
-      "gtfsStopId": "M12",
-      "latitude": 40.70026,
-      "longitude": -73.941126,
-      "complexId": "98"
-    },
-    {
-      "display": "Lorimer Street",
-      "name": "Lorimer St",
-      "gtfsStopId": "M13",
-      "latitude": 40.703869,
-      "longitude": -73.947408,
-      "complexId": "99"
-    },
-    {
-      "display": "Hewes Street",
-      "name": "Hewes St",
-      "gtfsStopId": "M14",
-      "latitude": 40.70687,
-      "longitude": -73.953431,
-      "complexId": "100"
     },
     {
       "display": "Marcy Avenue",
