@@ -1927,7 +1927,7 @@
     {
       "display": "Court Square",
       "name": "Court Sq-23 St",
-      "gtfsStopId": "F09",
+      "gtfsStopId": "719",
       "latitude": 40.747846,
       "longitude": -73.946,
       "complexId": "606"
@@ -3861,7 +3861,7 @@
     {
       "display": "Court Square",
       "name": "Court Sq-23 St",
-      "gtfsStopId": "F09",
+      "gtfsStopId": "G22",
       "latitude": 40.747846,
       "longitude": -73.946,
       "complexId": "606"
