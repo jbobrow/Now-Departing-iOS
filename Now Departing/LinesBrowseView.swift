@@ -48,6 +48,7 @@ struct LineSelectionView: View {
     let lines: [SubwayLine]
     @EnvironmentObject var navigationState: NavigationState
     @State private var selectedLineId: String? = nil
+    @State private var showAbout = false
 
     var body: some View {
         ScrollView {
@@ -78,12 +79,26 @@ struct LineSelectionView: View {
                             .animation(.spring(response: 0.3, dampingFraction: 0.6), value: selectedLineId == line.id)
                     }
                     .buttonStyle(PlainButtonStyle())
+                    // "X" holds the empty slot after 1 2 3 that shapes the grid
+                    .disabled(line.id == "X")
+                    .accessibilityHidden(line.id == "X")
                 }
             }
             .padding()
+
+            SignatureButton { showAbout = true }
+                .padding(.top, 24)
+                .padding(.bottom, 32)
         }
-        .navigationTitle("Select Line")
-        .navigationBarTitleDisplayMode(.large)
+        .navigationTitle("Lines")   // the back button's label on the pages after
+        .toolbar(.hidden, for: .navigationBar)
+        .sheet(isPresented: $showAbout) {
+            AboutView(app: .nowDeparting) {}
+                .presentationDetents([.large])
+                .presentationCornerRadius(22)
+                .presentationBackground(.regularMaterial)
+                .presentationDragIndicator(.visible)
+        }
     }
 }
 
