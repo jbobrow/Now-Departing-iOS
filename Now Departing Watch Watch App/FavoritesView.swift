@@ -27,6 +27,10 @@ class FavoriteWithTimes: ObservableObject, Identifiable {
         }
     }
 
+    var nextIsExpress: Bool {
+        timesViewModel.nextTrains.first?.isExpress ?? false
+    }
+
     var shouldShowLoader: Bool {
         let result = (timesViewModel.loading || isWaitingToStart) && timesViewModel.nextTrains.isEmpty
         // print("DEBUG: shouldShowLoader for \(favorite.stationDisplay): loading=\(timesViewModel.loading), waiting=\(isWaitingToStart), nextTrains.count=\(timesViewModel.nextTrains.count), result=\(result)")
@@ -135,7 +139,7 @@ struct FavoriteRowView: View {
                                 .foregroundColor(.gray)
                         }
                         else {
-                            Text(favoriteWithTimes.timeText)
+                            ExpressMark.label(favoriteWithTimes.timeText, isExpress: favoriteWithTimes.nextIsExpress, color: line.bg_color, fontSize: 20)
                                 .font(.custom("HelveticaNeue-Bold", size: 20))
                                 .foregroundColor(.white)
                         }

@@ -658,7 +658,7 @@ struct TrainRowView: View {
                         ProgressView()
                             .scaleEffect(1.2)
                     } else {
-                        LiveTimeDisplay(train: trainWithState.train)
+                        LiveTimeDisplay(train: trainWithState.train, lineColor: line.bg_color)
                     }
                 }
             }
@@ -671,6 +671,7 @@ struct TrainRowView: View {
 // Separate component for live time display with its own timer
 struct LiveTimeDisplay: View {
     let train: NearbyTrain
+    let lineColor: Color
     
     @State private var displayedTimeText: String = ""
     @State private var currentTime = Date()
@@ -684,8 +685,9 @@ struct LiveTimeDisplay: View {
     }
     
     var body: some View {
-        Text(displayedTimeText)
-            .font(.custom("HelveticaNeue-Bold", size: displayedTimeText.count < 5 ? 20 : 16))
+        let fontSize: CGFloat = displayedTimeText.count < 5 ? 20 : 16
+        ExpressMark.label(displayedTimeText, isExpress: train.isExpress, color: lineColor, fontSize: fontSize)
+            .font(.custom("HelveticaNeue-Bold", size: fontSize))
             .foregroundColor(.white)
             .animation(hasInitialized ? .easeInOut(duration: 0.3) : .none, value: displayedTimeText)
             .onAppear {

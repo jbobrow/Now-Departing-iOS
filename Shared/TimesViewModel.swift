@@ -11,7 +11,7 @@ import ClockKit
 
 class TimesViewModel: ObservableObject {
     // Updated to store time in seconds for more precision
-    @Published var nextTrains: [(minutes: Int, seconds: Int)] = [] {
+    @Published var nextTrains: [(minutes: Int, seconds: Int, isExpress: Bool)] = [] {
         didSet {
             if nextTrains.isEmpty && !oldValue.isEmpty {
                 print("Debug: nextTrains was cleared. Previous value: \(oldValue)")
@@ -23,7 +23,7 @@ class TimesViewModel: ObservableObject {
 
     private var apiTimer: Timer?
     private var displayTimer: Timer?
-    private var arrivalTimes: [Date] = [] {
+    private var arrivalTimes: [MTAArrival] = [] {
         didSet {
             cacheArrivalTimes()
         }
@@ -34,7 +34,7 @@ class TimesViewModel: ObservableObject {
     private var currentLine: String?
     private var currentDirection: String?
 
-    private let cacheKey = "cachedArrivalTimes"
+    private let cacheKey = "cachedArrivals"
     private let cacheMetadataKey = "cachedArrivalTimesMetadata"
 
     private struct CacheMetadata: Codable {
@@ -51,17 +51,18 @@ class TimesViewModel: ObservableObject {
               !arrivalTimes.isEmpty else { return }
 
         let metadata = CacheMetadata(station: station, line: line, direction: direction, timestamp: Date())
-        let timeStrings = arrivalTimes.map { ISO8601DateFormatter().string(from: $0) }
 
-        if let encoded = try? JSONEncoder().encode(metadata) {
-            UserDefaults.standard.set(encoded, forKey: cacheMetadataKey)
-            UserDefaults.standard.set(timeStrings, forKey: cacheKey)
+        if let encodedMetadata = try? JSONEncoder().encode(metadata),
+           let encodedArrivals = try? JSONEncoder().encode(arrivalTimes) {
+            UserDefaults.standard.set(encodedMetadata, forKey: cacheMetadataKey)
+            UserDefaults.standard.set(encodedArrivals, forKey: cacheKey)
         }
     }
 
     private func loadCachedTimes(for station: String, line: String, direction: String) {
         guard let encodedMetadata = UserDefaults.standard.data(forKey: cacheMetadataKey),
-              let timeStrings = UserDefaults.standard.stringArray(forKey: cacheKey),
+              let encodedArrivals = UserDefaults.standard.data(forKey: cacheKey),
+              let arrivals = try? JSONDecoder().decode([MTAArrival].self, from: encodedArrivals),
               let metadata = try? JSONDecoder().decode(CacheMetadata.self, from: encodedMetadata),
               metadata.station == station,
               metadata.line == line,
@@ -71,8 +72,7 @@ class TimesViewModel: ObservableObject {
             return
         }
 
-        let formatter = ISO8601DateFormatter()
-        arrivalTimes = timeStrings.compactMap { formatter.date(from: $0) }
+        arrivalTimes = arrivals
         updateDisplayTimes()
     }
 
@@ -124,14 +124,14 @@ class TimesViewModel: ObservableObject {
     private func updateDisplayTimes() {
         let now = Date()
 
-        nextTrains = arrivalTimes.compactMap { arrivalTime in
-            let interval = arrivalTime.timeIntervalSince(now)
+        nextTrains = arrivalTimes.compactMap { arrival in
+            let interval = arrival.time.timeIntervalSince(now)
             if interval < 0 { return nil }
             let totalSeconds = Int(interval)
-            return (minutes: totalSeconds / 60, seconds: totalSeconds % 60)
+            return (minutes: totalSeconds / 60, seconds: totalSeconds % 60, isExpress: arrival.isExpress)
         }.sorted { $0.minutes * 60 + $0.seconds < $1.minutes * 60 + $1.seconds }
 
-        arrivalTimes = arrivalTimes.filter { $0 > now }
+        arrivalTimes = arrivalTimes.filter { $0.time > now }
 
         if let station = currentStation, let line = currentLine, let direction = currentDirection {
             let defaults = UserDefaults.standard
@@ -154,7 +154,7 @@ class TimesViewModel: ObservableObject {
             return
         }
 
-        MTAFeedService.shared.fetchArrivals(
+        MTAFeedService.shared.fetchTrainArrivals(
             routeId: line.id,
             station: station,
             direction: direction

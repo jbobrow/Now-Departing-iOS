@@ -106,6 +106,7 @@ final class MTAFeedService {
     // MARK: - By-Station Query (replaces /by-route/<lineId>)
 
     /// Fetches arrival times at a specific station for a given route and direction.
+    /// Diamond-express trips (e.g. 6X for the 6) are included.
     ///
     /// - Parameters:
     ///   - routeId:     Subway route ID, e.g. "1", "A", "L".
@@ -119,6 +120,19 @@ final class MTAFeedService {
         direction: String,
         completion: @escaping (Result<[Date], MTAFeedError>) -> Void
     ) {
+        fetchTrainArrivals(routeId: routeId, station: station, direction: direction) { result in
+            completion(result.map { $0.map(\.time) })
+        }
+    }
+
+    /// Like `fetchArrivals`, but keeps each trip's route ID so callers can mark
+    /// express trains.
+    func fetchTrainArrivals(
+        routeId: String,
+        station: Station,
+        direction: String,
+        completion: @escaping (Result<[MTAArrival], MTAFeedError>) -> Void
+    ) {
         guard let parentStopId = station.gtfsStopId, !parentStopId.isEmpty else {
             DispatchQueue.main.async {
                 completion(.failure(.missingStopId(stationName: station.name)))
@@ -128,22 +142,23 @@ final class MTAFeedService {
 
         let targetStopId = parentStopId + direction  // e.g. "127" + "N" → "127N"
 
-        fetchFeed(for: routeId) { result in
+        fetchFeed(for: ExpressRoute.baseLine(for: routeId)) { result in
             switch result {
             case .failure(let error):
                 DispatchQueue.main.async { completion(.failure(error)) }
 
             case .success(let updates):
                 let now = Date()
-                let arrivals: [Date] = updates
-                    .filter { $0.routeId == routeId }
-                    .flatMap { update -> [Date] in
+                let arrivals: [MTAArrival] = updates
+                    .filter { ExpressRoute.route($0.routeId, servesLine: routeId) }
+                    .flatMap { update -> [MTAArrival] in
                         update.stopTimeUpdates
                             .filter { $0.stopId == targetStopId }
                             .compactMap { $0.arrivalTime ?? $0.departureTime }
+                            .map { MTAArrival(time: $0, routeId: update.routeId) }
                     }
-                    .filter { $0 > now }
-                    .sorted()
+                    .filter { $0.time > now }
+                    .sorted { $0.time < $1.time }
 
                 DispatchQueue.main.async { completion(.success(arrivals)) }
             }
@@ -293,7 +308,7 @@ final class MTAFeedService {
         stations: [Station],
         completion: @escaping ([Station]) -> Void
     ) {
-        fetchFeed(for: lineId) { result in
+        fetchFeed(for: ExpressRoute.baseLine(for: lineId)) { result in
             guard case .success(let updates) = result else {
                 DispatchQueue.main.async { completion(stations) }
                 return
@@ -301,7 +316,7 @@ final class MTAFeedService {
 
             // Collect all stop_ids that appear in at least one update.
             let activeStopIds = Set(
-                updates.filter { $0.routeId == lineId }
+                updates.filter { ExpressRoute.route($0.routeId, servesLine: lineId) }
                        .flatMap { $0.stopTimeUpdates.map { $0.stopId } }
             )
 

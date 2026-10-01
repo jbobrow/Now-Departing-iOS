@@ -264,16 +264,16 @@ struct FavoriteTrainRow: View {
                 VStack(alignment: .trailing, spacing: 2) {
                     if let trainData = trainData, !trainData.isEmpty {
                         // Primary time
-                        Text(getTimeText(for: trainData.first!))
+                        ExpressMark.label(getTimeText(for: trainData.first!), isExpress: trainData.first!.isExpress, color: expressColor, fontSize: 26)
                             .font(.custom("HelveticaNeue-Bold", size: 26))
                             .foregroundColor(.primary)
                         
                         // Additional times (if any)
                         if trainData.count > 1 {
                             HStack {
-                                Text(trainData.dropFirst().prefix(5).map { train in
-                                    getAdditionalTimeText(for: train)
-                                }.joined(separator: ", "))
+                                ExpressMark.list(trainData.dropFirst().prefix(5).map { train in
+                                    (text: getAdditionalTimeText(for: train), isExpress: train.isExpress)
+                                }, color: expressColor, fontSize: 14)
                                 .font(.custom("HelveticaNeue", size: 14))
                                 .foregroundColor(.secondary)
                             }
@@ -298,6 +298,10 @@ struct FavoriteTrainRow: View {
         .padding(.vertical, 8)
     }
     
+    private var expressColor: Color {
+        line?.bg_color ?? .secondary
+    }
+
     // Helper functions for time formatting
     private func getTimeText(for train: TrainArrival) -> String {
         return TimeFormatter.formatArrivalTime(train.arrivalTime, currentTime: currentTime, fullText: true)
@@ -389,14 +393,14 @@ class FavoriteTrainDataManager: ObservableObject {
             gtfsStopId: favorite.stationGtfsStopId
         )
 
-        MTAFeedService.shared.fetchArrivals(
+        MTAFeedService.shared.fetchTrainArrivals(
             routeId: favorite.lineId,
             station: station,
             direction: favorite.direction
         ) { [weak self] result in
             guard let self = self else { return }
             if case .success(let arrivals) = result {
-                let trainArrivals = arrivals.map { TrainArrival(arrivalTime: $0, routeId: favorite.lineId) }
+                let trainArrivals = arrivals.map { TrainArrival(arrivalTime: $0.time, routeId: $0.routeId) }
                 print("DEBUG: Processed \(trainArrivals.count) trains for favorite: \(favorite.stationDisplay) \(favorite.lineId) \(favorite.direction)")
                 self.trainDataCache[key] = trainArrivals
                 self.lastFetchTime[key] = Date()
@@ -413,14 +417,14 @@ class FavoriteTrainDataManager: ObservableObject {
         )
 
         await withCheckedContinuation { continuation in
-            MTAFeedService.shared.fetchArrivals(
+            MTAFeedService.shared.fetchTrainArrivals(
                 routeId: favorite.lineId,
                 station: station,
                 direction: favorite.direction
             ) { [weak self] result in
                 guard let self = self else { continuation.resume(); return }
                 if case .success(let arrivals) = result {
-                    let trainArrivals = arrivals.map { TrainArrival(arrivalTime: $0, routeId: favorite.lineId) }
+                    let trainArrivals = arrivals.map { TrainArrival(arrivalTime: $0.time, routeId: $0.routeId) }
                     self.trainDataCache[key] = trainArrivals
                     self.lastFetchTime[key] = Date()
                 }
@@ -435,4 +439,6 @@ class FavoriteTrainDataManager: ObservableObject {
 struct TrainArrival: Equatable {
     let arrivalTime: Date
     let routeId: String
+
+    var isExpress: Bool { ExpressRoute.isExpress(routeId) }
 }

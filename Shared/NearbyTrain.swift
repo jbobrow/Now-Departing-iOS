@@ -10,7 +10,10 @@ import SwiftUI
 
 struct NearbyTrain: Identifiable, Equatable {
     let id = UUID()
+    /// Base line, e.g. "6" — diamond-express trips are folded into their line.
     let lineId: String
+    /// True for a diamond-express trip (6X, 7X, FX in the feed).
+    var isExpress: Bool = false
     let stationId: String
     let stationName: String
     let stationDisplay: String
