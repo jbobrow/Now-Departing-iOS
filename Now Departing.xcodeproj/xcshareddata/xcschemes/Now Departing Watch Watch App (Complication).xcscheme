@@ -61,7 +61,6 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2B687C222DF67DBE007741D8"
             BuildableName = "Now Departing Watch Watch App.app"
-            BlueprintName = "Now Departing Watch Watch App"
             ReferencedContainer = "container:Now Departing.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -79,7 +78,6 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2B687C222DF67DBE007741D8"
             BuildableName = "Now Departing Watch Watch App.app"
-            BlueprintName = "Now Departing Watch Watch App"
             ReferencedContainer = "container:Now Departing.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
