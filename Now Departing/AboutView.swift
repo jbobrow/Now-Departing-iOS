@@ -22,6 +22,29 @@ struct AboutApp {
     }
 }
 
+/// How an app that paints its own surfaces dresses its About page: the ink
+/// for text and icons, and the face of each row. Apps on the system's colors
+/// leave it alone.
+struct AboutStyle {
+    var ink: Color = .primary
+    var secondaryInk: Color = .secondary
+    var faintInk: Color = AboutStyle.tertiaryLabel
+    /// Behind each row. `nil` keeps the list's own.
+    var rowBackground: Color?
+    /// Between rows. `nil` keeps the list's own.
+    var separator: Color?
+
+    #if canImport(UIKit)
+    static let tertiaryLabel = Color(uiColor: .tertiaryLabel)
+    #else
+    static let tertiaryLabel = Color(nsColor: .tertiaryLabelColor)
+    #endif
+}
+
+extension EnvironmentValues {
+    @Entry var aboutStyle = AboutStyle()
+}
+
 /// The About page: icon, name, version and description, the app's own rows
 /// (like "How it works"), sharing and rating it, links to its website,
 /// support and privacy policy, and "Apps by Jon Bobrow" in his hand, linking
@@ -29,6 +52,8 @@ struct AboutApp {
 struct AboutView<AppRows: View>: View {
     let app: AboutApp
     @ViewBuilder var appRows: AppRows
+
+    @Environment(\.aboutStyle) private var style
 
     /// Every app links here.
     static var moreApps: URL { URL(string: "https://app.jonbobrow.com")! }
@@ -41,30 +66,19 @@ struct AboutView<AppRows: View>: View {
                     .listRowBackground(Color.clear)
             }
 
-            Section {
-                appRows
-                if let appStore = app.appStore {
-                    ShareLink(item: appStore, preview: SharePreview(app.name, image: app.icon)) {
-                        AboutRowLabel(title: "Share this app", systemImage: "square.and.arrow.up")
-                    }
-                    if let review = URL(string: appStore.absoluteString + "?action=write-review") {
-                        Link(destination: review) {
-                            AboutRowLabel(title: "Rate this app", systemImage: "star")
-                        }
-                    }
+            // Skipped when there's nothing for it, rather than left as a gap
+            if AppRows.self != EmptyView.self || app.appStore != nil {
+                Section {
+                    Group { appAndStoreRows }
+                        .listRowBackground(style.rowBackground)
+                        .listRowSeparatorTint(style.separator)
                 }
             }
 
             Section {
-                if let website = app.website {
-                    AboutLink(title: "Website", systemImage: "safari", url: website)
-                }
-                if let support = app.support {
-                    AboutLink(title: "Support", systemImage: "questionmark.bubble", url: support)
-                }
-                if let privacy = app.privacy {
-                    AboutLink(title: "Privacy policy", systemImage: "hand.raised", url: privacy)
-                }
+                Group { webRows }
+                    .listRowBackground(style.rowBackground)
+                    .listRowSeparatorTint(style.separator)
             }
 
             Section {
@@ -74,6 +88,33 @@ struct AboutView<AppRows: View>: View {
             }
         }
         .scrollContentBackground(.hidden)
+    }
+
+    /// The app's own rows, then sharing and rating it.
+    @ViewBuilder private var appAndStoreRows: some View {
+        appRows
+        if let appStore = app.appStore {
+            ShareLink(item: appStore, preview: SharePreview(app.name, image: app.icon)) {
+                AboutRowLabel(title: "Share this app", systemImage: "square.and.arrow.up")
+            }
+            if let review = URL(string: appStore.absoluteString + "?action=write-review") {
+                Link(destination: review) {
+                    AboutRowLabel(title: "Rate this app", systemImage: "star")
+                }
+            }
+        }
+    }
+
+    @ViewBuilder private var webRows: some View {
+        if let website = app.website {
+            AboutLink(title: "Website", systemImage: "safari", url: website)
+        }
+        if let support = app.support {
+            AboutLink(title: "Support", systemImage: "questionmark.bubble", url: support)
+        }
+        if let privacy = app.privacy {
+            AboutLink(title: "Privacy policy", systemImage: "hand.raised", url: privacy)
+        }
     }
 
     private var header: some View {
@@ -92,15 +133,16 @@ struct AboutView<AppRows: View>: View {
             VStack(spacing: 2) {
                 Text(app.name)
                     .font(.title2.bold())
+                    .foregroundStyle(style.ink)
                 if let version = Self.version {
                     Text(version)
                         .font(.footnote)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(style.secondaryInk)
                 }
             }
             Text(app.description)
                 .font(.body)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(style.secondaryInk)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -112,13 +154,14 @@ struct AboutView<AppRows: View>: View {
             if let credits = app.credits {
                 Text(credits)
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(style.secondaryInk)
                     .multilineTextAlignment(.center)
             }
             Link(destination: Self.moreApps) {
                 SignatureLabel(signature: .appsBy, mark: .linkOut)
             }
             .buttonStyle(.plain)
+            .foregroundStyle(style.ink)   // the signature takes its gray from this
             .accessibilityHint("Opens app.jonbobrow.com")
         }
     }
@@ -145,8 +188,8 @@ struct AboutRow: View {
     }
 }
 
-/// A row that opens a web page.
-private struct AboutLink: View {
+/// A row that opens a web page, for an app's own section.
+struct AboutLink: View {
     let title: String
     let systemImage: String
     let url: URL
@@ -164,14 +207,16 @@ private struct AboutRowLabel: View {
     let systemImage: String
     var accessory = "chevron.right"
 
+    @Environment(\.aboutStyle) private var style
+
     var body: some View {
         HStack {
             Label(title, systemImage: systemImage)
-                .foregroundStyle(Color.primary)
+                .foregroundStyle(style.ink)
             Spacer()
             Image(systemName: accessory)
                 .font(.footnote.weight(.semibold))
-                .foregroundStyle(Color(uiColor: .tertiaryLabel))   // not the row's tint
+                .foregroundStyle(style.faintInk)   // not the row's tint
         }
         .contentShape(Rectangle())
     }

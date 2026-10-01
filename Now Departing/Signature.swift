@@ -4,18 +4,22 @@ import SwiftUI
 /// About page. Like `AboutView`, which uses its "Apps by" sibling, this file
 /// is the same across all of Jon Bobrow's apps.
 struct SignatureButton: View {
+    /// Width of the signature, before Dynamic Type.
+    var width: CGFloat = 180
+    /// `nil` for the signature alone.
+    var mark: SignatureLabel.Mark? = .more
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            SignatureLabel(signature: .appBy, mark: .more)
+            SignatureLabel(signature: .appBy, mark: mark, width: width)
         }
         .buttonStyle(.plain)
         .accessibilityHint("Shows more info")
     }
 }
 
-/// A signature with a small mark centered beneath it, both in gray.
+/// A signature, usually with a small mark centered beneath it, in gray.
 struct SignatureLabel: View {
     enum Mark {
         /// Three dots in a circle, for opening the About page.
@@ -26,24 +30,28 @@ struct SignatureLabel: View {
     }
 
     let signature: Signature
-    let mark: Mark
+    let mark: Mark?
+    /// Width of the signature, before Dynamic Type.
+    var width: CGFloat = 180
 
-    /// Width of the signature. Grows with Dynamic Type.
-    @ScaledMetric(relativeTo: .caption2) private var width: CGFloat = 180
+    /// Grows the signature with Dynamic Type.
+    @ScaledMetric(relativeTo: .caption2) private var scale: CGFloat = 1
 
     var body: some View {
         VStack(spacing: 8) {
             SignatureShape(signature: signature)
                 .stroke(style: stroke)
-                .frame(width: width, height: width * signature.viewBox.height / signature.viewBox.width)
+                .frame(width: scaledWidth, height: scaledWidth * signature.viewBox.height / signature.viewBox.width)
             // Marks are drawn with the signature's own line weight
-            Group {
-                switch mark {
-                case .more: MoreShape().stroke(style: stroke)
-                case .linkOut: LinkOutShape().stroke(style: stroke)
+            if let mark {
+                Group {
+                    switch mark {
+                    case .more: MoreShape().stroke(style: stroke)
+                    case .linkOut: LinkOutShape().stroke(style: stroke)
+                    }
                 }
+                .frame(width: scaledWidth * 0.085, height: scaledWidth * 0.085)
             }
-            .frame(width: width * 0.085, height: width * 0.085)
         }
         .foregroundStyle(.secondary)
         .padding(12)
@@ -52,9 +60,11 @@ struct SignatureLabel: View {
         .accessibilityLabel(signature.text)
     }
 
+    private var scaledWidth: CGFloat { width * scale }
+
     /// The drawing's own line weight, scaled to its size on screen.
     private var stroke: StrokeStyle {
-        StrokeStyle(lineWidth: signature.strokeWidth * width / signature.viewBox.width,
+        StrokeStyle(lineWidth: signature.strokeWidth * scaledWidth / signature.viewBox.width,
                     lineCap: .round, lineJoin: .round)
     }
 }
