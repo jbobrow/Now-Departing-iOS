@@ -239,14 +239,15 @@ struct TerminalSelectionView: View {
 
 class TimesViewModeliOS: ObservableObject {
     @Published var nextTrains: [(minutes: Int, seconds: Int, isExpress: Bool)] = []
-    @Published var departureDates: [Date] = []
+    /// Upcoming trains, for the Live Activity.
+    @Published var departures: [MTAArrival] = []
     @Published var loading: Bool = false
     @Published var errorMessage: String = ""
 
     private var apiTimer: Timer?
     private var displayTimer: Timer?
     private var arrivalTimes: [MTAArrival] = [] {
-        didSet { departureDates = arrivalTimes.map(\.time) }
+        didSet { departures = arrivalTimes }
     }
     private var fetchGeneration: Int = 0
 
@@ -276,7 +277,7 @@ class TimesViewModeliOS: ObservableObject {
         fetchGeneration += 1  // invalidate any in-flight fetch
         arrivalTimes = []
         nextTrains = []
-        departureDates = []
+        departures = []
         errorMessage = ""
         loading = true
     }
@@ -565,10 +566,10 @@ struct TimesView: View {
                 LiveActivityManager.shared.endActivity()
             }
         }
-        .onReceive(viewModel.$departureDates) { dates in
-            if !dates.isEmpty {
+        .onReceive(viewModel.$departures) { departures in
+            if !departures.isEmpty {
                 if #available(iOS 16.2, *), LiveActivityManager.isSupported() {
-                    LiveActivityManager.shared.updateActivity(nextTrains: dates)
+                    LiveActivityManager.shared.updateActivity(nextTrains: departures)
                 }
             }
         }
@@ -609,7 +610,7 @@ struct TimesView: View {
             stationDisplay: station.display,
             direction: direction,
             destinationStation: destinationStation,
-            nextTrains: viewModel.departureDates
+            nextTrains: viewModel.departures
         )
     }
 

@@ -56,10 +56,21 @@ enum ExpressMark {
             .accessibilityLabel("Express")
     }
 
-    /// `text`, preceded by a diamond when the train is express.
-    static func label(_ text: String, isExpress: Bool, color: Color, fontSize: CGFloat) -> Text {
+    /// The diamond as a text character, for widgets and Live Activities: their
+    /// renderer leaves a blank gap where an inline SF Symbol should be.
+    static func textDiamond(color: Color, fontSize: CGFloat) -> Text {
+        Text("\u{25C6}")
+            .font(.system(size: min(fontSize * 0.7, fontSize * 0.35 + 8)))
+            .foregroundColor(color)
+            .accessibilityLabel("Express")
+    }
+
+    /// `text`, preceded by a diamond when the train is express. Pass `textOnly` in
+    /// widgets and Live Activities.
+    static func label(_ text: String, isExpress: Bool, color: Color, fontSize: CGFloat, textOnly: Bool = false) -> Text {
         guard isExpress else { return Text(text) }
-        return diamond(color: color, fontSize: fontSize) + Text("\u{202F}" + text)  // narrow no-break space keeps the diamond with its time
+        let mark = textOnly ? textDiamond(color: color, fontSize: fontSize) : diamond(color: color, fontSize: fontSize)
+        return mark + Text("\u{202F}" + text)  // narrow no-break space keeps the diamond with its time
     }
 
     /// A comma-separated list of times, each express one preceded by a diamond.

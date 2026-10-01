@@ -106,14 +106,14 @@ struct SmallWidgetView: View {
                             .font(.custom("HelveticaNeue-Bold", size: 32))
                             .foregroundColor(.white)
                     } else if !data.nextTrains.isEmpty {
-                        DynamicTrainTimeView(arrivalDate: data.nextTrains[0], entryDate: entry.date, fullText: true)
+                        DynamicTrainTimeView(arrivalDate: data.nextTrains[0], entryDate: entry.date, fullText: true, isExpress: data.isExpress(data.nextTrains[0]), lineColor: line.bg_color, fontSize: 32)
                             .font(.custom("HelveticaNeue-Bold", size: 32))
                             .foregroundColor(.white)
 
                         if data.nextTrains.count > 1 {
                             HStack(spacing: 4) {
                                 ForEach(Array(data.nextTrains.dropFirst().prefix(2).enumerated()), id: \.offset) { _, trainDate in
-                                    DynamicTrainTimeView(arrivalDate: trainDate, entryDate: entry.date, fullText: false)
+                                    DynamicTrainTimeView(arrivalDate: trainDate, entryDate: entry.date, fullText: false, isExpress: data.isExpress(trainDate), lineColor: line.bg_color, fontSize: 13)
                                     if trainDate != data.nextTrains.dropFirst().prefix(2).last {
                                         Text(",")
                                     }
@@ -227,14 +227,14 @@ struct MediumWidgetView: View {
                             .font(.custom("HelveticaNeue-Bold", size: 28))
                             .foregroundColor(.white.opacity(0.6))
                     } else if !data.nextTrains.isEmpty {
-                        DynamicTrainTimeView(arrivalDate: data.nextTrains[0], entryDate: entry.date, fullText: true)
+                        DynamicTrainTimeView(arrivalDate: data.nextTrains[0], entryDate: entry.date, fullText: true, isExpress: data.isExpress(data.nextTrains[0]), lineColor: line.bg_color, fontSize: 28)
                             .font(.custom("HelveticaNeue-Bold", size: 28))
                             .foregroundColor(.white)
 
                         if data.nextTrains.count > 1 {
                             HStack(spacing: 4) {
                                 ForEach(Array(data.nextTrains.dropFirst().prefix(2).enumerated()), id: \.offset) { _, trainDate in
-                                    DynamicTrainTimeView(arrivalDate: trainDate, entryDate: entry.date, fullText: false)
+                                    DynamicTrainTimeView(arrivalDate: trainDate, entryDate: entry.date, fullText: false, isExpress: data.isExpress(trainDate), lineColor: line.bg_color, fontSize: 14)
                                     if trainDate != data.nextTrains.dropFirst().prefix(2).last {
                                         Text(",")
                                     }
@@ -370,7 +370,7 @@ struct SingleFavoriteLargeView: View {
             } else if !data.nextTrains.isEmpty {
                 VStack(spacing: 12) {
                     // Primary time
-                    DynamicTrainTimeView(arrivalDate: data.nextTrains[0], entryDate: entry.date, fullText: true)
+                    DynamicTrainTimeView(arrivalDate: data.nextTrains[0], entryDate: entry.date, fullText: true, isExpress: data.isExpress(data.nextTrains[0]), lineColor: line.bg_color, fontSize: 72)
                         .font(.custom("HelveticaNeue-Bold", size: 72))
                         .foregroundColor(.white)
 
@@ -378,7 +378,7 @@ struct SingleFavoriteLargeView: View {
                     if data.nextTrains.count > 1 {
                         HStack(spacing: 4) {
                             ForEach(Array(data.nextTrains.dropFirst().prefix(5).enumerated()), id: \.offset) { _, trainDate in
-                                DynamicTrainTimeView(arrivalDate: trainDate, entryDate: entry.date, fullText: false)
+                                DynamicTrainTimeView(arrivalDate: trainDate, entryDate: entry.date, fullText: false, isExpress: data.isExpress(trainDate), lineColor: line.bg_color, fontSize: 20)
                                 if trainDate != data.nextTrains.dropFirst().prefix(5).last {
                                     Text(",")
                                 }
@@ -493,14 +493,14 @@ struct FavoriteRowView: View {
                         .font(.custom("HelveticaNeue-Bold", size: 20))
                         .foregroundColor(.yellow)
                 } else if !data.nextTrains.isEmpty {
-                    DynamicTrainTimeView(arrivalDate: data.nextTrains[0], entryDate: entryDate, fullText: true)
+                    DynamicTrainTimeView(arrivalDate: data.nextTrains[0], entryDate: entryDate, fullText: true, isExpress: data.isExpress(data.nextTrains[0]), lineColor: line.bg_color, fontSize: 28)
                         .font(.custom("HelveticaNeue-Bold", size: 28))
                         .foregroundColor(.white)
 
                     if data.nextTrains.count > 1 {
                         HStack(spacing: 4) {
                             ForEach(Array(data.nextTrains.dropFirst().prefix(2).enumerated()), id: \.offset) { _, trainDate in
-                                DynamicTrainTimeView(arrivalDate: trainDate, entryDate: entryDate, fullText: false)
+                                DynamicTrainTimeView(arrivalDate: trainDate, entryDate: entryDate, fullText: false, isExpress: data.isExpress(trainDate), lineColor: line.bg_color, fontSize: 13)
                                 if trainDate != data.nextTrains.dropFirst().prefix(2).last {
                                     Text(",")
                                 }
@@ -575,6 +575,11 @@ struct DynamicTrainTimeView: View {
     let arrivalDate: Date
     let entryDate: Date
     let fullText: Bool
+    /// Diamond-express trips get a diamond in the line's color before the time.
+    var isExpress: Bool = false
+    var lineColor: Color = .white
+    /// The font size the caller sets, used to size the diamond.
+    var fontSize: CGFloat = 14
 
     var body: some View {
         // Use entryDate (the timeline entry's scheduled display time) rather than Date()
@@ -584,10 +589,10 @@ struct DynamicTrainTimeView: View {
         if secondsUntil <= 0 {
             EmptyView()
         } else if secondsUntil < 60 {
-            Text("Now")
+            ExpressMark.label("Now", isExpress: isExpress, color: lineColor, fontSize: fontSize, textOnly: true)
         } else {
             let minutes = Int(secondsUntil) / 60
-            Text(fullText ? "\(minutes) min" : "\(minutes)m")
+            ExpressMark.label(fullText ? "\(minutes) min" : "\(minutes)m", isExpress: isExpress, color: lineColor, fontSize: fontSize, textOnly: true)
                 .monospacedDigit()
                 .lineLimit(1)
                 .truncationMode(.tail)
