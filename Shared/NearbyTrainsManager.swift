@@ -58,13 +58,15 @@ class NearbyTrainsManager: ObservableObject {
             switch result {
             case .success(let rawArrivals):
                 let trains: [NearbyTrain] = rawArrivals.map { a in
-                    NearbyTrain(
-                        lineId: a.routeId,
+                    let lineId = ExpressRoute.baseLine(for: a.routeId)
+                    return NearbyTrain(
+                        lineId: lineId,
+                        isExpress: ExpressRoute.isExpress(a.routeId),
                         stationId: a.gtfsStopId ?? a.stationName,
                         stationName: a.stationName,
                         stationDisplay: a.stationDisplay,
                         direction: a.direction,
-                        destination: DirectionHelper.getDestination(for: a.routeId, direction: a.direction),
+                        destination: DirectionHelper.getDestination(for: lineId, direction: a.direction),
                         arrivalTime: a.arrivalTime,
                         distanceInMeters: a.distanceInMeters,
                         gtfsStopId: a.gtfsStopId,

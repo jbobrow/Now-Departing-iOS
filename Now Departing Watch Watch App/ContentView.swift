@@ -483,6 +483,7 @@ struct TerminalSelectionView: View {
 struct TrainTime: Equatable, Hashable {
     let minutes: Int
     let seconds: Int
+    var isExpress: Bool = false
 }
 
 // View for displaying a subway line circle
@@ -530,6 +531,7 @@ struct LoadingView: View {
 // View for displaying the primary train time
 struct PrimaryTrainView: View {
     let train: TrainTime
+    let lineColor: Color
     let isSmallScreen: Bool
     let showPreciseMode: Bool
     
@@ -572,35 +574,38 @@ struct PrimaryTrainView: View {
     }
     
     var body: some View {
-        Text(text)
+        ExpressMark.label(text, isExpress: train.isExpress, color: lineColor, fontSize: fontSize)
             .font(.custom("HelveticaNeue-Bold", size: fontSize))
             .foregroundColor(.white)
             .transition(.opacity.combined(with: .scale))
-            .id("primaryTime-\(text)")
+            .id("primaryTime-\(text)-\(train.isExpress)")
     }
 }
 
 // View for displaying additional train times
 struct AdditionalTrainsView: View {
     let trains: [TrainTime]
+    let lineColor: Color
     let showPreciseMode: Bool
     
-    private var text: String {
-        return trains.prefix(3).map { train -> String in
-            let totalSeconds = train.minutes * 60 + train.seconds
-            
-            if totalSeconds < 60 {
-                if totalSeconds <= 20 {
-                    return "Departing"
-                } else {
-                    return "Arriving"
-                }
-            } else if showPreciseMode {
-                return "\(train.minutes)m\(train.seconds)s"
+    private var items: [(text: String, isExpress: Bool)] {
+        return trains.prefix(3).map { (text: text(for: $0), isExpress: $0.isExpress) }
+    }
+
+    private func text(for train: TrainTime) -> String {
+        let totalSeconds = train.minutes * 60 + train.seconds
+        
+        if totalSeconds < 60 {
+            if totalSeconds <= 20 {
+                return "Departing"
             } else {
-                return "\(train.minutes) min"
+                return "Arriving"
             }
-        }.joined(separator: ", ")
+        } else if showPreciseMode {
+            return "\(train.minutes)m\(train.seconds)s"
+        } else {
+            return "\(train.minutes) min"
+        }
     }
     
     private var idString: String {
@@ -608,7 +613,7 @@ struct AdditionalTrainsView: View {
     }
     
     var body: some View {
-        Text(text)
+        ExpressMark.list(items, color: lineColor, fontSize: 14)
             .font(.custom("HelveticaNeue-Bold", size: 14))
             .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
             .lineLimit(1)
@@ -647,6 +652,7 @@ struct LoadingIndicatorView: View {
 // Container view for train times display
 struct TrainTimesContainerView: View {
     let trains: [TrainTime]
+    let lineColor: Color
     let errorMessage: String
     let isLoading: Bool
     let isActive: Bool
@@ -671,6 +677,7 @@ struct TrainTimesContainerView: View {
             } else if !trains.isEmpty {
                 PrimaryTrainView(
                     train: trains[0],
+                    lineColor: lineColor,
                     isSmallScreen: isSmallScreen,
                     showPreciseMode: showPreciseMode
                 )
@@ -678,6 +685,7 @@ struct TrainTimesContainerView: View {
                 if trains.count > 1 {
                     AdditionalTrainsView(
                         trains: Array(trains.dropFirst()),
+                        lineColor: lineColor,
                         showPreciseMode: showPreciseMode
                     )
                 }
@@ -706,7 +714,7 @@ struct TimesView: View {
     
     // Convert the ViewModel's data format to our simplified TrainTime struct
     private var trainTimes: [TrainTime] {
-        return viewModel.nextTrains.map { TrainTime(minutes: $0.minutes, seconds: $0.seconds) }
+        return viewModel.nextTrains.map { TrainTime(minutes: $0.minutes, seconds: $0.seconds, isExpress: $0.isExpress) }
     }
     
     init(viewModel: TimesViewModel, line: SubwayLine, station: Station, direction: String) {
@@ -728,6 +736,7 @@ struct TimesView: View {
                     // Train times container
                     TrainTimesContainerView(
                         trains: trainTimes,
+                        lineColor: line.bg_color,
                         errorMessage: viewModel.errorMessage,
                         isLoading: viewModel.loading,
                         isActive: scenePhase == .active,

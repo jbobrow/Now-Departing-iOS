@@ -238,15 +238,15 @@ struct TerminalSelectionView: View {
 // MARK: - Times View Model (iOS)
 
 class TimesViewModeliOS: ObservableObject {
-    @Published var nextTrains: [(minutes: Int, seconds: Int)] = []
+    @Published var nextTrains: [(minutes: Int, seconds: Int, isExpress: Bool)] = []
     @Published var departureDates: [Date] = []
     @Published var loading: Bool = false
     @Published var errorMessage: String = ""
 
     private var apiTimer: Timer?
     private var displayTimer: Timer?
-    private var arrivalTimes: [Date] = [] {
-        didSet { departureDates = arrivalTimes }
+    private var arrivalTimes: [MTAArrival] = [] {
+        didSet { departureDates = arrivalTimes.map(\.time) }
     }
     private var fetchGeneration: Int = 0
 
@@ -283,24 +283,24 @@ class TimesViewModeliOS: ObservableObject {
 
     private func updateDisplayTimes() {
         let now = Date()
-        nextTrains = arrivalTimes.compactMap { arrivalTime in
-            let interval = arrivalTime.timeIntervalSince(now)
+        nextTrains = arrivalTimes.compactMap { arrival in
+            let interval = arrival.time.timeIntervalSince(now)
             if interval < 0 { return nil }
 
             let totalSeconds = Int(interval)
             let minutes = totalSeconds / 60
             let seconds = totalSeconds % 60
 
-            return (minutes: minutes, seconds: seconds)
+            return (minutes: minutes, seconds: seconds, isExpress: arrival.isExpress)
         }.sorted { $0.minutes * 60 + $0.seconds < $1.minutes * 60 + $1.seconds }
 
         // Clean up past arrival times
-        arrivalTimes = arrivalTimes.filter { $0 > now }
+        arrivalTimes = arrivalTimes.filter { $0.time > now }
     }
 
     private func fetchArrivalTimes(for line: SubwayLine, station: Station, direction: String) {
         let generation = fetchGeneration
-        MTAFeedService.shared.fetchArrivals(
+        MTAFeedService.shared.fetchTrainArrivals(
             routeId: line.id,
             station: station,
             direction: direction
@@ -433,16 +433,32 @@ struct TimesView: View {
                             .padding(.vertical, 48)
                         } else if !viewModel.nextTrains.isEmpty {
                             VStack(spacing: 12) {
-                                Text(getTimeText(for: viewModel.nextTrains[0]))
-                                    .font(.custom("HelveticaNeue-Bold", size: 80))
-                                    .foregroundColor(.white)
+                                ExpressMark.label(
+                                    getTimeText(for: viewModel.nextTrains[0]),
+                                    isExpress: viewModel.nextTrains[0].isExpress,
+                                    color: line.bg_color,
+                                    fontSize: 80
+                                )
+                                .font(.custom("HelveticaNeue-Bold", size: 80))
+                                .foregroundColor(.white)
 
                                 if viewModel.nextTrains.count > 1 {
-                                    Text(viewModel.nextTrains.dropFirst().prefix(5).map { train in
-                                        getAdditionalTimeText(for: train)
-                                    }.joined(separator: ", "))
+                                    ExpressMark.list(
+                                        viewModel.nextTrains.dropFirst().prefix(5).map { train in
+                                            (text: getAdditionalTimeText(for: train), isExpress: train.isExpress)
+                                        },
+                                        color: line.bg_color,
+                                        fontSize: 20
+                                    )
                                     .font(.custom("HelveticaNeue", size: 20))
                                     .foregroundColor(.secondary)
+                                }
+
+                                // Explain the diamond whenever one is on screen
+                                if viewModel.nextTrains.prefix(6).contains(where: \.isExpress) {
+                                    ExpressMark.label("Express", isExpress: true, color: line.bg_color, fontSize: 14)
+                                        .font(.custom("HelveticaNeue-Medium", size: 14))
+                                        .foregroundColor(.secondary)
                                 }
                             }
                         }
@@ -597,11 +613,11 @@ struct TimesView: View {
         )
     }
 
-    private func getTimeText(for train: (minutes: Int, seconds: Int)) -> String {
+    private func getTimeText(for train: (minutes: Int, seconds: Int, isExpress: Bool)) -> String {
         return TimeFormatter.formatArrivalTime(minutes: train.minutes, seconds: train.seconds, fullText: true)
     }
 
-    private func getAdditionalTimeText(for train: (minutes: Int, seconds: Int)) -> String {
+    private func getAdditionalTimeText(for train: (minutes: Int, seconds: Int, isExpress: Bool)) -> String {
         return TimeFormatter.formatAdditionalTime(minutes: train.minutes, seconds: train.seconds)
     }
 

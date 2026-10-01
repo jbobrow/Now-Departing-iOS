@@ -643,16 +643,16 @@ struct NearbyView: View {
 
                     VStack(alignment: .trailing, spacing: 2) {
                         // Primary time
-                        Text(primaryTrain.getLiveTimeText(currentTime: currentTime, fullText: true))
+                        ExpressMark.label(primaryTrain.getLiveTimeText(currentTime: currentTime, fullText: true), isExpress: primaryTrain.isExpress, color: line.bg_color, fontSize: 26)
                             .font(.custom("HelveticaNeue-Bold", size: 26))
                             .foregroundColor(.primary)
 
                         // Additional times (if any)
                         if !additionalTrains.isEmpty {
                             HStack {
-                                Text(additionalTrains.prefix(5).map { train in
-                                    train.getLiveTimeText(currentTime: currentTime)
-                                }.joined(separator: ", "))
+                                ExpressMark.list(additionalTrains.prefix(5).map { train in
+                                    (text: train.getLiveTimeText(currentTime: currentTime), isExpress: train.isExpress)
+                                }, color: line.bg_color, fontSize: 14)
                                 .font(.custom("HelveticaNeue", size: 14))
                                 .foregroundColor(.secondary)
                             }
