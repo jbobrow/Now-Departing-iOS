@@ -38,3 +38,14 @@ struct Now_DepartingApp: App {
         }
     }
 }
+
+extension AboutApp {
+    static let nowDeparting = AboutApp(
+        name: "Now Departing",
+        icon: Image("AppIconImage"),
+        description: "Real-time New York City subway departures for the stations around you "
+            + "and your favorite trips, on iPhone, Apple Watch, widgets and the Lock Screen.",
+        website: URL(string: "https://nowdeparting.jonbobrow.com"),
+        credits: "Arrival times from the MTA's real-time data feeds.",
+        appStoreID: "6740440448")
+}
