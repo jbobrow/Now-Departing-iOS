@@ -112,6 +112,12 @@ struct SelectFavoriteIntent: WidgetConfigurationIntent {
 struct FavoriteTrainData {
     let favoriteItem: FavoriteItem
     let nextTrains: [Date]
+    /// Departures in `nextTrains` that are diamond-express trips.
+    var expressTrains: Set<Date> = []
+
+    func isExpress(_ departure: Date) -> Bool {
+        expressTrains.contains(departure)
+    }
 }
 
 struct TrainEntry: TimelineEntry {
@@ -183,10 +189,10 @@ struct TrainTimelineProvider: AppIntentTimelineProvider {
                 errorMessage: ""
             )
         } else if let favorite = selectedFavorite {
-            let (trains, error, fetchTime) = await fetchTrainTimesAsync(for: favorite)
+            let (trains, express, error, fetchTime) = await fetchTrainTimesAsync(for: favorite)
             return TrainEntry(
                 date: Date(),
-                favorites: [FavoriteTrainData(favoriteItem: favorite, nextTrains: trains)],
+                favorites: [FavoriteTrainData(favoriteItem: favorite, nextTrains: trains, expressTrains: express)],
                 lastUpdated: fetchTime,
                 errorMessage: error
             )
@@ -236,27 +242,27 @@ struct TrainTimelineProvider: AppIntentTimelineProvider {
         }
 
         // Fetch train times for primary favorite
-        let (primaryTrains, primaryError, fetchTime) = await fetchTrainTimesAsync(for: primary)
+        let (primaryTrains, primaryExpress, primaryError, fetchTime) = await fetchTrainTimesAsync(for: primary)
 
         // Fetch train times for additional favorites if configured
         var secondData: FavoriteTrainData?
         if let second = secondFavorite {
-            let (secondTrains, _, _) = await fetchTrainTimesAsync(for: second)
-            secondData = FavoriteTrainData(favoriteItem: second, nextTrains: secondTrains)
+            let (secondTrains, secondExpress, _, _) = await fetchTrainTimesAsync(for: second)
+            secondData = FavoriteTrainData(favoriteItem: second, nextTrains: secondTrains, expressTrains: secondExpress)
         }
 
         let thirdFavorite = resolveThirdFavorite(from: configuration, allFavorites: allFavorites)
         var thirdData: FavoriteTrainData?
         if let third = thirdFavorite {
-            let (thirdTrains, _, _) = await fetchTrainTimesAsync(for: third)
-            thirdData = FavoriteTrainData(favoriteItem: third, nextTrains: thirdTrains)
+            let (thirdTrains, thirdExpress, _, _) = await fetchTrainTimesAsync(for: third)
+            thirdData = FavoriteTrainData(favoriteItem: third, nextTrains: thirdTrains, expressTrains: thirdExpress)
         }
 
         let fourthFavorite = resolveFourthFavorite(from: configuration, allFavorites: allFavorites)
         var fourthData: FavoriteTrainData?
         if let fourth = fourthFavorite {
-            let (fourthTrains, _, _) = await fetchTrainTimesAsync(for: fourth)
-            fourthData = FavoriteTrainData(favoriteItem: fourth, nextTrains: fourthTrains)
+            let (fourthTrains, fourthExpress, _, _) = await fetchTrainTimesAsync(for: fourth)
+            fourthData = FavoriteTrainData(favoriteItem: fourth, nextTrains: fourthTrains, expressTrains: fourthExpress)
         }
 
         let currentDate = Date()
@@ -266,10 +272,13 @@ struct TrainTimelineProvider: AppIntentTimelineProvider {
         // at exactly the right moment.
         func makeEntry(at date: Date) -> TrainEntry {
             func active(_ trains: [Date]) -> [Date] { trains.filter { $0 > date } }
-            var favs = [FavoriteTrainData(favoriteItem: primary, nextTrains: active(primaryTrains))]
-            if let second = secondData { favs.append(FavoriteTrainData(favoriteItem: second.favoriteItem, nextTrains: active(second.nextTrains))) }
-            if let third = thirdData { favs.append(FavoriteTrainData(favoriteItem: third.favoriteItem, nextTrains: active(third.nextTrains))) }
-            if let fourth = fourthData { favs.append(FavoriteTrainData(favoriteItem: fourth.favoriteItem, nextTrains: active(fourth.nextTrains))) }
+            func active(_ data: FavoriteTrainData) -> FavoriteTrainData {
+                FavoriteTrainData(favoriteItem: data.favoriteItem, nextTrains: active(data.nextTrains), expressTrains: data.expressTrains)
+            }
+            var favs = [FavoriteTrainData(favoriteItem: primary, nextTrains: active(primaryTrains), expressTrains: primaryExpress)]
+            if let second = secondData { favs.append(active(second)) }
+            if let third = thirdData { favs.append(active(third)) }
+            if let fourth = fourthData { favs.append(active(fourth)) }
             return TrainEntry(
                 date: date,
                 favorites: favs,
@@ -378,7 +387,7 @@ struct TrainTimelineProvider: AppIntentTimelineProvider {
     }
 
     /// Fetches arrival times for a favorite station via the MTA GTFS-RT feed (async wrapper).
-    private func fetchTrainTimesAsync(for favorite: FavoriteItem) async -> (trains: [Date], errorMessage: String, fetchTime: Date) {
+    private func fetchTrainTimesAsync(for favorite: FavoriteItem) async -> (trains: [Date], express: Set<Date>, errorMessage: String, fetchTime: Date) {
         await withCheckedContinuation { continuation in
             let fetchTime = Date()
             let station = Station(
@@ -387,7 +396,7 @@ struct TrainTimelineProvider: AppIntentTimelineProvider {
                 gtfsStopId: favorite.stationGtfsStopId
             )
 
-            MTAFeedService.shared.fetchArrivals(
+            MTAFeedService.shared.fetchTrainArrivals(
                 routeId: favorite.lineId,
                 station: station,
                 direction: favorite.direction
@@ -395,12 +404,13 @@ struct TrainTimelineProvider: AppIntentTimelineProvider {
                 switch result {
                 case .success(let arrivals):
                     if arrivals.isEmpty {
-                        continuation.resume(returning: ([], "No trains", fetchTime))
+                        continuation.resume(returning: ([], [], "No trains", fetchTime))
                     } else {
-                        continuation.resume(returning: (arrivals, "", fetchTime))
+                        let express = Set(arrivals.filter(\.isExpress).map(\.time))
+                        continuation.resume(returning: (arrivals.map(\.time), express, "", fetchTime))
                     }
                 case .failure(let error):
-                    continuation.resume(returning: ([], error.localizedDescription, fetchTime))
+                    continuation.resume(returning: ([], [], error.localizedDescription, fetchTime))
                 }
             }
         }

@@ -31,7 +31,7 @@ class LiveActivityManager {
         stationDisplay: String,
         direction: String,
         destinationStation: String,
-        nextTrains: [Date]
+        nextTrains: [MTAArrival]
     ) {
         // End any existing activity first
         endActivity()
@@ -56,7 +56,7 @@ class LiveActivityManager {
 
         let initialState = NowDepartingWidgetAttributes.ContentState(
             nextTrains: nextTrains.map {
-                NowDepartingWidgetAttributes.ContentState.TrainTime(departureDate: $0)
+                NowDepartingWidgetAttributes.ContentState.TrainTime(departureDate: $0.time, isExpress: $0.isExpress)
             },
             lastUpdated: Date()
         )
@@ -75,7 +75,7 @@ class LiveActivityManager {
     }
 
     // Update the current Live Activity with new train departure dates
-    func updateActivity(nextTrains: [Date]) {
+    func updateActivity(nextTrains: [MTAArrival]) {
         guard let activity = currentActivity else {
             print("⚠️ No active Live Activity to update")
             return
@@ -83,7 +83,7 @@ class LiveActivityManager {
 
         let updatedState = NowDepartingWidgetAttributes.ContentState(
             nextTrains: nextTrains.map {
-                NowDepartingWidgetAttributes.ContentState.TrainTime(departureDate: $0)
+                NowDepartingWidgetAttributes.ContentState.TrainTime(departureDate: $0.time, isExpress: $0.isExpress)
             },
             lastUpdated: Date()
         )

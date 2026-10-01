@@ -18,6 +18,8 @@ struct NowDepartingWidgetAttributes: ActivityAttributes {
 
         struct TrainTime: Codable, Hashable {
             var departureDate: Date
+            /// Diamond-express trip. Optional so states encoded without it still decode.
+            var isExpress: Bool? = nil
         }
     }
 

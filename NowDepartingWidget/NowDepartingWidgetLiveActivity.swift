@@ -30,6 +30,18 @@ private func countdown(to date: Date) -> Text {
     }
 }
 
+/// `countdown(to:)` for a train, preceded by a diamond in the line's color when it's express.
+private func countdown(
+    to train: NowDepartingWidgetAttributes.ContentState.TrainTime,
+    lineColor: Color,
+    fontSize: CGFloat
+) -> Text {
+    guard train.isExpress == true else { return countdown(to: train.departureDate) }
+    return ExpressMark.textDiamond(color: lineColor, fontSize: fontSize)
+        + Text("\u{202F}")
+        + countdown(to: train.departureDate)
+}
+
 struct NowDepartingWidgetLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: NowDepartingWidgetAttributes.self) { context in
@@ -68,7 +80,7 @@ struct NowDepartingWidgetLiveActivity: Widget {
 
                     VStack(alignment: .trailing, spacing: 0) {
                         if let primaryTrain = context.state.nextTrains.first {
-                            countdown(to: primaryTrain.departureDate)
+                            countdown(to: primaryTrain, lineColor: context.attributes.lineBgColor, fontSize: 48)
                                 .font(.system(size: 48, weight: .bold))
                                 .foregroundColor(.white)
                                 .monospacedDigit()
@@ -78,7 +90,7 @@ struct NowDepartingWidgetLiveActivity: Widget {
                                 .opacity(context.isStale ? 0.5 : 1)
 
                             if context.state.nextTrains.count > 1 {
-                                (Text("next train ") + countdown(to: context.state.nextTrains[1].departureDate))
+                                (Text("next train ") + countdown(to: context.state.nextTrains[1], lineColor: context.attributes.lineBgColor, fontSize: 12))
                                     .font(.system(size: 12, weight: .regular))
                                     .foregroundColor(.white.opacity(0.7))
                                     .lineLimit(1)
@@ -118,13 +130,13 @@ struct NowDepartingWidgetLiveActivity: Widget {
                 DynamicIslandExpandedRegion(.trailing) {
                     VStack(alignment: .trailing, spacing: 2) {
                         if let primaryTrain = context.state.nextTrains.first {
-                            countdown(to: primaryTrain.departureDate)
+                            countdown(to: primaryTrain, lineColor: context.attributes.lineBgColor, fontSize: 28)
                                 .font(.system(size: 28, weight: .bold))
                                 .foregroundColor(.white)
                                 .monospacedDigit()
                                 .multilineTextAlignment(.trailing)
                             if context.state.nextTrains.count > 1 {
-                                countdown(to: context.state.nextTrains[1].departureDate)
+                                countdown(to: context.state.nextTrains[1], lineColor: context.attributes.lineBgColor, fontSize: 12)
                                     .font(.system(size: 12, weight: .regular))
                                     .foregroundColor(.white.opacity(0.7))
                                     .multilineTextAlignment(.trailing)
@@ -141,7 +153,7 @@ struct NowDepartingWidgetLiveActivity: Widget {
                         Spacer()
                         if context.state.nextTrains.count > 2 {
                             let additionalTimes = Array(context.state.nextTrains.dropFirst(2).prefix(2))
-                                .map { countdown(to: $0.departureDate) }
+                                .map { countdown(to: $0, lineColor: context.attributes.lineBgColor, fontSize: 13) }
                             additionalTimes.dropFirst()
                                 .reduce(additionalTimes[0]) { $0 + Text(", ") + $1 }
                                 .font(.system(size: 13, weight: .regular))
@@ -159,7 +171,7 @@ struct NowDepartingWidgetLiveActivity: Widget {
                     .background(Circle().fill(context.attributes.lineBgColor))
             } compactTrailing: {
                 if let primaryTrain = context.state.nextTrains.first {
-                    countdown(to: primaryTrain.departureDate)
+                    countdown(to: primaryTrain, lineColor: context.attributes.lineBgColor, fontSize: 15)
                         .font(.system(size: 15, weight: .bold))
                         .foregroundColor(.white)
                         .monospacedDigit()
