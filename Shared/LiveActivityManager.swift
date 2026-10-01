@@ -15,6 +15,10 @@ class LiveActivityManager {
 
     private var currentActivity: Activity<NowDepartingWidgetAttributes>?
 
+    // The UI counts down on its own via timer text; after this long without fresh
+    // feed data the system marks the activity stale so the UI can show it as outdated.
+    private static let staleInterval: TimeInterval = 30 * 60
+
     private init() {}
 
     // Start a Live Activity for a train route
@@ -60,7 +64,7 @@ class LiveActivityManager {
         do {
             let activity = try Activity.request(
                 attributes: attributes,
-                content: ActivityContent(state: initialState, staleDate: nil),
+                content: ActivityContent(state: initialState, staleDate: Date().addingTimeInterval(Self.staleInterval)),
                 pushType: nil
             )
             currentActivity = activity
@@ -86,17 +90,22 @@ class LiveActivityManager {
 
         Task {
             await activity.update(
-                ActivityContent(state: updatedState, staleDate: nil)
+                ActivityContent(state: updatedState, staleDate: Date().addingTimeInterval(Self.staleInterval))
             )
         }
     }
 
-    // End the current Live Activity
+    // End the current Live Activity — including any orphaned activities from a previous
+    // app process, which `currentActivity` alone wouldn't know about.
     func endActivity() {
-        guard let activity = currentActivity else { return }
         currentActivity = nil  // nil synchronously so rapid re-calls and new starts are safe
+        // Snapshot synchronously so an activity started right after this call is not ended.
+        let activitiesToEnd = Activity<NowDepartingWidgetAttributes>.activities
+        guard !activitiesToEnd.isEmpty else { return }
         Task {
-            await activity.end(nil, dismissalPolicy: .immediate)
+            for activity in activitiesToEnd {
+                await activity.end(nil, dismissalPolicy: .immediate)
+            }
             print("✅ Live Activity ended")
         }
     }

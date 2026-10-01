@@ -569,6 +569,8 @@ func getSubwayLine(for lineId: String) -> SubwayLine {
 
 /// Displays a train's remaining time as "X min" or "Now", computed against the entry's
 /// scheduled display date so pre-rendered snapshots show the correct minute count.
+/// The timeline provider bakes an entry per minute; the self-updating date styles can't
+/// be used here because none of them match the app's minute-only "X min" design.
 struct DynamicTrainTimeView: View {
     let arrivalDate: Date
     let entryDate: Date
@@ -585,16 +587,10 @@ struct DynamicTrainTimeView: View {
             Text("Now")
         } else {
             let minutes = Int(secondsUntil) / 60
-            if fullText {
-                Text("\(minutes) min")
-                    .lineLimit(1)
-                    .truncationMode(.tail)
-            } else {
-                Text("\(minutes)m")
-                    .monospacedDigit()
-                    .lineLimit(1)
-                    .truncationMode(.tail)
-            }
+            Text(fullText ? "\(minutes) min" : "\(minutes)m")
+                .monospacedDigit()
+                .lineLimit(1)
+                .truncationMode(.tail)
         }
     }
 }

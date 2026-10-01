@@ -260,68 +260,55 @@ struct TrainTimelineProvider: AppIntentTimelineProvider {
         }
 
         let currentDate = Date()
-        var entries: [TrainEntry] = []
 
-        // Build favorites array
-        func makeFavorites(primaryTrains: [Date]) -> [FavoriteTrainData] {
-            var favs = [FavoriteTrainData(favoriteItem: primary, nextTrains: primaryTrains)]
-            if let second = secondData { favs.append(second) }
-            if let third = thirdData { favs.append(third) }
-            if let fourth = fourthData { favs.append(fourth) }
-            return favs
-        }
-
-        // Initial entry with all upcoming trains
-        entries.append(TrainEntry(
-            date: currentDate,
-            favorites: makeFavorites(primaryTrains: primaryTrains),
-            lastUpdated: fetchTime,
-            errorMessage: primaryError
-        ))
-
-        // Create an entry at each train's departure time with that train removed.
-        // This causes WidgetKit to automatically advance to the next train when each
-        // one departs, preventing expired trains from showing "X ago" in the widget.
-        for (index, trainDate) in primaryTrains.enumerated() {
-            guard trainDate > currentDate else { continue }
-            let remainingTrains = Array(primaryTrains.dropFirst(index + 1))
-            entries.append(TrainEntry(
-                date: trainDate,
-                favorites: makeFavorites(primaryTrains: remainingTrains),
+        // Each entry recomputes every favorite's remaining trains for its scheduled
+        // display time, so departed trains drop off and the next train becomes primary
+        // at exactly the right moment.
+        func makeEntry(at date: Date) -> TrainEntry {
+            func active(_ trains: [Date]) -> [Date] { trains.filter { $0 > date } }
+            var favs = [FavoriteTrainData(favoriteItem: primary, nextTrains: active(primaryTrains))]
+            if let second = secondData { favs.append(FavoriteTrainData(favoriteItem: second.favoriteItem, nextTrains: active(second.nextTrains))) }
+            if let third = thirdData { favs.append(FavoriteTrainData(favoriteItem: third.favoriteItem, nextTrains: active(third.nextTrains))) }
+            if let fourth = fourthData { favs.append(FavoriteTrainData(favoriteItem: fourth.favoriteItem, nextTrains: active(fourth.nextTrains))) }
+            return TrainEntry(
+                date: date,
+                favorites: favs,
                 lastUpdated: fetchTime,
                 errorMessage: primaryError
-            ))
+            )
         }
 
-        // Create entries at each minute boundary so each pre-rendered snapshot bakes in
-        // the correct "X min" value for its scheduled display time (entry.date).
-        // Since DynamicTrainTimeView computes relative to entry.date rather than Date(),
-        // each snapshot shows the right minute count without needing live re-renders.
-        for trainDate in primaryTrains {
-            guard trainDate > currentDate else { continue }
-            let secondsAway = trainDate.timeIntervalSince(currentDate)
-            let minutesAway = min(Int(secondsAway / 60), 90)
-            guard minutesAway > 0 else { continue }
-            for minute in 1...minutesAway {
-                let entryDate = trainDate.addingTimeInterval(-Double(minute) * 60)
-                guard entryDate > currentDate else { continue }
-                // Only include trains still in the future at this entry's display time
-                // so earlier trains don't linger as "Departed" in later snapshots.
-                let activeTrains = primaryTrains.filter { $0 > entryDate }
-                entries.append(TrainEntry(
-                    date: entryDate,
-                    favorites: makeFavorites(primaryTrains: activeTrains),
-                    lastUpdated: fetchTime,
-                    errorMessage: primaryError
-                ))
+        var entries: [TrainEntry] = [makeEntry(at: currentDate)]
+
+        let allDepartures = Set(
+            (primaryTrains
+             + (secondData?.nextTrains ?? [])
+             + (thirdData?.nextTrains ?? [])
+             + (fourthData?.nextTrains ?? [])
+            ).filter { $0 > currentDate }
+        )
+        for departure in allDepartures {
+            entries.append(makeEntry(at: departure))
+        }
+
+        // The "X min" counts are baked per snapshot, so add an entry each minute while
+        // trains remain. Capped at 90 minutes to stay well under WidgetKit's entry
+        // limits (~130 entries worst case vs. the unbounded per-train loops this replaces).
+        if let lastDeparture = allDepartures.max() {
+            let horizon = min(currentDate.addingTimeInterval(90 * 60), lastDeparture)
+            var minuteDate = currentDate.addingTimeInterval(60)
+            while minuteDate < horizon {
+                entries.append(makeEntry(at: minuteDate))
+                minuteDate += 60
             }
         }
 
         // WidgetKit requires entries in ascending chronological order.
         entries.sort { $0.date < $1.date }
 
-        // Refresh with fresh MTA data every 5 minutes
-        let refreshDate = currentDate.addingTimeInterval(5 * 60)
+        // Refresh with fresh MTA data periodically. The pre-baked entries keep the display
+        // accurate meanwhile; requesting more often just burns the widget refresh budget.
+        let refreshDate = currentDate.addingTimeInterval(15 * 60)
         return Timeline(entries: entries, policy: .after(refreshDate))
     }
 
