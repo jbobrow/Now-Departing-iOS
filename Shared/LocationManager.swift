@@ -8,6 +8,11 @@
 import Foundation
 import CoreLocation
 import Combine
+#if os(iOS)
+import UIKit
+#elseif os(watchOS)
+import WatchKit
+#endif
 
 class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var location: CLLocation?
@@ -37,8 +42,9 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     
     private let locationManager = CLLocationManager()
     private var locationTimeout: Timer?
-    private var updateTimer: Timer?
     private var isActivelyTracking = false
+    /// Tracking was paused when the app went to the background, to resume when it returns
+    private var isPausedInBackground = false
     
     // NEW: Cached location for instant loading on iOS
     private var cachedLocation: CLLocation? {
@@ -80,6 +86,8 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         #if os(iOS)
         _hasUserEnabledLocation = UserDefaults.standard.bool(forKey: "hasUserEnabledLocation_iOS")
         #endif
+
+        observeAppLifecycle()
         
         // NEW: Load cached location immediately on iOS if user previously enabled
         #if os(iOS)
@@ -125,14 +133,9 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         // Stop any existing updates first
         locationManager.stopUpdatingLocation()
         
-        // Start continuous location updates
+        // Start continuous location updates. These deliver a new fix whenever you move past the
+        // distance filter; standing still, no new fix is expected and the last one stays good.
         locationManager.startUpdatingLocation()
-        
-        // Set up timer to request updates every 30 seconds when actively viewing
-        updateTimer?.invalidate()
-        updateTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { [weak self] _ in
-            self?.requestPeriodicUpdate()
-        }
         
         // More generous timeout for mobile scenarios - 30 seconds instead of 20
         locationTimeout?.invalidate()
@@ -147,30 +150,38 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         isSearchingForLocation = false
         locationManager.stopUpdatingLocation()
         locationTimeout?.invalidate()
-        updateTimer?.invalidate()
         locationTimeout = nil
-        updateTimer = nil
     }
-    
-    private func requestPeriodicUpdate() {
-        guard authorizationStatus == .authorizedWhenInUse || authorizationStatus == .authorizedAlways else {
-            return
-        }
-        
-        guard isActivelyTracking else {
-            return
-        }
-        
-        print("DEBUG: Requesting periodic location update")
-        
-        // Reset timeout for each update attempt - more generous for mobile
-        locationTimeout?.invalidate()
-        locationTimeout = Timer.scheduledTimer(withTimeInterval: 25.0, repeats: false) { [weak self] _ in
-            self?.handlePeriodicTimeout()
-        }
-        
-        // Use requestLocation for periodic updates to be more reliable
-        locationManager.requestLocation()
+
+    // MARK: - App Lifecycle
+
+    // "While Using" authorization doesn't cover the background: requests made there fail as
+    // denied, and continuous updates would keep the GPS on. So tracking pauses until the app returns.
+    private func observeAppLifecycle() {
+        #if os(iOS)
+        let didEnterBackground = UIApplication.didEnterBackgroundNotification
+        let willEnterForeground = UIApplication.willEnterForegroundNotification
+        #elseif os(watchOS)
+        let didEnterBackground = WKApplication.didEnterBackgroundNotification
+        let willEnterForeground = WKApplication.willEnterForegroundNotification
+        #endif
+        NotificationCenter.default.addObserver(self, selector: #selector(appDidEnterBackground),
+                                               name: didEnterBackground, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(appWillEnterForeground),
+                                               name: willEnterForeground, object: nil)
+    }
+
+    @objc private func appDidEnterBackground() {
+        guard isActivelyTracking else { return }
+        print("DEBUG: Pausing location updates in the background")
+        stopLocationUpdates()
+        isPausedInBackground = true
+    }
+
+    @objc private func appWillEnterForeground() {
+        guard isPausedInBackground else { return }
+        isPausedInBackground = false
+        startLocationUpdates()
     }
     
     private func handleLocationTimeout() {
@@ -179,16 +190,6 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             locationError = "Unable to find your location. Please ensure location services are enabled and try again."
             isSearchingForLocation = false
         }
-    }
-    
-    private func handlePeriodicTimeout() {
-        print("DEBUG: Location timeout - periodic")
-        // For periodic timeouts, be more lenient - don't show error if we have a reasonably recent location
-        if location == nil || abs(location!.timestamp.timeIntervalSinceNow) > 600 { // Only error if no location or very old (10 minutes)
-            locationError = "Unable to update your location. Please try again."
-            isSearchingForLocation = false
-        }
-        // If we have a recent-ish location, just silently continue
     }
     
     func retryLocation() {
@@ -212,6 +213,10 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         guard authorizationStatus == .authorizedWhenInUse || authorizationStatus == .authorizedAlways else {
             return
         }
+
+        // Continuous updates already deliver new fixes, and a one-time request made alongside them
+        // goes unanswered until it times out
+        guard !isActivelyTracking else { return }
         
         print("DEBUG: Requesting one-time location update")
         
@@ -295,7 +300,11 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
                     locationError = "Unable to find your location. Make sure you're outdoors or near a window."
                 }
             case .denied:
-                locationError = "Location access denied. Please enable location services in Settings."
+                // Also sent when a single request is refused (in the background, say) while access is
+                // still allowed, so only report it when access really is denied
+                if manager.authorizationStatus == .denied || manager.authorizationStatus == .restricted {
+                    locationError = "Location access denied. Please enable location services in Settings."
+                }
             case .network:
                 locationError = "Network error. Please check your internet connection."
             case .headingFailure:
@@ -319,15 +328,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
                 locationError = "Unable to determine your location. Please try again."
             }
         }
-        
-        // If we're actively tracking and get an error, try again after a delay - but only if we don't have any location
-        if isActivelyTracking && (location == nil || abs(location!.timestamp.timeIntervalSinceNow) > 300) {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) { [weak self] in // Longer delay for retries
-                guard let self = self, self.isActivelyTracking else { return }
-                print("DEBUG: Retrying after error")
-                self.requestPeriodicUpdate()
-            }
-        }
+        // While actively tracking, continuous updates keep trying on their own after a failure
     }
     
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {

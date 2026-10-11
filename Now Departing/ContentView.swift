@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject private var locationManager = LocationManager()
+    @EnvironmentObject var locationManager: LocationManager
     @StateObject private var deepLinkManager = DeepLinkManager()
     @EnvironmentObject var stationDataManager: StationDataManager
     @EnvironmentObject var favoritesManager: FavoritesManager
