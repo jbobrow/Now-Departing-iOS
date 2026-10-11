@@ -30,7 +30,8 @@ struct FavoritesView: View {
         .refreshable {
             await refreshTrainDataAsync()
         }
-        .onChange(of: deepLinkManager.activeLink) { oldLink, newLink in
+        // initial: the pager builds this page lazily, so a link can arrive before it exists
+        .onChange(of: deepLinkManager.activeLink, initial: true) { oldLink, newLink in
             if let link = newLink {
                 handleDeepLink(link)
                 deepLinkManager.clearLink()
