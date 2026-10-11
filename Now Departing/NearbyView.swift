@@ -7,7 +7,6 @@
 
 import SwiftUI
 import CoreLocation
-import WidgetKit
 
 struct NearbyView: View {
     @EnvironmentObject var locationManager: LocationManager
@@ -103,17 +102,6 @@ struct NearbyView: View {
         }
         .onChange(of: locationManager.location) { _, newLocation in
             handleLocationChange(newLocation)
-        }
-        // NEW: Watch for when data actually gets updated and mark the timestamp
-        .onChange(of: nearbyTrainsManager.nearbyTrains) { oldTrains, newTrains in
-            if !nearbyTrainsManager.isLoading {
-                updateOutOfTownStatus(trains: newTrains)
-            }
-        }
-        .onChange(of: nearbyTrainsManager.isLoading) { _, isLoading in
-            if !isLoading {
-                updateOutOfTownStatus(trains: nearbyTrainsManager.nearbyTrains)
-            }
         }
     }
     
@@ -830,30 +818,6 @@ struct NearbyView: View {
         } else {
             let miles = feet / 5280
             return String(format: "%.1fmi", miles)
-        }
-    }
-
-    // MARK: - Out of Town
-
-    private func updateOutOfTownStatus(trains: [NearbyTrain]) {
-        let defaults = UserDefaults(suiteName: "group.com.move38.Now-Departing") ?? UserDefaults.standard
-
-        if trains.isEmpty, let distMeters = distanceToNearestStationMeters, distMeters * 0.000621371 > 3 {
-            // User is far from NYC — store distance for widget
-            let wasAlreadyStored = defaults.object(forKey: "outOfTownDistanceMeters") != nil
-            defaults.set(distMeters, forKey: "outOfTownDistanceMeters")
-            defaults.set(Date().timeIntervalSinceReferenceDate, forKey: "outOfTownTimestamp")
-            if !wasAlreadyStored {
-                WidgetCenter.shared.reloadAllTimelines()
-            }
-        } else if !trains.isEmpty {
-            // User is near a station — clear out-of-town state
-            let wasOutOfTown = defaults.object(forKey: "outOfTownDistanceMeters") != nil
-            defaults.removeObject(forKey: "outOfTownDistanceMeters")
-            defaults.removeObject(forKey: "outOfTownTimestamp")
-            if wasOutOfTown {
-                WidgetCenter.shared.reloadAllTimelines()
-            }
         }
     }
 
