@@ -13,9 +13,6 @@ struct FavoritesView: View {
     @EnvironmentObject var stationDataManager: StationDataManager
     @StateObject private var trainDataManager = FavoriteTrainDataManager()
     @State private var showingEditMode = false
-    @State private var currentTime = Date()
-
-    private let timer = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
 
     var body: some View {
         Group {
@@ -28,11 +25,17 @@ struct FavoritesView: View {
         .onAppear {
             refreshTrainData()
         }
+        .task {
+            // Refresh while the tab is on screen, so times come back on their own
+            // once there's service again. Cancelled when the tab goes away.
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(30))
+                guard !Task.isCancelled else { break }
+                refreshTrainData(force: true)
+            }
+        }
         .refreshable {
             await refreshTrainDataAsync()
-        }
-        .onReceive(timer) { time in
-            currentTime = time
         }
     }
 
@@ -61,12 +64,14 @@ struct FavoritesView: View {
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
                     Spacer()
-                    if let note = trainDataManager.offlineNote(for: favoritesManager.favorites, currentTime: currentTime) {
-                        Text(note)
-                            .font(.custom("HelveticaNeue", size: 14))
-                            .foregroundColor(.secondary)
-                            .textCase(.none)
-                            .padding(.horizontal, 8)
+                    TimelineView(.periodic(from: .now, by: 30)) { context in
+                        if let note = trainDataManager.offlineNote(for: favoritesManager.favorites, currentTime: context.date) {
+                            Text(note)
+                                .font(.custom("HelveticaNeue", size: 14))
+                                .foregroundColor(.secondary)
+                                .textCase(.none)
+                                .padding(.horizontal, 8)
+                        }
                     }
                 }
             }
@@ -92,9 +97,9 @@ struct FavoritesView: View {
         favoritesManager.reorderFavorites(from: source, to: destination)
     }
     
-    private func refreshTrainData() {
+    private func refreshTrainData(force: Bool = false) {
         for favorite in favoritesManager.favorites {
-            trainDataManager.fetchTrainData(for: favorite)
+            trainDataManager.fetchTrainData(for: favorite, force: force)
         }
     }
     
@@ -342,11 +347,11 @@ class FavoriteTrainDataManager: ObservableObject {
         return TimeFormatter.offlineNote(lastUpdated: keys.compactMap { updatedAt[$0] }.min(), currentTime: currentTime)
     }
 
-    func fetchTrainData(for favorite: FavoriteItem) {
+    func fetchTrainData(for favorite: FavoriteItem, force: Bool = false) {
         let key = cacheKey(for: favorite)
 
         // Check if we need to fetch (cache timeout)
-        if let lastFetch = lastFetchTime[key],
+        if !force, let lastFetch = lastFetchTime[key],
            Date().timeIntervalSince(lastFetch) < cacheTimeout {
             return
         }
