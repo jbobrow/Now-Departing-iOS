@@ -30,7 +30,7 @@ struct ContentView: View {
     @EnvironmentObject var settingsManager: SettingsManager
     @StateObject private var navigationState = NavigationState()
     @StateObject private var favoritesManager = FavoritesManager()
-    @StateObject private var locationManager = LocationManager()
+    @EnvironmentObject var locationManager: LocationManager
     @StateObject private var serviceAlertsManager = ServiceAlertsManager()
     @State private var showSettings = false
     @State private var selectedTab = 0
@@ -66,7 +66,6 @@ struct ContentView: View {
                     },
                     lines: lines
                 )
-                .environmentObject(locationManager)
                 .tag(0)
                 
                 // Lines Grid View (moved to middle)
