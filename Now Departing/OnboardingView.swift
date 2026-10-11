@@ -3,7 +3,7 @@
 //  Now Departing
 //
 //  First-launch walkthrough: the stations around you (asking for location in
-//  context), the closest station on any line, and favorites everywhere. Also
+//  context), favorites in a widget, and the closest station on any line. Also
 //  opened from "How it works" on the About page.
 //
 
@@ -75,14 +75,14 @@ struct OnboardingView: View {
                 }
                     .tag(1)
                 OnboardingPage(
-                    title: "The closest station on any line",
-                    message: "Tap a line on the Lines page for all its stations. Press and hold for the one closest to you and its next trains."
-                ) { LinePeekArt(isPlaying: page == 2) }
-                    .tag(2)
-                OnboardingPage(
                     title: "Know at a glance",
                     message: "Swipe right on a train to make it a favorite, then add a widget to your Home\u{00A0}Screen to see when it's coming."
                 ) { FavoriteArt() }
+                    .tag(2)
+                OnboardingPage(
+                    title: "The closest station on any line",
+                    message: "Tap a line on the Lines page for all its stations. Press and hold for the one closest to you and its next trains."
+                ) { LinePeekArt(isPlaying: page == 3) }
                     .tag(3)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
