@@ -13,6 +13,9 @@ struct FavoritesView: View {
     @EnvironmentObject var stationDataManager: StationDataManager
     @StateObject private var trainDataManager = FavoriteTrainDataManager()
     @State private var showingEditMode = false
+    @State private var currentTime = Date()
+
+    private let timer = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
 
     var body: some View {
         Group {
@@ -27,6 +30,9 @@ struct FavoritesView: View {
         }
         .refreshable {
             await refreshTrainDataAsync()
+        }
+        .onReceive(timer) { time in
+            currentTime = time
         }
     }
 
@@ -55,6 +61,13 @@ struct FavoritesView: View {
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
                     Spacer()
+                    if let note = trainDataManager.offlineNote(for: favoritesManager.favorites, currentTime: currentTime) {
+                        Text(note)
+                            .font(.custom("HelveticaNeue", size: 14))
+                            .foregroundColor(.secondary)
+                            .textCase(.none)
+                            .padding(.horizontal, 8)
+                    }
                 }
             }
         }
@@ -298,42 +311,67 @@ struct TrainTimesView: View {
 
 class FavoriteTrainDataManager: ObservableObject {
     @Published private var trainDataCache: [String: [TrainArrival]] = [:]
+    @Published private var updatedAt: [String: Date] = [:]
+    /// Favorites whose last refresh failed, so their times are from an earlier one.
+    @Published private var offlineKeys: Set<String> = []
+    @Published private var attemptedKeys: Set<String> = []
     private var lastFetchTime: [String: Date] = [:]
     private let cacheTimeout: TimeInterval = 30 // 30 seconds
-    
+
+    private func cacheKey(for favorite: FavoriteItem) -> String {
+        "\(favorite.lineId)-\(favorite.stationName)-\(favorite.direction)"
+    }
+
     func getTrainData(for favorite: FavoriteItem) -> [TrainArrival]? {
-        let key = "\(favorite.lineId)-\(favorite.stationName)-\(favorite.direction)"
-        guard let data = trainDataCache[key] else { return nil }
+        guard let data = trainDataCache[cacheKey(for: favorite)] else { return nil }
         let now = Date()
         let fresh = data.filter { $0.arrivalTime.timeIntervalSince(now) > -60 }
         return fresh.isEmpty ? nil : fresh
     }
 
+    /// True once a fetch has finished, whether or not it got through.
     func isLoaded(for favorite: FavoriteItem) -> Bool {
-        let key = "\(favorite.lineId)-\(favorite.stationName)-\(favorite.direction)"
-        return lastFetchTime[key] != nil
+        attemptedKeys.contains(cacheKey(for: favorite))
     }
-    
+
+    /// Note for the list when any favorite is showing times kept from an earlier
+    /// fetch; nil while everything is current.
+    func offlineNote(for favorites: [FavoriteItem], currentTime: Date = Date()) -> String? {
+        let keys = favorites.map(cacheKey(for:)).filter { offlineKeys.contains($0) }
+        guard !keys.isEmpty else { return nil }
+        return TimeFormatter.offlineNote(lastUpdated: keys.compactMap { updatedAt[$0] }.min(), currentTime: currentTime)
+    }
+
     func fetchTrainData(for favorite: FavoriteItem) {
-        let key = "\(favorite.lineId)-\(favorite.stationName)-\(favorite.direction)"
-        
+        let key = cacheKey(for: favorite)
+
         // Check if we need to fetch (cache timeout)
         if let lastFetch = lastFetchTime[key],
            Date().timeIntervalSince(lastFetch) < cacheTimeout {
             return
         }
-        
-        // Fetch train data
-        fetchTrainDataFromAPI(for: favorite, key: key)
+
+        fetchTrainDataFromAPI(for: favorite, key: key, completion: {})
     }
-    
+
     @MainActor
     func fetchTrainDataAsync(for favorite: FavoriteItem) async {
-        let key = "\(favorite.lineId)-\(favorite.stationName)-\(favorite.direction)"
-        await fetchTrainDataFromAPIAsync(for: favorite, key: key)
+        await withCheckedContinuation { continuation in
+            fetchTrainDataFromAPI(for: favorite, key: cacheKey(for: favorite)) {
+                continuation.resume()
+            }
+        }
     }
-    
-    private func fetchTrainDataFromAPI(for favorite: FavoriteItem, key: String) {
+
+    private func fetchTrainDataFromAPI(for favorite: FavoriteItem, key: String, completion: @escaping () -> Void) {
+        // Show the last times seen for this favorite until the fetch lands, or for
+        // as long as there's no service to fetch with.
+        if trainDataCache[key] == nil,
+           let snapshot = ArrivalSnapshotStore.load(routeId: favorite.lineId, stopId: favorite.stationGtfsStopId, direction: favorite.direction) {
+            trainDataCache[key] = snapshot.arrivals.map { TrainArrival(arrivalTime: $0.time, routeId: $0.routeId) }
+            updatedAt[key] = snapshot.fetchedAt
+        }
+
         let station = Station(
             display: favorite.stationDisplay,
             name: favorite.stationName,
@@ -345,38 +383,21 @@ class FavoriteTrainDataManager: ObservableObject {
             station: station,
             direction: favorite.direction
         ) { [weak self] result in
-            guard let self = self else { return }
-            if case .success(let arrivals) = result {
+            guard let self = self else { completion(); return }
+            switch result {
+            case .success(let arrivals):
                 let trainArrivals = arrivals.map { TrainArrival(arrivalTime: $0.time, routeId: $0.routeId) }
                 print("DEBUG: Processed \(trainArrivals.count) trains for favorite: \(favorite.stationDisplay) \(favorite.lineId) \(favorite.direction)")
                 self.trainDataCache[key] = trainArrivals
                 self.lastFetchTime[key] = Date()
+                self.updatedAt[key] = Date()
+                self.offlineKeys.remove(key)
+            case .failure:
+                // Keep whatever times we have; they still count down correctly.
+                self.offlineKeys.insert(key)
             }
-        }
-    }
-
-    @MainActor
-    private func fetchTrainDataFromAPIAsync(for favorite: FavoriteItem, key: String) async {
-        let station = Station(
-            display: favorite.stationDisplay,
-            name: favorite.stationName,
-            gtfsStopId: favorite.stationGtfsStopId
-        )
-
-        await withCheckedContinuation { continuation in
-            MTAFeedService.shared.fetchTrainArrivals(
-                routeId: favorite.lineId,
-                station: station,
-                direction: favorite.direction
-            ) { [weak self] result in
-                guard let self = self else { continuation.resume(); return }
-                if case .success(let arrivals) = result {
-                    let trainArrivals = arrivals.map { TrainArrival(arrivalTime: $0.time, routeId: $0.routeId) }
-                    self.trainDataCache[key] = trainArrivals
-                    self.lastFetchTime[key] = Date()
-                }
-                continuation.resume()
-            }
+            self.attemptedKeys.insert(key)
+            completion()
         }
     }
 }

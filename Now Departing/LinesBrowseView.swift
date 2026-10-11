@@ -344,6 +344,10 @@ class TimesViewModeliOS: ObservableObject {
     @Published var departures: [MTAArrival] = []
     @Published var loading: Bool = false
     @Published var errorMessage: String = ""
+    /// When the times on screen were fetched; it may be older than the last attempt.
+    @Published var lastUpdated: Date?
+    /// True when the last refresh failed and the times on screen are from an earlier one.
+    @Published var isOffline: Bool = false
 
     private var apiTimer: Timer?
     private var displayTimer: Timer?
@@ -353,7 +357,18 @@ class TimesViewModeliOS: ObservableObject {
     private var fetchGeneration: Int = 0
 
     func startFetchingTimes(for line: SubwayLine, station: Station, direction: String) {
+        stopFetchingTimes()
         loading = true
+
+        // Show the last times seen here until the fetch lands, or for as long as
+        // there's no service to fetch with.
+        if arrivalTimes.isEmpty,
+           let snapshot = ArrivalSnapshotStore.load(routeId: line.id, stopId: station.gtfsStopId, direction: direction) {
+            arrivalTimes = snapshot.arrivals
+            lastUpdated = snapshot.fetchedAt
+            updateDisplayTimes()
+        }
+
         fetchArrivalTimes(for: line, station: station, direction: direction)
 
         // Refresh every 30 seconds
@@ -380,6 +395,8 @@ class TimesViewModeliOS: ObservableObject {
         nextTrains = []
         departures = []
         errorMessage = ""
+        lastUpdated = nil
+        isOffline = false
         loading = true
     }
 
@@ -411,10 +428,15 @@ class TimesViewModeliOS: ObservableObject {
             switch result {
             case .success(let arrivals):
                 self.arrivalTimes = arrivals
+                self.lastUpdated = Date()
+                self.isOffline = false
                 self.errorMessage = arrivals.isEmpty ? "No trains scheduled" : ""
                 self.updateDisplayTimes()
             case .failure(let error):
-                self.errorMessage = error.localizedDescription
+                // Keep the times we have; they still count down correctly.
+                self.isOffline = true
+                self.updateDisplayTimes()
+                self.errorMessage = self.arrivalTimes.isEmpty ? error.localizedDescription : ""
             }
             self.loading = false
         }
@@ -559,6 +581,12 @@ struct TimesView: View {
                                 // Explain the diamond whenever one is on screen
                                 if viewModel.nextTrains.prefix(6).contains(where: \.isExpress) {
                                     ExpressMark.label("Express", isExpress: true, color: line.bg_color, fontSize: 14)
+                                        .font(.custom("HelveticaNeue-Medium", size: 14))
+                                        .foregroundColor(.secondary)
+                                }
+
+                                if viewModel.isOffline {
+                                    Text(TimeFormatter.offlineNote(lastUpdated: viewModel.lastUpdated))
                                         .font(.custom("HelveticaNeue-Medium", size: 14))
                                         .foregroundColor(.secondary)
                                 }

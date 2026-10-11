@@ -410,7 +410,14 @@ struct TrainTimelineProvider: AppIntentTimelineProvider {
                         continuation.resume(returning: (arrivals.map(\.time), express, "", fetchTime))
                     }
                 case .failure(let error):
-                    continuation.resume(returning: ([], [], error.localizedDescription, fetchTime))
+                    // Without service (underground, say), fall back to the last times the
+                    // app or widget saw here; the entry's "updated" time shows their age.
+                    if let snapshot = ArrivalSnapshotStore.load(routeId: favorite.lineId, stopId: favorite.stationGtfsStopId, direction: favorite.direction) {
+                        let express = Set(snapshot.arrivals.filter(\.isExpress).map(\.time))
+                        continuation.resume(returning: (snapshot.arrivals.map(\.time), express, "", snapshot.fetchedAt))
+                    } else {
+                        continuation.resume(returning: ([], [], error.localizedDescription, fetchTime))
+                    }
                 }
             }
         }

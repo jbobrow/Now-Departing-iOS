@@ -135,4 +135,14 @@ struct TimeFormatter {
             return "\(minutes)m"
         }
     }
+
+    // MARK: - Offline Note
+
+    /// Note shown under times kept from an earlier fetch while a refresh can't get
+    /// through, e.g. "Offline · updated 4m ago".
+    static func offlineNote(lastUpdated: Date?, currentTime: Date = Date()) -> String {
+        guard let lastUpdated else { return "Offline" }
+        let minutes = Int(currentTime.timeIntervalSince(lastUpdated) / 60)
+        return minutes < 1 ? "Offline · updated just now" : "Offline · updated \(minutes)m ago"
+    }
 }

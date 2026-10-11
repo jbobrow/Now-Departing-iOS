@@ -748,6 +748,13 @@ struct TimesView: View {
                     // Station name
                     StationNameView(stationName: station.display, isSmallScreen: isSmallScreen)
 
+                    if viewModel.isOffline && !viewModel.nextTrains.isEmpty {
+                        Text(TimeFormatter.offlineNote(lastUpdated: viewModel.lastUpdated))
+                            .font(.custom("HelveticaNeue", size: isSmallScreen ? 11 : 12))
+                            .foregroundColor(.gray)
+                            .padding(.top, 2)
+                    }
+
                     // Service alert indicator
                     if serviceAlertsManager.hasAlerts(for: line.id) {
                         let isActive = serviceAlertsManager.hasActiveAlerts(for: line.id)

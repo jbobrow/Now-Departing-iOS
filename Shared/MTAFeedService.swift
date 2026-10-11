@@ -43,7 +43,7 @@ import CoreLocation
 
 /// Raw result from `fetchNearbyArrivals`.  Converted to `NearbyTrain` by
 /// `NearbyTrainsManager`, which is the only target that needs the richer type.
-struct MTANearbyArrival {
+struct MTANearbyArrival: Codable {
     let routeId: String
     let gtfsStopId: String?
     let complexId: String?
@@ -160,7 +160,10 @@ final class MTAFeedService {
                     .filter { $0.time > now }
                     .sorted { $0.time < $1.time }
 
-                DispatchQueue.main.async { completion(.success(arrivals)) }
+                DispatchQueue.main.async {
+                    ArrivalSnapshotStore.save(arrivals, routeId: routeId, stopId: parentStopId, direction: direction, at: now)
+                    completion(.success(arrivals))
+                }
             }
         }
     }
