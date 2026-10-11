@@ -130,8 +130,8 @@ struct FavoritesView: View {
         let line = SubwayLineFactory.line(for: link.lineId)
 
         // Look up the full station (with gtfsStopId) from station data, falling back to a minimal Station
-        let station = stationDataManager.findStation(byName: link.stationName)
-            ?? Station(display: link.stationDisplay, name: link.stationName)
+        let station = stationDataManager.findStation(lineId: link.lineId, name: link.stationName, gtfsStopId: link.stationGtfsStopId)
+            ?? Station(display: link.stationDisplay, name: link.stationName, gtfsStopId: link.stationGtfsStopId)
 
         // Show the times view
         deepLinkTimesView = (line: line, station: station, direction: link.direction)
@@ -201,7 +201,7 @@ struct FavoriteTrainRow: View {
             if let line = line {
                 NavigationLink(value: NavigationRoute.times(
                     line,
-                    stationDataManager.findStation(byName: favorite.stationName)
+                    stationDataManager.findStation(lineId: favorite.lineId, name: favorite.stationName, gtfsStopId: favorite.stationGtfsStopId)
                         ?? Station(display: favorite.stationDisplay, name: favorite.stationName, gtfsStopId: favorite.stationGtfsStopId),
                     favorite.direction
                 )) {

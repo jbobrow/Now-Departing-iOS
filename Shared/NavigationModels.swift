@@ -77,6 +77,8 @@ class DeepLinkManager: ObservableObject {
         let stationName: String
         let stationDisplay: String
         let direction: String
+        /// Optional: links from older widget builds don't carry it.
+        let stationGtfsStopId: String?
     }
 
     func handleURL(_ url: URL) {
@@ -91,6 +93,7 @@ class DeepLinkManager: ObservableObject {
         let stationName = queryItems.first(where: { $0.name == "stationName" })?.value
         let stationDisplay = queryItems.first(where: { $0.name == "stationDisplay" })?.value
         let direction = queryItems.first(where: { $0.name == "direction" })?.value
+        let stationGtfsStopId = queryItems.first(where: { $0.name == "stationGtfsStopId" })?.value
 
         if let lineId = lineId, let stationName = stationName,
            let stationDisplay = stationDisplay, let direction = direction {
@@ -98,7 +101,8 @@ class DeepLinkManager: ObservableObject {
                 lineId: lineId,
                 stationName: stationName,
                 stationDisplay: stationDisplay,
-                direction: direction
+                direction: direction,
+                stationGtfsStopId: stationGtfsStopId
             )
         }
     }
