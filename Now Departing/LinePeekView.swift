@@ -153,6 +153,7 @@ struct LinePeekView: View {
                             loaded: viewModel.loaded.contains(direction),
                             currentTime: currentTime
                         )
+                        .peekTapTarget(NavigationRoute.times(line, closest.station, direction))
                     }
                 }
                 // Take the height long station names need; the preview otherwise
