@@ -37,6 +37,9 @@ final class WalkTimes: ObservableObject {
     static let shared = WalkTimes()
 
     @Published private(set) var seconds: [String: TimeInterval] = [:]
+    /// Stations Maps couldn't give a time for (offline, throttled), so callers
+    /// waiting on an answer can fall back to the estimate.
+    @Published private(set) var failed: Set<String> = []
 
     private var measuredFrom: [String: CLLocation] = [:]
     private var inFlight: Set<String> = []
@@ -59,6 +62,12 @@ final class WalkTimes: ObservableObject {
         seconds[Self.key(for: coordinate)]
     }
 
+    /// Whether the last request for `coordinate` failed with no earlier time to
+    /// fall back on.
+    func hasFailed(to coordinate: CLLocationCoordinate2D) -> Bool {
+        failed.contains(Self.key(for: coordinate))
+    }
+
     /// Asks Maps for the walking time from `origin` to `coordinate`, unless
     /// there's already one measured nearby or a request on the way.
     func request(to coordinate: CLLocationCoordinate2D, from origin: CLLocation) {
@@ -76,8 +85,16 @@ final class WalkTimes: ObservableObject {
             DispatchQueue.main.async {
                 guard let self = self else { return }
                 self.inFlight.remove(key)
-                guard let response = response else { return }
-                self.seconds[key] = response.expectedTravelTime
+                guard let response = response else {
+                    if self.seconds[key] == nil { self.failed.insert(key) }
+                    return
+                }
+                // Animated so a section waiting on this slides in, and an
+                // estimate settling into Maps' time crossfades
+                withAnimation {
+                    self.seconds[key] = response.expectedTravelTime
+                    self.failed.remove(key)
+                }
                 self.measuredFrom[key] = origin
             }
         }

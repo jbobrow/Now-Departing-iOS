@@ -33,7 +33,7 @@ enum ClosestStation {
     /// Farther than this, or a longer walk than this (say, across a river), the
     /// closest station isn't worth a section at the top of the station list.
     static let stationListMaxMeters = 2 * 1609.344
-    static let stationListMaxWalkSeconds: TimeInterval = 60 * 60
+    static let stationListMaxWalkSeconds: TimeInterval = 40 * 60
 
     /// The closest station if it's within two miles, before checking the walk.
     static func findWithinStationListDistance(for line: SubwayLine, near location: CLLocation?, in stationDataManager: StationDataManager) -> (station: Station, meters: Double)? {
@@ -43,17 +43,23 @@ enum ClosestStation {
         return closest
     }
 
-    /// The closest station for the top of the station list: within two miles,
-    /// and within an hour's walk once Maps answers. (The estimate shown until
-    /// then is under an hour for anything within two miles.)
+    /// The closest station for the top of the station list: within two miles
+    /// and a 40-minute walk. Waits for Maps' walking time rather than showing
+    /// on the estimate and then disappearing; falls back to the estimate only
+    /// if Maps can't answer.
     static func findForStationList(for line: SubwayLine, near location: CLLocation?, in stationDataManager: StationDataManager) -> (station: Station, meters: Double)? {
-        guard let closest = findWithinStationListDistance(for: line, near: location, in: stationDataManager) else { return nil }
-        if let coordinate = closest.station.coordinate,
-           let walk = WalkTimes.shared.seconds(to: coordinate),
-           walk > stationListMaxWalkSeconds {
-            return nil
+        guard let closest = findWithinStationListDistance(for: line, near: location, in: stationDataManager),
+              let coordinate = closest.station.coordinate else { return nil }
+        let walkTimes = WalkTimes.shared
+        let walk: TimeInterval
+        if let seconds = walkTimes.seconds(to: coordinate) {
+            walk = seconds
+        } else if walkTimes.hasFailed(to: coordinate) {
+            walk = WalkTime.estimatedSeconds(closest.meters)
+        } else {
+            return nil  // still waiting on Maps
         }
-        return closest
+        return walk <= stationListMaxWalkSeconds ? closest : nil
     }
 
     static func formatDistance(_ meters: Double) -> String {
