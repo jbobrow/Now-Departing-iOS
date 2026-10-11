@@ -16,18 +16,19 @@ import Combine
 
 enum ClosestStation {
     /// The station on `line` nearest to `location`, skipping stations without
-    /// coordinates, a GTFS stop ID, or live times.
+    /// coordinates or a GTFS stop ID. Prefers one with live times, so a stop
+    /// trains are skipping isn't picked; when none have times (say, a line that
+    /// doesn't run overnight), still the closest, so its times read "No trains".
     static func find(for line: SubwayLine, near location: CLLocation, in stationDataManager: StationDataManager) -> (station: Station, meters: Double)? {
         guard let stations = stationDataManager.stations(for: line.id) else { return nil }
-        return stations
-            .compactMap { station -> (station: Station, meters: Double)? in
-                guard station.hasAvailableTimes != false,
-                      station.gtfsStopId?.isEmpty == false,
-                      let lat = station.latitude,
-                      let lon = station.longitude else { return nil }
-                return (station, location.distance(from: CLLocation(latitude: lat, longitude: lon)))
-            }
-            .min { $0.meters < $1.meters }
+        let candidates = stations.compactMap { station -> (station: Station, meters: Double)? in
+            guard station.gtfsStopId?.isEmpty == false,
+                  let lat = station.latitude,
+                  let lon = station.longitude else { return nil }
+            return (station, location.distance(from: CLLocation(latitude: lat, longitude: lon)))
+        }
+        let running = candidates.filter { $0.station.hasAvailableTimes != false }
+        return (running.isEmpty ? candidates : running).min { $0.meters < $1.meters }
     }
 
     /// Farther than this, or a longer walk than this (say, across a river), the
@@ -154,16 +155,21 @@ struct LinePeekView: View {
                         )
                     }
                 }
+                // Take the height long station names need; the preview otherwise
+                // truncates them at two lines
+                .fixedSize(horizontal: false, vertical: true)
                 .onAppear {
                     viewModel.fetchArrivals(line: line, station: closest.station)
                 }
             } else {
-                // No location yet — say why there's nothing to show
+                // Say why there's nothing to show
                 HStack(spacing: 12) {
-                    Image(systemName: "location.slash")
+                    Image(systemName: locationManager.location == nil ? "location.slash" : "questionmark.circle")
                         .font(.system(size: 22))
                         .foregroundColor(.secondary)
-                    Text("Turn on location on the Nearby page to see the closest station.")
+                    Text(locationManager.location == nil
+                         ? "Turn on location on the Nearby page to see the closest station."
+                         : "Couldn't find a station on the \(line.label).")
                         .font(.custom("HelveticaNeue", size: 16))
                         .foregroundColor(.secondary)
                 }
