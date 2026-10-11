@@ -624,15 +624,8 @@ struct NearbyView: View {
                                 .frame(width: 48, height: 48)
                                 .background(Circle().fill(line.bg_color))
                             if serviceAlertsManager.hasActiveAlerts(for: line.id) {
-                                ZStack {
-                                    Image(systemName: "exclamationmark.triangle.fill")
-                                        .font(.system(size: 18))
-                                        .foregroundColor(.black)
-                                    Image(systemName: "exclamationmark.triangle.fill")
-                                        .font(.system(size: 14))
-                                        .foregroundColor(.yellow)
-                                }
-                                .offset(x: 4, y: -4)
+                                ServiceAlertBadge()
+                                    .offset(x: 4, y: -4)
                             }
                         }
 
@@ -854,6 +847,78 @@ struct NearbyView: View {
         return minDistance.isFinite ? minDistance : nil
     }
 
+}
+
+// MARK: - Service Alert Badge
+
+/// The yellow warning sign on a line's bullet when its service has changed,
+/// outlined in black so it stands off the bullet. Drawn once per size and kept,
+/// since the outline takes many passes and lists redraw every second.
+struct ServiceAlertBadge: View {
+    var size: CGFloat = 14
+    var outline: CGFloat = 2
+
+    @Environment(\.displayScale) private var displayScale
+    @Environment(\.colorScheme) private var colorScheme   // yellow is a shade lighter in dark mode
+
+    private static var rendered: [String: UIImage] = [:]
+
+    var body: some View {
+        Group {
+            if let image = image {
+                Image(uiImage: image)
+            } else {
+                OutlinedAlertSign(size: size, outline: outline)
+            }
+        }
+        .padding(-outline)   // lays out at the sign's own size
+        .accessibilityLabel("Service change")
+    }
+
+    private var image: UIImage? {
+        let key = "\(size)/\(outline)/\(displayScale)/\(colorScheme)"
+        if let image = Self.rendered[key] { return image }
+        // Drawn outside the view tree, so it needs the appearance passed in
+        let renderer = ImageRenderer(content: OutlinedAlertSign(size: size, outline: outline)
+            .environment(\.colorScheme, colorScheme))
+        renderer.scale = displayScale
+        let image = renderer.uiImage
+        Self.rendered[key] = image
+        return image
+    }
+}
+
+/// The sign with an even black outline, traced around a circle so its corners
+/// stay concentric with the sign's. Padded by the outline's width.
+private struct OutlinedAlertSign: View {
+    let size: CGFloat
+    let outline: CGFloat
+
+    private static let steps = 48
+
+    var body: some View {
+        let sign = Image(systemName: "exclamationmark.triangle.fill").font(.system(size: size))
+        sign
+            .foregroundStyle(.yellow)
+            .padding(outline)
+            .background {
+                // Each pixel keeps the most any copy covers it ("lighten"), rather than
+                // stacking their soft edges, which would harden the outline's edge
+                ZStack {
+                    ForEach(0..<Self.steps, id: \.self) { step in
+                        let angle = Double(step) / Double(Self.steps) * 2 * .pi
+                        sign.offset(x: outline * cos(angle), y: outline * sin(angle))
+                            .blendMode(.lighten)
+                    }
+                    sign.blendMode(.lighten)   // fills the exclamation mark's cutout
+                }
+                .foregroundStyle(.white)
+                .padding(outline)
+                .background(.black)
+                .compositingGroup()
+                .luminanceToAlpha()   // white coverage becomes a black outline
+            }
+    }
 }
 
 // MARK: - Location Permission Views
