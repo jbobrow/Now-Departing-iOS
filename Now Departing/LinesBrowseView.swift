@@ -57,6 +57,20 @@ struct LineSelectionView: View {
     @EnvironmentObject var locationManager: LocationManager
     @State private var selectedLineId: String? = nil
     @State private var showAbout = false
+    /// Picked on the About page: shown once that sheet has closed.
+    @State private var afterAbout: AboutDestination?
+    @State private var aboutDestination: AboutDestination?
+
+    enum AboutDestination: Identifiable {
+        case onboarding, whatsNew(WhatsNew)
+
+        var id: String {
+            switch self {
+            case .onboarding: return "onboarding"
+            case .whatsNew(let whatsNew): return whatsNew.id
+            }
+        }
+    }
 
     var body: some View {
         ScrollView {
@@ -112,12 +126,34 @@ struct LineSelectionView: View {
         }
         .navigationTitle("Lines")   // the back button's label on the pages after
         .toolbar(.hidden, for: .navigationBar)
-        .sheet(isPresented: $showAbout) {
-            AboutView(app: .nowDeparting) {}
+        .sheet(isPresented: $showAbout, onDismiss: {
+            aboutDestination = afterAbout
+            afterAbout = nil
+        }) {
+            AboutView(app: .nowDeparting) {
+                AboutRow(title: "How it works", systemImage: "questionmark.circle") {
+                    afterAbout = .onboarding
+                    showAbout = false
+                }
+                if let latest = WhatsNew.latest {
+                    AboutRow(title: "What's new in \(latest.version)", systemImage: "sparkles") {
+                        afterAbout = .whatsNew(latest)
+                        showAbout = false
+                    }
+                }
+            }
                 .presentationDetents([.large])
                 .presentationCornerRadius(22)
                 .presentationBackground(.regularMaterial)
                 .presentationDragIndicator(.visible)
+        }
+        .fullScreenCover(item: $aboutDestination) { destination in
+            switch destination {
+            case .onboarding:
+                OnboardingView { aboutDestination = nil }
+            case .whatsNew(let whatsNew):
+                WhatsNewView(whatsNew: whatsNew) { aboutDestination = nil }
+            }
         }
     }
 

@@ -14,6 +14,12 @@ struct ContentView: View {
     @EnvironmentObject var favoritesManager: FavoritesManager
     @State private var isReady = false
     @State private var selectedTab = 0
+    @AppStorage(Onboarding.completedKey) private var hasCompletedOnboarding = false
+    @State private var showOnboarding = false
+    /// The last version whose What's New was shown, or skipped because
+    /// onboarding came first.
+    @AppStorage("lastWhatsNewVersion") private var lastWhatsNewVersion = ""
+    @State private var whatsNew: WhatsNew?
 
     private static let tabs = [
         PagedTab(id: 0, title: "Nearby", systemImage: "location.circle.fill"),
@@ -30,11 +36,7 @@ struct ContentView: View {
                         PagedTabNavigationStack {
                             NearbyView(
                                 onLocationRequested: {
-                                    print("DEBUG: User requested location access")
-                                    locationManager.requestLocationPermission()
-                                    locationManager.startLocationUpdates()
-                                    // Remember user's choice for future launches
-                                    locationManager.hasUserEnabledLocation = true
+                                    locationManager.enableForNearby()
                                 }
                             )
                         }
@@ -62,6 +64,11 @@ struct ContentView: View {
                                 print("DEBUG: App ready - location will be requested when needed")
                             }
                             isReady = true
+                            if hasCompletedOnboarding {
+                                showWhatsNewIfNeeded()
+                            } else {
+                                showOnboarding = true
+                            }
                         }
                     }
             }
@@ -73,6 +80,26 @@ struct ContentView: View {
             // Switch to favorites tab when widget is tapped
             selectedTab = 2
         }
+        .fullScreenCover(isPresented: $showOnboarding) {
+            OnboardingView {
+                hasCompletedOnboarding = true
+                // A new install learns it all from onboarding
+                lastWhatsNewVersion = WhatsNew.current?.version ?? ""
+                showOnboarding = false
+            }
+        }
+        .fullScreenCover(item: $whatsNew) { whatsNew in
+            WhatsNewView(whatsNew: whatsNew) { self.whatsNew = nil }
+        }
+    }
+
+    /// Shows what's new, once, to someone who updated to a version that has
+    /// something to show. Marked as seen as soon as it's up, so it never
+    /// comes back, however it's closed.
+    private func showWhatsNewIfNeeded() {
+        guard let current = WhatsNew.current, current.version != lastWhatsNewVersion else { return }
+        lastWhatsNewVersion = current.version
+        whatsNew = current
     }
 }
 

@@ -18,6 +18,11 @@ struct Now_DepartingApp: App {
     @StateObject private var serviceAlertsManager = ServiceAlertsManager()
     @Environment(\.scenePhase) private var scenePhase
 
+    init() {
+        // Before anything this launch saves, which would look like earlier use
+        Onboarding.skipForEarlierInstalls()
+    }
+
     var body: some Scene {
         WindowGroup {
             ContentView()
