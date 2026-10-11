@@ -70,7 +70,9 @@ private struct PeekMenuHost<Label: View>: UIViewRepresentable {
     func makeUIView(context: Context) -> UIView {
         let labelView = context.coordinator.label.view!
         labelView.backgroundColor = .clear
-        labelView.addInteraction(UIContextMenuInteraction(delegate: context.coordinator))
+        let interaction = UIContextMenuInteraction(delegate: context.coordinator)
+        context.coordinator.interaction = interaction
+        labelView.addInteraction(interaction)
         return labelView
     }
 
@@ -89,10 +91,23 @@ private struct PeekMenuHost<Label: View>: UIViewRepresentable {
     final class Coordinator: NSObject, UIContextMenuInteractionDelegate {
         let label: UIHostingController<Label>
         var host: PeekMenuHost?
+        weak var interaction: UIContextMenuInteraction?
         private weak var shownPreview: PeekPreviewController?
 
         init(label: UIHostingController<Label>) {
             self.label = label
+            super.init()
+            // The system keeps a menu open across leaving the app, so coming back by a
+            // widget or Live Activity would find it still floating over wherever that
+            // link goes. Close it on the way out instead.
+            NotificationCenter.default.addObserver(
+                self, selector: #selector(dismissMenu),
+                name: UIApplication.didEnterBackgroundNotification, object: nil
+            )
+        }
+
+        @objc private func dismissMenu() {
+            interaction?.dismissMenu()
         }
 
         func contextMenuInteraction(_ interaction: UIContextMenuInteraction,
