@@ -77,7 +77,7 @@ struct OnboardingView: View {
                 OnboardingPage(
                     title: "The closest station on any line",
                     message: "Tap a line on the Lines page for all its stations. Press and hold for the one closest to you and its next trains."
-                ) { LinePeekArt() }
+                ) { LinePeekArt(isPlaying: page == 2) }
                     .tag(2)
                 OnboardingPage(
                     title: "Know at a glance",
@@ -278,9 +278,16 @@ private struct NearbyArt: View {
     }
 }
 
-/// Holding the 6 on the Lines page: its closest station, with times both ways,
-/// over the rest of the grid.
+/// Holding the 6 on the Lines page: a finger presses it, the rest of the grid
+/// fades, and its closest station opens out of it with times both ways. Plays
+/// on a loop while `isPlaying`; otherwise, or with Reduce Motion, rests on the peek.
 struct LinePeekArt: View {
+    var isPlaying = true
+
+    private enum Phase { case idle, pressing, peeking }
+
+    @State private var phase = Phase.peeking
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     private let held = "6"
 
     var body: some View {
@@ -288,9 +295,12 @@ struct LinePeekArt: View {
             HStack(spacing: 12) {
                 ForEach(["4", "5", "6", "7"], id: \.self) { id in
                     LineBullet(line: id, size: 60)
-                        .scaleEffect(id == held ? 1.08 : 1)
-                        .grayscale(id == held ? 0 : 1)
-                        .opacity(id == held ? 1 : 0.25)
+                        .scaleEffect(scale(for: id))
+                        .grayscale(id != held && phase == .peeking ? 1 : 0)
+                        .opacity(id != held && phase == .peeking ? 0.25 : 1)
+                        .overlay {
+                            if id == held { finger }
+                        }
                 }
             }
             VStack(alignment: .leading, spacing: 10) {
@@ -302,6 +312,50 @@ struct LinePeekArt: View {
             .padding(18)
             .background(Color(white: 0.14), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
             .shadow(color: .black.opacity(0.5), radius: 16, y: 6)
+            // Grows out of the held bullet, which sits right of center
+            .scaleEffect(phase == .peeking ? 1 : 0.4, anchor: UnitPoint(x: 0.6, y: 0))
+            .opacity(phase == .peeking ? 1 : 0)
+        }
+        .task(id: isPlaying && !reduceMotion) {
+            guard isPlaying && !reduceMotion else {
+                phase = .peeking
+                return
+            }
+            await loop()
+        }
+    }
+
+    private func scale(for id: String) -> CGFloat {
+        guard id == held else { return 1 }
+        switch phase {
+        case .idle: return 1
+        case .pressing: return 0.9
+        case .peeking: return 1.08
+        }
+    }
+
+    /// A fingertip resting on the bullet while it's pressed.
+    private var finger: some View {
+        Circle()
+            .fill(.white.opacity(0.35))
+            .overlay(Circle().stroke(.white.opacity(0.6), lineWidth: 1.5))
+            .frame(width: 40, height: 40)
+            .offset(x: 6, y: 10)
+            .opacity(phase == .pressing ? 1 : 0)
+            .scaleEffect(phase == .pressing ? 1 : 1.4)
+    }
+
+    private func loop() async {
+        withAnimation(.easeOut(duration: 0.3)) { phase = .idle }
+        while !Task.isCancelled {
+            try? await Task.sleep(for: .seconds(0.9))
+            withAnimation(.easeInOut(duration: 0.25)) { phase = .pressing }
+            try? await Task.sleep(for: .seconds(0.55))   // about as long as the real press
+            guard !Task.isCancelled else { return }
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.78)) { phase = .peeking }
+            try? await Task.sleep(for: .seconds(3))
+            guard !Task.isCancelled else { return }
+            withAnimation(.easeOut(duration: 0.35)) { phase = .idle }
         }
     }
 }
