@@ -79,6 +79,7 @@ struct FavoritesView: View {
         .background(Color.black)
         .listStyle(.plain)
         .clipped() // Prevent content from showing above the header
+        .topScrollFade()
         .padding(.top, 64)
         .ignoresSafeArea(edges: .top)
     }
