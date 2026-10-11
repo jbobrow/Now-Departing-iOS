@@ -11,7 +11,6 @@
 import SwiftUI
 import CoreLocation
 import Combine
-import MapKit
 
 // MARK: - Closest Station
 
@@ -31,6 +30,32 @@ enum ClosestStation {
             .min { $0.meters < $1.meters }
     }
 
+    /// Farther than this, or a longer walk than this (say, across a river), the
+    /// closest station isn't worth a section at the top of the station list.
+    static let stationListMaxMeters = 2 * 1609.344
+    static let stationListMaxWalkSeconds: TimeInterval = 60 * 60
+
+    /// The closest station if it's within two miles, before checking the walk.
+    static func findWithinStationListDistance(for line: SubwayLine, near location: CLLocation?, in stationDataManager: StationDataManager) -> (station: Station, meters: Double)? {
+        guard let location = location,
+              let closest = find(for: line, near: location, in: stationDataManager),
+              closest.meters <= stationListMaxMeters else { return nil }
+        return closest
+    }
+
+    /// The closest station for the top of the station list: within two miles,
+    /// and within an hour's walk once Maps answers. (The estimate shown until
+    /// then is under an hour for anything within two miles.)
+    static func findForStationList(for line: SubwayLine, near location: CLLocation?, in stationDataManager: StationDataManager) -> (station: Station, meters: Double)? {
+        guard let closest = findWithinStationListDistance(for: line, near: location, in: stationDataManager) else { return nil }
+        if let coordinate = closest.station.coordinate,
+           let walk = WalkTimes.shared.seconds(to: coordinate),
+           walk > stationListMaxWalkSeconds {
+            return nil
+        }
+        return closest
+    }
+
     static func formatDistance(_ meters: Double) -> String {
         let feet = meters * 3.28084
         if feet < 1000 {
@@ -40,18 +65,12 @@ enum ClosestStation {
             return String(format: "%.1fmi", miles)
         }
     }
+}
 
-    /// Rough walking time from straight-line distance, shown until Maps answers:
-    /// streets add about a third to the crow-flies distance, walked at 1.4 m/s.
-    static func estimatedWalkSeconds(_ meters: Double) -> TimeInterval {
-        meters * 1.3 / 1.4
-    }
-
-    /// The walking-figure symbol followed by the minutes, e.g. "33 min".
-    static func formatWalk(_ seconds: TimeInterval) -> Text {
-        let minutes = max(1, Int((seconds / 60).rounded()))
-        return (Text(Image(systemName: "figure.walk")) + Text(" \(minutes) min"))
-            .accessibilityLabel("\(minutes) minute walk")
+extension Station {
+    var coordinate: CLLocationCoordinate2D? {
+        guard let lat = latitude, let lon = longitude else { return nil }
+        return CLLocationCoordinate2D(latitude: lat, longitude: lon)
     }
 }
 
@@ -60,15 +79,6 @@ enum ClosestStation {
 class ClosestStationViewModel: ObservableObject {
     @Published var arrivals: [String: [MTAArrival]] = [:]
     @Published var loaded: Set<String> = []
-    /// Walking time from Maps; nil until it answers (or if it can't).
-    @Published var walkSeconds: TimeInterval?
-
-    private var directions: MKDirections?
-
-    func fetch(line: SubwayLine, station: Station, from location: CLLocation) {
-        fetchWalkTime(to: station, from: location)
-        fetchArrivals(line: line, station: station)
-    }
 
     func fetchArrivals(line: SubwayLine, station: Station) {
         for direction in ["N", "S"] {
@@ -85,42 +95,22 @@ class ClosestStationViewModel: ObservableObject {
             }
         }
     }
-
-    private func fetchWalkTime(to station: Station, from location: CLLocation) {
-        guard let lat = station.latitude, let lon = station.longitude else { return }
-        let request = MKDirections.Request()
-        request.source = MKMapItem(placemark: MKPlacemark(coordinate: location.coordinate))
-        request.destination = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: lat, longitude: lon)))
-        request.transportType = .walking
-
-        directions?.cancel()
-        let directions = MKDirections(request: request)
-        self.directions = directions
-        directions.calculateETA { [weak self] response, _ in
-            guard let response = response else { return }
-            DispatchQueue.main.async {
-                self?.walkSeconds = response.expectedTravelTime
-            }
-        }
-    }
-
-    deinit {
-        directions?.cancel()
-    }
 }
 
 // MARK: - Closest Station Header
 
-/// The Nearby page's station header, with the walking time under the distance.
 private struct ClosestStationHeader: View {
     let closest: (station: Station, meters: Double)
-    let walkSeconds: TimeInterval?
+
+    @EnvironmentObject var locationManager: LocationManager
 
     var body: some View {
-        NearbyView.StationHeader(
+        WalkingStationHeader(
             stationDisplay: closest.station.display,
             distanceText: ClosestStation.formatDistance(closest.meters),
-            detailText: ClosestStation.formatWalk(walkSeconds ?? ClosestStation.estimatedWalkSeconds(closest.meters))
+            meters: closest.meters,
+            coordinate: closest.station.coordinate,
+            origin: locationManager.location
         )
     }
 }
@@ -146,7 +136,7 @@ struct LinePeekView: View {
         Group {
             if let closest = closest {
                 VStack(alignment: .leading, spacing: 12) {
-                    ClosestStationHeader(closest: closest, walkSeconds: viewModel.walkSeconds)
+                    ClosestStationHeader(closest: closest)
 
                     ForEach(["N", "S"], id: \.self) { direction in
                         ClosestDirectionRow(
@@ -159,9 +149,7 @@ struct LinePeekView: View {
                     }
                 }
                 .onAppear {
-                    if let location = locationManager.location {
-                        viewModel.fetch(line: line, station: closest.station, from: location)
-                    }
+                    viewModel.fetchArrivals(line: line, station: closest.station)
                 }
             } else {
                 // No location yet — say why there's nothing to show
@@ -194,6 +182,7 @@ struct ClosestStationSection: View {
     @EnvironmentObject var stationDataManager: StationDataManager
     @EnvironmentObject var locationManager: LocationManager
     @StateObject private var viewModel = ClosestStationViewModel()
+    @ObservedObject private var walkTimes = WalkTimes.shared  // the cutoff depends on it
     @State private var currentTime = Date()
 
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -201,8 +190,7 @@ struct ClosestStationSection: View {
     private let refreshTimer = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
 
     private var closest: (station: Station, meters: Double)? {
-        guard let location = locationManager.location else { return nil }
-        return ClosestStation.find(for: line, near: location, in: stationDataManager)
+        ClosestStation.findForStationList(for: line, near: locationManager.location, in: stationDataManager)
     }
 
     var body: some View {
@@ -222,14 +210,12 @@ struct ClosestStationSection: View {
             } header: {
                 VStack(alignment: .leading, spacing: 8) {
                     StationListCaption(text: "Closest")
-                    ClosestStationHeader(closest: closest, walkSeconds: viewModel.walkSeconds)
+                    ClosestStationHeader(closest: closest)
                 }
             }
             // Re-fetch when moving brings a different station closest
             .task(id: closest.station.gtfsStopId) {
-                if let location = locationManager.location {
-                    viewModel.fetch(line: line, station: closest.station, from: location)
-                }
+                viewModel.fetchArrivals(line: line, station: closest.station)
             }
             .onReceive(timer) { time in
                 currentTime = time

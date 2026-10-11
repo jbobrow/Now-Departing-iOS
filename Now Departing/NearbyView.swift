@@ -413,9 +413,17 @@ struct NearbyView: View {
                 .environmentObject(locationManager) // Add this line
             }
         } header: {
-            StationHeader(
+            let firstTrain = group.trainsByLineAndDirection.first?.trains.first
+            WalkingStationHeader(
                 stationDisplay: group.stationDisplay,
-                distanceText: group.distanceText
+                distanceText: group.distanceText,
+                meters: firstTrain?.distanceInMeters ?? 0,
+                coordinate: firstTrain.flatMap { train in
+                    train.latitude.flatMap { lat in
+                        train.longitude.map { CLLocationCoordinate2D(latitude: lat, longitude: $0) }
+                    }
+                },
+                origin: locationManager.location
             )
         }
     }

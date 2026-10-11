@@ -146,6 +146,15 @@ struct StationSelectionView: View {
     @EnvironmentObject var stationDataManager: StationDataManager
     @EnvironmentObject var navigationState: NavigationState
     @EnvironmentObject var locationManager: LocationManager
+    @ObservedObject private var walkTimes = WalkTimes.shared  // the closest station's cutoff depends on it
+
+    private var closestWithinDistance: (station: Station, meters: Double)? {
+        ClosestStation.findWithinStationListDistance(for: line, near: locationManager.location, in: stationDataManager)
+    }
+
+    private var closestWalkRequestID: String {
+        WalkTimes.requestID(to: closestWithinDistance?.station.coordinate, from: locationManager.location)
+    }
 
     var body: some View {
         Group {
@@ -191,12 +200,20 @@ struct StationSelectionView: View {
                             }
                         } header: {
                             // Only needed to set the full list apart from the closest station
-                            if locationManager.location != nil {
+                            if ClosestStation.findForStationList(for: line, near: locationManager.location, in: stationDataManager) != nil {
                                 StationListCaption(text: "All Stations")
                             }
                         }
                     }
                     .listStyle(.plain)
+                    // Ask for the walk here rather than in the Closest section's header,
+                    // so a section hidden for a long walk can come back as you get closer
+                    .task(id: closestWalkRequestID) {
+                        if let coordinate = closestWithinDistance?.station.coordinate,
+                           let origin = locationManager.location {
+                            walkTimes.request(to: coordinate, from: origin)
+                        }
+                    }
                 }
             case .idle:
                 Color.clear.onAppear {
