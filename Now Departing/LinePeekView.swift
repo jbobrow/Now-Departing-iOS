@@ -86,6 +86,8 @@ extension Station {
 class ClosestStationViewModel: ObservableObject {
     @Published var arrivals: [String: [MTAArrival]] = [:]
     @Published var loaded: Set<String> = []
+    /// Directions whose last fetch failed, so an empty list means unknown, not no trains.
+    @Published var offline: Set<String> = []
 
     func fetchArrivals(line: SubwayLine, station: Station) {
         for direction in ["N", "S"] {
@@ -95,12 +97,41 @@ class ClosestStationViewModel: ObservableObject {
                 direction: direction
             ) { [weak self] result in
                 guard let self = self else { return }
-                if case .success(let trains) = result {
+                switch result {
+                case .success(let trains):
                     self.arrivals[direction] = trains
+                    self.offline.remove(direction)
+                case .failure:
+                    self.offline.insert(direction)
+                    // Without service, show the last times seen here, if any
+                    if self.arrivals[direction] == nil,
+                       let snapshot = ArrivalSnapshotStore.load(routeId: line.id, stopId: station.gtfsStopId, direction: direction) {
+                        self.arrivals[direction] = snapshot.arrivals
+                    }
                 }
                 self.loaded.insert(direction)
             }
         }
+    }
+
+    /// Trains still to come in `direction`, keeping one that's just arriving.
+    func upcoming(_ direction: String, at time: Date) -> [MTAArrival] {
+        (arrivals[direction] ?? []).filter { $0.time.timeIntervalSince(time) > -30 }
+    }
+
+    /// Directions worth a row in the peek. Once both have answered, one with no
+    /// trains coming is left out, so a line running only one way here shows just
+    /// that way. One that's offline stays: whether it has trains is unknown.
+    func directionsToShow(at time: Date) -> [String] {
+        let directions = ["N", "S"]
+        guard directions.allSatisfy({ loaded.contains($0) }) else { return directions }
+        return directions.filter { offline.contains($0) || !upcoming($0, at: time).isEmpty }
+    }
+
+    /// Both directions answered and neither has a train coming: nothing is
+    /// running here right now. Never true offline, when that's unknown.
+    func isNotRunning(at time: Date) -> Bool {
+        directionsToShow(at: time).isEmpty
     }
 }
 
@@ -143,17 +174,25 @@ struct LinePeekView: View {
         Group {
             if let closest = closest {
                 VStack(alignment: .leading, spacing: 12) {
-                    ClosestStationHeader(closest: closest)
+                    let isNotRunning = viewModel.isNotRunning(at: currentTime)
 
-                    ForEach(["N", "S"], id: \.self) { direction in
-                        ClosestDirectionRow(
-                            line: line,
-                            direction: direction,
-                            arrivals: viewModel.arrivals[direction] ?? [],
-                            loaded: viewModel.loaded.contains(direction),
-                            currentTime: currentTime
-                        )
-                        .peekTapTarget(NavigationRoute.times(line, closest.station, direction))
+                    ClosestStationHeader(closest: closest)
+                        .opacity(isNotRunning ? 0.5 : 1)
+
+                    if isNotRunning {
+                        NotRunningRow(line: line)
+                    } else {
+                        ForEach(viewModel.directionsToShow(at: currentTime), id: \.self) { direction in
+                            ClosestDirectionRow(
+                                line: line,
+                                direction: direction,
+                                upcoming: viewModel.upcoming(direction, at: currentTime),
+                                loaded: viewModel.loaded.contains(direction),
+                                offline: viewModel.offline.contains(direction),
+                                currentTime: currentTime
+                            )
+                            .peekTapTarget(NavigationRoute.times(line, closest.station, direction))
+                        }
                     }
                 }
                 // Take the height long station names need; the preview otherwise
@@ -214,8 +253,9 @@ struct ClosestStationSection: View {
                         ClosestDirectionRow(
                             line: line,
                             direction: direction,
-                            arrivals: viewModel.arrivals[direction] ?? [],
+                            upcoming: viewModel.upcoming(direction, at: currentTime),
                             loaded: viewModel.loaded.contains(direction),
+                            offline: viewModel.offline.contains(direction),
                             currentTime: currentTime
                         )
                     }
@@ -252,6 +292,33 @@ struct StationListCaption: View {
     }
 }
 
+// MARK: - Not Running Row
+
+/// Stands in for both directions in the peek when neither has a train coming,
+/// so a station that isn't running reads as one quiet line, not two empty rows.
+private struct NotRunningRow: View {
+    let line: SubwayLine
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Text(line.label)
+                .font(.custom("HelveticaNeue-Bold", size: 32))
+                .foregroundColor(line.fg_color)
+                .frame(width: 48, height: 48)
+                .background(Circle().fill(line.bg_color))
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("No trains right now")
+                    .font(.custom("HelveticaNeue-Bold", size: 20))
+                Text("Not stopping here in either direction")
+                    .font(.custom("HelveticaNeue", size: 14))
+                    .foregroundColor(.secondary)
+            }
+        }
+        .padding(.vertical, 4)
+    }
+}
+
 // MARK: - Direction Row
 
 /// One direction at the closest station, with the same metrics as the Nearby
@@ -259,16 +326,13 @@ struct StationListCaption: View {
 private struct ClosestDirectionRow: View {
     let line: SubwayLine
     let direction: String
-    let arrivals: [MTAArrival]
+    let upcoming: [MTAArrival]
     let loaded: Bool
+    let offline: Bool
     let currentTime: Date
 
     @EnvironmentObject var stationDataManager: StationDataManager
     @EnvironmentObject var locationManager: LocationManager
-
-    private var upcoming: [MTAArrival] {
-        arrivals.filter { $0.time.timeIntervalSince(currentTime) > -30 }
-    }
 
     var body: some View {
         HStack(spacing: 12) {
@@ -314,7 +378,7 @@ private struct ClosestDirectionRow: View {
                         .foregroundColor(.secondary)
                     }
                 } else if loaded {
-                    Text("No trains")
+                    Text(offline ? "Offline" : "No trains")
                         .font(.custom("HelveticaNeue", size: 16))
                         .foregroundColor(.secondary)
                 } else {
