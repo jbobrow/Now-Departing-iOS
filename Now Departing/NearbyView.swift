@@ -21,6 +21,13 @@ struct NearbyView: View {
     
     @State private var hasRequestedLocation = false
     
+    /// Height of each station's header, by station, so its rows know when they're under it
+    @State private var headerHeights: [String: CGFloat] = [:]
+    /// Top of the trains list on screen, where headers pin
+    @State private var listTop: CGFloat = 0
+    /// Space a plain list leaves above a pinned header's content
+    private static let pinnedHeaderInset: CGFloat = 10
+
     // Auto-refresh state - Updated to track actual data updates
     @State private var autoRefreshTimer: Timer?
     @State private var currentTime = Date()     // For updating the "time since" display
@@ -396,6 +403,10 @@ struct NearbyView: View {
             }
         }
         .listStyle(.plain)
+        .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).minY } action: { minY in
+            listTop = minY
+        }
+        .topScrollFade()
         .refreshable {
             await performRefreshWithText()
         }
@@ -416,6 +427,10 @@ struct NearbyView: View {
                     favoritesManager: favoritesManager
                 )
                 .environmentObject(locationManager) // Add this line
+                .fadesUnderHeader(bottom: listTop + Self.pinnedHeaderInset + (headerHeights[group.stationId] ?? 45))
+                // The system draws separators, so they can't fade with the row; the last
+                // one would linger where the header was. The next header's rule divides.
+                .listRowSeparator(item.lineDirectionId == group.trainsByLineAndDirection.last?.lineDirectionId ? .hidden : .automatic, edges: .bottom)
             }
         } header: {
             let firstTrain = group.trainsByLineAndDirection.first?.trains.first
@@ -430,6 +445,9 @@ struct NearbyView: View {
                 },
                 origin: locationManager.location
             )
+            .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { height in
+                headerHeights[group.stationId] = height
+            }
         }
     }
 
