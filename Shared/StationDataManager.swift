@@ -77,13 +77,15 @@ class StationDataManager: ObservableObject {
         return nil
     }
 
-    func findStation(byName stationName: String) -> Station? {
-        for stations in stationsByLine.values {
-            if let station = stations.first(where: { $0.name == stationName }) {
-                return station
-            }
+    /// Finds a station on a given line, preferring its GTFS stop ID. Names alone
+    /// are ambiguous across lines: "W 4 St-Wash Sq" is A32 on the A/C/E but D20
+    /// on the B/D/F/M, and "86 St" is seven different stations.
+    func findStation(lineId: String, name stationName: String, gtfsStopId: String?) -> Station? {
+        guard let stations = stationsByLine[lineId] else { return nil }
+        if let gtfsStopId, let station = stations.first(where: { $0.gtfsStopId == gtfsStopId }) {
+            return station
         }
-        return nil
+        return stations.first(where: { $0.name == stationName })
     }
 
     // MARK: - Private Methods

@@ -22,52 +22,56 @@ struct ContentView: View {
     ]
 
     var body: some View {
-        if isReady {
-            PagedTabView(selection: $selectedTab, tabs: Self.tabs) { tab in
-                switch tab.id {
-                case 0:
-                    PagedTabNavigationStack {
-                        NearbyView(
-                            onLocationRequested: {
-                                print("DEBUG: User requested location access")
-                                locationManager.requestLocationPermission()
-                                locationManager.startLocationUpdates()
-                                // Remember user's choice for future launches
-                                locationManager.hasUserEnabledLocation = true
-                            }
-                        )
-                    }
-
-                case 1:
-                    LinesBrowseView()
-
-                default:
-                    PagedTabNavigationStack {
-                        FavoritesView(deepLinkManager: deepLinkManager)
-                    }
-                }
-            }
-            .tint(.blue)
-            .onOpenURL { url in
-                deepLinkManager.handleURL(url)
-                // Switch to favorites tab when widget is tapped
-                selectedTab = 2
-            }
-        } else {
-            ProgressView("Initializing...")
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .onAppear {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        // Smart loading - if user previously enabled location, start immediately
-                        if locationManager.hasUserEnabledLocation && locationManager.isLocationEnabled {
-                            print("DEBUG: User previously enabled location, starting immediately for instant results")
-                            locationManager.startLocationUpdates()
-                        } else {
-                            print("DEBUG: App ready - location will be requested when needed")
+        Group {
+            if isReady {
+                PagedTabView(selection: $selectedTab, tabs: Self.tabs) { tab in
+                    switch tab.id {
+                    case 0:
+                        PagedTabNavigationStack {
+                            NearbyView(
+                                onLocationRequested: {
+                                    print("DEBUG: User requested location access")
+                                    locationManager.requestLocationPermission()
+                                    locationManager.startLocationUpdates()
+                                    // Remember user's choice for future launches
+                                    locationManager.hasUserEnabledLocation = true
+                                }
+                            )
                         }
-                        isReady = true
+
+                    case 1:
+                        LinesBrowseView()
+
+                    default:
+                        PagedTabNavigationStack {
+                            FavoritesView(deepLinkManager: deepLinkManager)
+                        }
                     }
                 }
+                .tint(.blue)
+            } else {
+                ProgressView("Initializing...")
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            // Smart loading - if user previously enabled location, start immediately
+                            if locationManager.hasUserEnabledLocation && locationManager.isLocationEnabled {
+                                print("DEBUG: User previously enabled location, starting immediately for instant results")
+                                locationManager.startLocationUpdates()
+                            } else {
+                                print("DEBUG: App ready - location will be requested when needed")
+                            }
+                            isReady = true
+                        }
+                    }
+            }
+        }
+        // Outside the isReady check: a widget tap that launches the app can deliver
+        // its URL while the spinner is still up
+        .onOpenURL { url in
+            deepLinkManager.handleURL(url)
+            // Switch to favorites tab when widget is tapped
+            selectedTab = 2
         }
     }
 }

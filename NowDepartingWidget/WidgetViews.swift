@@ -46,7 +46,8 @@ struct NowDepartingWidgetEntryView: View {
             URLQueryItem(name: "lineId", value: favorite.lineId),
             URLQueryItem(name: "stationName", value: favorite.stationName),
             URLQueryItem(name: "stationDisplay", value: favorite.stationDisplay),
-            URLQueryItem(name: "direction", value: favorite.direction)
+            URLQueryItem(name: "direction", value: favorite.direction),
+            URLQueryItem(name: "stationGtfsStopId", value: favorite.stationGtfsStopId)
         ]
         return components.url
     }
