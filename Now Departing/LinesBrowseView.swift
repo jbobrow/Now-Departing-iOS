@@ -47,6 +47,8 @@ struct LinesBrowseView: View {
 struct LineSelectionView: View {
     let lines: [SubwayLine]
     @EnvironmentObject var navigationState: NavigationState
+    @EnvironmentObject var stationDataManager: StationDataManager
+    @EnvironmentObject var locationManager: LocationManager
     @State private var selectedLineId: String? = nil
     @State private var showAbout = false
 
@@ -82,6 +84,13 @@ struct LineSelectionView: View {
                     // "X" holds the empty slot after 1 2 3 that shapes the grid
                     .disabled(line.id == "X")
                     .accessibilityHidden(line.id == "X")
+                    .contextMenu {
+                        if line.id != "X" { peekMenu(for: line) }
+                    } preview: {
+                        LinePeekView(line: line)
+                            .environmentObject(stationDataManager)
+                            .environmentObject(locationManager)
+                    }
                 }
             }
             .padding()
@@ -100,6 +109,34 @@ struct LineSelectionView: View {
                 .presentationDragIndicator(.visible)
         }
     }
+
+    // Actions under the long-press preview: jump straight to either direction
+    // at the closest station, or fall back to the full station list.
+    @ViewBuilder
+    private func peekMenu(for line: SubwayLine) -> some View {
+        if let location = locationManager.location,
+           let closest = ClosestStation.find(for: line, near: location, in: stationDataManager) {
+            ForEach(["N", "S"], id: \.self) { direction in
+                Button {
+                    navigationState.path.append(NavigationRoute.times(line, closest.station, direction))
+                } label: {
+                    Label(
+                        LocationBasedDirectionHelper.getContextualDestination(
+                            for: line.id,
+                            direction: direction,
+                            currentLocation: location
+                        ),
+                        systemImage: direction == "N" ? "arrow.up" : "arrow.down"
+                    )
+                }
+            }
+        }
+        Button {
+            navigationState.path.append(NavigationRoute.stations(line))
+        } label: {
+            Label("All Stations", systemImage: "list.bullet")
+        }
+    }
 }
 
 // MARK: - Station Selection View
@@ -108,6 +145,7 @@ struct StationSelectionView: View {
     let line: SubwayLine
     @EnvironmentObject var stationDataManager: StationDataManager
     @EnvironmentObject var navigationState: NavigationState
+    @EnvironmentObject var locationManager: LocationManager
 
     var body: some View {
         Group {
@@ -120,30 +158,41 @@ struct StationSelectionView: View {
                     .foregroundColor(.red)
             case .loaded:
                 if let stations = stationDataManager.stations(for: line.id) {
-                    List(stations) { station in
-                        Button(action: {
-                            // Haptic feedback
-                            let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
-                            impactFeedback.impactOccurred()
+                    List {
+                        ClosestStationSection(line: line)
 
-                            navigationState.path.append(NavigationRoute.terminals(line, station))
-                        }) {
-                            HStack {
-                                if station.hasAvailableTimes == false {
-                                    Image(systemName: "exclamationmark.triangle.fill")
-                                        .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
-                                    Text(station.display)
-                                        .font(.custom("HelveticaNeue-Bold", size: 18))
-                                        .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
-                                } else {
-                                    Text(station.display)
-                                        .font(.custom("HelveticaNeue-Bold", size: 18))
-                                        .foregroundColor(.primary)
+                        Section {
+                            ForEach(stations) { station in
+                                Button(action: {
+                                    // Haptic feedback
+                                    let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
+                                    impactFeedback.impactOccurred()
+
+                                    navigationState.path.append(NavigationRoute.terminals(line, station))
+                                }) {
+                                    HStack {
+                                        if station.hasAvailableTimes == false {
+                                            Image(systemName: "exclamationmark.triangle.fill")
+                                                .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
+                                            Text(station.display)
+                                                .font(.custom("HelveticaNeue-Bold", size: 18))
+                                                .foregroundColor(Color(red: 0.6, green: 0.6, blue: 0.6))
+                                        } else {
+                                            Text(station.display)
+                                                .font(.custom("HelveticaNeue-Bold", size: 18))
+                                                .foregroundColor(.primary)
+                                        }
+                                        Spacer()
+                                        Image(systemName: "chevron.right")
+                                            .foregroundColor(.secondary)
+                                            .font(.system(size: 14))
+                                    }
                                 }
-                                Spacer()
-                                Image(systemName: "chevron.right")
-                                    .foregroundColor(.secondary)
-                                    .font(.system(size: 14))
+                            }
+                        } header: {
+                            // Only needed to set the full list apart from the closest station
+                            if locationManager.location != nil {
+                                StationListCaption(text: "All Stations")
                             }
                         }
                     }

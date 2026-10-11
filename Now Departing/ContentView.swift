@@ -43,6 +43,7 @@ struct ContentView: View {
                 LinesBrowseView()
                     .environmentObject(stationDataManager)
                     .environmentObject(favoritesManager)
+                    .environmentObject(locationManager)
                     .tabItem {
                         Image(systemName: "tram.fill")
                         Text("Lines")
