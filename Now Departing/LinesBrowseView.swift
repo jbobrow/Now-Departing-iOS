@@ -90,12 +90,17 @@ struct LineSelectionView: View {
                     // "X" holds the empty slot after 1 2 3 that shapes the grid
                     .disabled(line.id == "X")
                     .accessibilityHidden(line.id == "X")
-                    .contextMenu {
-                        if line.id != "X" { peekMenu(for: line) }
+                    .peekMenu(isEnabled: line.id != "X") {
+                        peekActions(for: line)
                     } preview: {
                         LinePeekView(line: line)
                             .environmentObject(stationDataManager)
                             .environmentObject(locationManager)
+                    } onPreviewTap: { target in
+                        // Tapping a direction in the preview opens its times
+                        if let route = target?.base as? NavigationRoute {
+                            navigationState.path.append(route)
+                        }
                     }
                 }
             }
@@ -116,32 +121,23 @@ struct LineSelectionView: View {
         }
     }
 
-    // Actions under the long-press preview: jump straight to either direction
-    // at the closest station, or fall back to the full station list.
-    @ViewBuilder
-    private func peekMenu(for line: SubwayLine) -> some View {
+    // Actions under the long-press preview: walking directions to the closest
+    // station, or the full station list. Each direction is tapped in the preview.
+    private func peekActions(for line: SubwayLine) -> [UIMenuElement] {
+        var actions: [UIMenuElement] = []
         if let location = locationManager.location,
-           let closest = ClosestStation.find(for: line, near: location, in: stationDataManager) {
-            ForEach(["N", "S"], id: \.self) { direction in
-                Button {
-                    navigationState.path.append(NavigationRoute.times(line, closest.station, direction))
-                } label: {
-                    Label(
-                        LocationBasedDirectionHelper.getContextualDestination(
-                            for: line.id,
-                            direction: direction,
-                            currentLocation: location
-                        ),
-                        systemImage: direction == "N" ? "arrow.up" : "arrow.down"
-                    )
-                }
-            }
+           let closest = ClosestStation.find(for: line, near: location, in: stationDataManager),
+           let coordinate = closest.station.coordinate {
+            actions.append(UIAction(title: "Directions", image: UIImage(systemName: "figure.walk")) { _ in
+                let mapItem = MKMapItem(placemark: MKPlacemark(coordinate: coordinate))
+                mapItem.name = closest.station.display
+                mapItem.openInMaps(launchOptions: [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeWalking])
+            })
         }
-        Button {
+        actions.append(UIAction(title: "All Stations", image: UIImage(systemName: "list.bullet")) { _ in
             navigationState.path.append(NavigationRoute.stations(line))
-        } label: {
-            Label("All Stations", systemImage: "list.bullet")
-        }
+        })
+        return actions
     }
 }
 
