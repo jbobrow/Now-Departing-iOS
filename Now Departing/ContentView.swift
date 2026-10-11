@@ -36,14 +36,10 @@ struct ContentView: View {
                                 locationManager.hasUserEnabledLocation = true
                             }
                         )
-                        .environmentObject(locationManager)
                     }
 
                 case 1:
                     LinesBrowseView()
-                        .environmentObject(stationDataManager)
-                        .environmentObject(favoritesManager)
-                        .environmentObject(locationManager)
 
                 default:
                     PagedTabNavigationStack {
