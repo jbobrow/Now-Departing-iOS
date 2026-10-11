@@ -20,75 +20,37 @@ class TimesViewModel: ObservableObject {
     }
     @Published var loading: Bool = false
     @Published var errorMessage: String = ""
+    /// When the times on screen were fetched; it may be older than the last attempt.
+    @Published var lastUpdated: Date?
+    /// True when the last refresh failed and the times on screen are from an earlier one.
+    @Published var isOffline: Bool = false
 
     private var apiTimer: Timer?
     private var displayTimer: Timer?
-    private var arrivalTimes: [MTAArrival] = [] {
-        didSet {
-            cacheArrivalTimes()
-        }
-    }
+    private var arrivalTimes: [MTAArrival] = []
     private var isActivelyViewed = true
 
     private var currentStation: String?
     private var currentLine: String?
     private var currentDirection: String?
 
-    private let cacheKey = "cachedArrivals"
-    private let cacheMetadataKey = "cachedArrivalTimesMetadata"
-
-    private struct CacheMetadata: Codable {
-        let station: String
-        let line: String
-        let direction: String
-        let timestamp: Date
-    }
-
-    private func cacheArrivalTimes() {
-        guard let station = currentStation,
-              let line = currentLine,
-              let direction = currentDirection,
-              !arrivalTimes.isEmpty else { return }
-
-        let metadata = CacheMetadata(station: station, line: line, direction: direction, timestamp: Date())
-
-        if let encodedMetadata = try? JSONEncoder().encode(metadata),
-           let encodedArrivals = try? JSONEncoder().encode(arrivalTimes) {
-            UserDefaults.standard.set(encodedMetadata, forKey: cacheMetadataKey)
-            UserDefaults.standard.set(encodedArrivals, forKey: cacheKey)
-        }
-    }
-
-    private func loadCachedTimes(for station: String, line: String, direction: String) {
-        guard let encodedMetadata = UserDefaults.standard.data(forKey: cacheMetadataKey),
-              let encodedArrivals = UserDefaults.standard.data(forKey: cacheKey),
-              let arrivals = try? JSONDecoder().decode([MTAArrival].self, from: encodedArrivals),
-              let metadata = try? JSONDecoder().decode(CacheMetadata.self, from: encodedMetadata),
-              metadata.station == station,
-              metadata.line == line,
-              metadata.direction == direction,
-              abs(metadata.timestamp.timeIntervalSinceNow) < 120 else {
-            clearCache()
-            return
-        }
-
-        arrivalTimes = arrivals
-        updateDisplayTimes()
-    }
-
-    private func clearCache() {
-        UserDefaults.standard.removeObject(forKey: cacheKey)
-        UserDefaults.standard.removeObject(forKey: cacheMetadataKey)
-    }
-
     func startFetchingTimes(for line: SubwayLine, station: Station, direction: String) {
         print("DEBUG: Start Fetching Times")
+
+        apiTimer?.invalidate()
 
         currentStation = station.name
         currentLine = line.id
         currentDirection = direction
 
-        loadCachedTimes(for: station.name, line: line.id, direction: direction)
+        // Show the last times seen here until the fetch lands, or for as long as
+        // there's no service to fetch with.
+        if arrivalTimes.isEmpty,
+           let snapshot = ArrivalSnapshotStore.load(routeId: line.id, stopId: station.gtfsStopId, direction: direction) {
+            arrivalTimes = snapshot.arrivals
+            lastUpdated = snapshot.fetchedAt
+            updateDisplayTimes()
+        }
 
         if arrivalTimes.isEmpty {
             loading = true
@@ -163,6 +125,8 @@ class TimesViewModel: ObservableObject {
 
             switch result {
             case .success(let arrivals):
+                self.lastUpdated = Date()
+                self.isOffline = false
                 if arrivals.isEmpty {
                     self.errorMessage = "No times found"
                 } else {
@@ -173,7 +137,10 @@ class TimesViewModel: ObservableObject {
                 self.loading = false
 
             case .failure(let error):
-                self.errorMessage = error.localizedDescription
+                // Keep the times we have; they still count down correctly.
+                self.isOffline = true
+                self.updateDisplayTimes()
+                self.errorMessage = self.arrivalTimes.isEmpty ? error.localizedDescription : ""
                 self.loading = false
             }
         }

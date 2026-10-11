@@ -22,7 +22,6 @@ struct NearbyView: View {
     @State private var hasRequestedLocation = false
     
     // Auto-refresh state - Updated to track actual data updates
-    @State private var lastDataUpdated: Date?   // Changed from lastUpdated
     @State private var autoRefreshTimer: Timer?
     @State private var currentTime = Date()     // For updating the "time since" display
     @State private var liveTimeTimer: Timer?    // Timer for live time updates
@@ -101,10 +100,6 @@ struct NearbyView: View {
         // NEW: Watch for when data actually gets updated and mark the timestamp
         .onChange(of: nearbyTrainsManager.nearbyTrains) { oldTrains, newTrains in
             if !nearbyTrainsManager.isLoading {
-                if !newTrains.isEmpty {
-                    print("DEBUG: Data actually updated with \(newTrains.count) trains")
-                    lastDataUpdated = Date()
-                }
                 updateOutOfTownStatus(trains: newTrains)
             }
         }
@@ -145,7 +140,6 @@ struct NearbyView: View {
     private func startFetchingWithLocation(_ location: CLLocation) {
         print("DEBUG: Starting fetch with location: \(location)")
         nearbyTrainsManager.startFetching(location: location)
-        // Note: We don't set lastDataUpdated here anymore - we wait for actual data
     }
     
     // MARK: - Auto-refresh methods
@@ -211,9 +205,12 @@ struct NearbyView: View {
     }
     
     private func getTimeSinceLastUpdated() -> String {
-        guard let lastDataUpdated = lastDataUpdated else { return "" }
-        
-        let interval = currentTime.timeIntervalSince(lastDataUpdated)
+        guard let lastUpdated = nearbyTrainsManager.lastUpdated else { return "" }
+        if nearbyTrainsManager.isOffline {
+            return TimeFormatter.offlineNote(lastUpdated: lastUpdated, currentTime: currentTime)
+        }
+
+        let interval = currentTime.timeIntervalSince(lastUpdated)
         let minutes = Int(interval / 60)
         let seconds = Int(interval.truncatingRemainder(dividingBy: 60))
         
@@ -226,7 +223,11 @@ struct NearbyView: View {
     
     @ViewBuilder
     func AuthorizedView() -> some View {
-        if nearbyTrainsManager.nearbyTrains.isEmpty && nearbyTrainsManager.isLoading {
+        if !nearbyTrainsManager.nearbyTrains.isEmpty {
+            // Trains on hand always win: underground, a failed refresh or a lost
+            // location fix shouldn't hide times that are still counting down.
+            TrainsList()
+        } else if nearbyTrainsManager.nearbyTrains.isEmpty && nearbyTrainsManager.isLoading {
             // Show loading, but with different message if we're getting fresh location vs using cached
             VStack(spacing: 16) {
                 ProgressView()
@@ -240,13 +241,17 @@ struct NearbyView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if nearbyTrainsManager.nearbyTrains.isEmpty && !nearbyTrainsManager.isLoading && !locationManager.isSearchingForLocation {
-            if let distMeters = distanceToNearestStationMeters, distMeters * 0.000621371 > 3 {
+            if nearbyTrainsManager.isOffline && !nearbyTrainsManager.errorMessage.isEmpty {
+                ErrorView(message: nearbyTrainsManager.errorMessage) {
+                    retryFetch()
+                }
+            } else if let distMeters = distanceToNearestStationMeters, distMeters * 0.000621371 > 3 {
                 OutOfTownView(distanceInMeters: distMeters)
             } else {
                 // Empty state - but this should be rare with cached data
                 VStack {
                     // Time since updated indicator for empty state
-                    if lastDataUpdated != nil {
+                    if nearbyTrainsManager.lastUpdated != nil {
                         TimeIndicatorView(
                             timeSinceUpdated: getTimeSinceLastUpdated(),
                             lastLocationUpdate: lastLocationUpdate,
@@ -307,7 +312,7 @@ struct NearbyView: View {
     private func EmptyStateView() -> some View {
         VStack {
             // Time since updated indicator for empty state
-            if lastDataUpdated != nil {
+            if nearbyTrainsManager.lastUpdated != nil {
                 TimeIndicatorView(
                     timeSinceUpdated: getTimeSinceLastUpdated(),
                     lastLocationUpdate: lastLocationUpdate,
@@ -370,7 +375,7 @@ struct NearbyView: View {
     private func TrainsListContent() -> some View {
         VStack(spacing: 0) {
             // Time since updated indicator
-            if lastDataUpdated != nil {
+            if nearbyTrainsManager.lastUpdated != nil {
                 TimeIndicatorView(
                     timeSinceUpdated: getTimeSinceLastUpdated(),
                     lastLocationUpdate: lastLocationUpdate,

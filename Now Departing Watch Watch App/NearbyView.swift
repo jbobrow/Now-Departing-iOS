@@ -69,11 +69,6 @@ class NearbyTrainWithState: ObservableObject, Identifiable {
             isWaitingToStart = false
         }
     }
-    
-    func resetToLoading() {
-        isWaitingToStart = true
-        hasAppeared = true
-    }
 }
 
 struct NearbyView: View {
@@ -84,9 +79,6 @@ struct NearbyView: View {
     @State private var hasAppeared = false
     @State private var isInitialized = false
     @State private var trainsWithState: [NearbyTrainWithState] = []
-    @State private var lastDataUpdateTime: Date = Date.distantPast
-    @State private var lastLocationUsedForData: CLLocation?
-    @State private var isShowingStaleData = false
     @State private var currentTime = Date() // Add current time tracking
     
     // Timer to update current time and filter out expired trains
@@ -108,10 +100,6 @@ struct NearbyView: View {
     
     // Update trainsWithState when nearbyTrains changes
     private func updateTrainsWithState() {
-        lastDataUpdateTime = Date()
-        lastLocationUsedForData = locationManager.location
-        isShowingStaleData = false
-        
         // Only keep trains that haven't already departed
         let validTrains = nearbyTrainsManager.nearbyTrains.filter { train in
             train.arrivalTime > Date()
@@ -131,33 +119,8 @@ struct NearbyView: View {
     
     // Check if current data is stale (more than 3 minutes old)
     private var isDataStale: Bool {
-        return abs(lastDataUpdateTime.timeIntervalSinceNow) > 180 // 3 minutes
-    }
-    
-    // Check if location has changed significantly (more than 500 meters)
-    private var hasLocationChangedSignificantly: Bool {
-        guard let lastLocation = lastLocationUsedForData,
-              let currentLocation = locationManager.location else {
-            return true
-        }
-        
-        let distance = lastLocation.distance(from: currentLocation)
-        return distance > 500 // 500 meters
-    }
-    
-    // Reset trains to show loading state when data is stale
-    private func resetTrainsForStaleData() {
-        isShowingStaleData = true
-        
-        // Reset all trains to waiting state if location hasn't changed much
-        if !hasLocationChangedSignificantly {
-            trainsWithState.forEach { trainWithState in
-                trainWithState.resetToLoading()
-            }
-        } else {
-            // If location changed significantly, clear trains to show main loading state
-            trainsWithState = []
-        }
+        guard let lastUpdated = nearbyTrainsManager.lastUpdated else { return true }
+        return abs(lastUpdated.timeIntervalSinceNow) > 180 // 3 minutes
     }
     
     // Calculate the closest station distance and show appropriate indicator
@@ -305,6 +268,11 @@ struct NearbyView: View {
             guard !hasAppeared else { return }
             hasAppeared = true
             print("DEBUG: NearbyView appeared for first time")
+
+            // Show the trains the manager restored from the last visit right away
+            if trainsWithState.isEmpty && !nearbyTrainsManager.nearbyTrains.isEmpty {
+                updateTrainsWithState()
+            }
             
             // Reinitialize the manager with the real stationDataManager
             if !isInitialized {
@@ -343,12 +311,10 @@ struct NearbyView: View {
             
             switch newPhase {
             case .active:
-                // When returning to active state, check if data is stale
+                // When returning to active state, refresh stale data. Keep showing
+                // what we have meanwhile: without service it's all there is.
                 if isDataStale && !trainsWithState.isEmpty {
-                    print("DEBUG: App became active with stale data - resetting for refresh")
-                    resetTrainsForStaleData()
-                    
-                    // Refresh data
+                    print("DEBUG: App became active with stale data - refreshing")
                     if let location = locationManager.location {
                         nearbyTrainsManager.startFetching(location: location)
                     }
@@ -403,22 +369,21 @@ struct NearbyView: View {
     
     private var authorizedLocationView: some View {
         Group {
-            if locationManager.isSearchingForLocation {
+            if !stationGroups.isEmpty {
+                // Trains on hand always win: underground, a failed refresh or a lost
+                // location fix shouldn't hide times that are still counting down.
+                trainsListView
+            } else if locationManager.isSearchingForLocation {
                 searchingLocationView
             } else if let locationError = locationManager.locationError {
                 locationErrorView(error: locationError)
-            } else if nearbyTrainsManager.isLoading && nearbyTrainsManager.nearbyTrains.isEmpty {
+            } else if nearbyTrainsManager.isLoading {
                 loadingTrainsView
-            } else if isShowingStaleData && hasLocationChangedSignificantly {
-                // Location changed significantly while data is stale - show finding trains
-                loadingTrainsView
-            } else if stationGroups.isEmpty {
-                // Handles no-trains and out-of-town cases (mirrors iOS AuthorizedView ordering)
-                noTrainsView
-            } else if !nearbyTrainsManager.errorMessage.isEmpty {
+            } else if nearbyTrainsManager.isOffline && !nearbyTrainsManager.errorMessage.isEmpty {
                 trainsErrorView
             } else {
-                trainsListView
+                // Handles no-trains and out-of-town cases (mirrors iOS AuthorizedView ordering)
+                noTrainsView
             }
         }
     }
@@ -534,6 +499,14 @@ struct NearbyView: View {
     
     private var trainsListView: some View {
         List {
+            if nearbyTrainsManager.isOffline {
+                Text(TimeFormatter.offlineNote(lastUpdated: nearbyTrainsManager.lastUpdated, currentTime: currentTime))
+                    .font(.custom("HelveticaNeue", size: 12))
+                    .foregroundColor(.gray)
+                    .frame(maxWidth: .infinity)
+                    .listRowBackground(Color.clear)
+            }
+
             // Distance indicator at the top when far from subway
             if let distanceIndicator = distanceIndicatorView {
                 Section {
