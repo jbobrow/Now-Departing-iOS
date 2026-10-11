@@ -85,6 +85,7 @@
 				DirectionHelper.swift,
 				LocationBasedDirectionHelper.swift,
 				NearbyTrainsManager.swift,
+				ServiceAlertBadge.swift,
 				SettingsManager.swift,
 				StationDataManager.swift,
 				TimesViewModel.swift,

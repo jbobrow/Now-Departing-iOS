@@ -104,10 +104,9 @@ struct FavoriteRowView: View {
                             .frame(width: 30, height: 30)
                             .background(Circle().fill(line.bg_color))
                         if serviceAlertsManager.hasActiveAlerts(for: favoriteWithTimes.favorite.lineId) {
-                            Image(systemName: "exclamationmark.triangle.fill")
-                                .font(.system(size: 9))
-                                .foregroundColor(.yellow)
-                                .background(Color.black.clipShape(Circle()).padding(-1))
+                            // The outline matches the row's platter, the system's #222223
+                            ServiceAlertBadge(size: 9, outline: 1.5,
+                                              outlineColor: Color(red: 0x22 / 255, green: 0x22 / 255, blue: 0x23 / 255))
                                 .offset(x: 3, y: -3)
                         }
                     }
