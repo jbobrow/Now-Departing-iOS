@@ -14,7 +14,6 @@ struct FavoritesView: View {
     @StateObject private var trainDataManager = FavoriteTrainDataManager()
     @ObservedObject var deepLinkManager: DeepLinkManager
     @State private var showingEditMode = false
-    @State private var navigationPath = NavigationPath()
     @State private var deepLinkTimesView: (line: SubwayLine, station: Station, direction: String)? = nil
 
     var body: some View {
@@ -163,7 +162,7 @@ struct EmptyFavoritesView: View {
                     .font(.custom("HelveticaNeue-Bold", size: 32))
                     .multilineTextAlignment(.center)
                 
-                Text("Swipe left or right on any train in the Nearby tab to add it to your favorites")
+                Text("Swipe right on any train in the Nearby tab to add it to your favorites")
                     .font(.custom("HelveticaNeue", size: 18))
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
@@ -200,11 +199,11 @@ struct FavoriteTrainRow: View {
     var body: some View {
         Group {
             if let line = line {
-                NavigationLink(destination: TimesView(
-                    line: line,
-                    station: stationDataManager.findStation(byName: favorite.stationName)
+                NavigationLink(value: NavigationRoute.times(
+                    line,
+                    stationDataManager.findStation(byName: favorite.stationName)
                         ?? Station(display: favorite.stationDisplay, name: favorite.stationName, gtfsStopId: favorite.stationGtfsStopId),
-                    direction: favorite.direction
+                    favorite.direction
                 )) {
                     rowContent
                 }

@@ -15,54 +15,43 @@ struct ContentView: View {
     @State private var isReady = false
     @State private var selectedTab = 0
 
+    private static let tabs = [
+        PagedTab(id: 0, title: "Nearby", systemImage: "location.circle.fill"),
+        PagedTab(id: 1, title: "Lines", systemImage: "tram.fill"),
+        PagedTab(id: 2, title: "Favorites", systemImage: "heart.fill")
+    ]
+
     var body: some View {
         if isReady {
-            TabView(selection: $selectedTab) {
-                // Nearby Tab
-                NavigationStack {
-                    NearbyView(
-                        onLocationRequested: {
-                            print("DEBUG: User requested location access")
-                            locationManager.requestLocationPermission()
-                            locationManager.startLocationUpdates()
-                            // Remember user's choice for future launches
-                            locationManager.hasUserEnabledLocation = true
-                        }
-                    )
-                    .environmentObject(locationManager)
-//                    .navigationTitle("Nearby")
-//                    .navigationBarTitleDisplayMode(.large)
-                }
-                .tabItem {
-                    Image(systemName: "location.circle.fill")
-                    Text("Nearby")
-                }
-                .tag(0)
-
-                // Lines Tab
-                LinesBrowseView()
-                    .environmentObject(stationDataManager)
-                    .environmentObject(favoritesManager)
-                    .environmentObject(locationManager)
-                    .tabItem {
-                        Image(systemName: "tram.fill")
-                        Text("Lines")
+            PagedTabView(selection: $selectedTab, tabs: Self.tabs) { tab in
+                switch tab.id {
+                case 0:
+                    PagedTabNavigationStack {
+                        NearbyView(
+                            onLocationRequested: {
+                                print("DEBUG: User requested location access")
+                                locationManager.requestLocationPermission()
+                                locationManager.startLocationUpdates()
+                                // Remember user's choice for future launches
+                                locationManager.hasUserEnabledLocation = true
+                            }
+                        )
+                        .environmentObject(locationManager)
                     }
-                    .tag(1)
 
-                // Favorites Tab
-                NavigationStack {
-                    FavoritesView(deepLinkManager: deepLinkManager)
-//                        .navigationTitle("Favorites")
-//                        .navigationBarTitleDisplayMode(.large)
+                case 1:
+                    LinesBrowseView()
+                        .environmentObject(stationDataManager)
+                        .environmentObject(favoritesManager)
+                        .environmentObject(locationManager)
+
+                default:
+                    PagedTabNavigationStack {
+                        FavoritesView(deepLinkManager: deepLinkManager)
+                    }
                 }
-                .tabItem {
-                    Image(systemName: "heart.fill")
-                    Text("Favorites")
-                }
-                .tag(2)
             }
-            .accentColor(.blue)
+            .tint(.blue)
             .onOpenURL { url in
                 deepLinkManager.handleURL(url)
                 // Switch to favorites tab when widget is tapped
@@ -83,6 +72,36 @@ struct ContentView: View {
                         isReady = true
                     }
                 }
+        }
+    }
+}
+
+// MARK: - Page Navigation
+
+/// Navigation for Nearby and Favorites. Rows push NavigationRoute values, so the stack
+/// owns its path and tapping the page's tab again can pop it back to the root.
+struct PagedTabNavigationStack<Root: View>: View {
+    let root: Root
+    @State private var path = NavigationPath()
+    @Environment(\.pagedTabReselectCount) private var reselectCount
+
+    init(@ViewBuilder root: () -> Root) {
+        self.root = root()
+    }
+
+    var body: some View {
+        NavigationStack(path: $path) {
+            root
+                .pagedTabRoot()
+                .navigationDestination(for: NavigationRoute.self) { route in
+                    // Outside Lines, rows only push departures
+                    if case let .times(line, station, direction) = route {
+                        TimesView(line: line, station: station, direction: direction)
+                    }
+                }
+        }
+        .onChange(of: reselectCount) {
+            path = NavigationPath()
         }
     }
 }

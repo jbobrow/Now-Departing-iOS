@@ -15,6 +15,7 @@ struct LinesBrowseView: View {
     @EnvironmentObject var stationDataManager: StationDataManager
     @EnvironmentObject var favoritesManager: FavoritesManager
     @StateObject private var navigationState = NavigationState()
+    @Environment(\.pagedTabReselectCount) private var reselectCount
 
     // Use shared subway line factory
     let lines = SubwayLineFactory.allLines
@@ -23,6 +24,7 @@ struct LinesBrowseView: View {
         NavigationStack(path: $navigationState.path) {
             LineSelectionView(lines: lines)
                 .environmentObject(navigationState)
+                .pagedTabRoot()
                 .navigationDestination(for: NavigationRoute.self) { route in
                     switch route {
                     case .stations(let line):
@@ -35,6 +37,10 @@ struct LinesBrowseView: View {
                         TimesView(line: line, station: station, direction: direction)
                     }
                 }
+        }
+        // Tapping Lines again while it's showing returns to the line grid
+        .onChange(of: reselectCount) {
+            navigationState.path = NavigationPath()
         }
     }
 }

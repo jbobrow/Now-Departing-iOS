@@ -608,10 +608,10 @@ struct NearbyView: View {
         }
         
         var body: some View {
-            NavigationLink(destination: TimesView(
-                line: line,
-                station: Station(display: primaryTrain.stationDisplay, name: primaryTrain.stationName, gtfsStopId: primaryTrain.gtfsStopId, latitude: primaryTrain.latitude, longitude: primaryTrain.longitude),
-                direction: primaryTrain.direction
+            NavigationLink(value: NavigationRoute.times(
+                line,
+                Station(display: primaryTrain.stationDisplay, name: primaryTrain.stationName, gtfsStopId: primaryTrain.gtfsStopId, latitude: primaryTrain.latitude, longitude: primaryTrain.longitude),
+                primaryTrain.direction
             )) {
                 VStack(alignment: .leading, spacing: 8) {
                     // Main row
@@ -682,7 +682,8 @@ struct NearbyView: View {
             .onReceive(timer) { time in
                 currentTime = time
             }
-            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+            // Leading only: a left drag pages over to Lines
+            .swipeActions(edge: .leading, allowsFullSwipe: true) {
                 if isFavorited {
                     // Remove from favorites button
                     Button {
@@ -693,25 +694,6 @@ struct NearbyView: View {
                     .tint(.red)
                 } else {
                     // Add to favorites button
-                    Button {
-                        addToFavorites()
-                    } label: {
-                        Label("Favorite", systemImage: "heart.fill")
-                    }
-                    .tint(.blue)
-                }
-            }
-            .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                if isFavorited {
-                    // Remove from favorites button (left swipe)
-                    Button {
-                        removeFavorite()
-                    } label: {
-                        Label("Remove", systemImage: "heart.slash.fill")
-                    }
-                    .tint(.red)
-                } else {
-                    // Add to favorites button (left swipe)
                     Button {
                         addToFavorites()
                     } label: {
