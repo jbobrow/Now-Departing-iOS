@@ -34,20 +34,23 @@ struct NowDepartingWidgetEntryView: View {
         .containerBackground(for: .widget) {
             Color.black
         }
-        .widgetURL(makeWidgetURL())
+        // Rows of several favorites link to their own; anywhere else opens the first
+        .widgetURL(entry.favorites.first?.favoriteItem.widgetURL)
     }
+}
 
-    private func makeWidgetURL() -> URL? {
-        guard let favorite = entry.favorites.first?.favoriteItem else { return nil }
+extension FavoriteItem {
+    /// Opens this favorite's times on the app's Favorites page.
+    var widgetURL: URL? {
         var components = URLComponents()
         components.scheme = "nowdeparting"
         components.host = "train"
         components.queryItems = [
-            URLQueryItem(name: "lineId", value: favorite.lineId),
-            URLQueryItem(name: "stationName", value: favorite.stationName),
-            URLQueryItem(name: "stationDisplay", value: favorite.stationDisplay),
-            URLQueryItem(name: "direction", value: favorite.direction),
-            URLQueryItem(name: "stationGtfsStopId", value: favorite.stationGtfsStopId)
+            URLQueryItem(name: "lineId", value: lineId),
+            URLQueryItem(name: "stationName", value: stationName),
+            URLQueryItem(name: "stationDisplay", value: stationDisplay),
+            URLQueryItem(name: "direction", value: direction),
+            URLQueryItem(name: "stationGtfsStopId", value: stationGtfsStopId)
         ]
         return components.url
     }
@@ -424,7 +427,8 @@ struct MultiFavoriteView: View {
             .padding(.top, 12)
 
             ForEach(Array(favorites.enumerated()), id: \.offset) { index, data in
-                FavoriteRowView(data: data, entryDate: entry.date, outOfTownDistanceMeters: entry.outOfTownDistanceMeters)
+                linked(FavoriteRowView(data: data, entryDate: entry.date, outOfTownDistanceMeters: entry.outOfTownDistanceMeters),
+                       to: data.favoriteItem.widgetURL)
                     .padding(.horizontal, 16)
                     .padding(.top, index == 0 ? 8 : 0)
                     .padding(.bottom, index == favorites.count - 1 ? 12 : 0)
@@ -436,6 +440,18 @@ struct MultiFavoriteView: View {
                         .padding(.vertical, 8)
                 }
             }
+        }
+    }
+}
+
+extension MultiFavoriteView {
+    /// The row opens its own favorite when tapped.
+    @ViewBuilder
+    private func linked(_ row: some View, to url: URL?) -> some View {
+        if let url {
+            Link(destination: url) { row }
+        } else {
+            row
         }
     }
 }

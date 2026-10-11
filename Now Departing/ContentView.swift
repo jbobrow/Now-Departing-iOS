@@ -14,6 +14,9 @@ struct ContentView: View {
     @EnvironmentObject var favoritesManager: FavoritesManager
     @State private var isReady = false
     @State private var selectedTab = 0
+    @State private var nearbyPath = NavigationPath()
+    /// Here rather than in the page, so a widget link can open a train before the page exists
+    @State private var favoritesPath = NavigationPath()
     @AppStorage(Onboarding.completedKey) private var hasCompletedOnboarding = false
     @State private var showOnboarding = false
     /// The last version whose What's New was shown, or skipped because
@@ -33,7 +36,7 @@ struct ContentView: View {
                 PagedTabView(selection: $selectedTab, tabs: Self.tabs) { tab in
                     switch tab.id {
                     case 0:
-                        PagedTabNavigationStack {
+                        PagedTabNavigationStack(path: $nearbyPath) {
                             NearbyView(
                                 onLocationRequested: {
                                     locationManager.enableForNearby()
@@ -45,8 +48,8 @@ struct ContentView: View {
                         LinesBrowseView()
 
                     default:
-                        PagedTabNavigationStack {
-                            FavoritesView(deepLinkManager: deepLinkManager)
+                        PagedTabNavigationStack(path: $favoritesPath) {
+                            FavoritesView()
                         }
                     }
                 }
@@ -77,7 +80,15 @@ struct ContentView: View {
         // its URL while the spinner is still up
         .onOpenURL { url in
             deepLinkManager.handleURL(url)
-            // Switch to favorites tab when widget is tapped
+            guard let link = deepLinkManager.activeLink else { return }
+            deepLinkManager.clearLink()
+            // A widget's train opens on Favorites, so Back returns to the list
+            favoritesPath = NavigationPath([NavigationRoute.times(
+                SubwayLineFactory.line(for: link.lineId),
+                stationDataManager.findStation(lineId: link.lineId, name: link.stationName, gtfsStopId: link.stationGtfsStopId)
+                    ?? Station(display: link.stationDisplay, name: link.stationName, gtfsStopId: link.stationGtfsStopId),
+                link.direction
+            )])
             selectedTab = 2
         }
         .fullScreenCover(isPresented: $showOnboarding) {
@@ -105,14 +116,14 @@ struct ContentView: View {
 
 // MARK: - Page Navigation
 
-/// Navigation for Nearby and Favorites. Rows push NavigationRoute values, so the stack
-/// owns its path and tapping the page's tab again can pop it back to the root.
+/// Navigation for Nearby and Favorites. Rows push NavigationRoute values onto `path`, so
+/// tapping the page's tab again, or leaving the page, can pop it back to the root.
 struct PagedTabNavigationStack<Root: View>: View {
+    @Binding var path: NavigationPath
     let root: Root
-    @State private var path = NavigationPath()
-    @Environment(\.pagedTabReselectCount) private var reselectCount
 
-    init(@ViewBuilder root: () -> Root) {
+    init(path: Binding<NavigationPath>, @ViewBuilder root: () -> Root) {
+        _path = path
         self.root = root()
     }
 
@@ -127,9 +138,7 @@ struct PagedTabNavigationStack<Root: View>: View {
                     }
                 }
         }
-        .onChange(of: reselectCount) {
-            path = NavigationPath()
-        }
+        .pagedTabPopsToRoot { path = NavigationPath() }
     }
 }
 
