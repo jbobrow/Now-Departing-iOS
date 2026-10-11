@@ -15,7 +15,6 @@ struct LinesBrowseView: View {
     @EnvironmentObject var stationDataManager: StationDataManager
     @EnvironmentObject var favoritesManager: FavoritesManager
     @StateObject private var navigationState = NavigationState()
-    @Environment(\.pagedTabReselectCount) private var reselectCount
 
     // Use shared subway line factory
     let lines = SubwayLineFactory.allLines
@@ -38,10 +37,8 @@ struct LinesBrowseView: View {
                     }
                 }
         }
-        // Tapping Lines again while it's showing returns to the line grid
-        .onChange(of: reselectCount) {
-            navigationState.path = NavigationPath()
-        }
+        // Back to the line grid on tapping Lines again, or after leaving the page
+        .pagedTabPopsToRoot { navigationState.path = NavigationPath() }
     }
 }
 

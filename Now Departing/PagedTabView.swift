@@ -23,6 +23,7 @@ struct PagedTabView<Page: View>: View {
     @State private var progress: CGFloat        // continuous page position, for the bar's highlight
     @State private var coveredPages: Set<Int> = []
     @State private var reselectCounts: [Int: Int] = [:]
+    @State private var leftCounts: [Int: Int] = [:]
 
     init(selection: Binding<Int>, tabs: [PagedTab], @ViewBuilder page: @escaping (PagedTab) -> Page) {
         _selection = selection
@@ -46,6 +47,7 @@ struct PagedTabView<Page: View>: View {
                             }
                         })
                         .environment(\.pagedTabReselectCount, reselectCounts[tab.id, default: 0])
+                        .environment(\.pagedTabLeftCount, leftCounts[tab.id, default: 0])
                         .id(tab.id)
                 }
             }
@@ -74,8 +76,13 @@ struct PagedTabView<Page: View>: View {
             selection = id
             if #unavailable(iOS 18.0) { progress = CGFloat(id) }
         }
-        .onChange(of: selection) { _, id in
+        .onChange(of: selection) { oldID, id in
             if scrolledID != id { scrolledID = id }
+            // Once the page just left has slid out of sight, take it back to its first screen,
+            // so every page is arrived at from the top
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                if selection != oldID { leftCounts[oldID, default: 0] += 1 }
+            }
         }
     }
 }
@@ -295,12 +302,36 @@ extension EnvironmentValues {
     @Entry var pagedTabRootReporter: PagedTabRootReporter?
     /// Goes up each time the page's tab is tapped while it's already showing, e.g. to pop to root.
     @Entry var pagedTabReselectCount = 0
+    /// Goes up each time the pager has moved off the page and it's out of sight.
+    @Entry var pagedTabLeftCount = 0
 }
 
 extension View {
     /// Marks the root of a page's NavigationStack. Paging pauses while the root is covered by a pushed view.
     func pagedTabRoot() -> some View {
         modifier(PagedTabRootModifier())
+    }
+
+    /// Calls `popToRoot` when the page's tab is tapped again while it's showing, and, without
+    /// animation, once the pager has left the page.
+    func pagedTabPopsToRoot(_ popToRoot: @escaping () -> Void) -> some View {
+        modifier(PagedTabPopModifier(popToRoot: popToRoot))
+    }
+}
+
+private struct PagedTabPopModifier: ViewModifier {
+    let popToRoot: () -> Void
+    @Environment(\.pagedTabReselectCount) private var reselectCount
+    @Environment(\.pagedTabLeftCount) private var leftCount
+
+    func body(content: Content) -> some View {
+        content
+            .onChange(of: reselectCount) { popToRoot() }
+            .onChange(of: leftCount) {
+                var transaction = Transaction()
+                transaction.disablesAnimations = true
+                withTransaction(transaction, popToRoot)
+            }
     }
 }
 
