@@ -906,7 +906,7 @@ struct LocationPromptView: View {
                     .cornerRadius(14)
                 }
                 
-                Text("Location data is only used to find nearby stations and is not stored or shared")
+                Text("Location is only used to find nearby stations and is never collected")
                     .font(.custom("HelveticaNeue", size: 14))
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
