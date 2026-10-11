@@ -254,14 +254,18 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             let newAge = age
             
             // Only update if:
-            // 1. New location is significantly more recent (more than 30 seconds newer), OR
-            // 2. New location is much more accurate (more than 50m better), OR
-            // 3. Existing location is getting old (more than 2 minutes)
+            // 1. We've moved: farther than the new fix's uncertainty, and at least the distance
+            //    filter, which already holds updates back until then, OR
+            // 2. New location is significantly more recent (more than 30 seconds newer), OR
+            // 3. New location is much more accurate (more than 50m better), OR
+            // 4. Existing location is getting old (more than 2 minutes)
+            let hasMoved = newLocation.distance(from: existingLocation)
+                > max(locationManager.distanceFilter, newLocation.horizontalAccuracy)
             let isSignificantlyNewer = existingAge - newAge > 30
             let isMuchMoreAccurate = existingLocation.horizontalAccuracy - newLocation.horizontalAccuracy > 50
             let existingIsOld = existingAge > 120
             
-            if !isSignificantlyNewer && !isMuchMoreAccurate && !existingIsOld {
+            if !hasMoved && !isSignificantlyNewer && !isMuchMoreAccurate && !existingIsOld {
                 print("DEBUG: Keeping existing location - not significant improvement")
                 return
             }
