@@ -413,9 +413,17 @@ struct NearbyView: View {
                 .environmentObject(locationManager) // Add this line
             }
         } header: {
-            StationHeader(
+            let firstTrain = group.trainsByLineAndDirection.first?.trains.first
+            WalkingStationHeader(
                 stationDisplay: group.stationDisplay,
-                distanceText: group.distanceText
+                distanceText: group.distanceText,
+                meters: firstTrain?.distanceInMeters ?? 0,
+                coordinate: firstTrain.flatMap { train in
+                    train.latitude.flatMap { lat in
+                        train.longitude.map { CLLocationCoordinate2D(latitude: lat, longitude: $0) }
+                    }
+                },
+                origin: locationManager.location
             )
         }
     }
@@ -541,7 +549,9 @@ struct NearbyView: View {
     struct StationHeader: View {
         let stationDisplay: String
         let distanceText: String
-        
+        /// Optional second line under the distance, e.g. walking time.
+        var detailText: Text? = nil
+
         var body: some View {
             HStack(alignment: .top) {
                 Text(stationDisplay)
@@ -550,9 +560,15 @@ struct NearbyView: View {
                     .textCase(.none)
                     .padding(EdgeInsets(top: 4, leading: 0, bottom: 0, trailing: 0))
                 Spacer()
-                Text(distanceText)
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text(distanceText)
+                    if let detailText = detailText {
+                        detailText
+                    }
+                }
                     .font(.custom("HelveticaNeue", size: 14))
                     .foregroundColor(.secondary)
+                    .textCase(.none)
                     .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
             }
             .overlay(
