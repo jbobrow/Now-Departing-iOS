@@ -119,7 +119,7 @@ class ClosestStationViewModel: ObservableObject {
         (arrivals[direction] ?? []).filter { $0.time.timeIntervalSince(time) > -30 }
     }
 
-    /// Directions worth a row in the peek. Once both have answered, one with no
+    /// Directions worth a row. Once both have answered, one with no
     /// trains coming is left out, so a line running only one way here shows just
     /// that way. One that's offline stays: whether it has trains is unknown.
     func directionsToShow(at time: Date) -> [String] {
@@ -247,23 +247,29 @@ struct ClosestStationSection: View {
 
     var body: some View {
         if let closest = closest {
+            let isNotRunning = viewModel.isNotRunning(at: currentTime)
             Section {
-                ForEach(["N", "S"], id: \.self) { direction in
-                    NavigationLink(value: NavigationRoute.times(line, closest.station, direction)) {
-                        ClosestDirectionRow(
-                            line: line,
-                            direction: direction,
-                            upcoming: viewModel.upcoming(direction, at: currentTime),
-                            loaded: viewModel.loaded.contains(direction),
-                            offline: viewModel.offline.contains(direction),
-                            currentTime: currentTime
-                        )
+                if isNotRunning {
+                    NotRunningRow(line: line)
+                } else {
+                    ForEach(viewModel.directionsToShow(at: currentTime), id: \.self) { direction in
+                        NavigationLink(value: NavigationRoute.times(line, closest.station, direction)) {
+                            ClosestDirectionRow(
+                                line: line,
+                                direction: direction,
+                                upcoming: viewModel.upcoming(direction, at: currentTime),
+                                loaded: viewModel.loaded.contains(direction),
+                                offline: viewModel.offline.contains(direction),
+                                currentTime: currentTime
+                            )
+                        }
                     }
                 }
             } header: {
                 VStack(alignment: .leading, spacing: 8) {
                     StationListCaption(text: "Closest")
                     ClosestStationHeader(closest: closest)
+                        .opacity(isNotRunning ? 0.5 : 1)
                 }
             }
             // Re-fetch when moving brings a different station closest
@@ -294,7 +300,7 @@ struct StationListCaption: View {
 
 // MARK: - Not Running Row
 
-/// Stands in for both directions in the peek when neither has a train coming,
+/// Stands in for both directions when neither has a train coming,
 /// so a station that isn't running reads as one quiet line, not two empty rows.
 private struct NotRunningRow: View {
     let line: SubwayLine
