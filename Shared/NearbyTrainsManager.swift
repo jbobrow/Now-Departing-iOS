@@ -68,6 +68,7 @@ class NearbyTrainsManager: ObservableObject {
             switch result {
             case .success(let rawArrivals):
                 ArrivalSnapshotStore.saveNearby(rawArrivals)
+                ArrivalSnapshotStore.saveStations(from: rawArrivals)
                 let trains = rawArrivals.map(Self.nearbyTrain)
                 self.nearbyTrains = trains
                 self.lastUpdated = Date()

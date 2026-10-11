@@ -36,9 +36,30 @@ enum ArrivalSnapshotStore {
     // MARK: - By station
 
     static func save(_ arrivals: [MTAArrival], routeId: String, stopId: String, direction: String, at date: Date = Date()) {
+        save([key(routeId: routeId, stopId: stopId, direction: direction): arrivals], at: date)
+    }
+
+    /// Saves a Nearby fetch as station snapshots too, so a train opened from Nearby
+    /// without service has the same times to show. Keyed by base line, as the
+    /// by-station fetch is, with diamond-express trips kept under their line.
+    static func saveStations(from nearby: [MTANearbyArrival], at date: Date = Date()) {
+        var byStop: [String: [MTAArrival]] = [:]
+        for arrival in nearby {
+            guard let stopId = arrival.gtfsStopId, !stopId.isEmpty else { continue }
+            let stopKey = key(routeId: ExpressRoute.baseLine(for: arrival.routeId), stopId: stopId, direction: arrival.direction)
+            byStop[stopKey, default: []].append(MTAArrival(time: arrival.arrivalTime, routeId: arrival.routeId))
+        }
+        save(byStop.mapValues { $0.sorted { $0.time < $1.time } }, at: date)
+    }
+
+    /// Saves several stops' arrivals, by key, in one write.
+    private static func save(_ arrivalsByKey: [String: [MTAArrival]], at date: Date) {
+        guard !arrivalsByKey.isEmpty else { return }
         // Drop snapshots whose trains have all left so the store stays small.
         var all = loadAll().filter { $0.value.arrivals.contains { $0.time > date } }
-        all[key(routeId: routeId, stopId: stopId, direction: direction)] = ArrivalSnapshot(arrivals: arrivals, fetchedAt: date)
+        for (stopKey, arrivals) in arrivalsByKey {
+            all[stopKey] = ArrivalSnapshot(arrivals: arrivals, fetchedAt: date)
+        }
         if let data = try? JSONEncoder().encode(all) {
             defaults.set(data, forKey: stationsKey)
         }
