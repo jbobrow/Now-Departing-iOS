@@ -78,6 +78,7 @@ struct FavoritesView: View {
         }
         .background(Color.black)
         .listStyle(.plain)
+        .clearsPagedTabBar()
         .clipped() // Prevent content from showing above the header
         .topScrollFade()
         .padding(.top, 64)
