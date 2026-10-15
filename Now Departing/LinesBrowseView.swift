@@ -121,6 +121,7 @@ struct LineSelectionView: View {
                 .padding(.top, 24)
                 .padding(.bottom, 32)
         }
+        .clearsPagedTabBar()
         .navigationTitle("Lines")   // the back button's label on the pages after
         .toolbar(.hidden, for: .navigationBar)
         .sheet(isPresented: $showAbout, onDismiss: {
@@ -241,6 +242,7 @@ struct StationSelectionView: View {
                         }
                     }
                     .listStyle(.plain)
+                    .clearsPagedTabBar()
                     // Ask for the walk here rather than in the Closest section's header,
                     // so a section hidden for a long walk can come back as you get closer
                     .task(id: closestWalkRequestID) {
@@ -320,6 +322,7 @@ struct TerminalSelectionView: View {
             }
         }
         .listStyle(.plain)
+        .clearsPagedTabBar()
         .navigationTitle("Select Direction")
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
@@ -644,6 +647,7 @@ struct TimesView: View {
                     .padding(.bottom, 40)
                 }
             }
+            .clearsPagedTabBar()
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(Color.black, for: .navigationBar)
