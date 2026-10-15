@@ -5,8 +5,13 @@ generate_service_hours.py
 Adds a "serviceHours" field to every station in Shared/stations.json that its
 line doesn't serve around the clock, using the MTA's GTFS static schedule.
 
-Usage (from the repo root, after refreshing scripts/gtfs.zip):
+Usage (from the repo root):
+    curl -fsSL -o scripts/gtfs.zip "https://rrgtfsfeeds.s3.amazonaws.com/gtfs_subway.zip"
     python3 scripts/generate_service_hours.py
+    python3 scripts/validate_stations.py
+
+A workflow does this weekly (scripts/refresh_schedule.py), so it's only needed
+by hand after editing the station lists. gtfs.zip isn't committed.
 
 The app hides a station from its line's list when the line isn't scheduled
 there at the current New York hour (unless live data shows trains there), so
@@ -63,9 +68,11 @@ def read_schedule(gtfs_zip):
     """Which week hours (0 = Monday midnight) each line serves each stop, and where its trips end.
 
     Returns ({(line, parent stop ID): set of week hours},
-             {(line, direction, week hour the trip sets out): Counter of the parent stops trips end at}).
+             {(line, direction, week hour the trip sets out): Counter of the parent stops trips end at},
+             {(line, parent stop ID): trains a week}).
     """
     served = defaultdict(set)
+    trains = Counter()
     first_stop = {}  # trip → (stop_sequence, hour)
     last_stop = {}   # trip → (stop_sequence, stop ID with its direction)
     with zipfile.ZipFile(gtfs_zip) as archive:
@@ -84,6 +91,7 @@ def read_schedule(gtfs_zip):
             stop = row["stop_id"][:-1]  # "F16N" → "F16"
             for day in days:
                 served[(line, stop)].add((day * 24 + hour) % WEEK_HOURS)
+            trains[(line, stop)] += len(days)
             trip_id, sequence = row["trip_id"], int(row["stop_sequence"])
             if trip_id not in first_stop or sequence < first_stop[trip_id][0]:
                 first_stop[trip_id] = (sequence, int((row["departure_time"] or row["arrival_time"]).split(":")[0]))
@@ -96,7 +104,7 @@ def read_schedule(gtfs_zip):
         stop_id = last_stop[trip_id][1]
         for day in days:
             ends[(line, stop_id[-1], (day * 24 + hour) % WEEK_HOURS)][stop_id[:-1]] += 1
-    return served, ends
+    return served, ends, trains
 
 
 def terminal_hours(line, stops, ends):
@@ -136,16 +144,9 @@ def service_hours(hours):
     return {DAYS[d]: format_ranges(by_day[d]) for d in range(7) if by_day[d]}
 
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--gtfs", default="scripts/gtfs.zip")
-    parser.add_argument("--stations", default="Shared/stations.json")
-    args = parser.parse_args()
-
-    served, ends = read_schedule(args.gtfs)
-    with open(args.stations, encoding="utf-8") as f:
-        stations_by_line = json.load(f)
-
+def annotate(stations_by_line, served, ends):
+    """Sets serviceHours and terminalHours on every station, in place, from read_schedule's
+    results. Returns (part-time stations, part-time terminals)."""
     tagged = terminals = 0
     for line, stations in stations_by_line.items():
         alternates = terminal_hours(line, [s.get("gtfsStopId") for s in stations], ends)
@@ -163,9 +164,26 @@ def main():
             if by_direction:
                 station["terminalHours"] = {d: service_hours(h) for d, h in sorted(by_direction.items())}
                 terminals += 1
+    return tagged, terminals
 
-    with open(args.stations, "w", encoding="utf-8") as f:
+
+def write_stations(stations_by_line, path):
+    """In the file's existing form: two-space indents, no trailing newline."""
+    with open(path, "w", encoding="utf-8") as f:
         f.write(json.dumps(stations_by_line, indent=2, ensure_ascii=False))
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--gtfs", default="scripts/gtfs.zip")
+    parser.add_argument("--stations", default="Shared/stations.json")
+    args = parser.parse_args()
+
+    served, ends, _ = read_schedule(args.gtfs)
+    with open(args.stations, encoding="utf-8") as f:
+        stations_by_line = json.load(f)
+    tagged, terminals = annotate(stations_by_line, served, ends)
+    write_stations(stations_by_line, args.stations)
     print(f"{tagged} part-time stations tagged, {terminals} part-time terminals")
 
 
