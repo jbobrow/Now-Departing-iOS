@@ -4681,12 +4681,182 @@
       "complexId": "261"
     },
     {
+      "display": "67th Avenue",
+      "name": "67 Av",
+      "gtfsStopId": "G09",
+      "latitude": 40.726523,
+      "longitude": -73.852719,
+      "complexId": "262",
+      "serviceHours": {
+        "mon": "0-7,21-23",
+        "tue": "0-7,21-23",
+        "wed": "0-7,21-23",
+        "thu": "0-7,21-23",
+        "fri": "0-7,21-23",
+        "sat": "0-8,21-23",
+        "sun": "0-9,21-23"
+      }
+    },
+    {
+      "display": "63rd Drive-Rego Park",
+      "name": "63 Dr-Rego Park",
+      "gtfsStopId": "G10",
+      "latitude": 40.729846,
+      "longitude": -73.861604,
+      "complexId": "263",
+      "serviceHours": {
+        "mon": "0-7,21-23",
+        "tue": "0-7,21-23",
+        "wed": "0-7,21-23",
+        "thu": "0-7,21-23",
+        "fri": "0-7,21-23",
+        "sat": "0-8,21-23",
+        "sun": "0-9,21-23"
+      }
+    },
+    {
+      "display": "Woodhaven Boulevard",
+      "name": "Woodhaven Blvd",
+      "gtfsStopId": "G11",
+      "latitude": 40.733106,
+      "longitude": -73.869229,
+      "complexId": "264",
+      "serviceHours": {
+        "mon": "0-7,21-23",
+        "tue": "0-7,21-23",
+        "wed": "0-7,21-23",
+        "thu": "0-7,21-23",
+        "fri": "0-7,21-23",
+        "sat": "0-8,21-23",
+        "sun": "0-9,21-23"
+      }
+    },
+    {
+      "display": "Grand Avenue-Newtown",
+      "name": "Grand Av-Newtown",
+      "gtfsStopId": "G12",
+      "latitude": 40.737015,
+      "longitude": -73.877223,
+      "complexId": "265",
+      "serviceHours": {
+        "mon": "0-7,21-23",
+        "tue": "0-7,21-23",
+        "wed": "0-7,21-23",
+        "thu": "0-7,21-23",
+        "fri": "0-7,21-23",
+        "sat": "0-8,21-23",
+        "sun": "0-9,21-23"
+      }
+    },
+    {
+      "display": "Elmhurst Avenue",
+      "name": "Elmhurst Av",
+      "gtfsStopId": "G13",
+      "latitude": 40.742454,
+      "longitude": -73.882017,
+      "complexId": "266",
+      "serviceHours": {
+        "mon": "0-7,21-23",
+        "tue": "0-7,21-23",
+        "wed": "0-7,21-23",
+        "thu": "0-7,21-23",
+        "fri": "0-7,21-23",
+        "sat": "0-8,21-23",
+        "sun": "0-9,21-23"
+      }
+    },
+    {
       "display": "Jackson Heights-Roosevelt Avenue",
       "name": "Jackson Hts-Roosevelt Av",
       "gtfsStopId": "G14",
       "latitude": 40.746644,
       "longitude": -73.891338,
       "complexId": "616"
+    },
+    {
+      "display": "65th Street",
+      "name": "65 St",
+      "gtfsStopId": "G15",
+      "latitude": 40.749669,
+      "longitude": -73.898453,
+      "complexId": "268",
+      "serviceHours": {
+        "mon": "0-7,21-23",
+        "tue": "0-7,21-23",
+        "wed": "0-7,21-23",
+        "thu": "0-7,21-23",
+        "fri": "0-7,21-23",
+        "sat": "0-7,21-23",
+        "sun": "0-7,21-23"
+      }
+    },
+    {
+      "display": "Northern Boulevard",
+      "name": "Northern Blvd",
+      "gtfsStopId": "G16",
+      "latitude": 40.752885,
+      "longitude": -73.906006,
+      "complexId": "269",
+      "serviceHours": {
+        "mon": "0-7,21-23",
+        "tue": "0-7,21-23",
+        "wed": "0-7,21-23",
+        "thu": "0-7,21-23",
+        "fri": "0-7,21-23",
+        "sat": "0-7,21-23",
+        "sun": "0-7,21-23"
+      }
+    },
+    {
+      "display": "46th Street",
+      "name": "46 St",
+      "gtfsStopId": "G18",
+      "latitude": 40.756312,
+      "longitude": -73.913333,
+      "complexId": "270",
+      "serviceHours": {
+        "mon": "0-7,20-23",
+        "tue": "0-7,20-23",
+        "wed": "0-7,20-23",
+        "thu": "0-7,20-23",
+        "fri": "0-7,20-23",
+        "sat": "0-7,21-23",
+        "sun": "0-7,21-23"
+      }
+    },
+    {
+      "display": "Steinway Street",
+      "name": "Steinway St",
+      "gtfsStopId": "G19",
+      "latitude": 40.756879,
+      "longitude": -73.92074,
+      "complexId": "271",
+      "serviceHours": {
+        "mon": "0-7,20-23",
+        "tue": "0-7,20-23",
+        "wed": "0-7,20-23",
+        "thu": "0-7,20-23",
+        "fri": "0-7,20-23",
+        "sat": "0-7,21-23",
+        "sun": "0-7,21-23"
+      }
+    },
+    {
+      "display": "36th Street",
+      "name": "36 St",
+      "gtfsStopId": "G20",
+      "latitude": 40.752039,
+      "longitude": -73.928781,
+      "complexId": "272",
+      "serviceHours": {
+        "mon": "0-7,20-23",
+        "tue": "0-7,20-23",
+        "wed": "0-7,20-23",
+        "thu": "0-7,20-23",
+        "fri": "0-7,20-23",
+        "sat": "0-7,21-23",
+        "sun": "0-7,21-23"
+      }
     },
     {
       "display": "Queens Plaza",
