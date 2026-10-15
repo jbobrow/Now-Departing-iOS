@@ -778,7 +778,18 @@
       "gtfsStopId": "128",
       "latitude": 40.750373,
       "longitude": -73.991057,
-      "complexId": "318"
+      "complexId": "318",
+      "terminalHours": {
+        "S": {
+          "mon": "0-4,22-23",
+          "tue": "0-4,22-23",
+          "wed": "0-4,22-23",
+          "thu": "0-4,22-23",
+          "fri": "0-4,22-23",
+          "sat": "0-4,23",
+          "sun": "0-6,23"
+        }
+      }
     },
     {
       "display": "14th Street",
@@ -1462,7 +1473,18 @@
       "gtfsStopId": "213",
       "latitude": 40.841894,
       "longitude": -73.873488,
-      "complexId": "426"
+      "complexId": "426",
+      "terminalHours": {
+        "S": {
+          "mon": "0-4,21-23",
+          "tue": "0-4,21-23",
+          "wed": "0-4,21-23",
+          "thu": "0-4,21-23",
+          "fri": "0-4,21-23",
+          "sat": "0-4,22-23",
+          "sun": "0-6,22-23"
+        }
+      }
     },
     {
       "display": "West Farms Square-East Tremont Avenue",
@@ -1785,6 +1807,17 @@
         "fri": "4-23",
         "sat": "5-23",
         "sun": "7-23"
+      },
+      "terminalHours": {
+        "S": {
+          "mon": "20",
+          "tue": "20",
+          "wed": "20",
+          "thu": "20",
+          "fri": "20",
+          "sat": "6-20",
+          "sun": "8-20"
+        }
       }
     },
     {
@@ -2883,7 +2916,18 @@
       "gtfsStopId": "H11",
       "latitude": 40.603995,
       "longitude": -73.755405,
-      "complexId": "209"
+      "complexId": "209",
+      "terminalHours": {
+        "S": {
+          "mon": "0",
+          "tue": "0",
+          "wed": "0",
+          "thu": "0",
+          "fri": "0",
+          "sat": "0",
+          "sun": "0,23"
+        }
+      }
     },
     {
       "display": "104th Street",
@@ -3074,6 +3118,15 @@
         "wed": "4-23",
         "thu": "4-23",
         "fri": "4-23"
+      },
+      "terminalHours": {
+        "N": {
+          "mon": "18-21",
+          "tue": "18-21",
+          "wed": "18-21",
+          "thu": "18-21",
+          "fri": "18-21"
+        }
       }
     },
     {
@@ -6043,6 +6096,17 @@
         "fri": "0,4-23",
         "sat": "0,5-23",
         "sun": "0,7-23"
+      },
+      "terminalHours": {
+        "N": {
+          "mon": "21-22",
+          "tue": "21-22",
+          "wed": "21-22",
+          "thu": "21-22",
+          "fri": "21-22",
+          "sat": "7-22",
+          "sun": "8-22"
+        }
       }
     },
     {
@@ -6119,7 +6183,18 @@
       "gtfsStopId": "M11",
       "latitude": 40.697207,
       "longitude": -73.935657,
-      "complexId": "97"
+      "complexId": "97",
+      "terminalHours": {
+        "N": {
+          "mon": "0-4,23",
+          "tue": "0-4,23",
+          "wed": "0-4,23",
+          "thu": "0-4,23",
+          "fri": "0-4,23",
+          "sat": "0-5,23",
+          "sun": "0-7,23"
+        }
+      }
     },
     {
       "display": "Central Avenue",
@@ -6901,6 +6976,17 @@
         "fri": "0-1,4-23",
         "sat": "0-1,4-23",
         "sun": "0-1,4-23"
+      },
+      "terminalHours": {
+        "N": {
+          "mon": "21-22",
+          "tue": "21-22",
+          "wed": "21-22",
+          "thu": "21-22",
+          "fri": "21-22",
+          "sat": "21-22",
+          "sun": "21-22"
+        }
       }
     },
     {
@@ -7164,7 +7250,18 @@
       "gtfsStopId": "R27",
       "latitude": 40.703087,
       "longitude": -74.012994,
-      "complexId": "635"
+      "complexId": "635",
+      "terminalHours": {
+        "N": {
+          "mon": "0-4,23",
+          "tue": "0-4,23",
+          "wed": "0-4,23",
+          "thu": "0-4,23",
+          "fri": "0-4,23",
+          "sat": "0-4,23",
+          "sun": "0-4,23"
+        }
+      }
     },
     {
       "display": "Court St-Borough Hall",
