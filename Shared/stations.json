@@ -1121,6 +1121,23 @@
       }
     },
     {
+      "display": "Junius Street",
+      "name": "Junius St",
+      "gtfsStopId": "254",
+      "latitude": 40.663515,
+      "longitude": -73.902447,
+      "complexId": "349",
+      "serviceHours": {
+        "mon": "0-1,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,5-23",
+        "sun": "0-1,7-23"
+      }
+    },
+    {
       "display": "Pennsylvania Avenue",
       "name": "Pennsylvania Av",
       "gtfsStopId": "255",
@@ -1418,32 +1435,18 @@
     {
       "display": "Gun Hill Road",
       "name": "Gun Hill Rd",
-      "gtfsStopId": "208",
-      "latitude": 40.87785,
-      "longitude": -73.866256,
-      "complexId": "421",
-      "serviceHours": {
-        "mon": "5-11,16-20",
-        "tue": "5-11,16-20",
-        "wed": "5-11,16-20",
-        "thu": "5-11,16-20",
-        "fri": "5-11,16-20"
-      }
+      "gtfsStopId": "503",
+      "latitude": 40.869526,
+      "longitude": -73.846384,
+      "complexId": "444"
     },
     {
       "display": "Pelham Parkway",
       "name": "Pelham Pkwy",
-      "gtfsStopId": "211",
-      "latitude": 40.857192,
-      "longitude": -73.867615,
-      "complexId": "424",
-      "serviceHours": {
-        "mon": "5-9,16-20",
-        "tue": "5-9,16-20",
-        "wed": "5-9,16-20",
-        "thu": "5-9,16-20",
-        "fri": "5-9,16-20"
-      }
+      "gtfsStopId": "504",
+      "latitude": 40.858985,
+      "longitude": -73.855359,
+      "complexId": "445"
     },
     {
       "display": "Morris Park",
@@ -6869,10 +6872,19 @@
     {
       "display": "36th Street",
       "name": "36 St",
-      "gtfsStopId": "R36",
-      "latitude": 40.655144,
-      "longitude": -74.003549,
-      "complexId": "32"
+      "gtfsStopId": "G20",
+      "latitude": 40.752039,
+      "longitude": -73.928781,
+      "complexId": "272",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "4-23",
+        "sun": "4-23"
+      }
     },
     {
       "display": "Queens Plaza",
