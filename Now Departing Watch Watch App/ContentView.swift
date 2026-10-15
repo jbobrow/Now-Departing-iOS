@@ -362,7 +362,7 @@ struct StationSelectionView: View {
                 Text(message)
                     .foregroundColor(.red)
             case .loaded:
-                if let stations = dataManager.stations(for: line.id) {
+                if let stations = dataManager.stationsInService(for: line.id) {
                     List(stations) { station in
                         Button(action: {
                             // Trigger haptic feedback

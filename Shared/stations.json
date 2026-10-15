@@ -786,7 +786,16 @@
       "gtfsStopId": "132",
       "latitude": 40.737826,
       "longitude": -74.000201,
-      "complexId": "601"
+      "complexId": "601",
+      "serviceHours": {
+        "mon": "0-1,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,4-23",
+        "sun": "0-1,7-23"
+      }
     },
     {
       "display": "Chambers Street",
@@ -794,7 +803,16 @@
       "gtfsStopId": "137",
       "latitude": 40.715478,
       "longitude": -74.009266,
-      "complexId": "327"
+      "complexId": "327",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,4-23",
+        "sun": "0,7-23"
+      }
     },
     {
       "display": "Park Place",
@@ -802,7 +820,16 @@
       "gtfsStopId": "228",
       "latitude": 40.713051,
       "longitude": -74.008811,
-      "complexId": "624"
+      "complexId": "624",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,4-23",
+        "sun": "0,7-23"
+      }
     },
     {
       "display": "Fulton Street",
@@ -810,7 +837,16 @@
       "gtfsStopId": "229",
       "latitude": 40.709416,
       "longitude": -74.006571,
-      "complexId": "628"
+      "complexId": "628",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,4-23",
+        "sun": "0,7-23"
+      }
     },
     {
       "display": "Wall Street",
@@ -818,7 +854,16 @@
       "gtfsStopId": "230",
       "latitude": 40.706821,
       "longitude": -74.0091,
-      "complexId": "333"
+      "complexId": "333",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,4-23",
+        "sun": "0,7-23"
+      }
     },
     {
       "display": "Clark Street",
@@ -826,7 +871,16 @@
       "gtfsStopId": "231",
       "latitude": 40.697466,
       "longitude": -73.993086,
-      "complexId": "334"
+      "complexId": "334",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "4-23",
+        "sun": "0,7-23"
+      }
     },
     {
       "display": "Court St-Borough Hall",
@@ -834,7 +888,16 @@
       "gtfsStopId": "232",
       "latitude": 40.6941,
       "longitude": -73.991777,
-      "complexId": "620"
+      "complexId": "620",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "4-23",
+        "sun": "0,7-23"
+      }
     },
     {
       "display": "Hoyt Street",
@@ -842,7 +905,16 @@
       "gtfsStopId": "233",
       "latitude": 40.690545,
       "longitude": -73.985065,
-      "complexId": "336"
+      "complexId": "336",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "4-23",
+        "sun": "0,7-23"
+      }
     },
     {
       "display": "Nevins Street",
@@ -850,7 +922,16 @@
       "gtfsStopId": "234",
       "latitude": 40.688246,
       "longitude": -73.980492,
-      "complexId": "337"
+      "complexId": "337",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "5-23",
+        "sun": "0,7-23"
+      }
     },
     {
       "display": "Atlantic Avenue-Barclays Center",
@@ -858,7 +939,16 @@
       "gtfsStopId": "235",
       "latitude": 40.684359,
       "longitude": -73.977666,
-      "complexId": "617"
+      "complexId": "617",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "5-23",
+        "sun": "0,7-23"
+      }
     },
     {
       "display": "Bergen Street",
@@ -866,7 +956,16 @@
       "gtfsStopId": "236",
       "latitude": 40.680829,
       "longitude": -73.975098,
-      "complexId": "339"
+      "complexId": "339",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "5-23",
+        "sun": "0,7-23"
+      }
     },
     {
       "display": "Grand Army Plaza",
@@ -874,7 +973,16 @@
       "gtfsStopId": "237",
       "latitude": 40.675235,
       "longitude": -73.971046,
-      "complexId": "340"
+      "complexId": "340",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "5-23",
+        "sun": "0,7-23"
+      }
     },
     {
       "display": "Eastern Parkway-Brooklyn Museum",
@@ -882,7 +990,16 @@
       "gtfsStopId": "238",
       "latitude": 40.671987,
       "longitude": -73.964375,
-      "complexId": "341"
+      "complexId": "341",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "5-23",
+        "sun": "0,7-23"
+      }
     },
     {
       "display": "Franklin Avenue-Medgar Evers College",
@@ -890,7 +1007,16 @@
       "gtfsStopId": "239",
       "latitude": 40.670682,
       "longitude": -73.958131,
-      "complexId": "626"
+      "complexId": "626",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "5-23",
+        "sun": "0,7-23"
+      }
     },
     {
       "display": "Nostrand Avenue",
@@ -898,7 +1024,16 @@
       "gtfsStopId": "248",
       "latitude": 40.669847,
       "longitude": -73.950466,
-      "complexId": "343"
+      "complexId": "343",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "5-23",
+        "sun": "0,7-23"
+      }
     },
     {
       "display": "Kingston Avenue",
@@ -906,7 +1041,16 @@
       "gtfsStopId": "249",
       "latitude": 40.669399,
       "longitude": -73.942161,
-      "complexId": "344"
+      "complexId": "344",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "5-23",
+        "sun": "0,7-23"
+      }
     },
     {
       "display": "Crown Heights-Utica Avenue",
@@ -914,7 +1058,16 @@
       "gtfsStopId": "250",
       "latitude": 40.668897,
       "longitude": -73.932942,
-      "complexId": "345"
+      "complexId": "345",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "5-23",
+        "sun": "0,7-23"
+      }
     },
     {
       "display": "Sutter Avenue-Rutland Road",
@@ -922,7 +1075,16 @@
       "gtfsStopId": "251",
       "latitude": 40.664717,
       "longitude": -73.92261,
-      "complexId": "346"
+      "complexId": "346",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,5-23",
+        "sun": "0,7-23"
+      }
     },
     {
       "display": "Saratoga Avenue",
@@ -930,7 +1092,16 @@
       "gtfsStopId": "252",
       "latitude": 40.661453,
       "longitude": -73.916327,
-      "complexId": "347"
+      "complexId": "347",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,5-23",
+        "sun": "0,7-23"
+      }
     },
     {
       "display": "Rockaway Avenue",
@@ -938,7 +1109,16 @@
       "gtfsStopId": "253",
       "latitude": 40.662549,
       "longitude": -73.908946,
-      "complexId": "348"
+      "complexId": "348",
+      "serviceHours": {
+        "mon": "0-1,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,5-23",
+        "sun": "0-1,7-23"
+      }
     },
     {
       "display": "Pennsylvania Avenue",
@@ -946,7 +1126,16 @@
       "gtfsStopId": "255",
       "latitude": 40.664635,
       "longitude": -73.894895,
-      "complexId": "350"
+      "complexId": "350",
+      "serviceHours": {
+        "mon": "0-1,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,5-23",
+        "sun": "0-1,7-23"
+      }
     },
     {
       "display": "Van Siclen Avenue",
@@ -954,7 +1143,16 @@
       "gtfsStopId": "256",
       "latitude": 40.665449,
       "longitude": -73.889395,
-      "complexId": "351"
+      "complexId": "351",
+      "serviceHours": {
+        "mon": "0-1,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,5-23",
+        "sun": "0-1,7-23"
+      }
     },
     {
       "display": "New Lots Avenue",
@@ -962,7 +1160,16 @@
       "gtfsStopId": "257",
       "latitude": 40.666235,
       "longitude": -73.884079,
-      "complexId": "352"
+      "complexId": "352",
+      "serviceHours": {
+        "mon": "0-1,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,5-23",
+        "sun": "0-1,7-23"
+      }
     }
   ],
   "4": [
@@ -1214,7 +1421,14 @@
       "gtfsStopId": "208",
       "latitude": 40.87785,
       "longitude": -73.866256,
-      "complexId": "421"
+      "complexId": "421",
+      "serviceHours": {
+        "mon": "5-11,16-20",
+        "tue": "5-11,16-20",
+        "wed": "5-11,16-20",
+        "thu": "5-11,16-20",
+        "fri": "5-11,16-20"
+      }
     },
     {
       "display": "Pelham Parkway",
@@ -1222,7 +1436,14 @@
       "gtfsStopId": "211",
       "latitude": 40.857192,
       "longitude": -73.867615,
-      "complexId": "424"
+      "complexId": "424",
+      "serviceHours": {
+        "mon": "5-9,16-20",
+        "tue": "5-9,16-20",
+        "wed": "5-9,16-20",
+        "thu": "5-9,16-20",
+        "fri": "5-9,16-20"
+      }
     },
     {
       "display": "Morris Park",
@@ -1246,7 +1467,16 @@
       "gtfsStopId": "214",
       "latitude": 40.840295,
       "longitude": -73.880049,
-      "complexId": "427"
+      "complexId": "427",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "4-23",
+        "sun": "0,6-23"
+      }
     },
     {
       "display": "174th Street",
@@ -1254,7 +1484,16 @@
       "gtfsStopId": "215",
       "latitude": 40.837288,
       "longitude": -73.887734,
-      "complexId": "428"
+      "complexId": "428",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "4-23",
+        "sun": "0,6-23"
+      }
     },
     {
       "display": "Freeman Street",
@@ -1262,7 +1501,16 @@
       "gtfsStopId": "216",
       "latitude": 40.829993,
       "longitude": -73.891865,
-      "complexId": "429"
+      "complexId": "429",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "4-23",
+        "sun": "0,6-23"
+      }
     },
     {
       "display": "Simpson Street",
@@ -1270,7 +1518,16 @@
       "gtfsStopId": "217",
       "latitude": 40.824073,
       "longitude": -73.893064,
-      "complexId": "430"
+      "complexId": "430",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "4-23",
+        "sun": "0,7-23"
+      }
     },
     {
       "display": "Intervale Avenue",
@@ -1278,7 +1535,16 @@
       "gtfsStopId": "218",
       "latitude": 40.822181,
       "longitude": -73.896736,
-      "complexId": "431"
+      "complexId": "431",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "4-23",
+        "sun": "0,7-23"
+      }
     },
     {
       "display": "Prospect Avenue",
@@ -1286,7 +1552,16 @@
       "gtfsStopId": "219",
       "latitude": 40.819585,
       "longitude": -73.90177,
-      "complexId": "432"
+      "complexId": "432",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "5-23",
+        "sun": "0,7-23"
+      }
     },
     {
       "display": "Jackson Avenue",
@@ -1294,7 +1569,16 @@
       "gtfsStopId": "220",
       "latitude": 40.81649,
       "longitude": -73.907807,
-      "complexId": "433"
+      "complexId": "433",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "5-23",
+        "sun": "0,7-23"
+      }
     },
     {
       "display": "3rd Avenue-149th Street",
@@ -1302,7 +1586,16 @@
       "gtfsStopId": "221",
       "latitude": 40.816109,
       "longitude": -73.917757,
-      "complexId": "434"
+      "complexId": "434",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "5-23",
+        "sun": "0,7-23"
+      }
     },
     {
       "display": "149th Street-Grand Concourse",
@@ -1310,7 +1603,16 @@
       "gtfsStopId": "222",
       "latitude": 40.81841,
       "longitude": -73.926718,
-      "complexId": "603"
+      "complexId": "603",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "5-23",
+        "sun": "0,7-23"
+      }
     },
     {
       "display": "138th Street-Grand Concourse",
@@ -1318,7 +1620,16 @@
       "gtfsStopId": "416",
       "latitude": 40.813224,
       "longitude": -73.929849,
-      "complexId": "391"
+      "complexId": "391",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "5-23",
+        "sun": "7-23"
+      }
     },
     {
       "display": "125th Street",
@@ -1326,7 +1637,16 @@
       "gtfsStopId": "621",
       "latitude": 40.804138,
       "longitude": -73.937594,
-      "complexId": "392"
+      "complexId": "392",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "5-23",
+        "sun": "7-23"
+      }
     },
     {
       "display": "86th Street",
@@ -1334,7 +1654,16 @@
       "gtfsStopId": "626",
       "latitude": 40.779492,
       "longitude": -73.955589,
-      "complexId": "397"
+      "complexId": "397",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "5-23",
+        "sun": "7-23"
+      }
     },
     {
       "display": "59th Street",
@@ -1342,7 +1671,16 @@
       "gtfsStopId": "629",
       "latitude": 40.76266,
       "longitude": -73.967258,
-      "complexId": "613"
+      "complexId": "613",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "5-23",
+        "sun": "7-23"
+      }
     },
     {
       "display": "42nd Street-Grand Central",
@@ -1350,7 +1688,16 @@
       "gtfsStopId": "631",
       "latitude": 40.751776,
       "longitude": -73.976848,
-      "complexId": "610"
+      "complexId": "610",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "5-23",
+        "sun": "7-23"
+      }
     },
     {
       "display": "14th Street-Union Square",
@@ -1358,7 +1705,16 @@
       "gtfsStopId": "635",
       "latitude": 40.734673,
       "longitude": -73.989951,
-      "complexId": "602"
+      "complexId": "602",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "5-23",
+        "sun": "7-23"
+      }
     },
     {
       "display": "Brooklyn Bridge-City Hall",
@@ -1366,7 +1722,16 @@
       "gtfsStopId": "640",
       "latitude": 40.713065,
       "longitude": -74.004131,
-      "complexId": "622"
+      "complexId": "622",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "5-23",
+        "sun": "7-23"
+      }
     },
     {
       "display": "Fulton Street",
@@ -1374,7 +1739,16 @@
       "gtfsStopId": "418",
       "latitude": 40.710368,
       "longitude": -74.009509,
-      "complexId": "628"
+      "complexId": "628",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "5-23",
+        "sun": "7-23"
+      }
     },
     {
       "display": "Wall Street",
@@ -1382,7 +1756,16 @@
       "gtfsStopId": "419",
       "latitude": 40.707557,
       "longitude": -74.011862,
-      "complexId": "413"
+      "complexId": "413",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "5-23",
+        "sun": "7-23"
+      }
     },
     {
       "display": "Bowling Green",
@@ -1390,7 +1773,16 @@
       "gtfsStopId": "420",
       "latitude": 40.704817,
       "longitude": -74.014065,
-      "complexId": "414"
+      "complexId": "414",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "5-23",
+        "sun": "7-23"
+      }
     },
     {
       "display": "Court St-Borough Hall",
@@ -1398,7 +1790,14 @@
       "gtfsStopId": "423",
       "latitude": 40.6941,
       "longitude": -73.991777,
-      "complexId": "620"
+      "complexId": "620",
+      "serviceHours": {
+        "mon": "5-21",
+        "tue": "5-21",
+        "wed": "5-21",
+        "thu": "5-21",
+        "fri": "5-21"
+      }
     },
     {
       "display": "Nevins Street",
@@ -1406,7 +1805,14 @@
       "gtfsStopId": "234",
       "latitude": 40.688246,
       "longitude": -73.980492,
-      "complexId": "337"
+      "complexId": "337",
+      "serviceHours": {
+        "mon": "5-21",
+        "tue": "5-21",
+        "wed": "5-21",
+        "thu": "5-21",
+        "fri": "5-21"
+      }
     },
     {
       "display": "Atlantic Avenue-Barclays Center",
@@ -1414,7 +1820,14 @@
       "gtfsStopId": "235",
       "latitude": 40.684359,
       "longitude": -73.977666,
-      "complexId": "617"
+      "complexId": "617",
+      "serviceHours": {
+        "mon": "5-21",
+        "tue": "5-21",
+        "wed": "5-21",
+        "thu": "5-21",
+        "fri": "5-21"
+      }
     },
     {
       "display": "Franklin Avenue-Medgar Evers College",
@@ -1422,7 +1835,14 @@
       "gtfsStopId": "239",
       "latitude": 40.670682,
       "longitude": -73.958131,
-      "complexId": "626"
+      "complexId": "626",
+      "serviceHours": {
+        "mon": "5-21",
+        "tue": "5-21",
+        "wed": "5-21",
+        "thu": "5-21",
+        "fri": "5-21"
+      }
     },
     {
       "display": "Crown Heights-Utica Avenue",
@@ -1430,7 +1850,14 @@
       "gtfsStopId": "250",
       "latitude": 40.668897,
       "longitude": -73.932942,
-      "complexId": "345"
+      "complexId": "345",
+      "serviceHours": {
+        "mon": "4-10,15-21",
+        "tue": "4-10,15-21",
+        "wed": "4-10,15-21",
+        "thu": "4-10,15-21",
+        "fri": "4-10,15-21"
+      }
     },
     {
       "display": "President Street-Medgar Evers College",
@@ -1438,7 +1865,14 @@
       "gtfsStopId": "241",
       "latitude": 40.667883,
       "longitude": -73.950683,
-      "complexId": "353"
+      "complexId": "353",
+      "serviceHours": {
+        "mon": "5-21",
+        "tue": "5-21",
+        "wed": "5-21",
+        "thu": "5-21",
+        "fri": "5-21"
+      }
     },
     {
       "display": "Sterling Street",
@@ -1446,7 +1880,14 @@
       "gtfsStopId": "242",
       "latitude": 40.662742,
       "longitude": -73.95085,
-      "complexId": "354"
+      "complexId": "354",
+      "serviceHours": {
+        "mon": "5-21",
+        "tue": "5-21",
+        "wed": "5-21",
+        "thu": "5-21",
+        "fri": "5-21"
+      }
     },
     {
       "display": "Winthrop Street",
@@ -1454,7 +1895,14 @@
       "gtfsStopId": "243",
       "latitude": 40.656652,
       "longitude": -73.9502,
-      "complexId": "355"
+      "complexId": "355",
+      "serviceHours": {
+        "mon": "5-21",
+        "tue": "5-21",
+        "wed": "5-21",
+        "thu": "5-21",
+        "fri": "5-21"
+      }
     },
     {
       "display": "Church Avenue",
@@ -1462,7 +1910,14 @@
       "gtfsStopId": "244",
       "latitude": 40.650843,
       "longitude": -73.949575,
-      "complexId": "356"
+      "complexId": "356",
+      "serviceHours": {
+        "mon": "5-21",
+        "tue": "5-21",
+        "wed": "5-21",
+        "thu": "5-21",
+        "fri": "5-21"
+      }
     },
     {
       "display": "Beverly Road",
@@ -1470,7 +1925,14 @@
       "gtfsStopId": "245",
       "latitude": 40.645098,
       "longitude": -73.948959,
-      "complexId": "357"
+      "complexId": "357",
+      "serviceHours": {
+        "mon": "5-21",
+        "tue": "5-21",
+        "wed": "5-21",
+        "thu": "5-21",
+        "fri": "5-21"
+      }
     },
     {
       "display": "Newkirk Avenue-Little Haiti",
@@ -1478,7 +1940,14 @@
       "gtfsStopId": "246",
       "latitude": 40.639967,
       "longitude": -73.948411,
-      "complexId": "358"
+      "complexId": "358",
+      "serviceHours": {
+        "mon": "5-21",
+        "tue": "5-21",
+        "wed": "5-21",
+        "thu": "5-21",
+        "fri": "5-21"
+      }
     },
     {
       "display": "Flatbush Avenue-Brooklyn College",
@@ -1486,7 +1955,14 @@
       "gtfsStopId": "247",
       "latitude": 40.632836,
       "longitude": -73.947642,
-      "complexId": "359"
+      "complexId": "359",
+      "serviceHours": {
+        "mon": "5-21",
+        "tue": "5-21",
+        "wed": "5-21",
+        "thu": "5-21",
+        "fri": "5-21"
+      }
     }
   ],
   "6": [
@@ -2068,7 +2544,16 @@
       "gtfsStopId": "A30",
       "latitude": 40.745906,
       "longitude": -73.998041,
-      "complexId": "165"
+      "complexId": "165",
+      "serviceHours": {
+        "mon": "0-7,21-23",
+        "tue": "0-7,21-23",
+        "wed": "0-7,21-23",
+        "thu": "0-7,21-23",
+        "fri": "0-7,21-23",
+        "sat": "0-7,21-23",
+        "sun": "0-8,21-23"
+      }
     },
     {
       "display": "14th Street",
@@ -2092,7 +2577,16 @@
       "gtfsStopId": "A33",
       "latitude": 40.726227,
       "longitude": -74.003739,
-      "complexId": "168"
+      "complexId": "168",
+      "serviceHours": {
+        "mon": "0-7,21-23",
+        "tue": "0-7,21-23",
+        "wed": "0-7,21-23",
+        "thu": "0-7,21-23",
+        "fri": "0-7,21-23",
+        "sat": "0-7,21-23",
+        "sun": "0-8,21-23"
+      }
     },
     {
       "display": "Canal Street",
@@ -2148,7 +2642,16 @@
       "gtfsStopId": "A43",
       "latitude": 40.686113,
       "longitude": -73.973946,
-      "complexId": "176"
+      "complexId": "176",
+      "serviceHours": {
+        "mon": "0-6,21-23",
+        "tue": "0-6,21-23",
+        "wed": "0-6,21-23",
+        "thu": "0-6,21-23",
+        "fri": "0-6,21-23",
+        "sat": "0-7,21-23",
+        "sun": "0-8,21-23"
+      }
     },
     {
       "display": "Clinton-Washington Avenues",
@@ -2156,7 +2659,16 @@
       "gtfsStopId": "A44",
       "latitude": 40.683263,
       "longitude": -73.965838,
-      "complexId": "177"
+      "complexId": "177",
+      "serviceHours": {
+        "mon": "0-7,21-23",
+        "tue": "0-7,21-23",
+        "wed": "0-7,21-23",
+        "thu": "0-7,21-23",
+        "fri": "0-7,21-23",
+        "sat": "0-7,21-23",
+        "sun": "0-8,21-23"
+      }
     },
     {
       "display": "Franklin Avenue",
@@ -2164,7 +2676,16 @@
       "gtfsStopId": "A45",
       "latitude": 40.68138,
       "longitude": -73.956848,
-      "complexId": "627"
+      "complexId": "627",
+      "serviceHours": {
+        "mon": "0-7,21-23",
+        "tue": "0-7,21-23",
+        "wed": "0-7,21-23",
+        "thu": "0-7,21-23",
+        "fri": "0-7,21-23",
+        "sat": "0-7,21-23",
+        "sun": "0-8,21-23"
+      }
     },
     {
       "display": "Nostrand Avenue",
@@ -2196,7 +2717,16 @@
       "gtfsStopId": "A52",
       "latitude": 40.674542,
       "longitude": -73.896548,
-      "complexId": "185"
+      "complexId": "185",
+      "serviceHours": {
+        "mon": "0-7,21-23",
+        "tue": "0-7,21-23",
+        "wed": "0-7,21-23",
+        "thu": "0-7,21-23",
+        "fri": "0-7,21-23",
+        "sat": "0-7,21-23",
+        "sun": "0-8,21-23"
+      }
     },
     {
       "display": "Van Siclen Avenue",
@@ -2204,7 +2734,16 @@
       "gtfsStopId": "A53",
       "latitude": 40.67271,
       "longitude": -73.890358,
-      "complexId": "186"
+      "complexId": "186",
+      "serviceHours": {
+        "mon": "0-7,21-23",
+        "tue": "0-7,21-23",
+        "wed": "0-7,21-23",
+        "thu": "0-7,21-23",
+        "fri": "0-7,21-23",
+        "sat": "0-7,21-23",
+        "sun": "0-8,21-23"
+      }
     },
     {
       "display": "Shepherd Avenue",
@@ -2212,7 +2751,16 @@
       "gtfsStopId": "A54",
       "latitude": 40.67413,
       "longitude": -73.88075,
-      "complexId": "187"
+      "complexId": "187",
+      "serviceHours": {
+        "mon": "0-7,21-23",
+        "tue": "0-7,21-23",
+        "wed": "0-7,21-23",
+        "thu": "0-7,21-23",
+        "fri": "0-7,21-23",
+        "sat": "0-7,21-23",
+        "sun": "0-8,21-23"
+      }
     },
     {
       "display": "Euclid Avenue",
@@ -2366,7 +2914,14 @@
       "gtfsStopId": "D03",
       "latitude": 40.873244,
       "longitude": -73.887138,
-      "complexId": "211"
+      "complexId": "211",
+      "serviceHours": {
+        "mon": "4-20",
+        "tue": "4-20",
+        "wed": "4-20",
+        "thu": "4-20",
+        "fri": "4-20"
+      }
     },
     {
       "display": "Kingsbridge Road",
@@ -2374,7 +2929,14 @@
       "gtfsStopId": "D04",
       "latitude": 40.866978,
       "longitude": -73.893509,
-      "complexId": "212"
+      "complexId": "212",
+      "serviceHours": {
+        "mon": "4-20",
+        "tue": "4-20",
+        "wed": "4-20",
+        "thu": "4-20",
+        "fri": "4-20"
+      }
     },
     {
       "display": "Fordham Road",
@@ -2382,7 +2944,14 @@
       "gtfsStopId": "D05",
       "latitude": 40.861296,
       "longitude": -73.897749,
-      "complexId": "213"
+      "complexId": "213",
+      "serviceHours": {
+        "mon": "4-20",
+        "tue": "4-20",
+        "wed": "4-20",
+        "thu": "4-20",
+        "fri": "4-20"
+      }
     },
     {
       "display": "182nd-183rd Streets",
@@ -2390,7 +2959,14 @@
       "gtfsStopId": "D06",
       "latitude": 40.856093,
       "longitude": -73.900741,
-      "complexId": "214"
+      "complexId": "214",
+      "serviceHours": {
+        "mon": "4-20",
+        "tue": "4-20",
+        "wed": "4-20",
+        "thu": "4-20",
+        "fri": "4-20"
+      }
     },
     {
       "display": "Tremont Avenue",
@@ -2398,7 +2974,14 @@
       "gtfsStopId": "D07",
       "latitude": 40.85041,
       "longitude": -73.905227,
-      "complexId": "215"
+      "complexId": "215",
+      "serviceHours": {
+        "mon": "4-20",
+        "tue": "4-20",
+        "wed": "4-20",
+        "thu": "4-20",
+        "fri": "4-20"
+      }
     },
     {
       "display": "174th-175th Streets",
@@ -2406,7 +2989,14 @@
       "gtfsStopId": "D08",
       "latitude": 40.8459,
       "longitude": -73.910136,
-      "complexId": "216"
+      "complexId": "216",
+      "serviceHours": {
+        "mon": "4-20",
+        "tue": "4-20",
+        "wed": "4-20",
+        "thu": "4-20",
+        "fri": "4-20"
+      }
     },
     {
       "display": "170th Street",
@@ -2414,7 +3004,14 @@
       "gtfsStopId": "D09",
       "latitude": 40.839306,
       "longitude": -73.9134,
-      "complexId": "217"
+      "complexId": "217",
+      "serviceHours": {
+        "mon": "4-20",
+        "tue": "4-20",
+        "wed": "4-20",
+        "thu": "4-20",
+        "fri": "4-20"
+      }
     },
     {
       "display": "167th Street",
@@ -2422,7 +3019,14 @@
       "gtfsStopId": "D10",
       "latitude": 40.833771,
       "longitude": -73.91844,
-      "complexId": "218"
+      "complexId": "218",
+      "serviceHours": {
+        "mon": "4-19",
+        "tue": "4-19",
+        "wed": "4-19",
+        "thu": "4-19",
+        "fri": "4-19"
+      }
     },
     {
       "display": "161st Street-Yankee Stadium",
@@ -2430,7 +3034,14 @@
       "gtfsStopId": "D11",
       "latitude": 40.827905,
       "longitude": -73.925651,
-      "complexId": "604"
+      "complexId": "604",
+      "serviceHours": {
+        "mon": "4-19",
+        "tue": "4-19",
+        "wed": "4-19",
+        "thu": "4-19",
+        "fri": "4-19"
+      }
     },
     {
       "display": "155th Street",
@@ -2438,7 +3049,14 @@
       "gtfsStopId": "D12",
       "latitude": 40.830135,
       "longitude": -73.938209,
-      "complexId": "220"
+      "complexId": "220",
+      "serviceHours": {
+        "mon": "4-19",
+        "tue": "4-19",
+        "wed": "4-19",
+        "thu": "4-19",
+        "fri": "4-19"
+      }
     },
     {
       "display": "145th Street",
@@ -2446,7 +3064,14 @@
       "gtfsStopId": "D13",
       "latitude": 40.824783,
       "longitude": -73.944216,
-      "complexId": "151"
+      "complexId": "151",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23"
+      }
     },
     {
       "display": "135th Street",
@@ -2454,7 +3079,14 @@
       "gtfsStopId": "A14",
       "latitude": 40.817894,
       "longitude": -73.947649,
-      "complexId": "152"
+      "complexId": "152",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23"
+      }
     },
     {
       "display": "125th Street",
@@ -2462,7 +3094,14 @@
       "gtfsStopId": "A15",
       "latitude": 40.811109,
       "longitude": -73.952343,
-      "complexId": "153"
+      "complexId": "153",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23"
+      }
     },
     {
       "display": "116th Street",
@@ -2470,7 +3109,14 @@
       "gtfsStopId": "A16",
       "latitude": 40.805085,
       "longitude": -73.954882,
-      "complexId": "154"
+      "complexId": "154",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23"
+      }
     },
     {
       "display": "Cathedral Parkway-110th Street",
@@ -2478,7 +3124,14 @@
       "gtfsStopId": "A17",
       "latitude": 40.800603,
       "longitude": -73.958161,
-      "complexId": "155"
+      "complexId": "155",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23"
+      }
     },
     {
       "display": "103rd Street",
@@ -2486,7 +3139,14 @@
       "gtfsStopId": "A18",
       "latitude": 40.796092,
       "longitude": -73.961454,
-      "complexId": "156"
+      "complexId": "156",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23"
+      }
     },
     {
       "display": "96th Street",
@@ -2494,7 +3154,14 @@
       "gtfsStopId": "A19",
       "latitude": 40.791642,
       "longitude": -73.964696,
-      "complexId": "157"
+      "complexId": "157",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23"
+      }
     },
     {
       "display": "86th Street",
@@ -2502,7 +3169,14 @@
       "gtfsStopId": "A20",
       "latitude": 40.785868,
       "longitude": -73.968916,
-      "complexId": "158"
+      "complexId": "158",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23"
+      }
     },
     {
       "display": "81st Street-Museum of Natural History",
@@ -2510,7 +3184,14 @@
       "gtfsStopId": "A21",
       "latitude": 40.781433,
       "longitude": -73.972143,
-      "complexId": "159"
+      "complexId": "159",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23"
+      }
     },
     {
       "display": "72nd Street",
@@ -2518,7 +3199,14 @@
       "gtfsStopId": "A22",
       "latitude": 40.775594,
       "longitude": -73.97641,
-      "complexId": "160"
+      "complexId": "160",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23"
+      }
     },
     {
       "display": "59th Street-Columbus Circle",
@@ -2526,7 +3214,14 @@
       "gtfsStopId": "A24",
       "latitude": 40.768296,
       "longitude": -73.981736,
-      "complexId": "614"
+      "complexId": "614",
+      "serviceHours": {
+        "mon": "5-23",
+        "tue": "5-23",
+        "wed": "5-23",
+        "thu": "5-23",
+        "fri": "5-23"
+      }
     },
     {
       "display": "7th Avenue",
@@ -2534,7 +3229,14 @@
       "gtfsStopId": "D14",
       "latitude": 40.762862,
       "longitude": -73.981637,
-      "complexId": "277"
+      "complexId": "277",
+      "serviceHours": {
+        "mon": "5-23",
+        "tue": "5-23",
+        "wed": "5-23",
+        "thu": "5-23",
+        "fri": "5-23"
+      }
     },
     {
       "display": "47th-50th Streets-Rockefeller Center",
@@ -2542,7 +3244,14 @@
       "gtfsStopId": "D15",
       "latitude": 40.758663,
       "longitude": -73.981329,
-      "complexId": "225"
+      "complexId": "225",
+      "serviceHours": {
+        "mon": "5-23",
+        "tue": "5-23",
+        "wed": "5-23",
+        "thu": "5-23",
+        "fri": "5-23"
+      }
     },
     {
       "display": "42nd Street-Bryant Park",
@@ -2550,7 +3259,14 @@
       "gtfsStopId": "D16",
       "latitude": 40.754222,
       "longitude": -73.984569,
-      "complexId": "609"
+      "complexId": "609",
+      "serviceHours": {
+        "mon": "5-22",
+        "tue": "5-22",
+        "wed": "5-22",
+        "thu": "5-22",
+        "fri": "5-22"
+      }
     },
     {
       "display": "34th Street-Herald Square",
@@ -2558,7 +3274,14 @@
       "gtfsStopId": "D17",
       "latitude": 40.749719,
       "longitude": -73.987823,
-      "complexId": "607"
+      "complexId": "607",
+      "serviceHours": {
+        "mon": "5-22",
+        "tue": "5-22",
+        "wed": "5-22",
+        "thu": "5-22",
+        "fri": "5-22"
+      }
     },
     {
       "display": "West 4th Street-Washington Square",
@@ -2566,7 +3289,14 @@
       "gtfsStopId": "D20",
       "latitude": 40.732338,
       "longitude": -74.000495,
-      "complexId": "167"
+      "complexId": "167",
+      "serviceHours": {
+        "mon": "5-22",
+        "tue": "5-22",
+        "wed": "5-22",
+        "thu": "5-22",
+        "fri": "5-22"
+      }
     },
     {
       "display": "Broadway-Lafayette Street",
@@ -2574,7 +3304,14 @@
       "gtfsStopId": "D21",
       "latitude": 40.725297,
       "longitude": -73.996204,
-      "complexId": "619"
+      "complexId": "619",
+      "serviceHours": {
+        "mon": "5-22",
+        "tue": "5-22",
+        "wed": "5-22",
+        "thu": "5-22",
+        "fri": "5-22"
+      }
     },
     {
       "display": "Grand Street",
@@ -2582,7 +3319,14 @@
       "gtfsStopId": "D22",
       "latitude": 40.718267,
       "longitude": -73.993753,
-      "complexId": "231"
+      "complexId": "231",
+      "serviceHours": {
+        "mon": "5-22",
+        "tue": "5-22",
+        "wed": "5-22",
+        "thu": "5-22",
+        "fri": "5-22"
+      }
     },
     {
       "display": "DeKalb Avenue",
@@ -2590,7 +3334,14 @@
       "gtfsStopId": "R30",
       "latitude": 40.690635,
       "longitude": -73.981824,
-      "complexId": "26"
+      "complexId": "26",
+      "serviceHours": {
+        "mon": "5-22",
+        "tue": "5-22",
+        "wed": "5-22",
+        "thu": "5-22",
+        "fri": "5-22"
+      }
     },
     {
       "display": "Atlantic Avenue-Barclays Center",
@@ -2598,7 +3349,14 @@
       "gtfsStopId": "D24",
       "latitude": 40.68446,
       "longitude": -73.97689,
-      "complexId": "617"
+      "complexId": "617",
+      "serviceHours": {
+        "mon": "5-22",
+        "tue": "5-22",
+        "wed": "5-22",
+        "thu": "5-22",
+        "fri": "5-22"
+      }
     },
     {
       "display": "7th Avenue",
@@ -2606,7 +3364,14 @@
       "gtfsStopId": "D25",
       "latitude": 40.67705,
       "longitude": -73.972367,
-      "complexId": "41"
+      "complexId": "41",
+      "serviceHours": {
+        "mon": "5-22",
+        "tue": "5-22",
+        "wed": "5-22",
+        "thu": "5-22",
+        "fri": "5-22"
+      }
     },
     {
       "display": "Prospect Park",
@@ -2614,7 +3379,14 @@
       "gtfsStopId": "D26",
       "latitude": 40.661614,
       "longitude": -73.962246,
-      "complexId": "42"
+      "complexId": "42",
+      "serviceHours": {
+        "mon": "5-23",
+        "tue": "5-23",
+        "wed": "5-23",
+        "thu": "5-23",
+        "fri": "5-23"
+      }
     },
     {
       "display": "Church Avenue",
@@ -2622,7 +3394,14 @@
       "gtfsStopId": "D28",
       "latitude": 40.650527,
       "longitude": -73.962982,
-      "complexId": "44"
+      "complexId": "44",
+      "serviceHours": {
+        "mon": "5-23",
+        "tue": "5-23",
+        "wed": "5-23",
+        "thu": "5-23",
+        "fri": "5-23"
+      }
     },
     {
       "display": "Newkirk Plaza",
@@ -2630,7 +3409,14 @@
       "gtfsStopId": "D31",
       "latitude": 40.635082,
       "longitude": -73.962793,
-      "complexId": "47"
+      "complexId": "47",
+      "serviceHours": {
+        "mon": "5-23",
+        "tue": "5-23",
+        "wed": "5-23",
+        "thu": "5-23",
+        "fri": "5-23"
+      }
     },
     {
       "display": "Kings Highway",
@@ -2638,7 +3424,14 @@
       "gtfsStopId": "D35",
       "latitude": 40.60867,
       "longitude": -73.957734,
-      "complexId": "51"
+      "complexId": "51",
+      "serviceHours": {
+        "mon": "5-23",
+        "tue": "5-23",
+        "wed": "5-23",
+        "thu": "5-23",
+        "fri": "5-23"
+      }
     },
     {
       "display": "Sheepshead Bay",
@@ -2646,7 +3439,14 @@
       "gtfsStopId": "D39",
       "latitude": 40.586896,
       "longitude": -73.954155,
-      "complexId": "54"
+      "complexId": "54",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23"
+      }
     },
     {
       "display": "Brighton Beach",
@@ -2654,7 +3454,14 @@
       "gtfsStopId": "D40",
       "latitude": 40.577621,
       "longitude": -73.961376,
-      "complexId": "55"
+      "complexId": "55",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23"
+      }
     }
   ],
   "C": [
@@ -2664,7 +3471,16 @@
       "gtfsStopId": "A09",
       "latitude": 40.840719,
       "longitude": -73.939561,
-      "complexId": "605"
+      "complexId": "605",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,4-23",
+        "sun": "0,5-23"
+      }
     },
     {
       "display": "163rd Street-Amsterdam Avenue",
@@ -2672,7 +3488,16 @@
       "gtfsStopId": "A10",
       "latitude": 40.836013,
       "longitude": -73.939892,
-      "complexId": "149"
+      "complexId": "149",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,4-23",
+        "sun": "0,6-23"
+      }
     },
     {
       "display": "155th Street",
@@ -2680,7 +3505,16 @@
       "gtfsStopId": "A11",
       "latitude": 40.830518,
       "longitude": -73.941514,
-      "complexId": "150"
+      "complexId": "150",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,4-23",
+        "sun": "0,6-23"
+      }
     },
     {
       "display": "145th Street",
@@ -2688,7 +3522,16 @@
       "gtfsStopId": "A12",
       "latitude": 40.824783,
       "longitude": -73.944216,
-      "complexId": "151"
+      "complexId": "151",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,4-23",
+        "sun": "0,6-23"
+      }
     },
     {
       "display": "135th Street",
@@ -2696,7 +3539,16 @@
       "gtfsStopId": "A14",
       "latitude": 40.817894,
       "longitude": -73.947649,
-      "complexId": "152"
+      "complexId": "152",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,4-23",
+        "sun": "0,6-23"
+      }
     },
     {
       "display": "125th Street",
@@ -2704,7 +3556,16 @@
       "gtfsStopId": "A15",
       "latitude": 40.811109,
       "longitude": -73.952343,
-      "complexId": "153"
+      "complexId": "153",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,4-23",
+        "sun": "0,6-23"
+      }
     },
     {
       "display": "116th Street",
@@ -2712,7 +3573,16 @@
       "gtfsStopId": "A16",
       "latitude": 40.805085,
       "longitude": -73.954882,
-      "complexId": "154"
+      "complexId": "154",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,4-23",
+        "sun": "0,6-23"
+      }
     },
     {
       "display": "Cathedral Parkway-110th Street",
@@ -2720,7 +3590,16 @@
       "gtfsStopId": "A17",
       "latitude": 40.800603,
       "longitude": -73.958161,
-      "complexId": "155"
+      "complexId": "155",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,4-23",
+        "sun": "0,6-23"
+      }
     },
     {
       "display": "103rd Street",
@@ -2728,7 +3607,16 @@
       "gtfsStopId": "A18",
       "latitude": 40.796092,
       "longitude": -73.961454,
-      "complexId": "156"
+      "complexId": "156",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,4-23",
+        "sun": "0,6-23"
+      }
     },
     {
       "display": "96th Street",
@@ -2736,7 +3624,16 @@
       "gtfsStopId": "A19",
       "latitude": 40.791642,
       "longitude": -73.964696,
-      "complexId": "157"
+      "complexId": "157",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,4-23",
+        "sun": "0,6-23"
+      }
     },
     {
       "display": "86th Street",
@@ -2744,7 +3641,16 @@
       "gtfsStopId": "A20",
       "latitude": 40.785868,
       "longitude": -73.968916,
-      "complexId": "158"
+      "complexId": "158",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,4-23",
+        "sun": "0,6-23"
+      }
     },
     {
       "display": "81st Street-Museum of Natural History",
@@ -2752,7 +3658,16 @@
       "gtfsStopId": "A21",
       "latitude": 40.781433,
       "longitude": -73.972143,
-      "complexId": "159"
+      "complexId": "159",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,4-23",
+        "sun": "0,6-23"
+      }
     },
     {
       "display": "72nd Street",
@@ -2760,7 +3675,16 @@
       "gtfsStopId": "A22",
       "latitude": 40.775594,
       "longitude": -73.97641,
-      "complexId": "160"
+      "complexId": "160",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,4-23",
+        "sun": "0,6-23"
+      }
     },
     {
       "display": "59th Street-Columbus Circle",
@@ -2768,7 +3692,16 @@
       "gtfsStopId": "A24",
       "latitude": 40.768296,
       "longitude": -73.981736,
-      "complexId": "614"
+      "complexId": "614",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,4-23",
+        "sun": "0,6-23"
+      }
     },
     {
       "display": "50th Street",
@@ -2776,7 +3709,16 @@
       "gtfsStopId": "A25",
       "latitude": 40.762456,
       "longitude": -73.985984,
-      "complexId": "162"
+      "complexId": "162",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,5-23",
+        "sun": "0,6-23"
+      }
     },
     {
       "display": "42nd Street-Port Authority Bus Terminal",
@@ -2784,7 +3726,16 @@
       "gtfsStopId": "A27",
       "latitude": 40.757308,
       "longitude": -73.989735,
-      "complexId": "611"
+      "complexId": "611",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,5-23",
+        "sun": "0,6-23"
+      }
     },
     {
       "display": "34th Street-Penn Station",
@@ -2792,7 +3743,16 @@
       "gtfsStopId": "A28",
       "latitude": 40.752287,
       "longitude": -73.993391,
-      "complexId": "164"
+      "complexId": "164",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,5-23",
+        "sun": "0,6-23"
+      }
     },
     {
       "display": "23rd Street",
@@ -2800,7 +3760,16 @@
       "gtfsStopId": "A30",
       "latitude": 40.745906,
       "longitude": -73.998041,
-      "complexId": "165"
+      "complexId": "165",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,5-23",
+        "sun": "0,6-23"
+      }
     },
     {
       "display": "14th Street",
@@ -2808,7 +3777,16 @@
       "gtfsStopId": "A31",
       "latitude": 40.740893,
       "longitude": -74.00169,
-      "complexId": "618"
+      "complexId": "618",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "5-23",
+        "sun": "0,6-23"
+      }
     },
     {
       "display": "West 4th Street-Washington Square",
@@ -2816,7 +3794,16 @@
       "gtfsStopId": "A32",
       "latitude": 40.732338,
       "longitude": -74.000495,
-      "complexId": "167"
+      "complexId": "167",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "5-23",
+        "sun": "0,6-23"
+      }
     },
     {
       "display": "Spring Street",
@@ -2824,7 +3811,16 @@
       "gtfsStopId": "A33",
       "latitude": 40.726227,
       "longitude": -74.003739,
-      "complexId": "168"
+      "complexId": "168",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "5-23",
+        "sun": "6-23"
+      }
     },
     {
       "display": "Canal Street",
@@ -2832,7 +3828,16 @@
       "gtfsStopId": "A34",
       "latitude": 40.720824,
       "longitude": -74.005229,
-      "complexId": "169"
+      "complexId": "169",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "5-23",
+        "sun": "6-23"
+      }
     },
     {
       "display": "Chambers Street",
@@ -2840,7 +3845,16 @@
       "gtfsStopId": "A36",
       "latitude": 40.714111,
       "longitude": -74.008585,
-      "complexId": "624"
+      "complexId": "624",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "5-23",
+        "sun": "6-23"
+      }
     },
     {
       "display": "Fulton Street",
@@ -2848,7 +3862,16 @@
       "gtfsStopId": "A38",
       "latitude": 40.710197,
       "longitude": -74.007691,
-      "complexId": "628"
+      "complexId": "628",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "5-23",
+        "sun": "6-23"
+      }
     },
     {
       "display": "High Street",
@@ -2856,7 +3879,16 @@
       "gtfsStopId": "A40",
       "latitude": 40.699337,
       "longitude": -73.990531,
-      "complexId": "173"
+      "complexId": "173",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "5-23",
+        "sun": "6-23"
+      }
     },
     {
       "display": "Jay Street-MetroTech",
@@ -2864,7 +3896,16 @@
       "gtfsStopId": "A41",
       "latitude": 40.692338,
       "longitude": -73.987342,
-      "complexId": "636"
+      "complexId": "636",
+      "serviceHours": {
+        "mon": "5-23",
+        "tue": "5-23",
+        "wed": "5-23",
+        "thu": "5-23",
+        "fri": "5-23",
+        "sat": "5-23",
+        "sun": "6-23"
+      }
     },
     {
       "display": "Hoyt-Schermerhorn Streets",
@@ -2872,7 +3913,16 @@
       "gtfsStopId": "A42",
       "latitude": 40.688484,
       "longitude": -73.985001,
-      "complexId": "175"
+      "complexId": "175",
+      "serviceHours": {
+        "mon": "5-23",
+        "tue": "5-23",
+        "wed": "5-23",
+        "thu": "5-23",
+        "fri": "5-23",
+        "sat": "5-23",
+        "sun": "6-23"
+      }
     },
     {
       "display": "Lafayette Avenue",
@@ -2880,7 +3930,16 @@
       "gtfsStopId": "A43",
       "latitude": 40.686113,
       "longitude": -73.973946,
-      "complexId": "176"
+      "complexId": "176",
+      "serviceHours": {
+        "mon": "5-23",
+        "tue": "5-23",
+        "wed": "5-23",
+        "thu": "5-23",
+        "fri": "5-23",
+        "sat": "5-23",
+        "sun": "6-23"
+      }
     },
     {
       "display": "Clinton-Washington Avenues",
@@ -2888,7 +3947,16 @@
       "gtfsStopId": "A44",
       "latitude": 40.683263,
       "longitude": -73.965838,
-      "complexId": "177"
+      "complexId": "177",
+      "serviceHours": {
+        "mon": "5-23",
+        "tue": "5-23",
+        "wed": "5-23",
+        "thu": "5-23",
+        "fri": "5-23",
+        "sat": "5-23",
+        "sun": "6-23"
+      }
     },
     {
       "display": "Franklin Avenue",
@@ -2896,7 +3964,16 @@
       "gtfsStopId": "A45",
       "latitude": 40.68138,
       "longitude": -73.956848,
-      "complexId": "627"
+      "complexId": "627",
+      "serviceHours": {
+        "mon": "5-23",
+        "tue": "0,5-23",
+        "wed": "0,5-23",
+        "thu": "0,5-23",
+        "fri": "0,5-23",
+        "sat": "0,5-23",
+        "sun": "6-23"
+      }
     },
     {
       "display": "Nostrand Avenue",
@@ -2904,7 +3981,16 @@
       "gtfsStopId": "A46",
       "latitude": 40.680438,
       "longitude": -73.950426,
-      "complexId": "179"
+      "complexId": "179",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,5-23",
+        "sun": "6-23"
+      }
     },
     {
       "display": "Kingston-Throop Avenues",
@@ -2912,7 +3998,16 @@
       "gtfsStopId": "A47",
       "latitude": 40.679921,
       "longitude": -73.940858,
-      "complexId": "180"
+      "complexId": "180",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,5-23",
+        "sun": "6-23"
+      }
     },
     {
       "display": "Utica Avenue",
@@ -2920,7 +4015,16 @@
       "gtfsStopId": "A48",
       "latitude": 40.679364,
       "longitude": -73.930729,
-      "complexId": "181"
+      "complexId": "181",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,5-23",
+        "sun": "0,6-23"
+      }
     },
     {
       "display": "Ralph Avenue",
@@ -2928,7 +4032,16 @@
       "gtfsStopId": "A49",
       "latitude": 40.678822,
       "longitude": -73.920786,
-      "complexId": "182"
+      "complexId": "182",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,5-23",
+        "sun": "0,6-23"
+      }
     },
     {
       "display": "Rockaway Avenue",
@@ -2936,7 +4049,16 @@
       "gtfsStopId": "A50",
       "latitude": 40.67834,
       "longitude": -73.911946,
-      "complexId": "183"
+      "complexId": "183",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,5-23",
+        "sun": "0,6-23"
+      }
     },
     {
       "display": "Broadway Junction",
@@ -2944,7 +4066,16 @@
       "gtfsStopId": "A51",
       "latitude": 40.678334,
       "longitude": -73.905316,
-      "complexId": "621"
+      "complexId": "621",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,4-23",
+        "sun": "0,6-23"
+      }
     },
     {
       "display": "Liberty Avenue",
@@ -2952,7 +4083,16 @@
       "gtfsStopId": "A52",
       "latitude": 40.674542,
       "longitude": -73.896548,
-      "complexId": "185"
+      "complexId": "185",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,4-23",
+        "sun": "0,6-23"
+      }
     },
     {
       "display": "Van Siclen Avenue",
@@ -2960,7 +4100,16 @@
       "gtfsStopId": "A53",
       "latitude": 40.67271,
       "longitude": -73.890358,
-      "complexId": "186"
+      "complexId": "186",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,4-23",
+        "sun": "0,6-23"
+      }
     },
     {
       "display": "Shepherd Avenue",
@@ -2968,7 +4117,16 @@
       "gtfsStopId": "A54",
       "latitude": 40.67413,
       "longitude": -73.88075,
-      "complexId": "187"
+      "complexId": "187",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,4-23",
+        "sun": "0,6-23"
+      }
     },
     {
       "display": "Euclid Avenue",
@@ -2976,7 +4134,16 @@
       "gtfsStopId": "A55",
       "latitude": 40.675377,
       "longitude": -73.872106,
-      "complexId": "188"
+      "complexId": "188",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,4-23",
+        "sun": "0,6-23"
+      }
     }
   ],
   "D": [
@@ -3154,7 +4321,16 @@
       "gtfsStopId": "R30",
       "latitude": 40.690635,
       "longitude": -73.981824,
-      "complexId": "26"
+      "complexId": "26",
+      "serviceHours": {
+        "mon": "0-7,20-23",
+        "tue": "0-7,20-23",
+        "wed": "0-7,20-23",
+        "thu": "0-7,20-23",
+        "fri": "0-7,20-23",
+        "sat": "0-8,22-23",
+        "sun": "0-7,22-23"
+      }
     },
     {
       "display": "Atlantic Avenue-Barclays Center",
@@ -3518,7 +4694,14 @@
       "gtfsStopId": "G21",
       "latitude": 40.748973,
       "longitude": -73.937243,
-      "complexId": "273"
+      "complexId": "273",
+      "serviceHours": {
+        "mon": "4-22",
+        "tue": "4-22",
+        "wed": "4-22",
+        "thu": "4-22",
+        "fri": "4-22"
+      }
     },
     {
       "display": "Court Square-23rd Street",
@@ -3526,7 +4709,14 @@
       "gtfsStopId": "F09",
       "latitude": 40.747846,
       "longitude": -73.946,
-      "complexId": "606"
+      "complexId": "606",
+      "serviceHours": {
+        "mon": "4-22",
+        "tue": "4-22",
+        "wed": "4-22",
+        "thu": "4-22",
+        "fri": "4-22"
+      }
     },
     {
       "display": "Lexington Avenue-53rd Street",
@@ -3534,7 +4724,14 @@
       "gtfsStopId": "F11",
       "latitude": 40.757552,
       "longitude": -73.969055,
-      "complexId": "612"
+      "complexId": "612",
+      "serviceHours": {
+        "mon": "4-22",
+        "tue": "4-22",
+        "wed": "4-22",
+        "thu": "4-22",
+        "fri": "4-22"
+      }
     },
     {
       "display": "5th Avenue-53rd Street",
@@ -3542,7 +4739,14 @@
       "gtfsStopId": "F12",
       "latitude": 40.760167,
       "longitude": -73.975224,
-      "complexId": "276"
+      "complexId": "276",
+      "serviceHours": {
+        "mon": "4-22",
+        "tue": "4-22",
+        "wed": "4-22",
+        "thu": "4-22",
+        "fri": "4-22"
+      }
     },
     {
       "display": "21st Street-Queensbridge",
@@ -3550,7 +4754,16 @@
       "gtfsStopId": "B04",
       "latitude": 40.754203,
       "longitude": -73.942836,
-      "complexId": "221"
+      "complexId": "221",
+      "serviceHours": {
+        "mon": "0-6,19-23",
+        "tue": "0-6,19-23",
+        "wed": "0-6,19-23",
+        "thu": "0-6,19-23",
+        "fri": "0-6,19-23",
+        "sat": "0-23",
+        "sun": "0-23"
+      }
     },
     {
       "display": "Roosevelt Island",
@@ -3558,7 +4771,16 @@
       "gtfsStopId": "B06",
       "latitude": 40.759145,
       "longitude": -73.95326,
-      "complexId": "222"
+      "complexId": "222",
+      "serviceHours": {
+        "mon": "0-6,19-23",
+        "tue": "0-6,19-23",
+        "wed": "0-6,19-23",
+        "thu": "0-6,19-23",
+        "fri": "0-6,19-23",
+        "sat": "0-23",
+        "sun": "0-23"
+      }
     },
     {
       "display": "Lexington Avenue-63rd Street",
@@ -3566,7 +4788,16 @@
       "gtfsStopId": "B08",
       "latitude": 40.764629,
       "longitude": -73.966113,
-      "complexId": "223"
+      "complexId": "223",
+      "serviceHours": {
+        "mon": "0-6,19-23",
+        "tue": "0-6,19-23",
+        "wed": "0-6,19-23",
+        "thu": "0-6,19-23",
+        "fri": "0-6,19-23",
+        "sat": "0-23",
+        "sun": "0-23"
+      }
     },
     {
       "display": "57th Street",
@@ -3574,7 +4805,16 @@
       "gtfsStopId": "B10",
       "latitude": 40.763972,
       "longitude": -73.97745,
-      "complexId": "224"
+      "complexId": "224",
+      "serviceHours": {
+        "mon": "0-6,20-23",
+        "tue": "0-6,20-23",
+        "wed": "0-6,20-23",
+        "thu": "0-6,20-23",
+        "fri": "0-6,20-23",
+        "sat": "0-23",
+        "sun": "0-23"
+      }
     },
     {
       "display": "47th-50th Streets-Rockefeller Center",
@@ -4446,7 +5686,14 @@
       "gtfsStopId": "G08",
       "latitude": 40.721691,
       "longitude": -73.844521,
-      "complexId": "261"
+      "complexId": "261",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23"
+      }
     },
     {
       "display": "67th Avenue",
@@ -4454,7 +5701,14 @@
       "gtfsStopId": "G09",
       "latitude": 40.726523,
       "longitude": -73.852719,
-      "complexId": "262"
+      "complexId": "262",
+      "serviceHours": {
+        "mon": "4-22",
+        "tue": "4-22",
+        "wed": "4-22",
+        "thu": "4-22",
+        "fri": "4-22"
+      }
     },
     {
       "display": "63rd Drive-Rego Park",
@@ -4462,7 +5716,14 @@
       "gtfsStopId": "G10",
       "latitude": 40.729846,
       "longitude": -73.861604,
-      "complexId": "263"
+      "complexId": "263",
+      "serviceHours": {
+        "mon": "4-22",
+        "tue": "4-22",
+        "wed": "4-22",
+        "thu": "4-22",
+        "fri": "4-22"
+      }
     },
     {
       "display": "Woodhaven Boulevard",
@@ -4470,7 +5731,14 @@
       "gtfsStopId": "G11",
       "latitude": 40.733106,
       "longitude": -73.869229,
-      "complexId": "264"
+      "complexId": "264",
+      "serviceHours": {
+        "mon": "4-22",
+        "tue": "4-22",
+        "wed": "4-22",
+        "thu": "4-22",
+        "fri": "4-22"
+      }
     },
     {
       "display": "Grand Avenue-Newtown",
@@ -4478,7 +5746,14 @@
       "gtfsStopId": "G12",
       "latitude": 40.737015,
       "longitude": -73.877223,
-      "complexId": "265"
+      "complexId": "265",
+      "serviceHours": {
+        "mon": "4-22",
+        "tue": "4-22",
+        "wed": "4-22",
+        "thu": "4-22",
+        "fri": "4-22"
+      }
     },
     {
       "display": "Elmhurst Avenue",
@@ -4486,7 +5761,14 @@
       "gtfsStopId": "G13",
       "latitude": 40.742454,
       "longitude": -73.882017,
-      "complexId": "266"
+      "complexId": "266",
+      "serviceHours": {
+        "mon": "4-22",
+        "tue": "4-22",
+        "wed": "4-22",
+        "thu": "4-22",
+        "fri": "4-22"
+      }
     },
     {
       "display": "Jackson Heights-Roosevelt Avenue",
@@ -4494,7 +5776,14 @@
       "gtfsStopId": "G14",
       "latitude": 40.746644,
       "longitude": -73.891338,
-      "complexId": "616"
+      "complexId": "616",
+      "serviceHours": {
+        "mon": "4-22",
+        "tue": "4-22",
+        "wed": "4-22",
+        "thu": "4-22",
+        "fri": "4-22"
+      }
     },
     {
       "display": "65th Street",
@@ -4502,7 +5791,14 @@
       "gtfsStopId": "G15",
       "latitude": 40.749669,
       "longitude": -73.898453,
-      "complexId": "268"
+      "complexId": "268",
+      "serviceHours": {
+        "mon": "4-22",
+        "tue": "4-22",
+        "wed": "4-22",
+        "thu": "4-22",
+        "fri": "4-22"
+      }
     },
     {
       "display": "Northern Boulevard",
@@ -4510,7 +5806,14 @@
       "gtfsStopId": "G16",
       "latitude": 40.752885,
       "longitude": -73.906006,
-      "complexId": "269"
+      "complexId": "269",
+      "serviceHours": {
+        "mon": "4-22",
+        "tue": "4-22",
+        "wed": "4-22",
+        "thu": "4-22",
+        "fri": "4-22"
+      }
     },
     {
       "display": "46th Street",
@@ -4518,7 +5821,14 @@
       "gtfsStopId": "G18",
       "latitude": 40.756312,
       "longitude": -73.913333,
-      "complexId": "270"
+      "complexId": "270",
+      "serviceHours": {
+        "mon": "4-22",
+        "tue": "4-22",
+        "wed": "4-22",
+        "thu": "4-22",
+        "fri": "4-22"
+      }
     },
     {
       "display": "Steinway Street",
@@ -4526,7 +5836,14 @@
       "gtfsStopId": "G19",
       "latitude": 40.756879,
       "longitude": -73.92074,
-      "complexId": "271"
+      "complexId": "271",
+      "serviceHours": {
+        "mon": "4-22",
+        "tue": "4-22",
+        "wed": "4-22",
+        "thu": "4-22",
+        "fri": "4-22"
+      }
     },
     {
       "display": "36th Street",
@@ -4534,7 +5851,14 @@
       "gtfsStopId": "G20",
       "latitude": 40.752039,
       "longitude": -73.928781,
-      "complexId": "272"
+      "complexId": "272",
+      "serviceHours": {
+        "mon": "4-22",
+        "tue": "4-22",
+        "wed": "4-22",
+        "thu": "4-22",
+        "fri": "4-22"
+      }
     },
     {
       "display": "21st Street-Queensbridge",
@@ -4542,7 +5866,14 @@
       "gtfsStopId": "B04",
       "latitude": 40.754203,
       "longitude": -73.942836,
-      "complexId": "221"
+      "complexId": "221",
+      "serviceHours": {
+        "mon": "4-22",
+        "tue": "4-22",
+        "wed": "4-22",
+        "thu": "4-22",
+        "fri": "4-22"
+      }
     },
     {
       "display": "Roosevelt Island",
@@ -4550,7 +5881,14 @@
       "gtfsStopId": "B06",
       "latitude": 40.759145,
       "longitude": -73.95326,
-      "complexId": "222"
+      "complexId": "222",
+      "serviceHours": {
+        "mon": "4-22",
+        "tue": "4-22",
+        "wed": "4-22",
+        "thu": "4-22",
+        "fri": "4-22"
+      }
     },
     {
       "display": "Lexington Avenue-63rd Street",
@@ -4558,7 +5896,14 @@
       "gtfsStopId": "B08",
       "latitude": 40.764629,
       "longitude": -73.966113,
-      "complexId": "223"
+      "complexId": "223",
+      "serviceHours": {
+        "mon": "4-22",
+        "tue": "4-22",
+        "wed": "4-22",
+        "thu": "4-22",
+        "fri": "4-22"
+      }
     },
     {
       "display": "57th Street",
@@ -4566,7 +5911,14 @@
       "gtfsStopId": "B10",
       "latitude": 40.763972,
       "longitude": -73.97745,
-      "complexId": "224"
+      "complexId": "224",
+      "serviceHours": {
+        "mon": "4-22",
+        "tue": "4-22",
+        "wed": "4-22",
+        "thu": "4-22",
+        "fri": "4-22"
+      }
     },
     {
       "display": "47th-50th Streets-Rockefeller Center",
@@ -4574,7 +5926,14 @@
       "gtfsStopId": "D15",
       "latitude": 40.758663,
       "longitude": -73.981329,
-      "complexId": "225"
+      "complexId": "225",
+      "serviceHours": {
+        "mon": "4-22",
+        "tue": "4-22",
+        "wed": "4-22",
+        "thu": "4-22",
+        "fri": "4-22"
+      }
     },
     {
       "display": "42nd Street-Bryant Park",
@@ -4582,7 +5941,14 @@
       "gtfsStopId": "D16",
       "latitude": 40.754222,
       "longitude": -73.984569,
-      "complexId": "609"
+      "complexId": "609",
+      "serviceHours": {
+        "mon": "4-22",
+        "tue": "4-22",
+        "wed": "4-22",
+        "thu": "4-22",
+        "fri": "4-22"
+      }
     },
     {
       "display": "34th Street-Herald Square",
@@ -4590,7 +5956,14 @@
       "gtfsStopId": "D17",
       "latitude": 40.749719,
       "longitude": -73.987823,
-      "complexId": "607"
+      "complexId": "607",
+      "serviceHours": {
+        "mon": "4-22",
+        "tue": "4-22",
+        "wed": "4-22",
+        "thu": "4-22",
+        "fri": "4-22"
+      }
     },
     {
       "display": "23rd Street",
@@ -4598,7 +5971,14 @@
       "gtfsStopId": "D18",
       "latitude": 40.742878,
       "longitude": -73.992821,
-      "complexId": "228"
+      "complexId": "228",
+      "serviceHours": {
+        "mon": "4-22",
+        "tue": "4-22",
+        "wed": "4-22",
+        "thu": "4-22",
+        "fri": "4-22"
+      }
     },
     {
       "display": "14th Street",
@@ -4606,7 +5986,14 @@
       "gtfsStopId": "D19",
       "latitude": 40.738228,
       "longitude": -73.996209,
-      "complexId": "601"
+      "complexId": "601",
+      "serviceHours": {
+        "mon": "4-22",
+        "tue": "4-22",
+        "wed": "4-22",
+        "thu": "4-22",
+        "fri": "4-22"
+      }
     },
     {
       "display": "West 4th Street-Washington Square",
@@ -4614,7 +6001,14 @@
       "gtfsStopId": "D20",
       "latitude": 40.732338,
       "longitude": -74.000495,
-      "complexId": "167"
+      "complexId": "167",
+      "serviceHours": {
+        "mon": "4-22",
+        "tue": "4-22",
+        "wed": "4-22",
+        "thu": "4-22",
+        "fri": "4-22"
+      }
     },
     {
       "display": "Broadway-Lafayette Street",
@@ -4622,7 +6016,14 @@
       "gtfsStopId": "D21",
       "latitude": 40.725297,
       "longitude": -73.996204,
-      "complexId": "619"
+      "complexId": "619",
+      "serviceHours": {
+        "mon": "4-22",
+        "tue": "4-22",
+        "wed": "4-22",
+        "thu": "4-22",
+        "fri": "4-22"
+      }
     },
     {
       "display": "Delancey St-Essex St",
@@ -4630,7 +6031,16 @@
       "gtfsStopId": "M18",
       "latitude": 40.718315,
       "longitude": -73.987437,
-      "complexId": "625"
+      "complexId": "625",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,5-23",
+        "sun": "0,7-23"
+      }
     },
     {
       "display": "Marcy Avenue",
@@ -4638,7 +6048,16 @@
       "gtfsStopId": "M16",
       "latitude": 40.708359,
       "longitude": -73.957757,
-      "complexId": "101"
+      "complexId": "101",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,5-23",
+        "sun": "0,7-23"
+      }
     },
     {
       "display": "Hewes Street",
@@ -4646,7 +6065,16 @@
       "gtfsStopId": "M14",
       "latitude": 40.70687,
       "longitude": -73.953431,
-      "complexId": "100"
+      "complexId": "100",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,5-23",
+        "sun": "0,7-23"
+      }
     },
     {
       "display": "Lorimer Street",
@@ -4654,7 +6082,16 @@
       "gtfsStopId": "M13",
       "latitude": 40.703869,
       "longitude": -73.947408,
-      "complexId": "99"
+      "complexId": "99",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,5-23",
+        "sun": "0,7-23"
+      }
     },
     {
       "display": "Flushing Avenue",
@@ -4662,7 +6099,16 @@
       "gtfsStopId": "M12",
       "latitude": 40.70026,
       "longitude": -73.941126,
-      "complexId": "98"
+      "complexId": "98",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,5-23",
+        "sun": "0,7-23"
+      }
     },
     {
       "display": "Myrtle Avenue",
@@ -4848,7 +6294,16 @@
       "gtfsStopId": "R21",
       "latitude": 40.730328,
       "longitude": -73.992629,
-      "complexId": "16"
+      "complexId": "16",
+      "serviceHours": {
+        "mon": "0-6,22-23",
+        "tue": "0-6,22-23",
+        "wed": "0-6,22-23",
+        "thu": "0-6,22-23",
+        "fri": "0-6,22-23",
+        "sat": "0-23",
+        "sun": "0-23"
+      }
     },
     {
       "display": "Prince Street",
@@ -4856,7 +6311,16 @@
       "gtfsStopId": "R22",
       "latitude": 40.724329,
       "longitude": -73.997702,
-      "complexId": "17"
+      "complexId": "17",
+      "serviceHours": {
+        "mon": "0-6,22-23",
+        "tue": "0-6,22-23",
+        "wed": "0-6,22-23",
+        "thu": "0-6,22-23",
+        "fri": "0-6,22-23",
+        "sat": "0-23",
+        "sun": "0-23"
+      }
     },
     {
       "display": "Canal Street",
@@ -4864,7 +6328,16 @@
       "gtfsStopId": "Q01",
       "latitude": 40.718383,
       "longitude": -74.00046,
-      "complexId": "623"
+      "complexId": "623",
+      "serviceHours": {
+        "mon": "0,5-23",
+        "tue": "0,5-23",
+        "wed": "0,5-23",
+        "thu": "0,5-23",
+        "fri": "0,5-23",
+        "sat": "0,4-23",
+        "sun": "0,4-23"
+      }
     },
     {
       "display": "Atlantic Avenue-Barclays Center",
@@ -5212,7 +6685,16 @@
       "gtfsStopId": "G08",
       "latitude": 40.721691,
       "longitude": -73.844521,
-      "complexId": "261"
+      "complexId": "261",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "4-23",
+        "sun": "4-23"
+      }
     },
     {
       "display": "67th Avenue",
@@ -5220,7 +6702,16 @@
       "gtfsStopId": "G09",
       "latitude": 40.726523,
       "longitude": -73.852719,
-      "complexId": "262"
+      "complexId": "262",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "4-23",
+        "sun": "4-23"
+      }
     },
     {
       "display": "63rd Drive-Rego Park",
@@ -5228,7 +6719,16 @@
       "gtfsStopId": "G10",
       "latitude": 40.729846,
       "longitude": -73.861604,
-      "complexId": "263"
+      "complexId": "263",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "4-23",
+        "sun": "4-23"
+      }
     },
     {
       "display": "Woodhaven Boulevard",
@@ -5236,7 +6736,16 @@
       "gtfsStopId": "G11",
       "latitude": 40.733106,
       "longitude": -73.869229,
-      "complexId": "264"
+      "complexId": "264",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "4-23",
+        "sun": "4-23"
+      }
     },
     {
       "display": "Grand Avenue-Newtown",
@@ -5244,7 +6753,16 @@
       "gtfsStopId": "G12",
       "latitude": 40.737015,
       "longitude": -73.877223,
-      "complexId": "265"
+      "complexId": "265",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "4-23",
+        "sun": "4-23"
+      }
     },
     {
       "display": "Elmhurst Avenue",
@@ -5252,7 +6770,16 @@
       "gtfsStopId": "G13",
       "latitude": 40.742454,
       "longitude": -73.882017,
-      "complexId": "266"
+      "complexId": "266",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "4-23",
+        "sun": "4-23"
+      }
     },
     {
       "display": "Jackson Heights-Roosevelt Avenue",
@@ -5260,7 +6787,16 @@
       "gtfsStopId": "G14",
       "latitude": 40.746644,
       "longitude": -73.891338,
-      "complexId": "616"
+      "complexId": "616",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "4-23",
+        "sun": "4-23"
+      }
     },
     {
       "display": "65th Street",
@@ -5268,7 +6804,16 @@
       "gtfsStopId": "G15",
       "latitude": 40.749669,
       "longitude": -73.898453,
-      "complexId": "268"
+      "complexId": "268",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "4-23",
+        "sun": "4-23"
+      }
     },
     {
       "display": "Northern Boulevard",
@@ -5276,7 +6821,16 @@
       "gtfsStopId": "G16",
       "latitude": 40.752885,
       "longitude": -73.906006,
-      "complexId": "269"
+      "complexId": "269",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "4-23",
+        "sun": "4-23"
+      }
     },
     {
       "display": "46th Street",
@@ -5284,7 +6838,16 @@
       "gtfsStopId": "G18",
       "latitude": 40.756312,
       "longitude": -73.913333,
-      "complexId": "270"
+      "complexId": "270",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "4-23",
+        "sun": "4-23"
+      }
     },
     {
       "display": "Steinway Street",
@@ -5292,7 +6855,16 @@
       "gtfsStopId": "G19",
       "latitude": 40.756879,
       "longitude": -73.92074,
-      "complexId": "271"
+      "complexId": "271",
+      "serviceHours": {
+        "mon": "4-23",
+        "tue": "4-23",
+        "wed": "4-23",
+        "thu": "4-23",
+        "fri": "4-23",
+        "sat": "4-23",
+        "sun": "4-23"
+      }
     },
     {
       "display": "36th Street",
@@ -5308,7 +6880,16 @@
       "gtfsStopId": "G21",
       "latitude": 40.748973,
       "longitude": -73.937243,
-      "complexId": "273"
+      "complexId": "273",
+      "serviceHours": {
+        "mon": "0-1,4-23",
+        "tue": "0-1,4-23",
+        "wed": "0-1,4-23",
+        "thu": "0-1,4-23",
+        "fri": "0-1,4-23",
+        "sat": "0-1,4-23",
+        "sun": "0-1,4-23"
+      }
     },
     {
       "display": "Lexington Avenue-59th Street",
@@ -5316,7 +6897,16 @@
       "gtfsStopId": "R11",
       "latitude": 40.76266,
       "longitude": -73.967258,
-      "complexId": "613"
+      "complexId": "613",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,4-23",
+        "sun": "0,4-23"
+      }
     },
     {
       "display": "5th Avenue-59th Street",
@@ -5324,7 +6914,16 @@
       "gtfsStopId": "R13",
       "latitude": 40.764811,
       "longitude": -73.973347,
-      "complexId": "8"
+      "complexId": "8",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,4-23",
+        "sun": "0,4-23"
+      }
     },
     {
       "display": "57th Street-7th Avenue",
@@ -5332,7 +6931,16 @@
       "gtfsStopId": "R14",
       "latitude": 40.764664,
       "longitude": -73.980658,
-      "complexId": "9"
+      "complexId": "9",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,4-23",
+        "sun": "0,4-23"
+      }
     },
     {
       "display": "49th Street",
@@ -5340,7 +6948,16 @@
       "gtfsStopId": "R15",
       "latitude": 40.759901,
       "longitude": -73.984139,
-      "complexId": "10"
+      "complexId": "10",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,4-23",
+        "sun": "0,4-23"
+      }
     },
     {
       "display": "Times Square-42nd Street",
@@ -5348,7 +6965,16 @@
       "gtfsStopId": "R16",
       "latitude": 40.754672,
       "longitude": -73.986754,
-      "complexId": "611"
+      "complexId": "611",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,4-23",
+        "sun": "0,4-23"
+      }
     },
     {
       "display": "34th Street-Herald Square",
@@ -5356,7 +6982,16 @@
       "gtfsStopId": "R17",
       "latitude": 40.749567,
       "longitude": -73.98795,
-      "complexId": "607"
+      "complexId": "607",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,4-23",
+        "sun": "0,4-23"
+      }
     },
     {
       "display": "28th Street",
@@ -5364,7 +6999,16 @@
       "gtfsStopId": "R18",
       "latitude": 40.745494,
       "longitude": -73.988691,
-      "complexId": "13"
+      "complexId": "13",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,4-23",
+        "sun": "0,4-23"
+      }
     },
     {
       "display": "23rd Street",
@@ -5372,7 +7016,16 @@
       "gtfsStopId": "R19",
       "latitude": 40.741303,
       "longitude": -73.989344,
-      "complexId": "14"
+      "complexId": "14",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,4-23",
+        "sun": "0,4-23"
+      }
     },
     {
       "display": "14th Street-Union Square",
@@ -5380,7 +7033,16 @@
       "gtfsStopId": "R20",
       "latitude": 40.735736,
       "longitude": -73.990568,
-      "complexId": "602"
+      "complexId": "602",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,4-23",
+        "sun": "0,4-23"
+      }
     },
     {
       "display": "8th Street-NYU",
@@ -5388,7 +7050,16 @@
       "gtfsStopId": "R21",
       "latitude": 40.730328,
       "longitude": -73.992629,
-      "complexId": "16"
+      "complexId": "16",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,4-23",
+        "sun": "0,4-23"
+      }
     },
     {
       "display": "Prince Street",
@@ -5396,7 +7067,16 @@
       "gtfsStopId": "R22",
       "latitude": 40.724329,
       "longitude": -73.997702,
-      "complexId": "17"
+      "complexId": "17",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,4-23",
+        "sun": "0,4-23"
+      }
     },
     {
       "display": "Canal Street",
@@ -5404,7 +7084,16 @@
       "gtfsStopId": "R23",
       "latitude": 40.719527,
       "longitude": -74.001775,
-      "complexId": "623"
+      "complexId": "623",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,4-23",
+        "sun": "0,4-23"
+      }
     },
     {
       "display": "City Hall",
@@ -5412,7 +7101,16 @@
       "gtfsStopId": "R24",
       "latitude": 40.713282,
       "longitude": -74.006978,
-      "complexId": "20"
+      "complexId": "20",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,4-23",
+        "sun": "0,4-23"
+      }
     },
     {
       "display": "Cortlandt Street",
@@ -5420,7 +7118,16 @@
       "gtfsStopId": "R25",
       "latitude": 40.710668,
       "longitude": -74.011029,
-      "complexId": "624"
+      "complexId": "624",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,4-23",
+        "sun": "0,4-23"
+      }
     },
     {
       "display": "Rector Street",
@@ -5428,7 +7135,16 @@
       "gtfsStopId": "R26",
       "latitude": 40.70722,
       "longitude": -74.013342,
-      "complexId": "22"
+      "complexId": "22",
+      "serviceHours": {
+        "mon": "0,4-23",
+        "tue": "0,4-23",
+        "wed": "0,4-23",
+        "thu": "0,4-23",
+        "fri": "0,4-23",
+        "sat": "0,4-23",
+        "sun": "0,4-23"
+      }
     },
     {
       "display": "Whitehall Street-South Ferry",
@@ -5574,7 +7290,14 @@
       "gtfsStopId": "R01",
       "latitude": 40.775036,
       "longitude": -73.912034,
-      "complexId": "1"
+      "complexId": "1",
+      "serviceHours": {
+        "mon": "5-23",
+        "tue": "5-23",
+        "wed": "5-23",
+        "thu": "5-23",
+        "fri": "5-23"
+      }
     },
     {
       "display": "Astoria Boulevard",
@@ -5582,7 +7305,14 @@
       "gtfsStopId": "R03",
       "latitude": 40.770258,
       "longitude": -73.917843,
-      "complexId": "2"
+      "complexId": "2",
+      "serviceHours": {
+        "mon": "5-23",
+        "tue": "5-23",
+        "wed": "5-23",
+        "thu": "5-23",
+        "fri": "5-23"
+      }
     },
     {
       "display": "30th Avenue",
@@ -5590,7 +7320,14 @@
       "gtfsStopId": "R04",
       "latitude": 40.766779,
       "longitude": -73.921479,
-      "complexId": "3"
+      "complexId": "3",
+      "serviceHours": {
+        "mon": "5-23",
+        "tue": "5-23",
+        "wed": "5-23",
+        "thu": "5-23",
+        "fri": "5-23"
+      }
     },
     {
       "display": "Broadway",
@@ -5598,7 +7335,14 @@
       "gtfsStopId": "R05",
       "latitude": 40.76182,
       "longitude": -73.925508,
-      "complexId": "4"
+      "complexId": "4",
+      "serviceHours": {
+        "mon": "5-23",
+        "tue": "5-23",
+        "wed": "5-23",
+        "thu": "5-23",
+        "fri": "5-23"
+      }
     },
     {
       "display": "36th Avenue",
@@ -5606,7 +7350,14 @@
       "gtfsStopId": "R06",
       "latitude": 40.756804,
       "longitude": -73.929575,
-      "complexId": "5"
+      "complexId": "5",
+      "serviceHours": {
+        "mon": "5-23",
+        "tue": "5-23",
+        "wed": "5-23",
+        "thu": "5-23",
+        "fri": "5-23"
+      }
     },
     {
       "display": "39th Avenue-Dutch Kills",
@@ -5614,7 +7365,14 @@
       "gtfsStopId": "R08",
       "latitude": 40.752882,
       "longitude": -73.932755,
-      "complexId": "6"
+      "complexId": "6",
+      "serviceHours": {
+        "mon": "5-23",
+        "tue": "5-23",
+        "wed": "5-23",
+        "thu": "5-23",
+        "fri": "5-23"
+      }
     },
     {
       "display": "Queensboro Plaza",
@@ -5622,7 +7380,14 @@
       "gtfsStopId": "R09",
       "latitude": 40.750582,
       "longitude": -73.940202,
-      "complexId": "461"
+      "complexId": "461",
+      "serviceHours": {
+        "mon": "5-23",
+        "tue": "5-23",
+        "wed": "5-23",
+        "thu": "5-23",
+        "fri": "5-23"
+      }
     },
     {
       "display": "Lexington Avenue-59th Street",
@@ -5630,7 +7395,14 @@
       "gtfsStopId": "R11",
       "latitude": 40.76266,
       "longitude": -73.967258,
-      "complexId": "613"
+      "complexId": "613",
+      "serviceHours": {
+        "mon": "5-23",
+        "tue": "5-23",
+        "wed": "5-23",
+        "thu": "5-23",
+        "fri": "5-23"
+      }
     },
     {
       "display": "5th Avenue-59th Street",
@@ -5638,7 +7410,14 @@
       "gtfsStopId": "R13",
       "latitude": 40.764811,
       "longitude": -73.973347,
-      "complexId": "8"
+      "complexId": "8",
+      "serviceHours": {
+        "mon": "5-23",
+        "tue": "5-23",
+        "wed": "5-23",
+        "thu": "5-23",
+        "fri": "5-23"
+      }
     },
     {
       "display": "57th Street-7th Avenue",
@@ -5646,7 +7425,14 @@
       "gtfsStopId": "R14",
       "latitude": 40.764664,
       "longitude": -73.980658,
-      "complexId": "9"
+      "complexId": "9",
+      "serviceHours": {
+        "mon": "5-23",
+        "tue": "5-23",
+        "wed": "5-23",
+        "thu": "5-23",
+        "fri": "5-23"
+      }
     },
     {
       "display": "49th Street",
@@ -5654,7 +7440,14 @@
       "gtfsStopId": "R15",
       "latitude": 40.759901,
       "longitude": -73.984139,
-      "complexId": "10"
+      "complexId": "10",
+      "serviceHours": {
+        "mon": "5-23",
+        "tue": "5-23",
+        "wed": "5-23",
+        "thu": "5-23",
+        "fri": "5-23"
+      }
     },
     {
       "display": "Times Square-42nd Street",
@@ -5662,7 +7455,14 @@
       "gtfsStopId": "R16",
       "latitude": 40.754672,
       "longitude": -73.986754,
-      "complexId": "611"
+      "complexId": "611",
+      "serviceHours": {
+        "mon": "5-23",
+        "tue": "5-23",
+        "wed": "5-23",
+        "thu": "5-23",
+        "fri": "5-23"
+      }
     },
     {
       "display": "34th Street-Herald Square",
@@ -5670,7 +7470,14 @@
       "gtfsStopId": "R17",
       "latitude": 40.749567,
       "longitude": -73.98795,
-      "complexId": "607"
+      "complexId": "607",
+      "serviceHours": {
+        "mon": "5-23",
+        "tue": "5-23",
+        "wed": "5-23",
+        "thu": "5-23",
+        "fri": "5-23"
+      }
     },
     {
       "display": "28th Street",
@@ -5678,7 +7485,14 @@
       "gtfsStopId": "R18",
       "latitude": 40.745494,
       "longitude": -73.988691,
-      "complexId": "13"
+      "complexId": "13",
+      "serviceHours": {
+        "mon": "5-23",
+        "tue": "5-23",
+        "wed": "5-23",
+        "thu": "5-23",
+        "fri": "5-23"
+      }
     },
     {
       "display": "23rd Street",
@@ -5686,7 +7500,14 @@
       "gtfsStopId": "R19",
       "latitude": 40.741303,
       "longitude": -73.989344,
-      "complexId": "14"
+      "complexId": "14",
+      "serviceHours": {
+        "mon": "5-23",
+        "tue": "5-23",
+        "wed": "5-23",
+        "thu": "5-23",
+        "fri": "5-23"
+      }
     },
     {
       "display": "14th Street-Union Square",
@@ -5694,7 +7515,14 @@
       "gtfsStopId": "R20",
       "latitude": 40.735736,
       "longitude": -73.990568,
-      "complexId": "602"
+      "complexId": "602",
+      "serviceHours": {
+        "mon": "5-23",
+        "tue": "5-23",
+        "wed": "5-23",
+        "thu": "5-23",
+        "fri": "5-23"
+      }
     },
     {
       "display": "8th Street-NYU",
@@ -5702,7 +7530,14 @@
       "gtfsStopId": "R21",
       "latitude": 40.730328,
       "longitude": -73.992629,
-      "complexId": "16"
+      "complexId": "16",
+      "serviceHours": {
+        "mon": "5-23",
+        "tue": "5-23",
+        "wed": "5-23",
+        "thu": "5-23",
+        "fri": "5-23"
+      }
     },
     {
       "display": "Prince Street",
@@ -5710,7 +7545,14 @@
       "gtfsStopId": "R22",
       "latitude": 40.724329,
       "longitude": -73.997702,
-      "complexId": "17"
+      "complexId": "17",
+      "serviceHours": {
+        "mon": "5-23",
+        "tue": "5-23",
+        "wed": "5-23",
+        "thu": "5-23",
+        "fri": "5-23"
+      }
     },
     {
       "display": "Canal Street",
@@ -5718,7 +7560,14 @@
       "gtfsStopId": "R23",
       "latitude": 40.719527,
       "longitude": -74.001775,
-      "complexId": "623"
+      "complexId": "623",
+      "serviceHours": {
+        "mon": "5-23",
+        "tue": "5-23",
+        "wed": "5-23",
+        "thu": "5-23",
+        "fri": "5-23"
+      }
     },
     {
       "display": "City Hall",
@@ -5726,7 +7575,14 @@
       "gtfsStopId": "R24",
       "latitude": 40.713282,
       "longitude": -74.006978,
-      "complexId": "20"
+      "complexId": "20",
+      "serviceHours": {
+        "mon": "5-23",
+        "tue": "5-23",
+        "wed": "5-23",
+        "thu": "5-23",
+        "fri": "5-23"
+      }
     },
     {
       "display": "Cortlandt Street",
@@ -5734,7 +7590,14 @@
       "gtfsStopId": "R25",
       "latitude": 40.710668,
       "longitude": -74.011029,
-      "complexId": "624"
+      "complexId": "624",
+      "serviceHours": {
+        "mon": "5-23",
+        "tue": "5-23",
+        "wed": "5-23",
+        "thu": "5-23",
+        "fri": "5-23"
+      }
     },
     {
       "display": "Rector Street",
@@ -5742,7 +7605,14 @@
       "gtfsStopId": "R26",
       "latitude": 40.70722,
       "longitude": -74.013342,
-      "complexId": "22"
+      "complexId": "22",
+      "serviceHours": {
+        "mon": "5-23",
+        "tue": "5-23",
+        "wed": "5-23",
+        "thu": "5-23",
+        "fri": "5-23"
+      }
     },
     {
       "display": "Whitehall Street-South Ferry",
@@ -5750,7 +7620,14 @@
       "gtfsStopId": "R27",
       "latitude": 40.703087,
       "longitude": -74.012994,
-      "complexId": "635"
+      "complexId": "635",
+      "serviceHours": {
+        "mon": "5-23",
+        "tue": "5-23",
+        "wed": "5-23",
+        "thu": "5-23",
+        "fri": "5-23"
+      }
     }
   ],
   "Z": [
@@ -5760,7 +7637,14 @@
       "gtfsStopId": "G05",
       "latitude": 40.702147,
       "longitude": -73.801109,
-      "complexId": "278"
+      "complexId": "278",
+      "serviceHours": {
+        "mon": "6-9,16-19",
+        "tue": "6-9,16-19",
+        "wed": "6-9,16-19",
+        "thu": "6-9,16-19",
+        "fri": "6-9,16-19"
+      }
     },
     {
       "display": "Sutphin Boulevard-Archer Avenue-JFK Airport",
@@ -5768,7 +7652,14 @@
       "gtfsStopId": "G06",
       "latitude": 40.700486,
       "longitude": -73.807969,
-      "complexId": "279"
+      "complexId": "279",
+      "serviceHours": {
+        "mon": "6-9,16-19",
+        "tue": "6-9,16-19",
+        "wed": "6-9,16-19",
+        "thu": "6-9,16-19",
+        "fri": "6-9,16-19"
+      }
     },
     {
       "display": "121st Street",
@@ -5776,7 +7667,14 @@
       "gtfsStopId": "J12",
       "latitude": 40.700492,
       "longitude": -73.828294,
-      "complexId": "80"
+      "complexId": "80",
+      "serviceHours": {
+        "mon": "6-9,16-19",
+        "tue": "6-9,16-19",
+        "wed": "6-9,16-19",
+        "thu": "6-9,16-19",
+        "fri": "6-9,16-19"
+      }
     },
     {
       "display": "104th Street",
@@ -5784,7 +7682,14 @@
       "gtfsStopId": "J14",
       "latitude": 40.695178,
       "longitude": -73.84433,
-      "complexId": "82"
+      "complexId": "82",
+      "serviceHours": {
+        "mon": "6-9,16-19",
+        "tue": "6-9,16-19",
+        "wed": "6-9,16-19",
+        "thu": "6-9,16-19",
+        "fri": "6-9,16-19"
+      }
     },
     {
       "display": "Woodhaven Boulevard",
@@ -5792,7 +7697,14 @@
       "gtfsStopId": "J15",
       "latitude": 40.693879,
       "longitude": -73.851576,
-      "complexId": "83"
+      "complexId": "83",
+      "serviceHours": {
+        "mon": "6-9,16-19",
+        "tue": "6-9,16-19",
+        "wed": "6-9,16-19",
+        "thu": "6-9,16-19",
+        "fri": "6-9,16-19"
+      }
     },
     {
       "display": "75th Street-Elderts Lane",
@@ -5800,7 +7712,14 @@
       "gtfsStopId": "J17",
       "latitude": 40.691324,
       "longitude": -73.867139,
-      "complexId": "85"
+      "complexId": "85",
+      "serviceHours": {
+        "mon": "6-9,16-19",
+        "tue": "6-9,16-19",
+        "wed": "6-9,16-19",
+        "thu": "6-9,16-19",
+        "fri": "6-9,16-19"
+      }
     },
     {
       "display": "Crescent Street",
@@ -5808,7 +7727,14 @@
       "gtfsStopId": "J20",
       "latitude": 40.683194,
       "longitude": -73.873785,
-      "complexId": "87"
+      "complexId": "87",
+      "serviceHours": {
+        "mon": "6-9,16-19",
+        "tue": "6-9,16-19",
+        "wed": "6-9,16-19",
+        "thu": "6-9,16-19",
+        "fri": "6-9,16-19"
+      }
     },
     {
       "display": "Norwood Avenue",
@@ -5816,7 +7742,14 @@
       "gtfsStopId": "J21",
       "latitude": 40.68141,
       "longitude": -73.880039,
-      "complexId": "88"
+      "complexId": "88",
+      "serviceHours": {
+        "mon": "6-9,16-19",
+        "tue": "6-9,16-19",
+        "wed": "6-9,16-19",
+        "thu": "6-9,16-19",
+        "fri": "6-9,16-19"
+      }
     },
     {
       "display": "Van Siclen Avenue",
@@ -5824,7 +7757,14 @@
       "gtfsStopId": "J23",
       "latitude": 40.678024,
       "longitude": -73.891688,
-      "complexId": "90"
+      "complexId": "90",
+      "serviceHours": {
+        "mon": "6-9,16-19",
+        "tue": "6-9,16-19",
+        "wed": "6-9,16-19",
+        "thu": "6-9,16-19",
+        "fri": "6-9,16-19"
+      }
     },
     {
       "display": "Alabama Avenue",
@@ -5832,7 +7772,14 @@
       "gtfsStopId": "J24",
       "latitude": 40.676992,
       "longitude": -73.898654,
-      "complexId": "91"
+      "complexId": "91",
+      "serviceHours": {
+        "mon": "6-9,16-19",
+        "tue": "6-9,16-19",
+        "wed": "6-9,16-19",
+        "thu": "6-9,16-19",
+        "fri": "6-9,16-19"
+      }
     },
     {
       "display": "Broadway Junction",
@@ -5840,7 +7787,14 @@
       "gtfsStopId": "J27",
       "latitude": 40.679498,
       "longitude": -73.904512,
-      "complexId": "621"
+      "complexId": "621",
+      "serviceHours": {
+        "mon": "6-9,16-19",
+        "tue": "6-9,16-19",
+        "wed": "6-9,16-19",
+        "thu": "6-9,16-19",
+        "fri": "6-9,16-19"
+      }
     },
     {
       "display": "Chauncey Street",
@@ -5848,7 +7802,14 @@
       "gtfsStopId": "J28",
       "latitude": 40.682893,
       "longitude": -73.910456,
-      "complexId": "93"
+      "complexId": "93",
+      "serviceHours": {
+        "mon": "6-9,16-19",
+        "tue": "6-9,16-19",
+        "wed": "6-9,16-19",
+        "thu": "6-9,16-19",
+        "fri": "6-9,16-19"
+      }
     },
     {
       "display": "Gates Avenue",
@@ -5856,7 +7817,14 @@
       "gtfsStopId": "J30",
       "latitude": 40.68963,
       "longitude": -73.92227,
-      "complexId": "95"
+      "complexId": "95",
+      "serviceHours": {
+        "mon": "6-9,16-19",
+        "tue": "6-9,16-19",
+        "wed": "6-9,16-19",
+        "thu": "6-9,16-19",
+        "fri": "6-9,16-19"
+      }
     },
     {
       "display": "Myrtle Avenue",
@@ -5864,7 +7832,14 @@
       "gtfsStopId": "M11",
       "latitude": 40.697207,
       "longitude": -73.935657,
-      "complexId": "97"
+      "complexId": "97",
+      "serviceHours": {
+        "mon": "6-9,16-19",
+        "tue": "6-9,16-19",
+        "wed": "6-9,16-19",
+        "thu": "6-9,16-19",
+        "fri": "6-9,16-19"
+      }
     },
     {
       "display": "Marcy Avenue",
@@ -5872,7 +7847,14 @@
       "gtfsStopId": "M16",
       "latitude": 40.708359,
       "longitude": -73.957757,
-      "complexId": "101"
+      "complexId": "101",
+      "serviceHours": {
+        "mon": "6-9,16-19",
+        "tue": "6-9,16-19",
+        "wed": "6-9,16-19",
+        "thu": "6-9,16-19",
+        "fri": "6-9,16-19"
+      }
     },
     {
       "display": "Delancey Street-Essex Street",
@@ -5880,7 +7862,14 @@
       "gtfsStopId": "M18",
       "latitude": 40.718315,
       "longitude": -73.987437,
-      "complexId": "625"
+      "complexId": "625",
+      "serviceHours": {
+        "mon": "7-9,16-18",
+        "tue": "7-9,16-18",
+        "wed": "7-9,16-18",
+        "thu": "7-9,16-18",
+        "fri": "7-9,16-18"
+      }
     },
     {
       "display": "Bowery",
@@ -5888,7 +7877,14 @@
       "gtfsStopId": "M19",
       "latitude": 40.72028,
       "longitude": -73.993915,
-      "complexId": "103"
+      "complexId": "103",
+      "serviceHours": {
+        "mon": "7-9,16-18",
+        "tue": "7-9,16-18",
+        "wed": "7-9,16-18",
+        "thu": "7-9,16-18",
+        "fri": "7-9,16-18"
+      }
     },
     {
       "display": "Canal Street",
@@ -5896,7 +7892,14 @@
       "gtfsStopId": "M20",
       "latitude": 40.718092,
       "longitude": -73.999892,
-      "complexId": "623"
+      "complexId": "623",
+      "serviceHours": {
+        "mon": "7-9,16-18",
+        "tue": "7-9,16-18",
+        "wed": "7-9,16-18",
+        "thu": "7-9,16-18",
+        "fri": "7-9,16-18"
+      }
     },
     {
       "display": "Chambers Street",
@@ -5904,7 +7907,14 @@
       "gtfsStopId": "M21",
       "latitude": 40.713243,
       "longitude": -74.003401,
-      "complexId": "622"
+      "complexId": "622",
+      "serviceHours": {
+        "mon": "7-9,15-18",
+        "tue": "7-9,15-18",
+        "wed": "7-9,15-18",
+        "thu": "7-9,15-18",
+        "fri": "7-9,15-18"
+      }
     },
     {
       "display": "Fulton Street",
@@ -5912,7 +7922,14 @@
       "gtfsStopId": "M22",
       "latitude": 40.710374,
       "longitude": -74.007582,
-      "complexId": "628"
+      "complexId": "628",
+      "serviceHours": {
+        "mon": "7-9,15-18",
+        "tue": "7-9,15-18",
+        "wed": "7-9,15-18",
+        "thu": "7-9,15-18",
+        "fri": "7-9,15-18"
+      }
     },
     {
       "display": "Broad Street",
@@ -5920,7 +7937,14 @@
       "gtfsStopId": "M23",
       "latitude": 40.706476,
       "longitude": -74.011056,
-      "complexId": "107"
+      "complexId": "107",
+      "serviceHours": {
+        "mon": "7-9,15-18",
+        "tue": "7-9,15-18",
+        "wed": "7-9,15-18",
+        "thu": "7-9,15-18",
+        "fri": "7-9,15-18"
+      }
     }
   ]
 }

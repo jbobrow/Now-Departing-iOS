@@ -38,6 +38,16 @@ class StationDataManager: ObservableObject {
         return stationsByLine[lineID]
     }
 
+    /// The stations on a line that apply right now: those it's scheduled to
+    /// stop at this hour, plus any where live data shows its trains anyway (a
+    /// holiday schedule, a reroute). When it isn't scheduled anywhere, say the
+    /// B on a weekend, every station, so the list isn't empty.
+    func stationsInService(for lineID: String, at date: Date = Date()) -> [Station]? {
+        guard let stations = stationsByLine[lineID] else { return nil }
+        guard stations.contains(where: { $0.isScheduled(at: date) }) else { return stations }
+        return stations.filter { $0.isScheduled(at: date) || $0.hasAvailableTimes == true }
+    }
+
     func refreshStations() {
         guard stationsByLine.isEmpty || shouldRefreshCache() else {
             print("DEBUG: Skipping refresh, using cached data")

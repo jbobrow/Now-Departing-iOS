@@ -201,7 +201,7 @@ struct StationSelectionView: View {
                 Text(message)
                     .foregroundColor(.red)
             case .loaded:
-                if let stations = stationDataManager.stations(for: line.id) {
+                if let stations = stationDataManager.stationsInService(for: line.id) {
                     List {
                         ClosestStationSection(line: line)
 
