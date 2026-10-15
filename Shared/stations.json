@@ -2385,12 +2385,12 @@
       "complexId": "213"
     },
     {
-      "display": "183rd Street",
-      "name": "183 St",
-      "gtfsStopId": "A14",
-      "latitude": 40.817894,
-      "longitude": -73.947649,
-      "complexId": "152"
+      "display": "182nd-183rd Streets",
+      "name": "182-183 Sts",
+      "gtfsStopId": "D06",
+      "latitude": 40.856093,
+      "longitude": -73.900741,
+      "complexId": "214"
     },
     {
       "display": "Tremont Avenue",
@@ -2531,10 +2531,10 @@
     {
       "display": "7th Avenue",
       "name": "7 Av",
-      "gtfsStopId": "D25",
-      "latitude": 40.67705,
-      "longitude": -73.972367,
-      "complexId": "41"
+      "gtfsStopId": "D14",
+      "latitude": 40.762862,
+      "longitude": -73.981637,
+      "complexId": "277"
     },
     {
       "display": "47th-50th Streets-Rockefeller Center",
@@ -2599,14 +2599,6 @@
       "latitude": 40.68446,
       "longitude": -73.97689,
       "complexId": "617"
-    },
-    {
-      "display": "7th Avenue",
-      "name": "7 Av",
-      "gtfsStopId": "D25",
-      "latitude": 40.67705,
-      "longitude": -73.972367,
-      "complexId": "41"
     },
     {
       "display": "7th Avenue",
@@ -3109,14 +3101,6 @@
       "complexId": "277"
     },
     {
-      "display": "7th Avenue",
-      "name": "7 Av",
-      "gtfsStopId": "D14",
-      "latitude": 40.762862,
-      "longitude": -73.981637,
-      "complexId": "277"
-    },
-    {
       "display": "47th-50th Streets-Rockefeller Center",
       "name": "47-50 Sts-Rockefeller Ctr",
       "gtfsStopId": "D15",
@@ -3270,11 +3254,11 @@
     },
     {
       "display": "25th Avenue",
-      "name": "86 St",
-      "gtfsStopId": "R36",
-      "latitude": 40.655144,
-      "longitude": -74.003549,
-      "complexId": "32"
+      "name": "25 Av",
+      "gtfsStopId": "B22",
+      "latitude": 40.597704,
+      "longitude": -73.986829,
+      "complexId": "69"
     },
     {
       "display": "Bay 50th Street",
@@ -3521,28 +3505,12 @@
       "complexId": "261"
     },
     {
-      "display": "Lexington Avenue-63rd Street",
-      "name": "Lexington Av/63 St",
-      "gtfsStopId": "F11",
-      "latitude": 40.757552,
-      "longitude": -73.969055,
-      "complexId": "612"
-    },
-    {
-      "display": "Roosevelt Island",
-      "name": "Roosevelt Island",
-      "gtfsStopId": "B06",
-      "latitude": 40.759145,
-      "longitude": -73.95326,
-      "complexId": "222"
-    },
-    {
       "display": "Jackson Heights-Roosevelt Avenue",
-      "name": "Roosevelt Av / 74 St-Broadway",
-      "gtfsStopId": "F16",
-      "latitude": 40.713715,
-      "longitude": -73.990173,
-      "complexId": "234"
+      "name": "Jackson Hts-Roosevelt Av",
+      "gtfsStopId": "G14",
+      "latitude": 40.746644,
+      "longitude": -73.891338,
+      "complexId": "616"
     },
     {
       "display": "Queens Plaza",
@@ -3553,12 +3521,12 @@
       "complexId": "273"
     },
     {
-      "display": "21st Street-Queensbridge",
-      "name": "21 St-Queensbridge",
-      "gtfsStopId": "B04",
-      "latitude": 40.754203,
-      "longitude": -73.942836,
-      "complexId": "221"
+      "display": "Court Square-23rd Street",
+      "name": "Court Sq-23 St",
+      "gtfsStopId": "F09",
+      "latitude": 40.747846,
+      "longitude": -73.946,
+      "complexId": "606"
     },
     {
       "display": "Lexington Avenue-53rd Street",
@@ -3569,12 +3537,12 @@
       "complexId": "612"
     },
     {
-      "display": "57th Street",
-      "name": "57 St",
-      "gtfsStopId": "B10",
-      "latitude": 40.763972,
-      "longitude": -73.97745,
-      "complexId": "224"
+      "display": "5th Avenue-53rd Street",
+      "name": "5 Av/53 St",
+      "gtfsStopId": "F12",
+      "latitude": 40.760167,
+      "longitude": -73.975224,
+      "complexId": "276"
     },
     {
       "display": "47th-50th Streets-Rockefeller Center",
@@ -3610,11 +3578,11 @@
     },
     {
       "display": "14th Street",
-      "name": "14 St / 6 Av",
-      "gtfsStopId": "F23",
-      "latitude": 40.670272,
-      "longitude": -73.989779,
-      "complexId": "608"
+      "name": "14 St",
+      "gtfsStopId": "D19",
+      "latitude": 40.738228,
+      "longitude": -73.996209,
+      "complexId": "601"
     },
     {
       "display": "West 4th Street-Washington Square",
@@ -4553,12 +4521,20 @@
       "complexId": "222"
     },
     {
-      "display": "Lexington Avenue-53rd Street",
-      "name": "Lexington Av-53 St",
+      "display": "Lexington Avenue-63rd Street",
+      "name": "Lexington Av/63 St",
       "gtfsStopId": "B08",
       "latitude": 40.764629,
       "longitude": -73.966113,
       "complexId": "223"
+    },
+    {
+      "display": "57th Street",
+      "name": "57 St",
+      "gtfsStopId": "B10",
+      "latitude": 40.763972,
+      "longitude": -73.97745,
+      "complexId": "224"
     },
     {
       "display": "47th-50th Streets-Rockefeller Center",
@@ -5601,12 +5577,12 @@
       "complexId": "5"
     },
     {
-      "display": "39th Avenue",
-      "name": "39 Av",
-      "gtfsStopId": "R04",
-      "latitude": 40.766779,
-      "longitude": -73.921479,
-      "complexId": "3"
+      "display": "39th Avenue-Dutch Kills",
+      "name": "39 Av-Dutch Kills",
+      "gtfsStopId": "R08",
+      "latitude": 40.752882,
+      "longitude": -73.932755,
+      "complexId": "6"
     },
     {
       "display": "Queensboro Plaza",
