@@ -2100,7 +2100,137 @@
       "gtfsStopId": "250",
       "latitude": 40.668897,
       "longitude": -73.932942,
-      "complexId": "345"
+      "complexId": "345",
+      "terminalHours": {
+        "S": {
+          "mon": "5-20",
+          "tue": "5-20",
+          "wed": "5-20",
+          "thu": "5-20",
+          "fri": "5-20",
+          "sat": "5-21",
+          "sun": "8-21"
+        }
+      }
+    },
+    {
+      "display": "Sutter Avenue-Rutland Road",
+      "name": "Sutter Av-Rutland Rd",
+      "gtfsStopId": "251",
+      "latitude": 40.664717,
+      "longitude": -73.92261,
+      "complexId": "346",
+      "serviceHours": {
+        "mon": "0-8,16-19,21-23",
+        "tue": "0-8,16-19,21-23",
+        "wed": "0-8,16-19,21-23",
+        "thu": "0-8,16-19,21-23",
+        "fri": "0-8,16-19,21-23",
+        "sat": "0-7,22-23",
+        "sun": "0-9,22-23"
+      }
+    },
+    {
+      "display": "Saratoga Avenue",
+      "name": "Saratoga Av",
+      "gtfsStopId": "252",
+      "latitude": 40.661453,
+      "longitude": -73.916327,
+      "complexId": "347",
+      "serviceHours": {
+        "mon": "0-8,16-19,21-23",
+        "tue": "0-8,16-19,21-23",
+        "wed": "0-8,16-19,21-23",
+        "thu": "0-8,16-19,21-23",
+        "fri": "0-8,16-19,21-23",
+        "sat": "0-7,22-23",
+        "sun": "0-9,22-23"
+      }
+    },
+    {
+      "display": "Rockaway Avenue",
+      "name": "Rockaway Av",
+      "gtfsStopId": "253",
+      "latitude": 40.662549,
+      "longitude": -73.908946,
+      "complexId": "348",
+      "serviceHours": {
+        "mon": "0-8,16-19,21-23",
+        "tue": "0-8,16-19,21-23",
+        "wed": "0-8,16-19,21-23",
+        "thu": "0-8,16-19,21-23",
+        "fri": "0-8,16-19,21-23",
+        "sat": "0-7,22-23",
+        "sun": "0-9,22-23"
+      }
+    },
+    {
+      "display": "Junius Street",
+      "name": "Junius St",
+      "gtfsStopId": "254",
+      "latitude": 40.663515,
+      "longitude": -73.902447,
+      "complexId": "349",
+      "serviceHours": {
+        "mon": "0-8,16-19,21-23",
+        "tue": "0-8,16-19,21-23",
+        "wed": "0-8,16-19,21-23",
+        "thu": "0-8,16-19,21-23",
+        "fri": "0-8,16-19,21-23",
+        "sat": "0-7,22-23",
+        "sun": "0-9,22-23"
+      }
+    },
+    {
+      "display": "Pennsylvania Avenue",
+      "name": "Pennsylvania Av",
+      "gtfsStopId": "255",
+      "latitude": 40.664635,
+      "longitude": -73.894895,
+      "complexId": "350",
+      "serviceHours": {
+        "mon": "0-8,16-19,21-23",
+        "tue": "0-8,16-19,21-23",
+        "wed": "0-8,16-19,21-23",
+        "thu": "0-8,16-19,21-23",
+        "fri": "0-8,16-19,21-23",
+        "sat": "0-7,22-23",
+        "sun": "0-9,22-23"
+      }
+    },
+    {
+      "display": "Van Siclen Avenue",
+      "name": "Van Siclen Av",
+      "gtfsStopId": "256",
+      "latitude": 40.665449,
+      "longitude": -73.889395,
+      "complexId": "351",
+      "serviceHours": {
+        "mon": "0-8,16-19,21-23",
+        "tue": "0-8,16-19,21-23",
+        "wed": "0-8,16-19,21-23",
+        "thu": "0-8,16-19,21-23",
+        "fri": "0-8,16-19,21-23",
+        "sat": "0-7,22-23",
+        "sun": "0-9,22-23"
+      }
+    },
+    {
+      "display": "New Lots Avenue",
+      "name": "New Lots Av",
+      "gtfsStopId": "257",
+      "latitude": 40.666235,
+      "longitude": -73.884079,
+      "complexId": "352",
+      "serviceHours": {
+        "mon": "0-8,16-19,21-23",
+        "tue": "0-8,16-19,21-23",
+        "wed": "0-8,16-19,21-23",
+        "thu": "0-8,16-19,21-23",
+        "fri": "0-8,16-19,21-23",
+        "sat": "0-7,22-23",
+        "sun": "0-9,22-23"
+      }
     }
   ],
   "5": [
