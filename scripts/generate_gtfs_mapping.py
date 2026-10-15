@@ -8,7 +8,7 @@ Shared/stations.json by cross-referencing the MTA's official data sources.
 Usage
 -----
 1.  Download the MTA subway GTFS static feed:
-        curl -L -o scripts/gtfs.zip "https://api.mta.info/GTFS.zip"
+        curl -L -o scripts/gtfs.zip "https://rrgtfsfeeds.s3.amazonaws.com/gtfs_subway.zip"
         unzip -j scripts/gtfs.zip stops.txt -d scripts/
 
 2.  Download the MTA Stations.csv open-data file:
