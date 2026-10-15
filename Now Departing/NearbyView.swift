@@ -421,7 +421,7 @@ struct NearbyView: View {
                 .listRowSeparator(item.lineDirectionId == group.trainsByLineAndDirection.last?.lineDirectionId ? .hidden : .automatic, edges: .bottom)
             }
         } header: {
-            let firstTrain = group.trainsByLineAndDirection.first?.trains.first
+            let firstTrain = Self.nearestTrain(in: group.trainsByLineAndDirection)
             WalkingStationHeader(
                 stationDisplay: group.stationDisplay,
                 distanceText: group.distanceText,
@@ -753,17 +753,18 @@ struct NearbyView: View {
             print("DEBUG: Filtered out \(nearbyTrainsManager.nearbyTrains.count - freshTrains.count) stale trains")
         }
         
-        // Group by MTA complex ID so platforms that share an underground connection
-        // (e.g. West 4th St ACE + BDFM, Times Sq all lines) appear as one section,
-        // while same-name stops that don't connect (e.g. Clinton-Washington C vs G)
-        // stay separate. Falls back to gtfsStopId for stations without a complexId.
+        // Group platforms that share an MTA complex and a name, so each section
+        // matches the signs: West 4th St ACE + BDFM are one section, but the 7's
+        // 5th Avenue and the BDFM's 42nd Street-Bryant Park are two, and
+        // same-name stops that don't connect (Clinton-Washington C vs G) stay
+        // apart. Falls back to gtfsStopId for stations without a complexId.
         let grouped = Dictionary(grouping: freshTrains) { train -> String in
-            train.complexId ?? train.gtfsStopId ?? train.stationDisplay
+            train.complexId.map { "\($0)-\(train.stationDisplay)" } ?? train.gtfsStopId ?? train.stationDisplay
         }
 
         return grouped.map { (groupKey, trains) in
             let firstTrain = trains.first!
-            let distanceText = formatDistance(firstTrain.distanceInMeters)
+            let distanceText = formatDistance(trains.map(\.distanceInMeters).min()!)
             
             // Group by line AND direction
             let lineDirectionGroups = Dictionary(grouping: trains) { train in
@@ -798,8 +799,8 @@ struct NearbyView: View {
             )
         }.sorted {
             // Sort by distance (closest first), then by station ID alphabetically for consistent ordering
-            let distance1 = $0.trainsByLineAndDirection.first?.trains.first?.distanceInMeters ?? Double.infinity
-            let distance2 = $1.trainsByLineAndDirection.first?.trains.first?.distanceInMeters ?? Double.infinity
+            let distance1 = Self.nearestTrain(in: $0.trainsByLineAndDirection)?.distanceInMeters ?? Double.infinity
+            let distance2 = Self.nearestTrain(in: $1.trainsByLineAndDirection)?.distanceInMeters ?? Double.infinity
             
             // If distances are very close (within 10 meters), sort alphabetically by station ID
             if abs(distance1 - distance2) < 10 {
@@ -811,6 +812,12 @@ struct NearbyView: View {
         .filter { !$0.trainsByLineAndDirection.isEmpty }
     }
     
+    /// A train at the section's nearest platform: Times Square's 1/2/3, 7 and
+    /// N/Q/R/W platforms share a section but not a spot.
+    private static func nearestTrain(in groups: [(line: SubwayLine, direction: String, trains: [NearbyTrain], lineDirectionId: String)]) -> NearbyTrain? {
+        groups.flatMap(\.trains).min { $0.distanceInMeters < $1.distanceInMeters }
+    }
+
     func formatDistance(_ meters: Double) -> String {
         let feet = meters * 3.28084
         if feet < 1000 {

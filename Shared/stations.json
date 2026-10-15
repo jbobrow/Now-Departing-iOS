@@ -1800,7 +1800,7 @@
       }
     },
     {
-      "display": "42nd Street-Grand Central",
+      "display": "Grand Central-42nd Street",
       "name": "Grand Central-42 St",
       "gtfsStopId": "631",
       "latitude": 40.751776,
@@ -2498,7 +2498,7 @@
       }
     },
     {
-      "display": "42nd Street-Grand Central",
+      "display": "Grand Central-42nd Street",
       "name": "42 St-Grand Central",
       "gtfsStopId": "631",
       "latitude": 40.751776,
@@ -7088,7 +7088,7 @@
       "complexId": "601"
     },
     {
-      "display": "Union Square",
+      "display": "14th Street-Union Square",
       "name": "14 St-Union Sq",
       "gtfsStopId": "L03",
       "latitude": 40.734789,
@@ -7611,7 +7611,7 @@
       }
     },
     {
-      "display": "Delancey St-Essex St",
+      "display": "Delancey Street-Essex Street",
       "name": "Delancey St-Essex St",
       "gtfsStopId": "M18",
       "latitude": 40.718315,
