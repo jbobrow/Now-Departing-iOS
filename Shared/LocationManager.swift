@@ -43,6 +43,12 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     private let locationManager = CLLocationManager()
     private var locationTimeout: Timer?
     private var isActivelyTracking = false
+    /// The location came from the last session, and no fix since has replaced it
+    private var locationIsFromCache = false
+    /// When a fix last confirmed where you are, even one too close to the last to publish
+    private var lastConfirmedAt: Date?
+    /// When continuous updates last started
+    private var trackingStartedAt: Date?
     /// Tracking was paused when the app went to the background, to resume when it returns
     private var isPausedInBackground = false
     
@@ -94,6 +100,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         if hasUserEnabledLocation && isLocationEnabled {
             location = cachedLocation
             if let cached = cachedLocation {
+                locationIsFromCache = true
                 print("DEBUG: Loaded cached location immediately: \(cached)")
             }
         }
@@ -115,10 +122,13 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         // Clear any existing error state
         locationError = nil
         
-        // NEW: On iOS, if we have cached location, use it immediately
+        // NEW: On iOS, if we have cached location, use it immediately. Only when there's no
+        // location yet: the cached one is a copy of the last fix, and publishing it again would
+        // read as a new one.
         #if os(iOS)
-        if let cached = cachedLocation {
+        if location == nil, let cached = cachedLocation {
             location = cached
+            locationIsFromCache = true
             print("DEBUG: Using cached location for instant results")
         }
         #endif
@@ -129,6 +139,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         }
         
         isActivelyTracking = true
+        trackingStartedAt = Date()
         
         // Stop any existing updates first
         locationManager.stopUpdatingLocation()
@@ -234,6 +245,21 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         locationManager.requestLocation()
     }
     
+    // MARK: - Freshness
+
+    /// The time of the location in use when it may be out of date, or nil when it's current.
+    /// It's out of date once it's over two minutes old and no fix has confirmed it: none since
+    /// continuous updates started, or without them, none in two minutes. While tracking,
+    /// standing still brings no new fixes and needs none, so that alone doesn't count.
+    func staleLocationDate(now: Date = Date()) -> Date? {
+        guard let location, now.timeIntervalSince(location.timestamp) > 120 else { return nil }
+        if let confirmed = lastConfirmedAt {
+            if isActivelyTracking, let started = trackingStartedAt, confirmed >= started { return nil }
+            if now.timeIntervalSince(confirmed) <= 120 { return nil }
+        }
+        return location.timestamp
+    }
+
     // MARK: - CLLocationManagerDelegate
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
@@ -247,9 +273,11 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             print("DEBUG: Filtering out location - age: \(age), accuracy: \(newLocation.horizontalAccuracy)")
             return
         }
+        lastConfirmedAt = Date()  // when it arrived: a first fix can predate the start of tracking
         
-        // If we have an existing location, check if the new one is significantly better
-        if let existingLocation = location {
+        // If we have an existing location, check if the new one is significantly better.
+        // A cached one from the last session always gives way to the first live fix.
+        if let existingLocation = location, !locationIsFromCache {
             let existingAge = abs(existingLocation.timestamp.timeIntervalSinceNow)
             let newAge = age
             
@@ -274,6 +302,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         print("DEBUG: Location updated: \(newLocation.coordinate.latitude), \(newLocation.coordinate.longitude), accuracy: \(newLocation.horizontalAccuracy)")
         
         location = newLocation
+        locationIsFromCache = false
         isSearchingForLocation = false
         locationError = nil
         locationTimeout?.invalidate()

@@ -86,7 +86,14 @@ struct DirectionHelper {
         guard let stations = stationDataManager.stations(for: lineId), !stations.isEmpty else {
             return nil
         }
-        
+
+        // Where the trains end at this hour, when that's short of the list's end: the 4 at
+        // Crown Heights-Utica Av by day, though the list runs on to New Lots Av for its
+        // late-night trips
+        if let terminal = stations.first(where: { $0.isTerminal(direction: direction) }) {
+            return terminal
+        }
+
         // For northbound (N), return the first station (typically the northern terminus)
         // For southbound (S), return the last station (typically the southern terminus)
         return direction == "N" ? stations.first : stations.last
@@ -102,7 +109,8 @@ struct DirectionHelper {
             return (north: nil, south: nil)
         }
         
-        return (north: stations.first, south: stations.last)
+        return (north: getTerminalStation(for: lineId, direction: "N", stationDataManager: stationDataManager),
+                south: getTerminalStation(for: lineId, direction: "S", stationDataManager: stationDataManager))
     }
     
     /// Get the terminal station name for a specific line and direction

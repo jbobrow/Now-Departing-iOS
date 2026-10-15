@@ -32,9 +32,12 @@ struct NearbyView: View {
     @State private var currentTime = Date()     // For updating the "time since" display
     @State private var liveTimeTimer: Timer?    // Timer for live time updates
 
-    // Location update tracking
-    @State private var lastLocationUpdate: Date?
-    @State private var locationUpdateCount = 0
+    /// Goes up when Nearby's tab is tapped while it's showing
+    @Environment(\.pagedTabReselectCount) private var reselectCount
+    /// Whether Nearby's own screen is showing, rather than departures pushed over it
+    @State private var isShowingRoot = false
+    /// Goes up to send the trains list back to its top
+    @State private var scrollToTopRequests = 0
     
     private func getLine(for id: String) -> SubwayLine? {
         return SubwayLinesData.allLines.first(where: { $0.id == id })
@@ -43,9 +46,7 @@ struct NearbyView: View {
     private func handleLocationChange(_ newLocation: CLLocation?) {
         guard let location = newLocation else { return }
         
-        lastLocationUpdate = Date()
-        locationUpdateCount += 1
-        print("DEBUG: Location updated (#\(locationUpdateCount)): \(location.coordinate.latitude), \(location.coordinate.longitude)")
+        print("DEBUG: Location updated: \(location.coordinate.latitude), \(location.coordinate.longitude)")
         startFetchingWithLocation(location)
     }
     
@@ -71,6 +72,7 @@ struct NearbyView: View {
         .preferredColorScheme(.dark)
         .onAppear {
             print("DEBUG: NearbyView onAppear - hasAppeared: \(hasAppeared)")
+            isShowingRoot = true
 
             // Always sync station data first so any subsequent fetch has valid data
             nearbyTrainsManager.updateStationDataManager(stationDataManager)
@@ -90,6 +92,7 @@ struct NearbyView: View {
         }
         .onDisappear {
             print("DEBUG: NearbyView onDisappear")
+            isShowingRoot = false
             stopAutoRefresh()
             stopLiveTimeTimer()
         }
@@ -102,6 +105,15 @@ struct NearbyView: View {
         }
         .onChange(of: locationManager.location) { _, newLocation in
             handleLocationChange(newLocation)
+        }
+        .onChange(of: reselectCount) {
+            // With departures pushed over Nearby, tapping its tab just goes back to it
+            guard isShowingRoot else { return }
+            scrollToTopRequests += 1
+            // Catch up too, unless it just did
+            if let lastUpdated = nearbyTrainsManager.lastUpdated,
+               Date().timeIntervalSince(lastUpdated) < 15 { return }
+            triggerDataUpdateOnTabOpen()
         }
     }
     
@@ -249,8 +261,7 @@ struct NearbyView: View {
                     if nearbyTrainsManager.lastUpdated != nil {
                         TimeIndicatorView(
                             timeSinceUpdated: getTimeSinceLastUpdated(),
-                            lastLocationUpdate: lastLocationUpdate,
-                            locationUpdateCount: locationUpdateCount
+                            currentTime: currentTime
                         )
                     }
 
@@ -268,6 +279,7 @@ struct NearbyView: View {
                     .safeAreaInset(edge: .bottom) {
                         Color.clear.frame(height: 20)
                     }
+                    .clearsPagedTabBar()
                 }
             }
         } else if let error = locationManager.locationError {
@@ -310,8 +322,7 @@ struct NearbyView: View {
             if nearbyTrainsManager.lastUpdated != nil {
                 TimeIndicatorView(
                     timeSinceUpdated: getTimeSinceLastUpdated(),
-                    lastLocationUpdate: lastLocationUpdate,
-                    locationUpdateCount: locationUpdateCount
+                    currentTime: currentTime
                 )
             }
             
@@ -329,6 +340,7 @@ struct NearbyView: View {
             .safeAreaInset(edge: .bottom) {
                 Color.clear.frame(height: 20)
             }
+            .clearsPagedTabBar()
         }
     }
 
@@ -373,8 +385,7 @@ struct NearbyView: View {
             if nearbyTrainsManager.lastUpdated != nil {
                 TimeIndicatorView(
                     timeSinceUpdated: getTimeSinceLastUpdated(),
-                    lastLocationUpdate: lastLocationUpdate,
-                    locationUpdateCount: locationUpdateCount
+                    currentTime: currentTime
                 )
             }
             
@@ -385,12 +396,22 @@ struct NearbyView: View {
     @ViewBuilder
     private func TrainsListView() -> some View {
         List {
+            // Where tapping Nearby again scrolls back to: the list's very top, above the
+            // first section's top padding, so it lands just as the list first loads
+            Color.clear
+                .frame(height: 0)
+                .listRowInsets(EdgeInsets())
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
+                .id(Self.listTopID)
+
             // Train data sections
             ForEach(groupTrainsByStation(), id: \.stationId) { group in
                 TrainGroupSection(group: group)
             }
         }
         .listStyle(.plain)
+        .environment(\.defaultMinListRowHeight, 0)  // keeps that marker at no height
         .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).minY } action: { minY in
             listTop = minY
         }
@@ -401,7 +422,12 @@ struct NearbyView: View {
         .safeAreaInset(edge: .bottom) {
             Color.clear.frame(height: 20)
         }
+        .clearsPagedTabBar()
+        // Tapping Nearby while it's showing goes back to the closest station
+        .scrollsToTop(on: scrollToTopRequests, id: Self.listTopID)
     }
+
+    private static let listTopID = "listTop"
 
     @ViewBuilder
     private func TrainGroupSection(group: (stationId: String, stationDisplay: String, distanceText: String, trainsByLineAndDirection: [(line: SubwayLine, direction: String, trains: [NearbyTrain], lineDirectionId: String)])) -> some View {
@@ -511,24 +537,17 @@ struct NearbyView: View {
     
     struct TimeIndicatorView: View {
         let timeSinceUpdated: String
-        let lastLocationUpdate: Date?
-        let locationUpdateCount: Int
-        @State private var currentTime = Date()
+        /// NearbyView's clock. This view's own timer would be replaced each second, as NearbyView
+        /// rebuilds it, before it ever fired.
+        let currentTime: Date
+        @EnvironmentObject private var locationManager: LocationManager
         
-        private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-        
-        private var locationUpdateText: String {
-            guard let lastLocationUpdate = lastLocationUpdate else { return "No location updates" }
-            
-            let interval = currentTime.timeIntervalSince(lastLocationUpdate)
-            let seconds = Int(interval)
-            
-            if seconds < 60 {
-                return "Location updated \(seconds)s ago (#\(locationUpdateCount))"
-            } else {
-                let minutes = seconds / 60
-                return "Location updated \(minutes)m ago (#\(locationUpdateCount))"
-            }
+        /// Only when your location may be out of date, say underground with only the last
+        /// session's to go on
+        private var staleLocationText: String? {
+            guard let date = locationManager.staleLocationDate(now: currentTime) else { return nil }
+            let minutes = Int(currentTime.timeIntervalSince(date) / 60)
+            return minutes < 60 ? "Location from \(minutes)m ago" : "Location from \(minutes / 60)h ago"
         }
         
         var body: some View {
@@ -540,19 +559,18 @@ struct NearbyView: View {
                         .foregroundColor(.secondary.opacity(0.7))
                 }
                 
-                HStack {
-                    Spacer()
-                    Text(locationUpdateText)
-                        .font(.custom("HelveticaNeue", size: 10))
-                        .foregroundColor(.secondary.opacity(0.5))
+                if let staleLocationText {
+                    HStack {
+                        Spacer()
+                        Text(staleLocationText)
+                            .font(.custom("HelveticaNeue", size: 10))
+                            .foregroundColor(.secondary.opacity(0.5))
+                    }
                 }
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 4)
             .background(Color(UIColor.systemBackground))
-            .onReceive(timer) { time in
-                currentTime = time
-            }
         }
     }
 
@@ -602,10 +620,6 @@ struct NearbyView: View {
         @EnvironmentObject var locationManager: LocationManager
         @EnvironmentObject var serviceAlertsManager: ServiceAlertsManager
         @State private var currentTime = Date()
-
-        // Location update tracking
-        @State private var lastLocationUpdate: Date?
-        @State private var locationUpdateCount = 0
 
         private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
         
@@ -1123,3 +1137,16 @@ struct OutOfTownView: View {
 
 // MARK: - Subway Lines Data
 // SubwayLinesData is now imported from Shared/SubwayLineFactory.swift
+
+// MARK: - Scroll to Top
+
+private extension View {
+    /// Scrolls to the view with `id` each time `trigger` changes
+    func scrollsToTop(on trigger: Int, id: String) -> some View {
+        ScrollViewReader { proxy in
+            onChange(of: trigger) {
+                withAnimation { proxy.scrollTo(id, anchor: .top) }
+            }
+        }
+    }
+}
