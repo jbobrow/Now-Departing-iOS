@@ -32,10 +32,6 @@ struct NearbyView: View {
     @State private var currentTime = Date()     // For updating the "time since" display
     @State private var liveTimeTimer: Timer?    // Timer for live time updates
 
-    // Location update tracking
-    @State private var lastLocationUpdate: Date?
-    @State private var locationUpdateCount = 0
-    
     private func getLine(for id: String) -> SubwayLine? {
         return SubwayLinesData.allLines.first(where: { $0.id == id })
     }
@@ -43,9 +39,7 @@ struct NearbyView: View {
     private func handleLocationChange(_ newLocation: CLLocation?) {
         guard let location = newLocation else { return }
         
-        lastLocationUpdate = Date()
-        locationUpdateCount += 1
-        print("DEBUG: Location updated (#\(locationUpdateCount)): \(location.coordinate.latitude), \(location.coordinate.longitude)")
+        print("DEBUG: Location updated: \(location.coordinate.latitude), \(location.coordinate.longitude)")
         startFetchingWithLocation(location)
     }
     
@@ -249,8 +243,7 @@ struct NearbyView: View {
                     if nearbyTrainsManager.lastUpdated != nil {
                         TimeIndicatorView(
                             timeSinceUpdated: getTimeSinceLastUpdated(),
-                            lastLocationUpdate: lastLocationUpdate,
-                            locationUpdateCount: locationUpdateCount
+                            currentTime: currentTime
                         )
                     }
 
@@ -310,8 +303,7 @@ struct NearbyView: View {
             if nearbyTrainsManager.lastUpdated != nil {
                 TimeIndicatorView(
                     timeSinceUpdated: getTimeSinceLastUpdated(),
-                    lastLocationUpdate: lastLocationUpdate,
-                    locationUpdateCount: locationUpdateCount
+                    currentTime: currentTime
                 )
             }
             
@@ -373,8 +365,7 @@ struct NearbyView: View {
             if nearbyTrainsManager.lastUpdated != nil {
                 TimeIndicatorView(
                     timeSinceUpdated: getTimeSinceLastUpdated(),
-                    lastLocationUpdate: lastLocationUpdate,
-                    locationUpdateCount: locationUpdateCount
+                    currentTime: currentTime
                 )
             }
             
@@ -511,24 +502,17 @@ struct NearbyView: View {
     
     struct TimeIndicatorView: View {
         let timeSinceUpdated: String
-        let lastLocationUpdate: Date?
-        let locationUpdateCount: Int
-        @State private var currentTime = Date()
+        /// NearbyView's clock. This view's own timer would be replaced each second, as NearbyView
+        /// rebuilds it, before it ever fired.
+        let currentTime: Date
+        @EnvironmentObject private var locationManager: LocationManager
         
-        private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-        
-        private var locationUpdateText: String {
-            guard let lastLocationUpdate = lastLocationUpdate else { return "No location updates" }
-            
-            let interval = currentTime.timeIntervalSince(lastLocationUpdate)
-            let seconds = Int(interval)
-            
-            if seconds < 60 {
-                return "Location updated \(seconds)s ago (#\(locationUpdateCount))"
-            } else {
-                let minutes = seconds / 60
-                return "Location updated \(minutes)m ago (#\(locationUpdateCount))"
-            }
+        /// Only when your location may be out of date, say underground with only the last
+        /// session's to go on
+        private var staleLocationText: String? {
+            guard let date = locationManager.staleLocationDate(now: currentTime) else { return nil }
+            let minutes = Int(currentTime.timeIntervalSince(date) / 60)
+            return minutes < 60 ? "Location from \(minutes)m ago" : "Location from \(minutes / 60)h ago"
         }
         
         var body: some View {
@@ -540,19 +524,18 @@ struct NearbyView: View {
                         .foregroundColor(.secondary.opacity(0.7))
                 }
                 
-                HStack {
-                    Spacer()
-                    Text(locationUpdateText)
-                        .font(.custom("HelveticaNeue", size: 10))
-                        .foregroundColor(.secondary.opacity(0.5))
+                if let staleLocationText {
+                    HStack {
+                        Spacer()
+                        Text(staleLocationText)
+                            .font(.custom("HelveticaNeue", size: 10))
+                            .foregroundColor(.secondary.opacity(0.5))
+                    }
                 }
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 4)
             .background(Color(UIColor.systemBackground))
-            .onReceive(timer) { time in
-                currentTime = time
-            }
         }
     }
 
@@ -602,10 +585,6 @@ struct NearbyView: View {
         @EnvironmentObject var locationManager: LocationManager
         @EnvironmentObject var serviceAlertsManager: ServiceAlertsManager
         @State private var currentTime = Date()
-
-        // Location update tracking
-        @State private var lastLocationUpdate: Date?
-        @State private var locationUpdateCount = 0
 
         private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
         
