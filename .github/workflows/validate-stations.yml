@@ -1,0 +1,28 @@
+name: Validate stations
+
+# Every installed app downloads Shared/stations.json from main, so check each change to it
+# before it lands. See scripts/validate_stations.py.
+
+on:
+  pull_request:
+    paths:
+      - Shared/stations.json
+      - scripts/stops.txt
+      - scripts/validate_stations.py
+  push:
+    branches: [main]
+    paths:
+      - Shared/stations.json
+      - scripts/stops.txt
+      - scripts/validate_stations.py
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Shared/stations.json
+        run: python3 scripts/validate_stations.py

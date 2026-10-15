@@ -7,3 +7,6 @@ DerivedData/
 
 # macOS
 .DS_Store
+
+# MTA schedule, downloaded fresh by scripts/refresh_schedule.py and the refresh workflow
+scripts/gtfs.zip
