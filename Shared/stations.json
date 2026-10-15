@@ -3545,6 +3545,38 @@
       "complexId": "276"
     },
     {
+      "display": "21st Street-Queensbridge",
+      "name": "21 St-Queensbridge",
+      "gtfsStopId": "B04",
+      "latitude": 40.754203,
+      "longitude": -73.942836,
+      "complexId": "221"
+    },
+    {
+      "display": "Roosevelt Island",
+      "name": "Roosevelt Island",
+      "gtfsStopId": "B06",
+      "latitude": 40.759145,
+      "longitude": -73.95326,
+      "complexId": "222"
+    },
+    {
+      "display": "Lexington Avenue-63rd Street",
+      "name": "Lexington Av/63 St",
+      "gtfsStopId": "B08",
+      "latitude": 40.764629,
+      "longitude": -73.966113,
+      "complexId": "223"
+    },
+    {
+      "display": "57th Street",
+      "name": "57 St",
+      "gtfsStopId": "B10",
+      "latitude": 40.763972,
+      "longitude": -73.97745,
+      "complexId": "224"
+    },
+    {
       "display": "47th-50th Streets-Rockefeller Center",
       "name": "47-50 Sts-Rockefeller Ctr",
       "gtfsStopId": "D15",
