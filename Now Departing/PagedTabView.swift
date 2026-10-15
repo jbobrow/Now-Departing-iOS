@@ -24,6 +24,8 @@ struct PagedTabView<Page: View>: View {
     @State private var coveredPages: Set<Int> = []
     @State private var reselectCounts: [Int: Int] = [:]
     @State private var leftCounts: [Int: Int] = [:]
+    /// How far the bar reaches above the bottom safe area
+    @State private var barInset: CGFloat = 0
 
     init(selection: Binding<Int>, tabs: [PagedTab], @ViewBuilder page: @escaping (PagedTab) -> Page) {
         _selection = selection
@@ -48,6 +50,7 @@ struct PagedTabView<Page: View>: View {
                         })
                         .environment(\.pagedTabReselectCount, reselectCounts[tab.id, default: 0])
                         .environment(\.pagedTabLeftCount, leftCounts[tab.id, default: 0])
+                        .environment(\.pagedTabBarInset, barInset)
                         .id(tab.id)
                 }
             }
@@ -70,6 +73,7 @@ struct PagedTabView<Page: View>: View {
                     withAnimation(.smooth(duration: 0.35)) { scrolledID = id }
                 }
             }
+            .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { barInset = $0 }
         }
         .onChange(of: scrolledID) { _, id in
             guard let id else { return }
@@ -304,6 +308,9 @@ extension EnvironmentValues {
     @Entry var pagedTabReselectCount = 0
     /// Goes up each time the pager has moved off the page and it's out of sight.
     @Entry var pagedTabLeftCount = 0
+    /// How far the bar reaches above the bottom safe area. The bar floats over the pages and
+    /// their safe area doesn't make room for it, so their lists add this at the bottom.
+    @Entry var pagedTabBarInset: CGFloat = 0
 }
 
 extension View {
@@ -312,10 +319,25 @@ extension View {
         modifier(PagedTabRootModifier())
     }
 
+    /// Room at the end of a list for the bar, so its last rows can scroll out from under it
+    func clearsPagedTabBar() -> some View {
+        modifier(PagedTabBarClearance())
+    }
+
     /// Calls `popToRoot` when the page's tab is tapped again while it's showing, and, without
     /// animation, once the pager has left the page.
     func pagedTabPopsToRoot(_ popToRoot: @escaping () -> Void) -> some View {
         modifier(PagedTabPopModifier(popToRoot: popToRoot))
+    }
+}
+
+private struct PagedTabBarClearance: ViewModifier {
+    @Environment(\.pagedTabBarInset) private var barInset
+
+    func body(content: Content) -> some View {
+        content.safeAreaInset(edge: .bottom, spacing: 0) {
+            Color.clear.frame(height: barInset)
+        }
     }
 }
 

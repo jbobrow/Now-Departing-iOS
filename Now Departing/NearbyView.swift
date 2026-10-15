@@ -32,6 +32,13 @@ struct NearbyView: View {
     @State private var currentTime = Date()     // For updating the "time since" display
     @State private var liveTimeTimer: Timer?    // Timer for live time updates
 
+    /// Goes up when Nearby's tab is tapped while it's showing
+    @Environment(\.pagedTabReselectCount) private var reselectCount
+    /// Whether Nearby's own screen is showing, rather than departures pushed over it
+    @State private var isShowingRoot = false
+    /// Goes up to send the trains list back to its top
+    @State private var scrollToTopRequests = 0
+    
     private func getLine(for id: String) -> SubwayLine? {
         return SubwayLinesData.allLines.first(where: { $0.id == id })
     }
@@ -65,6 +72,7 @@ struct NearbyView: View {
         .preferredColorScheme(.dark)
         .onAppear {
             print("DEBUG: NearbyView onAppear - hasAppeared: \(hasAppeared)")
+            isShowingRoot = true
 
             // Always sync station data first so any subsequent fetch has valid data
             nearbyTrainsManager.updateStationDataManager(stationDataManager)
@@ -84,6 +92,7 @@ struct NearbyView: View {
         }
         .onDisappear {
             print("DEBUG: NearbyView onDisappear")
+            isShowingRoot = false
             stopAutoRefresh()
             stopLiveTimeTimer()
         }
@@ -96,6 +105,15 @@ struct NearbyView: View {
         }
         .onChange(of: locationManager.location) { _, newLocation in
             handleLocationChange(newLocation)
+        }
+        .onChange(of: reselectCount) {
+            // With departures pushed over Nearby, tapping its tab just goes back to it
+            guard isShowingRoot else { return }
+            scrollToTopRequests += 1
+            // Catch up too, unless it just did
+            if let lastUpdated = nearbyTrainsManager.lastUpdated,
+               Date().timeIntervalSince(lastUpdated) < 15 { return }
+            triggerDataUpdateOnTabOpen()
         }
     }
     
@@ -261,6 +279,7 @@ struct NearbyView: View {
                     .safeAreaInset(edge: .bottom) {
                         Color.clear.frame(height: 20)
                     }
+                    .clearsPagedTabBar()
                 }
             }
         } else if let error = locationManager.locationError {
@@ -321,6 +340,7 @@ struct NearbyView: View {
             .safeAreaInset(edge: .bottom) {
                 Color.clear.frame(height: 20)
             }
+            .clearsPagedTabBar()
         }
     }
 
@@ -376,12 +396,22 @@ struct NearbyView: View {
     @ViewBuilder
     private func TrainsListView() -> some View {
         List {
+            // Where tapping Nearby again scrolls back to: the list's very top, above the
+            // first section's top padding, so it lands just as the list first loads
+            Color.clear
+                .frame(height: 0)
+                .listRowInsets(EdgeInsets())
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
+                .id(Self.listTopID)
+
             // Train data sections
             ForEach(groupTrainsByStation(), id: \.stationId) { group in
                 TrainGroupSection(group: group)
             }
         }
         .listStyle(.plain)
+        .environment(\.defaultMinListRowHeight, 0)  // keeps that marker at no height
         .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).minY } action: { minY in
             listTop = minY
         }
@@ -392,7 +422,12 @@ struct NearbyView: View {
         .safeAreaInset(edge: .bottom) {
             Color.clear.frame(height: 20)
         }
+        .clearsPagedTabBar()
+        // Tapping Nearby while it's showing goes back to the closest station
+        .scrollsToTop(on: scrollToTopRequests, id: Self.listTopID)
     }
+
+    private static let listTopID = "listTop"
 
     @ViewBuilder
     private func TrainGroupSection(group: (stationId: String, stationDisplay: String, distanceText: String, trainsByLineAndDirection: [(line: SubwayLine, direction: String, trains: [NearbyTrain], lineDirectionId: String)])) -> some View {
@@ -1102,3 +1137,16 @@ struct OutOfTownView: View {
 
 // MARK: - Subway Lines Data
 // SubwayLinesData is now imported from Shared/SubwayLineFactory.swift
+
+// MARK: - Scroll to Top
+
+private extension View {
+    /// Scrolls to the view with `id` each time `trigger` changes
+    func scrollsToTop(on trigger: Int, id: String) -> some View {
+        ScrollViewReader { proxy in
+            onChange(of: trigger) {
+                withAnimation { proxy.scrollTo(id, anchor: .top) }
+            }
+        }
+    }
+}
