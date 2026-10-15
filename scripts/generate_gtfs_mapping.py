@@ -29,6 +29,9 @@ Usage
         "longitude"   – WGS-84 longitude (float)
         "complexId"   – MTA complex ID grouping underground-connected platforms
 
+4.  Refresh each station's scheduled hours from the same GTFS feed:
+        python3 scripts/generate_service_hours.py
+
 Matching strategy
 -----------------
 Primary: Stations.csv is indexed by (normalised_name, route_id).  For each

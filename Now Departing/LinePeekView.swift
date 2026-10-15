@@ -20,7 +20,7 @@ enum ClosestStation {
     /// trains are skipping isn't picked; when none have times (say, a line that
     /// doesn't run overnight), still the closest, so its times read "No trains".
     static func find(for line: SubwayLine, near location: CLLocation, in stationDataManager: StationDataManager) -> (station: Station, meters: Double)? {
-        guard let stations = stationDataManager.stations(for: line.id) else { return nil }
+        guard let stations = stationDataManager.stationsInService(for: line.id) else { return nil }
         let candidates = stations.compactMap { station -> (station: Station, meters: Double)? in
             guard station.gtfsStopId?.isEmpty == false,
                   let lat = station.latitude,
