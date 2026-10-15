@@ -212,20 +212,9 @@ struct NearbyView: View {
     }
     
     private func getTimeSinceLastUpdated() -> String {
-        guard let lastUpdated = nearbyTrainsManager.lastUpdated else { return "" }
-        if nearbyTrainsManager.isOffline {
-            return TimeFormatter.offlineNote(lastUpdated: lastUpdated, currentTime: currentTime)
-        }
-
-        let interval = currentTime.timeIntervalSince(lastUpdated)
-        let minutes = Int(interval / 60)
-        let seconds = Int(interval.truncatingRemainder(dividingBy: 60))
-        
-        if minutes > 0 {
-            return "Updated \(minutes)m ago"
-        } else {
-            return "Updated \(seconds)s ago"
-        }
+        TimeFormatter.updatedNote(lastUpdated: nearbyTrainsManager.lastUpdated,
+                                  isOffline: nearbyTrainsManager.isOffline,
+                                  currentTime: currentTime) ?? ""
     }
     
     @ViewBuilder
