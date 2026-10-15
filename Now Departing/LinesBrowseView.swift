@@ -479,6 +479,16 @@ struct TimesView: View {
         direction != initialDirection
     }
 
+    /// How fresh the times are, ticking along with them
+    @ViewBuilder
+    private var updatedNote: some View {
+        if let note = TimeFormatter.updatedNote(lastUpdated: viewModel.lastUpdated, isOffline: viewModel.isOffline) {
+            Text(note)
+                .font(.custom("HelveticaNeue-Medium", size: 14))
+                .foregroundColor(.secondary)
+        }
+    }
+
     private var isFavorited: Bool {
         favoritesManager.isFavorite(
             lineId: line.id,
@@ -556,6 +566,7 @@ struct TimesView: View {
                                 Text("No trains")
                                     .font(.custom("HelveticaNeue-Bold", size: 20))
                                     .foregroundColor(.secondary)
+                                updatedNote
                             }
                             .padding(.vertical, 48)
                         } else if !viewModel.nextTrains.isEmpty {
@@ -588,11 +599,7 @@ struct TimesView: View {
                                         .foregroundColor(.secondary)
                                 }
 
-                                if viewModel.isOffline {
-                                    Text(TimeFormatter.offlineNote(lastUpdated: viewModel.lastUpdated))
-                                        .font(.custom("HelveticaNeue-Medium", size: 14))
-                                        .foregroundColor(.secondary)
-                                }
+                                updatedNote
                             }
                         }
                     }
