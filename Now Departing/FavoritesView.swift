@@ -79,7 +79,9 @@ struct FavoritesView: View {
         .background(Color.black)
         .listStyle(.plain)
         .clearsPagedTabBar()
-        .clipped() // Prevent content from showing above the header
+        // Keep rows from showing above the header, but let them scroll on to the bottom of the
+        // screen, under the tab bar and home indicator: clipped() would cut them off above those
+        .mask { Rectangle().padding(.bottom, -200) }
         .topScrollFade()
         .padding(.top, 64)
         .ignoresSafeArea(edges: .top)
