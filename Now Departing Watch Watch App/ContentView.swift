@@ -426,10 +426,13 @@ struct TerminalSelectionView: View {
             return []
         }
         
-        // Use first and last stations as terminals
+        // The first and last stations, unless the trains end short of them at this hour
+        // (the 4 at Crown Heights-Utica Av by day), as DirectionHelper.getTerminalStation
+        let north = stations.first { $0.isTerminal(direction: "N") } ?? stations.first!
+        let south = stations.first { $0.isTerminal(direction: "S") } ?? stations.last!
         let terminals: [(station: Station, direction: String, description: String)] = [
-            (station: stations.first!, direction: "N", description: DirectionHelper.getToDestination(for: line.id, direction: "N")),
-            (station: stations.last!, direction: "S", description: DirectionHelper.getToDestination(for: line.id, direction: "S"))
+            (station: north, direction: "N", description: DirectionHelper.getToDestination(for: line.id, direction: "N")),
+            (station: south, direction: "S", description: DirectionHelper.getToDestination(for: line.id, direction: "S"))
         ]
         
         return terminals
