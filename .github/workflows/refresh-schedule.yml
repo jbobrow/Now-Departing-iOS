@@ -1,0 +1,64 @@
+name: Refresh subway schedule
+
+# Weekly, brings the station hours in Shared/stations.json up to date with the MTA's
+# schedule and commits them to main, where every installed app picks them up within
+# the hour. Stops a line starts or stops serving need the station lists edited by hand,
+# so those open an issue instead. See scripts/refresh_schedule.py.
+
+on:
+  schedule:
+    - cron: "23 11 * * 1"  # Mondays, 7:23am in New York (6:23am in winter)
+  workflow_dispatch:
+    inputs:
+      force:
+        description: Refresh even if the MTA's schedule hasn't changed
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: refresh-schedule
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Download the MTA schedule
+        run: curl -fsSL --retry 3 -o scripts/gtfs.zip "https://rrgtfsfeeds.s3.amazonaws.com/gtfs_subway.zip"
+
+      - name: Refresh station hours
+        id: refresh
+        env:
+          FORCE: ${{ inputs.force && '--force' || '' }}
+        run: python3 scripts/refresh_schedule.py --report "$RUNNER_TEMP/coverage.md" $FORCE
+
+      - name: Commit to main
+        if: steps.refresh.outputs.updated == 'true'
+        env:
+          VERSION: ${{ steps.refresh.outputs.version }}
+        run: |
+          git add Shared/stations.json scripts/stops.txt scripts/gtfs_snapshot.json
+          if git diff --cached --quiet; then
+            echo "Nothing changed"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Refresh station hours for MTA schedule $VERSION"
+          git push
+
+      - name: Open an issue for the station lists
+        if: steps.refresh.outputs.coverage_changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.refresh.outputs.version }}
+        run: gh issue create --title "Station lists need updating for MTA schedule $VERSION" --body-file "$RUNNER_TEMP/coverage.md"

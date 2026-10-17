@@ -138,6 +138,15 @@ struct TimeFormatter {
 
     // MARK: - Offline Note
 
+    /// Note shown with train times: how fresh they are, "Updated 12s ago", or while a refresh
+    /// can't get through, the offline note. Nil before the first fetch.
+    static func updatedNote(lastUpdated: Date?, isOffline: Bool = false, currentTime: Date = Date()) -> String? {
+        if isOffline { return offlineNote(lastUpdated: lastUpdated, currentTime: currentTime) }
+        guard let lastUpdated else { return nil }
+        let seconds = max(0, Int(currentTime.timeIntervalSince(lastUpdated)))
+        return seconds < 60 ? "Updated \(seconds)s ago" : "Updated \(seconds / 60)m ago"
+    }
+
     /// Note shown under times kept from an earlier fetch while a refresh can't get
     /// through, e.g. "Offline · updated 4m ago".
     static func offlineNote(lastUpdated: Date?, currentTime: Date = Date()) -> String {

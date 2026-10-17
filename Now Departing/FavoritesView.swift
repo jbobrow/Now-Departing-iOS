@@ -64,8 +64,8 @@ struct FavoritesView: View {
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
                     Spacer()
-                    TimelineView(.periodic(from: .now, by: 30)) { context in
-                        if let note = trainDataManager.offlineNote(for: favoritesManager.favorites, currentTime: context.date) {
+                    TimelineView(.periodic(from: .now, by: 1)) { context in
+                        if let note = trainDataManager.updatedNote(for: favoritesManager.favorites, currentTime: context.date) {
                             Text(note)
                                 .font(.custom("HelveticaNeue", size: 14))
                                 .foregroundColor(.secondary)
@@ -79,7 +79,9 @@ struct FavoritesView: View {
         .background(Color.black)
         .listStyle(.plain)
         .clearsPagedTabBar()
-        .clipped() // Prevent content from showing above the header
+        // Keep rows from showing above the header, but let them scroll on to the bottom of the
+        // screen, under the tab bar and home indicator: clipped() would cut them off above those
+        .mask { Rectangle().padding(.bottom, -200) }
         .topScrollFade()
         .padding(.top, 64)
         .ignoresSafeArea(edges: .top)
@@ -341,12 +343,16 @@ class FavoriteTrainDataManager: ObservableObject {
         attemptedKeys.contains(cacheKey(for: favorite))
     }
 
-    /// Note for the list when any favorite is showing times kept from an earlier
-    /// fetch; nil while everything is current.
-    func offlineNote(for favorites: [FavoriteItem], currentTime: Date = Date()) -> String? {
-        let keys = favorites.map(cacheKey(for:)).filter { offlineKeys.contains($0) }
-        guard !keys.isEmpty else { return nil }
-        return TimeFormatter.offlineNote(lastUpdated: keys.compactMap { updatedAt[$0] }.min(), currentTime: currentTime)
+    /// Note for the list: when the least recently updated favorite was fetched, or the
+    /// offline note when any favorite is showing times kept from an earlier fetch. Nil
+    /// before any favorite has times.
+    func updatedNote(for favorites: [FavoriteItem], currentTime: Date = Date()) -> String? {
+        let keys = favorites.map(cacheKey(for:))
+        let offline = keys.filter { offlineKeys.contains($0) }
+        if !offline.isEmpty {
+            return TimeFormatter.offlineNote(lastUpdated: offline.compactMap { updatedAt[$0] }.min(), currentTime: currentTime)
+        }
+        return TimeFormatter.updatedNote(lastUpdated: keys.compactMap { updatedAt[$0] }.min(), currentTime: currentTime)
     }
 
     func fetchTrainData(for favorite: FavoriteItem, force: Bool = false) {
