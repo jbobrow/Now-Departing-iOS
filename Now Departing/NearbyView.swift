@@ -725,6 +725,8 @@ struct NearbyView: View {
                 direction: primaryTrain.direction,
                 gtfsStopId: primaryTrain.gtfsStopId
             )
+            // Saving a trip is a calm, deliberate moment, so it's when we ask
+            ReviewPrompter.shared.recordSignificantEvent(promptIfAppropriate: true)
         }
         
         private func removeFavorite() {
