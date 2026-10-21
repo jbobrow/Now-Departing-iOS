@@ -21,11 +21,20 @@ struct Now_DepartingApp: App {
     init() {
         // Before anything this launch saves, which would look like earlier use
         Onboarding.skipForEarlierInstalls()
+
+        // Checked many times a day, often on the way to a train: only ask
+        // people who've relied on it for a week or so, and only right after
+        // they save a trip, when they've slowed down long enough to set it up
+        ReviewPrompter.shared.policy.minActiveDays = 7
+        ReviewPrompter.shared.policy.minDaysSinceFirstUse = 10
+        ReviewPrompter.shared.policy.minSignificantEvents = 10
+        ReviewPrompter.shared.policy.presentationDelay = 2
     }
 
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .tracksReviewEligibility()
                 .onAppear { watchSync.activate() }
                 .environmentObject(favoritesManager)
                 .environmentObject(stationDataManager)

@@ -460,6 +460,8 @@ struct TimesView: View {
     @State private var direction: String
     @State private var showingServiceAlerts = false
     @State private var arrowsVisible: Bool = false
+    /// Whether this visit has counted toward asking for a review
+    @State private var countedForReview = false
 
     @Environment(\.dismiss) private var dismiss
 
@@ -682,6 +684,8 @@ struct TimesView: View {
             }
         }
         .onAppear {
+            // Opening a train means they're checking a departure: don't ask now
+            ReviewPrompter.shared.cancelPendingRequest()
             viewModel.startFetchingTimes(for: line, station: station, direction: direction)
             serviceAlertsManager.fetchAlerts()
             if #available(iOS 16.2, *), LiveActivityManager.isSupported() {
@@ -701,6 +705,7 @@ struct TimesView: View {
             ServiceAlertsSheet(alerts: serviceAlertsManager.alerts(for: line.id), line: line)
         }
         .onDisappear {
+            ReviewPrompter.shared.cancelPendingRequest()
             viewModel.stopFetchingTimes()
             if #available(iOS 16.2, *) {
                 LiveActivityManager.shared.endActivity()
@@ -708,6 +713,11 @@ struct TimesView: View {
         }
         .onReceive(viewModel.$departures) { departures in
             if !departures.isEmpty {
+                // Live times for the train they wanted: what the app is for
+                if !countedForReview && !viewModel.isOffline {
+                    countedForReview = true
+                    ReviewPrompter.shared.recordSignificantEvent()
+                }
                 if #available(iOS 16.2, *), LiveActivityManager.isSupported() {
                     LiveActivityManager.shared.updateActivity(nextTrains: departures)
                 }
@@ -773,6 +783,8 @@ struct TimesView: View {
             direction: direction,
             gtfsStopId: station.gtfsStopId
         )
+        // Saving a trip is a calm, deliberate moment, so it's when we ask
+        ReviewPrompter.shared.recordSignificantEvent(promptIfAppropriate: true)
     }
 
     private func removeFavorite() {
