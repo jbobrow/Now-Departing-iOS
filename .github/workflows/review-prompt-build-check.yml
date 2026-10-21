@@ -1,0 +1,32 @@
+name: Review prompt build check
+
+on:
+  push:
+    branches: [review-prompt]
+
+jobs:
+  build:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select Xcode 26.6
+        run: |
+          ls /Applications | grep -i xcode || true
+          if [ -d /Applications/Xcode_26.6.app ]; then sudo xcode-select -s /Applications/Xcode_26.6.app; fi
+          xcodebuild -version
+      - name: List schemes
+        run: xcodebuild -list -project "Now Departing.xcodeproj"
+      - name: Build iOS app (with widget and watch app)
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project "Now Departing.xcodeproj" \
+            -scheme "Now Departing" \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO 2>&1 | tee build.log
+      - name: Warnings in touched files
+        if: always()
+        run: |
+          grep -E "warning:" build.log | grep -E "ReviewPrompter|Now_DepartingApp|LinesBrowseView|NearbyView" || echo "No warnings in touched files"
+          echo "---- all warnings (unique) ----"
+          grep -E "warning:" build.log | sort -u | head -100 || true
