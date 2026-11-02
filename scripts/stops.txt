@@ -956,9 +956,9 @@ F38S,Avenue X,40.589620,-73.974250,,F38
 F39,Neptune Av,40.581011,-73.974574,1,
 F39N,Neptune Av,40.581011,-73.974574,,F39
 F39S,Neptune Av,40.581011,-73.974574,,F39
-G05,Jamaica Center-Parsons/Archer,40.702147,-73.801109,1,
-G05N,Jamaica Center-Parsons/Archer,40.702147,-73.801109,,G05
-G05S,Jamaica Center-Parsons/Archer,40.702147,-73.801109,,G05
+G05,Jamaica Center-York College,40.702147,-73.801109,1,
+G05N,Jamaica Center-York College,40.702147,-73.801109,,G05
+G05S,Jamaica Center-York College,40.702147,-73.801109,,G05
 G06,Sutphin Blvd-Archer Av-JFK Airport,40.700486,-73.807969,1,
 G06N,Sutphin Blvd-Archer Av-JFK Airport,40.700486,-73.807969,,G06
 G06S,Sutphin Blvd-Archer Av-JFK Airport,40.700486,-73.807969,,G06
