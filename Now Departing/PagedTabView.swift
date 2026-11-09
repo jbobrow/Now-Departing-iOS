@@ -206,6 +206,8 @@ private struct PagedTabBar: View {
                 .accessibilityAddTraits(tab.id == selectedID ? .isSelected : [])
             }
         }
+        // The labels stretch to any height; left unbounded, the bar takes the whole screen
+        .fixedSize(horizontal: false, vertical: true)
         .padding(.top, 7)
         .padding(.bottom, 2)
         .background(.bar, ignoresSafeAreaEdges: .bottom)
