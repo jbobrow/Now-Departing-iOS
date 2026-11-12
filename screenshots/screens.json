@@ -1,0 +1,67 @@
+{
+  "app": "Now Departing: NYC Subway",
+  "size": [1320, 2868],
+  "accent": "#06E676",
+  "screens": [
+    {
+      "id": "01-widgets",
+      "layout": "phone-bleed",
+      "eyebrow": "01 · Widgets",
+      "headline": "Know when your train is coming.",
+      "sub": "Right on your Home Screen.",
+      "captures": ["01-widgets"],
+      "alt": ["iPhone Home Screen with the Now Departing medium and small widgets"],
+      "standin": false
+    },
+    {
+      "id": "02-nearby",
+      "layout": "phone",
+      "eyebrow": "02 · Nearby",
+      "headline": "Opens to the station nearest you.",
+      "sub": "",
+      "captures": ["02-nearby"],
+      "alt": ["Nearby tab listing departures at Grand Central-42nd Street"],
+      "standin": false
+    },
+    {
+      "id": "03-lines",
+      "layout": "phone",
+      "eyebrow": "03 · Lines",
+      "headline": "Every line. Every station.",
+      "sub": "",
+      "captures": ["03-lines"],
+      "alt": ["Lines tab showing every NYC Subway line above the App by Jon Bobrow signature"],
+      "standin": false
+    },
+    {
+      "id": "04-countdown",
+      "layout": "phone",
+      "eyebrow": "04 · Countdown",
+      "headline": "One train.\nOne number.",
+      "sub": "That's it.",
+      "captures": ["04-countdown"],
+      "alt": ["Departures for the uptown 5 at Grand Central with one large countdown to the next train"],
+      "standin": false
+    },
+    {
+      "id": "05-watch",
+      "layout": "watch-pair",
+      "eyebrow": "05 · Apple Watch",
+      "headline": "Glance at your wrist.",
+      "sub": "It started on the watch.",
+      "captures": ["05-watch-countdown", "05-watch-list"],
+      "alt": ["Apple Watch countdown for the uptown 6 at 33rd Street", "Apple Watch list of saved trains"],
+      "standin": false
+    },
+    {
+      "id": "06-free",
+      "layout": "phone",
+      "eyebrow": "06 · Free",
+      "headline": "No ads.\nNo accounts.\nNo tracking.",
+      "sub": "Made by one person.",
+      "captures": ["06-free"],
+      "alt": ["Nearby tab listing departures at Times Square-42nd Street"],
+      "standin": false
+    }
+  ]
+}
