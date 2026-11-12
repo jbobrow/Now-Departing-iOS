@@ -43,6 +43,8 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     private let locationManager = CLLocationManager()
     private var locationTimeout: Timer?
     private var isActivelyTracking = false
+    /// Updates were asked for before access was granted, to start as soon as it is
+    private var startsWhenAuthorized = false
     /// The location came from the last session, and no fix since has replaced it
     private var locationIsFromCache = false
     /// When a fix last confirmed where you are, even one too close to the last to publish
@@ -113,10 +115,15 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     
     func startLocationUpdates() {
         guard authorizationStatus == .authorizedWhenInUse || authorizationStatus == .authorizedAlways else {
+            // On a first launch this is the Allow button: without starting once access comes,
+            // only a single one-time request would look for you, and if that one failed,
+            // nothing would look again until the next refresh
+            startsWhenAuthorized = true
             requestLocationPermission()
             return
         }
-        
+        startsWhenAuthorized = false
+
         print("DEBUG: Starting location updates")
         
         // Clear any existing error state
@@ -158,6 +165,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     func stopLocationUpdates() {
         print("DEBUG: Stopping location updates")
         isActivelyTracking = false
+        startsWhenAuthorized = false
         isSearchingForLocation = false
         locationManager.stopUpdatingLocation()
         locationTimeout?.invalidate()
@@ -320,7 +328,11 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         print("DEBUG: Location error: \(error.localizedDescription)")
-        
+
+        // Continuous updates report this when a fix isn't ready yet, often the first one,
+        // and keep trying. Still searching: the timeout reports it if none comes.
+        if isActivelyTracking, (error as? CLError)?.code == .locationUnknown { return }
+
         // Always clear the searching state on error
         isSearchingForLocation = false
         locationTimeout?.invalidate()
@@ -371,18 +383,9 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         print("DEBUG: Location authorization changed to: \(authorizationStatus.rawValue)")
         
         if isLocationEnabled {
-            // NEW: On iOS, when permission is granted and user previously enabled, start immediately
-            #if os(iOS)
-            if hasUserEnabledLocation && isActivelyTracking {
-                startLocationUpdates()
-            } else if isActivelyTracking {
+            if isActivelyTracking || startsWhenAuthorized {
                 startLocationUpdates()
             }
-            #else
-            if isActivelyTracking {
-                startLocationUpdates()
-            }
-            #endif
         } else {
             stopLocationUpdates()
             if authorizationStatus == .denied {

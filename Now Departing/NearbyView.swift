@@ -223,8 +223,9 @@ struct NearbyView: View {
             // Trains on hand always win: underground, a failed refresh or a lost
             // location fix shouldn't hide times that are still counting down.
             TrainsList()
-        } else if nearbyTrainsManager.nearbyTrains.isEmpty && nearbyTrainsManager.isLoading {
-            // Show loading, but with different message if we're getting fresh location vs using cached
+        } else if nearbyTrainsManager.isLoading || (locationManager.location == nil && locationManager.isSearchingForLocation) {
+            // Show loading, but with different message if we're getting fresh location vs using cached.
+            // A first fix can take a while; until it comes there's nothing to say about trains.
             VStack(spacing: 16) {
                 ProgressView()
                     .scaleEffect(1.2)
@@ -236,6 +237,11 @@ struct NearbyView: View {
                     .foregroundColor(.secondary)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else if locationManager.location == nil, let error = locationManager.locationError {
+            // Not "No Trains Nearby": with no location, we haven't looked
+            ErrorView(message: error) {
+                locationManager.retryLocation()
+            }
         } else if nearbyTrainsManager.nearbyTrains.isEmpty && !nearbyTrainsManager.isLoading && !locationManager.isSearchingForLocation {
             if nearbyTrainsManager.isOffline && !nearbyTrainsManager.errorMessage.isEmpty {
                 ErrorView(message: nearbyTrainsManager.errorMessage) {
@@ -501,10 +507,13 @@ struct NearbyView: View {
         } else {
             print("DEBUG: No location for refresh, requesting new location")
             locationManager.requestOneTimeUpdate()
-            
-            // Wait a bit for location to be updated
-            try? await Task.sleep(for: .seconds(2))
-            
+
+            // Wait for location to be updated: a first fix can take several seconds
+            let deadline = Date().addingTimeInterval(10)
+            while locationManager.location == nil && Date() < deadline {
+                try? await Task.sleep(for: .milliseconds(100))
+            }
+
             if let location = locationManager.location {
                 print("DEBUG: Got location after waiting: \(location)")
                 startFetchingWithLocation(location)
