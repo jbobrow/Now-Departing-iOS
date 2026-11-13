@@ -105,10 +105,13 @@ struct SmallWidgetView: View {
 
                         if data.nextTrains.count > 1 {
                             HStack(spacing: 4) {
-                                ForEach(Array(data.nextTrains.dropFirst().prefix(2).enumerated()), id: \.offset) { _, trainDate in
-                                    DynamicTrainTimeView(arrivalDate: trainDate, entryDate: entry.date, fullText: false, isExpress: data.isExpress(trainDate), lineColor: line.bg_color, fontSize: 13)
-                                    if trainDate != data.nextTrains.dropFirst().prefix(2).last {
-                                        Text(",")
+                                ForEach(Array(data.nextTrains.dropFirst().prefix(2).enumerated()), id: \.offset) { index, trainDate in
+                                    // The comma rides with its time, so the gap falls after it, not before
+                                    HStack(spacing: 0) {
+                                        DynamicTrainTimeView(arrivalDate: trainDate, entryDate: entry.date, fullText: false, isExpress: data.isExpress(trainDate), lineColor: line.bg_color, fontSize: 13)
+                                        if index < data.nextTrains.dropFirst().prefix(2).count - 1 {
+                                            Text(",")
+                                        }
                                     }
                                 }
                             }
@@ -169,13 +172,7 @@ struct MediumWidgetView: View {
             let line = getSubwayLine(for: favorite.lineId)
 
             VStack(spacing: 8) {
-                // Update time at top
-                HStack {
-                    RelativeTimeView(date: entry.lastUpdated)
-                        .font(.custom("HelveticaNeue", size: 9))
-                        .foregroundColor(.white.opacity(0.5))
-                    Spacer()
-                }
+                Spacer(minLength: 0)
 
                 HStack(spacing: 16) {
                     // Left side - Line and station info
@@ -215,10 +212,13 @@ struct MediumWidgetView: View {
 
                         if data.nextTrains.count > 1 {
                             HStack(spacing: 4) {
-                                ForEach(Array(data.nextTrains.dropFirst().prefix(2).enumerated()), id: \.offset) { _, trainDate in
-                                    DynamicTrainTimeView(arrivalDate: trainDate, entryDate: entry.date, fullText: false, isExpress: data.isExpress(trainDate), lineColor: line.bg_color, fontSize: 14)
-                                    if trainDate != data.nextTrains.dropFirst().prefix(2).last {
-                                        Text(",")
+                                ForEach(Array(data.nextTrains.dropFirst().prefix(2).enumerated()), id: \.offset) { index, trainDate in
+                                    // The comma rides with its time, so the gap falls after it, not before
+                                    HStack(spacing: 0) {
+                                        DynamicTrainTimeView(arrivalDate: trainDate, entryDate: entry.date, fullText: false, isExpress: data.isExpress(trainDate), lineColor: line.bg_color, fontSize: 14)
+                                        if index < data.nextTrains.dropFirst().prefix(2).count - 1 {
+                                            Text(",")
+                                        }
                                     }
                                 }
                             }
@@ -232,6 +232,13 @@ struct MediumWidgetView: View {
                     }
                 }
                 }
+
+                Spacer(minLength: 0)
+
+                // Update time, centered on the bottom edge
+                RelativeTimeView(date: entry.lastUpdated, prefix: "Last updated")
+                    .font(.custom("HelveticaNeue", size: 9))
+                    .foregroundColor(.white.opacity(0.5))
             }
         } else {
             HStack {
@@ -310,7 +317,7 @@ struct SingleFavoriteLargeView: View {
 
             // Update time
             HStack {
-                RelativeTimeView(date: entry.lastUpdated)
+                RelativeTimeView(date: entry.lastUpdated, prefix: "Last updated")
                     .font(.custom("HelveticaNeue", size: 11))
                     .foregroundColor(.white.opacity(0.5))
                 Spacer()
@@ -342,10 +349,13 @@ struct SingleFavoriteLargeView: View {
                     // Additional times
                     if data.nextTrains.count > 1 {
                         HStack(spacing: 4) {
-                            ForEach(Array(data.nextTrains.dropFirst().prefix(5).enumerated()), id: \.offset) { _, trainDate in
-                                DynamicTrainTimeView(arrivalDate: trainDate, entryDate: entry.date, fullText: false, isExpress: data.isExpress(trainDate), lineColor: line.bg_color, fontSize: 20)
-                                if trainDate != data.nextTrains.dropFirst().prefix(5).last {
-                                    Text(",")
+                            ForEach(Array(data.nextTrains.dropFirst().prefix(5).enumerated()), id: \.offset) { index, trainDate in
+                                // The comma rides with its time, so the gap falls after it, not before
+                                HStack(spacing: 0) {
+                                    DynamicTrainTimeView(arrivalDate: trainDate, entryDate: entry.date, fullText: false, isExpress: data.isExpress(trainDate), lineColor: line.bg_color, fontSize: 20)
+                                    if index < data.nextTrains.dropFirst().prefix(5).count - 1 {
+                                        Text(",")
+                                    }
                                 }
                             }
                         }
@@ -377,22 +387,11 @@ struct MultiFavoriteView: View {
         let favorites = Array(entry.favorites.prefix(maxFavorites))
 
         VStack(spacing: 0) {
-            // Update time at top
-            HStack {
-                RelativeTimeView(date: entry.lastUpdated)
-                    .font(.custom("HelveticaNeue", size: 9))
-                    .foregroundColor(.white.opacity(0.5))
-                Spacer()
-            }
-            .padding(.horizontal, 16)
-            .padding(.top, 12)
-
             ForEach(Array(favorites.enumerated()), id: \.offset) { index, data in
                 linked(FavoriteRowView(data: data, entryDate: entry.date),
                        to: data.favoriteItem.widgetURL)
                     .padding(.horizontal, 16)
-                    .padding(.top, index == 0 ? 8 : 0)
-                    .padding(.bottom, index == favorites.count - 1 ? 12 : 0)
+                    .padding(.top, index == 0 ? 12 : 0)
 
                 if index < favorites.count - 1 {
                     Divider()
@@ -401,6 +400,15 @@ struct MultiFavoriteView: View {
                         .padding(.vertical, 8)
                 }
             }
+
+            Spacer(minLength: 0)
+
+            // Update time, centered on the bottom edge
+            RelativeTimeView(date: entry.lastUpdated, prefix: "Last updated")
+                .font(.custom("HelveticaNeue", size: 9))
+                .foregroundColor(.white.opacity(0.5))
+                .padding(.top, 8)
+                .padding(.bottom, 12)
         }
     }
 }
@@ -468,10 +476,13 @@ struct FavoriteRowView: View {
 
                     if data.nextTrains.count > 1 {
                         HStack(spacing: 4) {
-                            ForEach(Array(data.nextTrains.dropFirst().prefix(2).enumerated()), id: \.offset) { _, trainDate in
-                                DynamicTrainTimeView(arrivalDate: trainDate, entryDate: entryDate, fullText: false, isExpress: data.isExpress(trainDate), lineColor: line.bg_color, fontSize: 13)
-                                if trainDate != data.nextTrains.dropFirst().prefix(2).last {
-                                    Text(",")
+                            ForEach(Array(data.nextTrains.dropFirst().prefix(2).enumerated()), id: \.offset) { index, trainDate in
+                                // The comma rides with its time, so the gap falls after it, not before
+                                HStack(spacing: 0) {
+                                    DynamicTrainTimeView(arrivalDate: trainDate, entryDate: entryDate, fullText: false, isExpress: data.isExpress(trainDate), lineColor: line.bg_color, fontSize: 13)
+                                    if index < data.nextTrains.dropFirst().prefix(2).count - 1 {
+                                        Text(",")
+                                    }
                                 }
                             }
                         }
@@ -572,10 +583,19 @@ struct DynamicTrainTimeView: View {
 /// View that displays relative time since last update using native SwiftUI dynamic text
 struct RelativeTimeView: View {
     let date: Date
+    /// Words before the time on the same line, e.g. "Last updated 3 min, 21 sec"
+    var prefix: String? = nil
 
     var body: some View {
         // Use native SwiftUI .relative style for dynamic "X ago" text in widgets
         // This is the only way to get truly dynamic "time ago" in widgets
-        Text(date, style: .relative)
+        if let prefix {
+            // A relative date fills the width it's given, so center its words within it
+            (Text(prefix + " ") + Text(date, style: .relative))
+                .lineLimit(1)
+                .multilineTextAlignment(.center)
+        } else {
+            Text(date, style: .relative)
+        }
     }
 }
