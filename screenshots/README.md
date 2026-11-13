@@ -24,7 +24,7 @@ Needs Python 3 and Google Chrome. No packages to install.
 
 | Screenshot | Capture | State |
 | --- | --- | --- |
-| 01 Widgets | `captures/01-widgets.png` | Real Home Screen capture. Ready |
+| 01 Widgets | `captures/01-widgets.png` | Real Home Screen capture from iPhone, Nov 2026. 920 × 2000 (a resized copy), so slightly soft; swap in the full-size original if you have it. Ready |
 | 02 Nearby | `captures/02-nearby.png` | iPhone 18 Pro Max Simulator, iOS 27, Grand Central. Ready |
 | 03 Lines | `captures/03-lines.png` | iPhone 18 Pro Max Simulator, iOS 27. Ready |
 | 04 Countdown | `captures/04-countdown.png` | iPhone 18 Pro Max Simulator, iOS 27, uptown 5 at Grand Central. Ready |
